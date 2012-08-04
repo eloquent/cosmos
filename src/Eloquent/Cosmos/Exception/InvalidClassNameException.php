@@ -14,7 +14,7 @@ namespace Eloquent\Cosmos\Exception;
 use Exception;
 use LogicException;
 
-class InvalidClassNameException extends LogicException
+final class InvalidClassNameException extends LogicException
 {
     /**
      * @param string $className
