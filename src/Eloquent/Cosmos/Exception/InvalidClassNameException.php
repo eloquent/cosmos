@@ -17,7 +17,7 @@ use LogicException;
 final class InvalidClassNameException extends LogicException
 {
     /**
-     * @param string $className
+     * @param string         $className
      * @param Exception|null $previous
      */
     public function __construct($className, Exception $previous = null)

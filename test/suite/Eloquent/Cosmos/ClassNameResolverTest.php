@@ -54,65 +54,73 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
     {
         $data = array();
 
-        // #0: Global namespace, no use statements, non-namespaced class
         $namespaceName = null;
         $usedClasses = array();
         $className = 'Foo';
         $expected = 'Foo';
-        $data[] = array($expected, $namespaceName, $usedClasses, $className);
+        $data['Global namespace, no use statements, non-namespaced class'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        // #1: Global namespace, no use statements, namespaced class
         $namespaceName = null;
         $usedClasses = array();
         $className = 'Foo\Bar\Baz';
         $expected = 'Foo\Bar\Baz';
-        $data[] = array($expected, $namespaceName, $usedClasses, $className);
+        $data['Global namespace, no use statements, namespaced class'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        // #2: Global namespace, use statements
+        $namespaceName = null;
+        $usedClasses = array(
+            'Bar\Baz\Qux' => null,
+        );
+        $className = 'Qux';
+        $expected = 'Bar\Baz\Qux';
+        $data['Global namespace, use statements without aliases'] = array($expected, $namespaceName, $usedClasses, $className);
+
         $namespaceName = null;
         $usedClasses = array(
             'Bar\Baz\Qux' => 'Foo',
         );
         $className = 'Foo';
         $expected = 'Bar\Baz\Qux';
-        $data[] = array($expected, $namespaceName, $usedClasses, $className);
+        $data['Global namespace, use statements with aliases'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        // #3: Namespaced, no use statements, non-namespaced class
         $namespaceName = 'Foo\Bar\Baz';
         $usedClasses = array();
         $className = 'Qux';
         $expected = 'Foo\Bar\Baz\Qux';
-        $data[] = array($expected, $namespaceName, $usedClasses, $className);
+        $data['Namespaced, no use statements, non-namespaced class'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        // #4: Namespaced, no use statements, namespaced class
         $namespaceName = 'Foo\Bar\Baz';
         $usedClasses = array();
         $className = 'Qux\Doom\Splat';
         $expected = 'Foo\Bar\Baz\Qux\Doom\Splat';
-        $data[] = array($expected, $namespaceName, $usedClasses, $className);
+        $data['Namespaced, no use statements, namespaced class'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        // #5: Namespaced, use statements, non-namespaced class
+        $namespaceName = 'Foo\Bar\Baz';
+        $usedClasses = array(
+            'Qux\Doom\Splat' => null,
+        );
+        $className = 'Splat';
+        $expected = 'Qux\Doom\Splat';
+        $data['Namespaced, use statements without aliases, non-namespaced class'] = array($expected, $namespaceName, $usedClasses, $className);
+
         $namespaceName = 'Foo\Bar\Baz';
         $usedClasses = array(
             'Qux\Doom\Splat' => 'Pip',
         );
         $className = 'Pip';
         $expected = 'Qux\Doom\Splat';
-        $data[] = array($expected, $namespaceName, $usedClasses, $className);
+        $data['Namespaced, use statements with aliases, non-namespaced class'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        // #6: Global namespace, fully qualified class
         $namespaceName = null;
         $usedClasses = array();
         $className = '\Foo\Bar\Baz';
         $expected = 'Foo\Bar\Baz';
-        $data[] = array($expected, $namespaceName, $usedClasses, $className);
+        $data['Global namespace, fully qualified class'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        // #7: Namespaced, fully qualified class
         $namespaceName = 'Foo\Bar\Baz';
         $usedClasses = array();
         $className = '\Qux\Doom\Splat';
         $expected = 'Qux\Doom\Splat';
-        $data[] = array($expected, $namespaceName, $usedClasses, $className);
+        $data['Namespaced, fully qualified class'] = array($expected, $namespaceName, $usedClasses, $className);
 
         return $data;
     }
@@ -133,5 +141,70 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException(__NAMESPACE__.'\Exception\InvalidClassNameException');
         $resolver->resolve('');
+    }
+
+    public function shortenData()
+    {
+        $data = array();
+
+        $namespaceName = null;
+        $usedClasses = array();
+        $className = 'Foo\Bar';
+        $expected = '\Foo\Bar';
+        $data['Unable to shorten'] = array($expected, $namespaceName, $usedClasses, $className);
+
+        $namespaceName = null;
+        $usedClasses = array();
+        $className = '\Foo\Bar';
+        $expected = '\Foo\Bar';
+        $data['Deal with leading slashes'] = array($expected, $namespaceName, $usedClasses, $className);
+
+        $namespaceName = 'Foo';
+        $usedClasses = array();
+        $className = 'Foo\Bar';
+        $expected = 'Bar';
+        $data['Shortened by namespace'] = array($expected, $namespaceName, $usedClasses, $className);
+
+        $namespaceName = 'Foo';
+        $usedClasses = array();
+        $className = 'Foo\Bar\Baz';
+        $expected = 'Bar\Baz';
+        $data['Shortened by sub-namespace'] = array($expected, $namespaceName, $usedClasses, $className);
+
+        $namespaceName = 'Foo';
+        $usedClasses = array(
+            'Foo\Bar\Baz' => null,
+        );
+        $className = 'Foo\Bar\Baz';
+        $expected = 'Baz';
+        $data['Shortened by use statement without alias'] = array($expected, $namespaceName, $usedClasses, $className);
+
+        $namespaceName = 'Foo';
+        $usedClasses = array(
+            'Foo\Bar\Baz' => 'Qux',
+        );
+        $className = 'Foo\Bar\Baz';
+        $expected = 'Qux';
+        $data['Shortened by use statement with alias'] = array($expected, $namespaceName, $usedClasses, $className);
+
+        return $data;
+    }
+
+    /**
+     * @dataProvider shortenData
+     */
+    public function testShorten($expected, $namespaceName, array $usedClasses, $className)
+    {
+        $resolver = new ClassNameResolver($namespaceName, $usedClasses);
+
+        $this->assertSame($expected, $resolver->shorten($className));
+    }
+
+    public function testShortenFailureInvalidClassName()
+    {
+        $resolver = new ClassNameResolver;
+
+        $this->setExpectedException(__NAMESPACE__.'\Exception\InvalidClassNameException');
+        $resolver->shorten('');
     }
 }

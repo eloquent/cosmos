@@ -14,7 +14,7 @@ namespace Eloquent\Cosmos;
 class ClassNameResolver
 {
     /**
-     * @param string|null $namespaceName
+     * @param string|null               $namespaceName
      * @param array<string,string|null> $usedClasses
      */
     public function __construct($namespaceName = null, array $usedClasses = array())
@@ -67,6 +67,38 @@ class ClassNameResolver
         }
 
         return implode(static::NAMESPACE_SEPARATOR, $parts);
+    }
+
+    /**
+     * @param string $className
+     *
+     * @return string
+     */
+    public function shorten($className)
+    {
+        if (!$className) {
+            throw new Exception\InvalidClassNameException($className);
+        }
+
+        if ('\\' === substr($className, 0, 1)) {
+            $className = substr($className, 1);
+        }
+
+        foreach ($this->usedClasses() as $usedClassName => $as) {
+            if ($usedClassName === $className) {
+                return $as;
+            }
+        }
+
+        $namespaceNameLength = strlen($this->namespaceName());
+        if (
+            $this->namespaceName() ===
+            substr($className, 0, $namespaceNameLength)
+        ) {
+            return substr($className, $namespaceNameLength + 1);
+        }
+
+        return sprintf('\\%s', $className);
     }
 
     const NAMESPACE_SEPARATOR = '\\';
