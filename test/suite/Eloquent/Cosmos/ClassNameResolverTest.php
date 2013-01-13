@@ -15,6 +15,13 @@ use PHPUnit_Framework_TestCase;
 
 class ClassNameResolverTest extends PHPUnit_Framework_TestCase
 {
+    public function testShortName()
+    {
+        $this->assertSame('Bar', ClassNameResolver::shortName('Foo\Bar'));
+        $this->assertSame('Bar', ClassNameResolver::shortName('\Foo\Bar'));
+        $this->assertSame('Baz', ClassNameResolver::shortName('Foo\Bar\Baz'));
+    }
+
     public function testConstructor()
     {
         $usedClasses = array(
@@ -33,6 +40,21 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
 
         $this->assertNull($resolver->namespaceName());
         $this->assertSame(array(), $resolver->usedClasses());
+    }
+
+    public function testConstructorStripLeadingSlash()
+    {
+        $usedClasses = array(
+            '\Baz\Qux' => 'Doom',
+            '\Splat\Pip' => 'Spam',
+        );
+        $resolver = new ClassNameResolver('\Foo\Bar', $usedClasses);
+
+        $this->assertSame('Foo\Bar', $resolver->namespaceName());
+        $this->assertSame(array(
+            'Baz\Qux' => 'Doom',
+            'Splat\Pip' => 'Spam',
+        ), $resolver->usedClasses());
     }
 
     public function testNormalizeUsedClasses()

@@ -14,12 +14,24 @@ namespace Eloquent\Cosmos;
 class ClassNameResolver
 {
     /**
+     * @param string $qualifiedName
+     *
+     * @return string
+     */
+    public static function shortName($qualifiedName)
+    {
+        $parts = explode(static::NAMESPACE_SEPARATOR, $qualifiedName);
+
+        return array_pop($parts);
+    }
+
+    /**
      * @param string|null               $namespaceName
      * @param array<string,string|null> $usedClasses
      */
     public function __construct($namespaceName = null, array $usedClasses = array())
     {
-        $this->namespaceName = $namespaceName;
+        $this->namespaceName = $this->normalizeQualifiedName($namespaceName);
         $this->usedClasses = $this->normalizeUsedClasses($usedClasses);
     }
 
@@ -70,22 +82,19 @@ class ClassNameResolver
     }
 
     /**
-     * @param string $className
+     * @param string $qualifiedName
      *
      * @return string
      */
-    public function shorten($className)
+    public function shorten($qualifiedName)
     {
-        if (!$className) {
-            throw new Exception\InvalidClassNameException($className);
+        if (!$qualifiedName) {
+            throw new Exception\InvalidClassNameException($qualifiedName);
         }
+        $qualifiedName = $this->normalizeQualifiedName($qualifiedName);
 
-        if ('\\' === substr($className, 0, 1)) {
-            $className = substr($className, 1);
-        }
-
-        foreach ($this->usedClasses() as $usedClassName => $as) {
-            if ($usedClassName === $className) {
+        foreach ($this->usedClasses() as $usedClass => $as) {
+            if ($usedClass === $qualifiedName) {
                 return $as;
             }
         }
@@ -93,15 +102,29 @@ class ClassNameResolver
         $namespaceNameLength = strlen($this->namespaceName());
         if (
             $this->namespaceName() ===
-            substr($className, 0, $namespaceNameLength)
+            substr($qualifiedName, 0, $namespaceNameLength)
         ) {
-            return substr($className, $namespaceNameLength + 1);
+            return substr($qualifiedName, $namespaceNameLength + 1);
         }
 
-        return sprintf('\\%s', $className);
+        return sprintf('%s%s', static::NAMESPACE_SEPARATOR, $qualifiedName);
     }
 
     const NAMESPACE_SEPARATOR = '\\';
+
+    /**
+     * @param string $qualifiedName
+     *
+     * @return string
+     */
+    protected function normalizeQualifiedName($qualifiedName)
+    {
+        if (static::NAMESPACE_SEPARATOR === substr($qualifiedName, 0, 1)) {
+            $qualifiedName = substr($qualifiedName, 1);
+        }
+
+        return $qualifiedName;
+    }
 
     /**
      * @param array<string,string|null> $usedClasses
@@ -110,25 +133,17 @@ class ClassNameResolver
      */
     protected function normalizeUsedClasses(array $usedClasses)
     {
-        foreach ($usedClasses as $className => $as) {
+        $normalized = array();
+        foreach ($usedClasses as $qualifiedName => $as) {
+            $qualifiedName = $this->normalizeQualifiedName($qualifiedName);
             if (null === $as) {
-                $usedClasses[$className] = $this->shortName($className);
+                $normalized[$qualifiedName] = static::shortName($qualifiedName);
+            } else {
+                $normalized[$qualifiedName] = $as;
             }
         }
 
-        return $usedClasses;
-    }
-
-    /**
-     * @param string $qualifiedName
-     *
-     * @return string
-     */
-    protected function shortName($qualifiedName)
-    {
-        $parts = explode(static::NAMESPACE_SEPARATOR, $qualifiedName);
-
-        return array_pop($parts);
+        return $normalized;
     }
 
     /**
