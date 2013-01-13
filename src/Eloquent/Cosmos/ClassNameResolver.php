@@ -11,32 +11,33 @@
 
 namespace Eloquent\Cosmos;
 
+use Eloquent\Equality\Comparator;
+
 class ClassNameResolver
 {
     /**
-     * @param string $qualifiedName
-     *
-     * @return string
+     * @param ClassName|null          $namespaceName
+     * @param array<array<ClassName>> $usedClasses
      */
-    public static function shortName($qualifiedName)
-    {
-        $parts = explode(static::NAMESPACE_SEPARATOR, $qualifiedName);
+    public function __construct(
+        ClassName $namespaceName = null,
+        array $usedClasses = array(),
+        Comparator $comparator = null
+    ) {
+        if (null !== $namespaceName) {
+            $namespaceName = $namespaceName->toAbsolute();
+        }
+        if (null === $comparator) {
+            $comparator = new Comparator;
+        }
 
-        return array_pop($parts);
-    }
-
-    /**
-     * @param string|null               $namespaceName
-     * @param array<string,string|null> $usedClasses
-     */
-    public function __construct($namespaceName = null, array $usedClasses = array())
-    {
-        $this->namespaceName = $this->normalizeQualifiedName($namespaceName);
+        $this->namespaceName = $namespaceName;
         $this->usedClasses = $this->normalizeUsedClasses($usedClasses);
+        $this->comparator = $comparator;
     }
 
     /**
-     * @return string
+     * @return ClassName
      */
     public function namespaceName()
     {
@@ -44,7 +45,7 @@ class ClassNameResolver
     }
 
     /**
-     * @return array<string,string>
+     * @return array<tuple<ClassName,ClassName>>
      */
     public function usedClasses()
     {
@@ -52,94 +53,83 @@ class ClassNameResolver
     }
 
     /**
-     * @param string $className
-     *
-     * @return string
+     * @return Comparator
      */
-    public function resolve($className)
+    public function comparator()
     {
-        if (!$className) {
-            throw new Exception\InvalidClassNameException($className);
-        }
-
-        $parts = explode(static::NAMESPACE_SEPARATOR, $className);
-        if (1 === count($parts)) {
-            $usedClass = $this->usedClass($parts[0]);
-            if (null !== $usedClass) {
-                return $usedClass;
-            }
-        } elseif ('' === $parts[0]) {
-            array_shift($parts);
-
-            return implode(static::NAMESPACE_SEPARATOR, $parts);
-        }
-
-        if (null !== $this->namespaceName()) {
-            array_unshift($parts, $this->namespaceName());
-        }
-
-        return implode(static::NAMESPACE_SEPARATOR, $parts);
+        return $this->comparator;
     }
 
     /**
-     * @param string $qualifiedName
+     * @param ClassName $className
      *
-     * @return string
+     * @return ClassName
      */
-    public function shorten($qualifiedName)
+    public function resolve(ClassName $className)
     {
-        if (!$qualifiedName) {
-            throw new Exception\InvalidClassNameException($qualifiedName);
+        if ($className->isAbsolute()) {
+            return $className;
+        } elseif ($className->isShortName()) {
+            $usedClass = $this->usedClass($className);
+            if (null !== $usedClass) {
+                return $usedClass;
+            }
         }
-        $qualifiedName = $this->normalizeQualifiedName($qualifiedName);
 
-        foreach ($this->usedClasses() as $usedClass => $as) {
-            if ($usedClass === $qualifiedName) {
+        if (null !== $this->namespaceName()) {
+            return $this->namespaceName()->join($className);
+        }
+
+        return $className->toAbsolute();
+    }
+
+    /**
+     * @param ClassName $className
+     *
+     * @return ClassName
+     */
+    public function shorten(ClassName $className)
+    {
+        if (!$className->isAbsolute()) {
+            return $className;
+        }
+
+        foreach ($this->usedClasses() as $tuple) {
+            list($usedClass, $as) = $tuple;
+            if ($this->comparator()->equals($usedClass, $className)) {
                 return $as;
             }
         }
 
-        $namespaceNameLength = strlen($this->namespaceName());
         if (
-            $this->namespaceName() ===
-            substr($qualifiedName, 0, $namespaceNameLength)
+            null !== $this->namespaceName() &&
+            $this->namespaceName()->hasDescendant($className)
         ) {
-            return substr($qualifiedName, $namespaceNameLength + 1);
+            return $className->stripNamespace($this->namespaceName());
         }
 
-        return sprintf('%s%s', static::NAMESPACE_SEPARATOR, $qualifiedName);
-    }
-
-    const NAMESPACE_SEPARATOR = '\\';
-
-    /**
-     * @param string $qualifiedName
-     *
-     * @return string
-     */
-    protected function normalizeQualifiedName($qualifiedName)
-    {
-        if (static::NAMESPACE_SEPARATOR === substr($qualifiedName, 0, 1)) {
-            $qualifiedName = substr($qualifiedName, 1);
-        }
-
-        return $qualifiedName;
+        return $className;
     }
 
     /**
-     * @param array<string,string|null> $usedClasses
+     * @param array<array<ClassName>> $usedClasses
      *
-     * @return array<string,string>
+     * @return array<tuple<ClassName,ClassName>>
      */
     protected function normalizeUsedClasses(array $usedClasses)
     {
         $normalized = array();
-        foreach ($usedClasses as $qualifiedName => $as) {
-            $qualifiedName = $this->normalizeQualifiedName($qualifiedName);
-            if (null === $as) {
-                $normalized[$qualifiedName] = static::shortName($qualifiedName);
+        foreach ($usedClasses as $tuple) {
+            $tuple[0] = $tuple[0]->toAbsolute();
+
+            if (array_key_exists(1, $tuple)) {
+                if (!$tuple[1]->isShortName()) {
+                    throw new Exception\InvalidUsedClassAliasException($tuple[1]);
+                }
+
+                $normalized[] = $tuple;
             } else {
-                $normalized[$qualifiedName] = $as;
+                $normalized[] = array($tuple[0], $tuple[0]->shortName());
             }
         }
 
@@ -147,13 +137,20 @@ class ClassNameResolver
     }
 
     /**
-     * @param string $className
+     * @param ClassName $className
      *
-     * @return string|null
+     * @return ClassName|null
      */
-    protected function usedClass($className)
+    protected function usedClass(ClassName $className)
     {
-        return array_search($className, $this->usedClasses, true) ?: null;
+        foreach ($this->usedClasses() as $tuple) {
+            list($usedClass, $as) = $tuple;
+            if ($this->comparator()->equals($as, $className)) {
+                return $usedClass;
+            }
+        }
+
+        return null;
     }
 
     private $namespaceName;

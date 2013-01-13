@@ -14,26 +14,30 @@ namespace Eloquent\Cosmos\Exception;
 use Exception;
 use LogicException;
 
-final class InvalidClassNameException extends LogicException
+final class InvalidClassNameAtomException extends LogicException
 {
     /**
-     * @param string         $className
+     * @param string         $atom
      * @param Exception|null $previous
      */
-    public function __construct($className, Exception $previous = null)
+    public function __construct($atom, Exception $previous = null)
     {
-        $this->className = $className;
+        $this->atom = $atom;
 
-        parent::__construct("Invalid class name '".$className."'.", 0, $previous);
+        parent::__construct(
+            sprintf("Invalid class name atom '%s'.", $atom),
+            0,
+            $previous
+        );
     }
 
     /**
      * @return string
      */
-    public function className()
+    public function atom()
     {
-        return $this->className;
+        return $this->atom;
     }
 
-    private $className;
+    private $atom;
 }

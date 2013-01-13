@@ -11,27 +11,34 @@
 
 namespace Eloquent\Cosmos;
 
+use Eloquent\Equality\Comparator;
 use PHPUnit_Framework_TestCase;
 
 class ClassNameResolverTest extends PHPUnit_Framework_TestCase
 {
-    public function testShortName()
-    {
-        $this->assertSame('Bar', ClassNameResolver::shortName('Foo\Bar'));
-        $this->assertSame('Bar', ClassNameResolver::shortName('\Foo\Bar'));
-        $this->assertSame('Baz', ClassNameResolver::shortName('Foo\Bar\Baz'));
-    }
-
     public function testConstructor()
     {
+        $namespaceName = ClassName::fromString('\Foo\Bar');
         $usedClasses = array(
-            'Baz\Qux' => 'Doom',
-            'Splat\Pip' => 'Spam',
+            array(
+                ClassName::fromString('\Baz\Qux'),
+                ClassName::fromString('Doom'),
+            ),
+            array(
+                ClassName::fromString('\Splat\Pip'),
+                ClassName::fromString('Spam'),
+            ),
         );
-        $resolver = new ClassNameResolver('Foo\Bar', $usedClasses);
+        $comparator = new Comparator;
+        $resolver = new ClassNameResolver(
+            $namespaceName,
+            $usedClasses,
+            $comparator
+        );
 
-        $this->assertSame('Foo\Bar', $resolver->namespaceName());
+        $this->assertSame($namespaceName, $resolver->namespaceName());
         $this->assertSame($usedClasses, $resolver->usedClasses());
+        $this->assertSame($comparator, $resolver->comparator());
     }
 
     public function testConstructorDefaults()
@@ -40,36 +47,61 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
 
         $this->assertNull($resolver->namespaceName());
         $this->assertSame(array(), $resolver->usedClasses());
+        $this->assertInstanceOf(
+            'Eloquent\Equality\Comparator',
+            $resolver->comparator()
+        );
     }
 
-    public function testConstructorStripLeadingSlash()
+    public function testConstructorNormalization()
     {
+        $namespaceName = ClassName::fromString('Foo\Bar');
         $usedClasses = array(
-            '\Baz\Qux' => 'Doom',
-            '\Splat\Pip' => 'Spam',
+            array(
+                ClassName::fromString('Baz\Qux'),
+                ClassName::fromString('Doom'),
+            ),
+            array(
+                ClassName::fromString('Splat\Pip'),
+                ClassName::fromString('Spam'),
+            ),
         );
-        $resolver = new ClassNameResolver('\Foo\Bar', $usedClasses);
+        $resolver = new ClassNameResolver(
+            $namespaceName,
+            $usedClasses
+        );
+        $expectedNamespaceName = ClassName::fromString('\Foo\Bar');
+        $expectedUsedClasses = array(
+            array(
+                ClassName::fromString('\Baz\Qux'),
+                ClassName::fromString('Doom'),
+            ),
+            array(
+                ClassName::fromString('\Splat\Pip'),
+                ClassName::fromString('Spam'),
+            ),
+        );
 
-        $this->assertSame('Foo\Bar', $resolver->namespaceName());
-        $this->assertSame(array(
-            'Baz\Qux' => 'Doom',
-            'Splat\Pip' => 'Spam',
-        ), $resolver->usedClasses());
+        $this->assertEquals($expectedNamespaceName, $resolver->namespaceName());
+        $this->assertEquals($expectedUsedClasses, $resolver->usedClasses());
     }
-
-    public function testNormalizeUsedClasses()
+    public function testConstructorFailureInvalidAlias()
     {
+        $namespaceName = ClassName::fromString('\Foo\Bar');
         $usedClasses = array(
-            'Baz\Qux' => null,
-            'Doom\Splat' => null,
-        );
-        $resolver = new ClassNameResolver('Foo\Bar', $usedClasses);
-        $expected = array(
-            'Baz\Qux' => 'Qux',
-            'Doom\Splat' => 'Splat',
+            array(
+                ClassName::fromString('\Baz\Qux'),
+                ClassName::fromString('Doom\Splat'),
+            ),
         );
 
-        $this->assertSame($expected, $resolver->usedClasses());
+        $this->setExpectedException(
+            __NAMESPACE__.'\Exception\InvalidUsedClassAliasException'
+        );
+        new ClassNameResolver(
+            $namespaceName,
+            $usedClasses
+        );
     }
 
     public function resolveData()
@@ -78,70 +110,80 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
 
         $namespaceName = null;
         $usedClasses = array();
-        $className = 'Foo';
-        $expected = 'Foo';
+        $className = ClassName::fromString('Foo');
+        $expected = ClassName::fromString('\Foo');
         $data['Global namespace, no use statements, non-namespaced class'] = array($expected, $namespaceName, $usedClasses, $className);
 
         $namespaceName = null;
         $usedClasses = array();
-        $className = 'Foo\Bar\Baz';
-        $expected = 'Foo\Bar\Baz';
+        $className = ClassName::fromString('Foo\Bar\Baz');
+        $expected = ClassName::fromString('\Foo\Bar\Baz');
         $data['Global namespace, no use statements, namespaced class'] = array($expected, $namespaceName, $usedClasses, $className);
 
         $namespaceName = null;
         $usedClasses = array(
-            'Bar\Baz\Qux' => null,
+            array(
+                ClassName::fromString('\Bar\Baz\Qux'),
+            ),
         );
-        $className = 'Qux';
-        $expected = 'Bar\Baz\Qux';
+        $className = ClassName::fromString('Qux');
+        $expected = ClassName::fromString('\Bar\Baz\Qux');
         $data['Global namespace, use statements without aliases'] = array($expected, $namespaceName, $usedClasses, $className);
 
         $namespaceName = null;
         $usedClasses = array(
-            'Bar\Baz\Qux' => 'Foo',
+            array(
+                ClassName::fromString('\Bar\Baz\Qux'),
+                ClassName::fromString('Foo'),
+            ),
         );
-        $className = 'Foo';
-        $expected = 'Bar\Baz\Qux';
+        $className = ClassName::fromString('Foo');
+        $expected = ClassName::fromString('\Bar\Baz\Qux');
         $data['Global namespace, use statements with aliases'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        $namespaceName = 'Foo\Bar\Baz';
+        $namespaceName = ClassName::fromString('\Foo\Bar\Baz');
         $usedClasses = array();
-        $className = 'Qux';
-        $expected = 'Foo\Bar\Baz\Qux';
+        $className = ClassName::fromString('Qux');
+        $expected = ClassName::fromString('\Foo\Bar\Baz\Qux');
         $data['Namespaced, no use statements, non-namespaced class'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        $namespaceName = 'Foo\Bar\Baz';
+        $namespaceName = ClassName::fromString('\Foo\Bar\Baz');
         $usedClasses = array();
-        $className = 'Qux\Doom\Splat';
-        $expected = 'Foo\Bar\Baz\Qux\Doom\Splat';
+        $className = ClassName::fromString('Qux\Doom\Splat');
+        $expected = ClassName::fromString('\Foo\Bar\Baz\Qux\Doom\Splat');
         $data['Namespaced, no use statements, namespaced class'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        $namespaceName = 'Foo\Bar\Baz';
+        $namespaceName = ClassName::fromString('\Foo\Bar\Baz');
         $usedClasses = array(
-            'Qux\Doom\Splat' => null,
+            array(
+                ClassName::fromString('\Qux\Doom\Splat'),
+            ),
         );
-        $className = 'Splat';
-        $expected = 'Qux\Doom\Splat';
+        $className = ClassName::fromString('Splat');
+        $expected = ClassName::fromString('\Qux\Doom\Splat');
         $data['Namespaced, use statements without aliases, non-namespaced class'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        $namespaceName = 'Foo\Bar\Baz';
+        $namespaceName = ClassName::fromString('\Foo\Bar\Baz');
         $usedClasses = array(
-            'Qux\Doom\Splat' => 'Pip',
+            array(
+                ClassName::fromString('\Qux\Doom\Splat'),
+                ClassName::fromString('Pip'),
+            ),
         );
-        $className = 'Pip';
-        $expected = 'Qux\Doom\Splat';
+        $className = ClassName::fromString('Pip');
+        $expected = ClassName::fromString('\Qux\Doom\Splat');
         $data['Namespaced, use statements with aliases, non-namespaced class'] = array($expected, $namespaceName, $usedClasses, $className);
 
         $namespaceName = null;
         $usedClasses = array();
-        $className = '\Foo\Bar\Baz';
-        $expected = 'Foo\Bar\Baz';
+        $className = ClassName::fromString('\Foo\Bar\Baz');
+        $expected = ClassName::fromString('\Foo\Bar\Baz');
         $data['Global namespace, fully qualified class'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        $namespaceName = 'Foo\Bar\Baz';
+        $namespaceName = ClassName::fromString('\Foo\Bar\Baz');
         $usedClasses = array();
-        $className = '\Qux\Doom\Splat';
-        $expected = 'Qux\Doom\Splat';
+        $className = ClassName::fromString('\Qux\Doom\Splat');
+        $expected = ClassName::fromString('\Qux\Doom\Splat');
         $data['Namespaced, fully qualified class'] = array($expected, $namespaceName, $usedClasses, $className);
 
         return $data;
@@ -150,19 +192,15 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider resolveData
      */
-    public function testResolve($expected, $namespaceName, array $usedClasses, $className)
-    {
+    public function testResolve(
+        ClassName $expected,
+        ClassName $namespaceName = null,
+        array $usedClasses,
+        $className
+    ) {
         $resolver = new ClassNameResolver($namespaceName, $usedClasses);
 
-        $this->assertSame($expected, $resolver->resolve($className));
-    }
-
-    public function testResolveFailureInvalidClassName()
-    {
-        $resolver = new ClassNameResolver;
-
-        $this->setExpectedException(__NAMESPACE__.'\Exception\InvalidClassNameException');
-        $resolver->resolve('');
+        $this->assertEquals($expected, $resolver->resolve($className));
     }
 
     public function shortenData()
@@ -171,42 +209,47 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
 
         $namespaceName = null;
         $usedClasses = array();
-        $className = 'Foo\Bar';
-        $expected = '\Foo\Bar';
+        $className = ClassName::fromString('Foo\Bar');
+        $expected = ClassName::fromString('Foo\Bar');
         $data['Unable to shorten'] = array($expected, $namespaceName, $usedClasses, $className);
 
         $namespaceName = null;
         $usedClasses = array();
-        $className = '\Foo\Bar';
-        $expected = '\Foo\Bar';
+        $className = ClassName::fromString('\Foo\Bar');
+        $expected = ClassName::fromString('\Foo\Bar');
         $data['Deal with leading slashes'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        $namespaceName = 'Foo';
+        $namespaceName = ClassName::fromString('\Foo');
         $usedClasses = array();
-        $className = 'Foo\Bar';
-        $expected = 'Bar';
+        $className = ClassName::fromString('\Foo\Bar');
+        $expected = ClassName::fromString('Bar');
         $data['Shortened by namespace'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        $namespaceName = 'Foo';
+        $namespaceName = ClassName::fromString('\Foo');
         $usedClasses = array();
-        $className = 'Foo\Bar\Baz';
-        $expected = 'Bar\Baz';
+        $className = ClassName::fromString('\Foo\Bar\Baz');
+        $expected = ClassName::fromString('Bar\Baz');
         $data['Shortened by sub-namespace'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        $namespaceName = 'Foo';
+        $namespaceName = ClassName::fromString('\Foo');
         $usedClasses = array(
-            'Foo\Bar\Baz' => null,
+            array(
+                ClassName::fromString('\Foo\Bar\Baz'),
+            ),
         );
-        $className = 'Foo\Bar\Baz';
-        $expected = 'Baz';
+        $className = ClassName::fromString('\Foo\Bar\Baz');
+        $expected = ClassName::fromString('Baz');
         $data['Shortened by use statement without alias'] = array($expected, $namespaceName, $usedClasses, $className);
 
-        $namespaceName = 'Foo';
+        $namespaceName = ClassName::fromString('\Foo');
         $usedClasses = array(
-            'Foo\Bar\Baz' => 'Qux',
+            array(
+                ClassName::fromString('\Foo\Bar\Baz'),
+                ClassName::fromString('Qux'),
+            ),
         );
-        $className = 'Foo\Bar\Baz';
-        $expected = 'Qux';
+        $className = ClassName::fromString('\Foo\Bar\Baz');
+        $expected = ClassName::fromString('Qux');
         $data['Shortened by use statement with alias'] = array($expected, $namespaceName, $usedClasses, $className);
 
         return $data;
@@ -215,18 +258,14 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider shortenData
      */
-    public function testShorten($expected, $namespaceName, array $usedClasses, $className)
-    {
+    public function testShorten(
+        ClassName $expected,
+        ClassName $namespaceName = null,
+        array $usedClasses,
+        $className
+    ) {
         $resolver = new ClassNameResolver($namespaceName, $usedClasses);
 
-        $this->assertSame($expected, $resolver->shorten($className));
-    }
-
-    public function testShortenFailureInvalidClassName()
-    {
-        $resolver = new ClassNameResolver;
-
-        $this->setExpectedException(__NAMESPACE__.'\Exception\InvalidClassNameException');
-        $resolver->shorten('');
+        $this->assertEquals($expected, $resolver->shorten($className));
     }
 }

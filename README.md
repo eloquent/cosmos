@@ -38,13 +38,19 @@ value can be left as *null* represent no alias.
 ```php
 <?php
 
+use Eloquent\Cosmos\ClassName;
 use Eloquent\Cosmos\ClassNameResolver;
 
 $resolver = new ClassNameResolver(
-    'MilkyWay\SolarSystem',
+    ClassName::fromString('\MilkyWay\SolarSystem'),
     array(
-        'MilkyWay\AlphaCentauri\ProximaCentauri' => null,
-        'Andromeda\GalacticCenter' => 'Andromeda',
+        array(
+            ClassName::fromString('\MilkyWay\AlphaCentauri\ProximaCentauri'),
+        ),
+        array(
+            ClassName::fromString('\Andromeda\GalacticCenter'),
+            ClassName::fromString('Andromeda'),
+        ),
     )
 );
 ```
@@ -55,11 +61,11 @@ class name.
 ```php
 <?php
 
-echo $resolver->resolve('Earth');            // outputs 'MilkyWay\SolarSystem\Earth'
-echo $resolver->resolve('ProximaCentauri');  // outputs 'MilkyWay\AlphaCentauri\ProximaCentauri'
-echo $resolver->resolve('Andromeda');        // outputs 'Andromeda\GalacticCenter'
-echo $resolver->resolve('TNO\Pluto');        // outputs 'MilkyWay\SolarSystem\TNO\Pluto'
-echo $resolver->resolve('\Betelgeuse');      // outputs 'Betelgeuse'
+echo $resolver->resolve(ClassName::fromString('Earth'));            // outputs 'MilkyWay\SolarSystem\Earth'
+echo $resolver->resolve(ClassName::fromString('ProximaCentauri'));  // outputs 'MilkyWay\AlphaCentauri\ProximaCentauri'
+echo $resolver->resolve(ClassName::fromString('Andromeda'));        // outputs 'Andromeda\GalacticCenter'
+echo $resolver->resolve(ClassName::fromString('TNO\Pluto'));        // outputs 'MilkyWay\SolarSystem\TNO\Pluto'
+echo $resolver->resolve(ClassName::fromString('\Betelgeuse'));      // outputs 'Betelgeuse'
 ```
 
 ## Code quality

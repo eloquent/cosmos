@@ -11,18 +11,20 @@
 
 namespace Eloquent\Cosmos\Exception;
 
+use Eloquent\Cosmos\ClassName;
 use Phake;
 use PHPUnit_Framework_TestCase;
 
-class InvalidClassNameAtomExceptionTest extends PHPUnit_Framework_TestCase
+class InvalidUsedClassAliasExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testExeption()
     {
+        $className = ClassName::fromString('Foo');
         $previous = Phake::mock('Exception');
-        $exception = new InvalidClassNameAtomException('foo', $previous);
+        $exception = new InvalidUsedClassAliasException($className, $previous);
 
-        $this->assertSame("Invalid class name atom 'foo'.", $exception->getMessage());
-        $this->assertSame('foo', $exception->atom());
+        $this->assertSame("Invalid used class alias 'Foo'.", $exception->getMessage());
+        $this->assertSame($className, $exception->className());
         $this->assertSame(0, $exception->getCode());
         $this->assertSame($previous, $exception->getPrevious());
     }
