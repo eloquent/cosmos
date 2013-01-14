@@ -134,14 +134,14 @@ class ClassName
     }
 
     /**
-     * @param ClassName       $descendant
+     * @param ClassName       $className
      * @param Comparator|null $comparator
      *
      * @return boolean
      */
-    public function hasDescendant(ClassName $descendant, Comparator $comparator = null)
+    public function hasDescendant(ClassName $className, Comparator $comparator = null)
     {
-        if ($this->isAbsolute() !== $descendant->isAbsolute()) {
+        if ($this->isAbsolute() !== $className->isAbsolute()) {
             return false;
         }
 
@@ -149,9 +149,9 @@ class ClassName
             $comparator = new Comparator;
         }
 
-        while ($descendant->hasParent()) {
-            $descendant = $descendant->parent();
-            if ($comparator->equals($this, $descendant)) {
+        while ($className->hasParent()) {
+            $className = $className->parent();
+            if ($comparator->equals($this, $className)) {
                 return true;
             }
         }
