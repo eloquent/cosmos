@@ -17,7 +17,7 @@
         "icecave/isolator": "~2"
     },
     "require-dev": {
-        "phake/phake": "~1"
+        "icecave/testing": "~1"
     },
     "autoload": {
         "psr-0": {
