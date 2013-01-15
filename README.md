@@ -85,6 +85,11 @@ Returns the last atom of this class name as a new `ClassName` object.
 Returns the absolute version of this class name as a `ClassName` object. If this
 class name is already absolute, it will simply return itself.
 
+### ClassName::toRelative()
+
+Returns the relative version of this class name as a `ClassName` object. If this
+class name is already relative, it will simply return itself.
+
 ### ClassName::hasDescendant(ClassName $className)
 
 Returns boolean true if this class name is one of the parent namespaces of

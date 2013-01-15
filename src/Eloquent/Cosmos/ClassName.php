@@ -134,6 +134,18 @@ class ClassName
     }
 
     /**
+     * @return ClassName
+     */
+    public function toRelative()
+    {
+        if ($this->isAbsolute()) {
+            return static::fromAtoms($this->atoms(), false);
+        }
+
+        return $this;
+    }
+
+    /**
      * @param ClassName       $className
      * @param Comparator|null $comparator
      *

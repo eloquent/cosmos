@@ -165,6 +165,18 @@ class ClassNameTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testToRelative()
+    {
+        $this->assertEquals(
+            ClassName::fromString('Foo\Bar\Baz'),
+            ClassName::fromString('\Foo\Bar\Baz')->toRelative()
+        );
+        $this->assertEquals(
+            ClassName::fromString('Foo\Bar\Baz'),
+            ClassName::fromString('Foo\Bar\Baz')->toRelative()
+        );
+    }
+
     public function testHasDescendant()
     {
         $namespaceNameA = ClassName::fromString('Foo\Bar');
