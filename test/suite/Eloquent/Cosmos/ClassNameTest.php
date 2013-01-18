@@ -33,6 +33,14 @@ class ClassNameTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($classNameD->isAbsolute());
     }
 
+    public function testFromStringFailureEmpty()
+    {
+        $this->setExpectedException(
+            __NAMESPACE__.'\Exception\EmptyClassNameException'
+        );
+        ClassName::fromString('');
+    }
+
     public function testFromStringFailureInvalidName()
     {
         $this->setExpectedException(
@@ -57,6 +65,14 @@ class ClassNameTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($classNameB->isAbsolute());
         $this->assertFalse($classNameC->isAbsolute());
         $this->assertTrue($classNameD->isAbsolute());
+    }
+
+    public function testFromAtomsFailureEmpty()
+    {
+        $this->setExpectedException(
+            __NAMESPACE__.'\Exception\EmptyClassNameException'
+        );
+        ClassName::fromAtoms(array());
     }
 
     public function testFromAtomsFailureInvalidAtom()

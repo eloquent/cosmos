@@ -236,6 +236,9 @@ class ClassName
      */
     protected function __construct(array $atoms, $isAbsolute)
     {
+        if (count($atoms) < 1) {
+            throw new Exception\EmptyClassNameException;
+        }
         foreach ($atoms as $atom) {
             if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $atom)) {
                 throw new Exception\InvalidClassNameAtomException($atom);
