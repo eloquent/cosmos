@@ -7,9 +7,15 @@ php:
   - 5.5
 
 matrix:
+  # Use PHP 5.4 for coverage reporting.
+  include:
+    - php: 5.4
+      env:
+        - secure: "fmfpW8BpirdY/ahb/wFOk34aytf24Ai4esM6bASzd+qhT0W4w4gCaeBqovjE\nndE6i8mEWbGd1EKtXyjG0SgP/y+OL/Sb88f0dnvYKJicfiidt6v+IspxRpnR\nbTq4OwBDyIqrFOy9c5maAM0arMXM2/4Bn/feSyhlt+T6N0FaNqU="
+
+  # PHP 5.5 is still in alpha, so ignore build failures.
   allow_failures:
     - php: 5.5
 
-before_script: composer install --dev
-
-script: ./vendor/bin/phpunit
+install: composer install --dev --prefer-source
+script:  ./vendor/bin/travis-build
