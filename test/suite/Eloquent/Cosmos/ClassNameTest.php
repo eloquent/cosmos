@@ -97,6 +97,34 @@ class ClassNameTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($classNameD->isShortName());
     }
 
+    public function testIsEqualTo()
+    {
+        $classNameA = ClassName::fromAtoms(array('Foo'));
+        $classNameB = ClassName::fromAtoms(array('Foo'), true);
+        $classNameC = ClassName::fromAtoms(array('Foo'));
+        $classNameD = ClassName::fromAtoms(array('Bar'));
+
+        $this->assertTrue($classNameA->isEqualTo($classNameA));
+        $this->assertTrue($classNameA->isEqualTo($classNameC));
+        $this->assertFalse($classNameA->isEqualTo($classNameB));
+        $this->assertFalse($classNameA->isEqualTo($classNameD));
+    }
+
+    public function testIsRuntimeEquivalentTo()
+    {
+        $classNameA = ClassName::fromAtoms(array('Foo'));
+        $classNameB = ClassName::fromAtoms(array('Foo'), true);
+        $classNameC = ClassName::fromAtoms(array('Foo'));
+        $classNameD = ClassName::fromAtoms(array('Bar'));
+        $classNameE = ClassName::fromAtoms(array('Bar'), true);
+
+        $this->assertTrue($classNameA->isRuntimeEquivalentTo($classNameA));
+        $this->assertTrue($classNameA->isRuntimeEquivalentTo($classNameC));
+        $this->assertTrue($classNameA->isRuntimeEquivalentTo($classNameB));
+        $this->assertFalse($classNameA->isRuntimeEquivalentTo($classNameD));
+        $this->assertFalse($classNameA->isRuntimeEquivalentTo($classNameE));
+    }
+
     public function testJoin()
     {
         $classNameA = ClassName::fromString('Foo');

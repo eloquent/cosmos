@@ -68,6 +68,31 @@ class ClassName
     }
 
     /**
+     * @param ClassName       $className
+     * @param Comparator|null $comparator
+     *
+     * @return boolean
+     */
+    public function isEqualTo(ClassName $className, Comparator $comparator = null)
+    {
+        if (null === $comparator) {
+            $comparator = new Comparator;
+        }
+
+        return $comparator->equals($this, $className);
+    }
+
+    /**
+     * @param ClassName $className
+     *
+     * @return boolean
+     */
+    public function isRuntimeEquivalentTo(ClassName $className)
+    {
+        return $className->atoms() === $this->atoms();
+    }
+
+    /**
      * @param ClassName $className
      *
      * @return ClassName

@@ -63,6 +63,18 @@ separator) or boolean false if it does not.
 Returns boolean true if the class name is not absolute and has only one atom. If
 either of these conditions is not met, false is returned.
 
+### ClassName::isEqualTo(ClassName $className)
+
+Returns boolean true if the supplied class name is exactly equal to this class
+name. The supplied class name must have identical atoms and match the
+absolute-ness of this class name.
+
+### ClassName::isRuntimeEquivalentTo(ClassName $className)
+
+Returns boolean true if the supplied class name is equivalent to this class
+name in a runtime context. The supplied class name must have identical atoms but
+absolute and relative class names are treated identically by PHP at runtime.
+
 ### ClassName::join(ClassName $className)
 
 Appends `$className` to the end of this class name and returns the result as a
