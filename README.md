@@ -2,6 +2,9 @@
 
 *A class name resolver for PHP namespaces.*
 
+[![Build status](https://secure.travis-ci.org/eloquent/cosmos.png)](http://travis-ci.org/eloquent/cosmos)
+[![Test coverage](http://eloquent.github.com/cosmos/coverage-report/coverage.png)](http://eloquent.github.com/cosmos/coverage-report/index.html)
+
 ## Installation
 
 Cosmos requires PHP 5.3 or later.
@@ -33,8 +36,6 @@ cannot be instatiated directly.
 The two methods are demostrated below:
 
 ```php
-<?php
-
 use Eloquent\Cosmos\ClassName;
 
 $earth = ClassName::fromString('\MilkyWay\SolarSystem\Earth');
@@ -127,8 +128,6 @@ If present, the second element must be a short `ClassName` object. That is, one
 without any namespace separators.
 
 ```php
-<?php
-
 use Eloquent\Cosmos\ClassName;
 use Eloquent\Cosmos\ClassNameResolver;
 
@@ -149,8 +148,6 @@ $resolver = new ClassNameResolver(
 The above resolver is analogous to the following PHP code:
 
 ```php
-<?php
-
 namespace MilkyWay\SolarSystem;
 
 use MilkyWay\AlphaCentauri\ProximaCentauri;
@@ -162,10 +159,6 @@ class name. Note that in the example below, `ClassName` objects are returned,
 not plain strings.
 
 ```php
-<?php
-
-// ...
-
 echo $resolver->resolve(ClassName::fromString('Earth'));
 // outputs '\MilkyWay\SolarSystem\Earth'
 
@@ -181,14 +174,3 @@ echo $resolver->resolve(ClassName::fromString('TNO\Pluto'));
 echo $resolver->resolve(ClassName::fromString('\Betelgeuse'));
 // outputs '\Betelgeuse'
 ```
-
-## Code quality
-
-Cosmos strives to attain a high level of quality. A full test suite is
-available, and code coverage is closely monitored.
-
-### Latest revision test suite results
-[![Build Status](https://secure.travis-ci.org/eloquent/cosmos.png)](http://travis-ci.org/eloquent/cosmos)
-
-### Latest revision test suite coverage
-<http://ci.ezzatron.com/report/cosmos/coverage/>
