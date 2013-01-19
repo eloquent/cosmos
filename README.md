@@ -1,6 +1,6 @@
 # Cosmos
 
-*A class name resolver for PHP namespaces.*
+*A library for representing and manipulating PHP class names.*
 
 [![Build status](https://secure.travis-ci.org/eloquent/cosmos.png)](http://travis-ci.org/eloquent/cosmos)
 [![Test coverage](http://eloquent.github.com/cosmos/coverage-report/coverage.png)](http://eloquent.github.com/cosmos/coverage-report/index.html)
@@ -79,6 +79,16 @@ absolute and relative class names are treated identically by PHP at runtime.
 
 Appends `$className` to the end of this class name and returns the result as a
 new `ClassName` object. Note that absolute class names cannot be joined.
+
+### ClassName::joinAtoms($atom, ...)
+
+Appends the supplied atoms to the end of this class name and returns the result
+as a new `ClassName` object.
+
+### ClassName::joinAtomsArray(array $atoms)
+
+Appends the supplied array of atoms to the end of this class name and returns
+the result as a new `ClassName` object.
 
 ### ClassName::hasParent()
 

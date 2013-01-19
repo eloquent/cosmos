@@ -152,6 +152,52 @@ class ClassNameTest extends PHPUnit_Framework_TestCase
         $classNameA->join($classNameB);
     }
 
+    public function testJoinAtoms()
+    {
+        $classNameA = ClassName::fromString('Foo');
+        $classNameB = ClassName::fromString('\Foo');
+
+        $this->assertEquals(
+            ClassName::fromString('Foo\Bar'),
+            $classNameA->joinAtoms('Bar')
+        );
+        $this->assertEquals(
+            ClassName::fromString('Foo\Bar\Baz'),
+            $classNameA->joinAtoms('Bar', 'Baz')
+        );
+        $this->assertEquals(
+            ClassName::fromString('\Foo\Bar'),
+            $classNameB->joinAtoms('Bar')
+        );
+        $this->assertEquals(
+            ClassName::fromString('\Foo\Bar\Baz'),
+            $classNameB->joinAtoms('Bar', 'Baz')
+        );
+    }
+
+    public function testJoinAtomsArray()
+    {
+        $classNameA = ClassName::fromString('Foo');
+        $classNameB = ClassName::fromString('\Foo');
+
+        $this->assertEquals(
+            ClassName::fromString('Foo\Bar'),
+            $classNameA->joinAtomsArray(array('Bar'))
+        );
+        $this->assertEquals(
+            ClassName::fromString('Foo\Bar\Baz'),
+            $classNameA->joinAtomsArray(array('Bar', 'Baz'))
+        );
+        $this->assertEquals(
+            ClassName::fromString('\Foo\Bar'),
+            $classNameB->joinAtomsArray(array('Bar'))
+        );
+        $this->assertEquals(
+            ClassName::fromString('\Foo\Bar\Baz'),
+            $classNameB->joinAtomsArray(array('Bar', 'Baz'))
+        );
+    }
+
     public function testHasParent()
     {
         $classNameA = ClassName::fromString('Foo');

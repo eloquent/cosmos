@@ -1,6 +1,6 @@
 {
     "name": "eloquent/cosmos",
-    "description": "A class name resolver for PHP namespaces.",
+    "description": "A library for representing and manipulating PHP class names.",
     "keywords": ["php","namespace","class","name","classname","resolver","solver"],
     "homepage": "https://github.com/eloquent/cosmos",
     "license": "MIT",

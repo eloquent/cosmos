@@ -103,11 +103,29 @@ class ClassName
             throw new Exception\AbsoluteJoinException($className);
         }
 
+        return static::joinAtomsArray($className->atoms());
+    }
+
+    /**
+     * @param string $atom
+     * @param string $atom,...
+     *
+     * @return ClassName
+     */
+    public function joinAtoms($atom)
+    {
+        return static::joinAtomsArray(func_get_args());
+    }
+
+    /**
+     * @param array<string> $atoms
+     *
+     * @return ClassName
+     */
+    public function joinAtomsArray(array $atoms)
+    {
         return static::fromAtoms(
-            array_merge(
-                $this->atoms(),
-                $className->atoms()
-            ),
+            array_merge($this->atoms(), $atoms),
             $this->isAbsolute()
         );
     }
