@@ -2,23 +2,13 @@
 
 *A library for representing and manipulating PHP class names.*
 
-[![Build status](https://secure.travis-ci.org/eloquent/cosmos.png)](http://travis-ci.org/eloquent/cosmos)
-[![Test coverage](http://eloquent.github.com/cosmos/coverage-report/coverage.png)](http://eloquent.github.com/cosmos/coverage-report/index.html)
+[![Build Status]](http://travis-ci.org/eloquent/cosmos)
+[![Test Coverage]](http://eloquent-software.com/cosmos/artifacts/tests/coverage/)
 
 ## Installation
 
-Cosmos requires PHP 5.3 or later.
-
-### With [Composer](http://getcomposer.org/)
-
-* Add 'eloquent/cosmos' to the project's composer.json dependencies
-* Run `composer install`
-
-### Bare installation
-
-* Clone from GitHub: `git clone git://github.com/eloquent/cosmos.git`
-* Use a [PSR-0](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md)
-  compatible autoloader (namespace 'Eloquent\Cosmos' in the 'src' directory)
+Available as [Composer](http://getcomposer.org/) package
+[eloquent/cosmos](https://packagist.org/packages/eloquent/cosmos).
 
 ## What is Cosmos?
 
@@ -196,3 +186,7 @@ echo $resolver->resolve(ClassName::fromString('TNO\Pluto'));
 echo $resolver->resolve(ClassName::fromString('\Betelgeuse'));
 // outputs '\Betelgeuse'
 ```
+
+<!-- references -->
+[Build Status]: https://raw.github.com/eloquent/cosmos/gh-pages/artifacts/images/icecave/regular/build-status.png
+[Test Coverage]: https://raw.github.com/eloquent/cosmos/gh-pages/artifacts/images/icecave/regular/coverage.png
