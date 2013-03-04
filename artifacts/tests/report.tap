@@ -1,0 +1,53 @@
+TAP version 13
+ok 1 - Eloquent\Cosmos\ClassNameResolverTest::testConstructor
+ok 2 - Eloquent\Cosmos\ClassNameResolverTest::testConstructorDefaults
+ok 3 - Eloquent\Cosmos\ClassNameResolverTest::testConstructorNormalization
+ok 4 - Eloquent\Cosmos\ClassNameResolverTest::testConstructorFailureInvalidAlias
+ok 5 - Eloquent\Cosmos\ClassNameResolverTest::testResolve with data set "Global namespace, no use statements, non-namespaced class" (\Foo, NULL, array(), Foo)
+ok 6 - Eloquent\Cosmos\ClassNameResolverTest::testResolve with data set "Global namespace, no use statements, namespaced class" (\Foo\Bar\Baz, NULL, array(), Foo\Bar\Baz)
+ok 7 - Eloquent\Cosmos\ClassNameResolverTest::testResolve with data set "Global namespace, use statements without aliases" (\Bar\Baz\Qux, NULL, array(array(\Bar\Baz\Qux)), Qux)
+ok 8 - Eloquent\Cosmos\ClassNameResolverTest::testResolve with data set "Global namespace, use statements with aliases" (\Bar\Baz\Qux, NULL, array(array(\Bar\Baz\Qux, Foo)), Foo)
+ok 9 - Eloquent\Cosmos\ClassNameResolverTest::testResolve with data set "Namespaced, no use statements, non-namespaced class" (\Foo\Bar\Baz\Qux, \Foo\Bar\Baz, array(), Qux)
+ok 10 - Eloquent\Cosmos\ClassNameResolverTest::testResolve with data set "Namespaced, no use statements, namespaced class" (\Foo\Bar\Baz\Qux\Doom\Splat, \Foo\Bar\Baz, array(), Qux\Doom\Splat)
+ok 11 - Eloquent\Cosmos\ClassNameResolverTest::testResolve with data set "Namespaced, use statements without aliases, non-namespaced class" (\Qux\Doom\Splat, \Foo\Bar\Baz, array(array(\Qux\Doom\Splat)), Splat)
+ok 12 - Eloquent\Cosmos\ClassNameResolverTest::testResolve with data set "Namespaced, use statements with aliases, non-namespaced class" (\Qux\Doom\Splat, \Foo\Bar\Baz, array(array(\Qux\Doom\Splat, Pip)), Pip)
+ok 13 - Eloquent\Cosmos\ClassNameResolverTest::testResolve with data set "Global namespace, fully qualified class" (\Foo\Bar\Baz, NULL, array(), \Foo\Bar\Baz)
+ok 14 - Eloquent\Cosmos\ClassNameResolverTest::testResolve with data set "Namespaced, fully qualified class" (\Qux\Doom\Splat, \Foo\Bar\Baz, array(), \Qux\Doom\Splat)
+ok 15 - Eloquent\Cosmos\ClassNameResolverTest::testShorten with data set "Unable to shorten" (Foo\Bar, NULL, array(), Foo\Bar)
+ok 16 - Eloquent\Cosmos\ClassNameResolverTest::testShorten with data set "Deal with leading slashes" (\Foo\Bar, NULL, array(), \Foo\Bar)
+ok 17 - Eloquent\Cosmos\ClassNameResolverTest::testShorten with data set "Shortened by namespace" (Bar, \Foo, array(), \Foo\Bar)
+ok 18 - Eloquent\Cosmos\ClassNameResolverTest::testShorten with data set "Shortened by sub-namespace" (Bar\Baz, \Foo, array(), \Foo\Bar\Baz)
+ok 19 - Eloquent\Cosmos\ClassNameResolverTest::testShorten with data set "Shortened by use statement without alias" (Baz, \Foo, array(array(\Foo\Bar\Baz)), \Foo\Bar\Baz)
+ok 20 - Eloquent\Cosmos\ClassNameResolverTest::testShorten with data set "Shortened by use statement with alias" (Qux, \Foo, array(array(\Foo\Bar\Baz, Qux)), \Foo\Bar\Baz)
+ok 21 - Eloquent\Cosmos\ClassNameTest::testFromString
+ok 22 - Eloquent\Cosmos\ClassNameTest::testFromStringFailureEmpty
+ok 23 - Eloquent\Cosmos\ClassNameTest::testFromStringFailureInvalidName
+ok 24 - Eloquent\Cosmos\ClassNameTest::testFromAtoms
+ok 25 - Eloquent\Cosmos\ClassNameTest::testFromAtomsFailureEmpty
+ok 26 - Eloquent\Cosmos\ClassNameTest::testFromAtomsFailureInvalidAtom
+ok 27 - Eloquent\Cosmos\ClassNameTest::testIsShortName
+ok 28 - Eloquent\Cosmos\ClassNameTest::testIsEqualTo
+ok 29 - Eloquent\Cosmos\ClassNameTest::testIsRuntimeEquivalentTo
+ok 30 - Eloquent\Cosmos\ClassNameTest::testJoin
+ok 31 - Eloquent\Cosmos\ClassNameTest::testJoinFailureAbsolute
+ok 32 - Eloquent\Cosmos\ClassNameTest::testJoinAtoms
+ok 33 - Eloquent\Cosmos\ClassNameTest::testJoinAtomsArray
+ok 34 - Eloquent\Cosmos\ClassNameTest::testHasParent
+ok 35 - Eloquent\Cosmos\ClassNameTest::testParent
+ok 36 - Eloquent\Cosmos\ClassNameTest::testParentFailure
+ok 37 - Eloquent\Cosmos\ClassNameTest::testShortName
+ok 38 - Eloquent\Cosmos\ClassNameTest::testToAbsolute
+ok 39 - Eloquent\Cosmos\ClassNameTest::testToRelative
+ok 40 - Eloquent\Cosmos\ClassNameTest::testHasDescendant
+ok 41 - Eloquent\Cosmos\ClassNameTest::testStripNamespace
+ok 42 - Eloquent\Cosmos\ClassNameTest::testStripNamespaceFailure
+ok 43 - Eloquent\Cosmos\ClassNameTest::testExists
+ok 44 - Eloquent\Cosmos\ClassNameTest::testString
+ok 45 - Eloquent\Cosmos\Exception\AbsoluteJoinExceptionTest::testExeption
+ok 46 - Eloquent\Cosmos\Exception\EmptyClassNameExceptionTest::testExeption
+ok 47 - Eloquent\Cosmos\Exception\InvalidClassNameAtomExceptionTest::testExeption
+ok 48 - Eloquent\Cosmos\Exception\InvalidUsedClassAliasExceptionTest::testExeption
+ok 49 - Eloquent\Cosmos\Exception\NamespaceMismatchExceptionTest::testExeption
+ok 50 - Eloquent\Cosmos\Exception\ParentExceptionTest::testExeption
+ok 51 - FunctionalTest::testExampleResolver
+1..51
