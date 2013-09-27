@@ -9,19 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Exception;
+namespace Eloquent\Cosmos\ClassName\Exception;
 
-use Phake;
+use Exception;
 use PHPUnit_Framework_TestCase;
 
-class EmptyClassNameExceptionTest extends PHPUnit_Framework_TestCase
+class InvalidClassNameExceptionTest extends PHPUnit_Framework_TestCase
 {
-    public function testExeption()
+    public function testException()
     {
-        $previous = Phake::mock('Exception');
-        $exception = new EmptyClassNameException($previous);
+        $previous = new Exception;
+        $exception = new InvalidClassNameException($previous);
 
-        $this->assertSame("Class names cannot be empty.", $exception->getMessage());
+        $this->assertSame('Invalid class name.', $exception->getMessage());
         $this->assertSame(0, $exception->getCode());
         $this->assertSame($previous, $exception->getPrevious());
     }

@@ -1,7 +1,7 @@
 {
     "name": "eloquent/cosmos",
     "description": "A library for representing and manipulating PHP class names.",
-    "keywords": ["php","namespace","class","name","classname","resolver","solver"],
+    "keywords": ["php", "namespace", "class", "name", "classname", "resolver", "solver"],
     "homepage": "https://github.com/eloquent/cosmos",
     "license": "MIT",
     "authors": [
@@ -12,12 +12,12 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0",
-        "eloquent/equality": "~2",
+        "php": ">=5.3",
+        "eloquent/pathogen": "~0.3.0",
         "icecave/isolator": "~2"
     },
     "require-dev": {
-        "icecave/archer": "~0.2"
+        "icecave/archer": "~1"
     },
     "autoload": {
         "psr-0": {

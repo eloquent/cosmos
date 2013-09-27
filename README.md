@@ -2,17 +2,18 @@
 
 *A library for representing and manipulating PHP class names.*
 
-[![Build Status]](http://travis-ci.org/eloquent/cosmos)
-[![Test Coverage]](http://eloquent-software.com/cosmos/artifacts/tests/coverage/)
+[![Build Status]][Latest build]
+[![Test Coverage]][Test coverage report]
+[![Uses Semantic Versioning]][SemVer]
 
-## Installation
+## Installation and documentation
 
-Available as [Composer](http://getcomposer.org/) package
-[eloquent/cosmos](https://packagist.org/packages/eloquent/cosmos).
+* Available as [Composer] package [eloquent/cosmos].
+* [API documentation] available.
 
-## What is Cosmos?
+## What is *Cosmos*?
 
-Cosmos is a library for representing and manipulating PHP class names. It
+*Cosmos* is a library for representing and manipulating PHP class names. It
 includes a `ClassName` object, as well as tools to help in resolving class names
 against a set of `namespace` and `use` statements.
 
@@ -187,6 +188,13 @@ echo $resolver->resolve(ClassName::fromString('\Betelgeuse'));
 // outputs '\Betelgeuse'
 ```
 
-<!-- references -->
-[Build Status]: https://raw.github.com/eloquent/cosmos/gh-pages/artifacts/images/icecave/regular/build-status.png
-[Test Coverage]: https://raw.github.com/eloquent/cosmos/gh-pages/artifacts/images/icecave/regular/coverage.png
+<!-- References -->
+
+[Build Status]: https://api.travis-ci.org/eloquent/cosmos.png?branch=master
+[Composer]: http://getcomposer.org/
+[eloquent/cosmos]: https://packagist.org/packages/eloquent/cosmos
+[Latest build]: https://travis-ci.org/eloquent/cosmos
+[SemVer]: http://semver.org/
+[Test coverage report]: https://coveralls.io/r/eloquent/cosmos
+[Test Coverage]: https://coveralls.io/repos/eloquent/cosmos/badge.png?branch=master
+[Uses Semantic Versioning]: http://b.repl.ca/v1/semver-yes-brightgreen.png

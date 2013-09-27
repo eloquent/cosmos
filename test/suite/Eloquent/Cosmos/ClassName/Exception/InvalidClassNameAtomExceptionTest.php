@@ -9,20 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Exception;
+namespace Eloquent\Cosmos\ClassName\Exception;
 
-use Phake;
+use Exception;
 use PHPUnit_Framework_TestCase;
 
 class InvalidClassNameAtomExceptionTest extends PHPUnit_Framework_TestCase
 {
-    public function testExeption()
+    public function testException()
     {
-        $previous = Phake::mock('Exception');
+        $previous = new Exception;
         $exception = new InvalidClassNameAtomException('foo', $previous);
 
-        $this->assertSame("Invalid class name atom 'foo'.", $exception->getMessage());
         $this->assertSame('foo', $exception->atom());
+        $this->assertSame('The atom contains invalid characters for a class name.', $exception->reason());
+        $this->assertSame('Invalid path atom \'foo\'. The atom contains invalid characters for a class name.', $exception->getMessage());
         $this->assertSame(0, $exception->getCode());
         $this->assertSame($previous, $exception->getPrevious());
     }
