@@ -22,13 +22,14 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
 
         $this->factory = new ClassNameFactory;
         $this->className = $this->factory->create('\\Namespace\\Class');
-        $this->useStatement = new UseStatement($this->className, 'foo');
+        $this->alias = $this->factory->create('Alias');
+        $this->useStatement = new UseStatement($this->className, $this->alias);
     }
 
     public function testConstructor()
     {
-        $this->assertSame($this->className, $this->useStatement->className());
-        $this->assertSame('foo', $this->useStatement->alias());
+        $this->assertEquals($this->className, $this->useStatement->className());
+        $this->assertEquals($this->alias, $this->useStatement->alias());
     }
 
     public function testConstructorDefaults()
@@ -36,5 +37,29 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
         $this->useStatement = new UseStatement($this->className);
 
         $this->assertNull($this->useStatement->alias());
+    }
+
+    public function testConstructorFailureInvalidAliasMultipleAtoms()
+    {
+        $this->alias = $this->factory->create('Namespace\\Alias');
+
+        $this->setExpectedException('Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException');
+        new UseStatement($this->className, $this->alias);
+    }
+
+    public function testConstructorFailureInvalidAliasSelfAtom()
+    {
+        $this->alias = $this->factory->create('.');
+
+        $this->setExpectedException('Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException');
+        new UseStatement($this->className, $this->alias);
+    }
+
+    public function testConstructorFailureInvalidAliasParentAtom()
+    {
+        $this->alias = $this->factory->create('..');
+
+        $this->setExpectedException('Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException');
+        new UseStatement($this->className, $this->alias);
     }
 }

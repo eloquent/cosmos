@@ -11,6 +11,9 @@
 
 namespace Eloquent\Cosmos\Statement;
 
+use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
+use Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException;
+use Eloquent\Cosmos\ClassName\QualifiedClassName;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
 
 /**
@@ -21,15 +24,31 @@ class UseStatement implements UseStatementInterface
     /**
      * Construct a new use statement.
      *
-     * @param QualifiedClassNameInterface $className The class name.
-     * @param string|null                 $alias     The alias for the class name.
+     * @param QualifiedClassNameInterface      $className The class name.
+     * @param ClassNameReferenceInterface|null $alias     The alias for the class name.
+     *
+     * @throws InvalidClassNameAtomException If an invalid alias is supplied.
      */
     public function __construct(
         QualifiedClassNameInterface $className,
-        $alias = null
+        ClassNameReferenceInterface $alias = null
     ) {
-        $this->className = $className;
-        $this->alias = $alias;
+        $this->className = $className->normalize();
+
+        if (null !== $alias) {
+            $normalizedAlias = $alias->normalize();
+            $aliasAtoms = $normalizedAlias->atoms();
+
+            if (
+                count($aliasAtoms) > 1 ||
+                QualifiedClassName::SELF_ATOM === $aliasAtoms[0] ||
+                QualifiedClassName::PARENT_ATOM === $aliasAtoms[0]
+            ) {
+                throw new InvalidClassNameAtomException($alias->string());
+            }
+
+            $this->alias = $normalizedAlias;
+        }
     }
 
     /**
@@ -45,7 +64,7 @@ class UseStatement implements UseStatementInterface
     /**
      * Get the alias for the class name.
      *
-     * @return string|null The alias, or null if no alias is in use.
+     * @return ClassNameReferenceInterface|null The alias, or null if no alias is in use.
      */
     public function alias()
     {

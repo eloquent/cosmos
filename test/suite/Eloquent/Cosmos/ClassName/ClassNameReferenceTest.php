@@ -11,6 +11,7 @@
 
 namespace Eloquent\Cosmos\ClassName;
 
+use Phake;
 use PHPUnit_Framework_TestCase;
 
 class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
@@ -44,6 +45,11 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
         $this->assertSame($atoms, $className->atoms());
         $this->assertSame($classNameString, $className->string());
         $this->assertSame($classNameString, strval($className));
+    }
+
+    public function testConstructorEmpty()
+    {
+        $this->assertSame('.', $this->factory->create('')->string());
     }
 
     public function testConstructorFailureInvalidAtom()
@@ -111,5 +117,23 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException('PHPUnit_Framework_Error');
         $className->join($reference);
+    }
+
+    public function testNormalize()
+    {
+        $className = $this->factory->create('foo\\..\\bar');
+        $normalizedClassName = $this->factory->create('bar');
+
+        $this->assertEquals($normalizedClassName, $className->normalize());
+    }
+
+    public function testNormalizeCustomNormalizer()
+    {
+        $className = $this->factory->create('foo\\..\\bar');
+        $normalizedClassName = $this->factory->create('bar');
+        $normalizer = Phake::mock('Eloquent\Pathogen\Normalizer\PathNormalizerInterface');
+        Phake::when($normalizer)->normalize($className)->thenReturn($normalizedClassName);
+
+        $this->assertSame($normalizedClassName, $className->normalize($normalizer));
     }
 }

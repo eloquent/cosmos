@@ -13,6 +13,7 @@ namespace Eloquent\Cosmos\ClassName;
 
 use Eloquent\Pathogen\AbsolutePath;
 use Eloquent\Pathogen\Exception\InvalidPathAtomExceptionInterface;
+use Eloquent\Pathogen\Normalizer\PathNormalizerInterface;
 
 /**
  * Represents a fully qualified class name.
@@ -74,8 +75,8 @@ class QualifiedClassName extends AbsolutePath implements
      * @param boolean       $isQualified          True if the class name is fully qualified.
      * @param boolean|null  $hasTrailingSeparator Ignored.
      *
-     * @return ClassNameInterface                 The newly created class name instance.
-     * @throws InvalidPathAtomExceptionInterface  If any of the supplied atoms are invalid.
+     * @return ClassNameInterface                The newly created class name instance.
+     * @throws InvalidPathAtomExceptionInterface If any of the supplied atoms are invalid.
      */
     protected function createPath(
         $atoms,
@@ -87,5 +88,15 @@ class QualifiedClassName extends AbsolutePath implements
         }
 
         return new ClassNameReference($atoms);
+    }
+
+    /**
+     * Create a new default class name normalizer.
+     *
+     * @return PathNormalizerInterface The newly created normalizer.
+     */
+    protected function createDefaultNormalizer()
+    {
+        return new Normalizer\ClassNameNormalizer;
     }
 }

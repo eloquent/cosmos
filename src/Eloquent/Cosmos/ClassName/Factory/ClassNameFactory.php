@@ -76,8 +76,8 @@ class ClassNameFactory implements PathFactoryInterface
      * @param boolean|null  $isQualified          True if the class name is fully qualified.
      * @param boolean|null  $hasTrailingSeparator Ignored.
      *
-     * @return ClassNameInterface                 The newly created class name instance.
-     * @throws InvalidPathAtomExceptionInterface  If any of the supplied atoms are invalid.
+     * @return ClassNameInterface                The newly created class name instance.
+     * @throws InvalidPathAtomExceptionInterface If any of the supplied atoms are invalid.
      */
     public function createFromAtoms(
         $atoms,

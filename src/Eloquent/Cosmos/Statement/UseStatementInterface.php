@@ -28,7 +28,7 @@ interface UseStatementInterface
     /**
      * Get the alias for the class name.
      *
-     * @return string|null The alias, or null if no alias is in use.
+     * @return ClassNameReferenceInterface|null The alias, or null if no alias is in use.
      */
     public function alias();
 }
