@@ -9,9 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Statement;
-
-use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+namespace Eloquent\Cosmos\ClassName;
 
 /**
  * The interface implemented by use statements.
