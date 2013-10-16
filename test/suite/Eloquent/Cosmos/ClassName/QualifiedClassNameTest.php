@@ -27,6 +27,7 @@ class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
     {
         //                             className                 atoms
         return array(
+            'Root namespace'  => array('\\',                     array()),
             'Single atom'     => array('\\Class',                array('Class')),
             'Multiple atoms'  => array('\\Namespace\\Class',     array('Namespace', 'Class')),
             'Parent atom'     => array('\\Namespace\\..\\Class', array('Namespace', '..', 'Class')),
@@ -46,13 +47,6 @@ class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
         $this->assertSame($classNameString, strval($className));
     }
 
-    public function testConstructorFailureEmptyAtoms()
-    {
-        $this->setExpectedException(__NAMESPACE__ . '\Exception\InvalidClassNameException');
-
-        $this->factory->create('\\');
-    }
-
     public function testConstructorFailureInvalidAtom()
     {
         $this->setExpectedException(__NAMESPACE__ . '\Exception\InvalidClassNameAtomException');
@@ -64,6 +58,7 @@ class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
     {
         //                                             className         name            nameWithoutExtension  namePrefix  nameSuffix  extension
         return array(
+            'Root namespace'                  => array('\\',             '',             '',                   '',         null,       null),
             'No extensions'                   => array('\\foo',          'foo',          'foo',                'foo',      null,       null),
             'Empty extension'                 => array('\\foo_',         'foo_',         'foo',                'foo',      '',         ''),
             'Single extension'                => array('\\foo_bar',      'foo_bar',      'foo',                'foo',      'bar',      'bar'),
@@ -92,6 +87,7 @@ class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
     {
         //                                              className     reference   expectedResult
         return array(
+            'Root namespace'                   => array('\\',         'foo',      '\\foo'),
             'Single atom'                      => array('\\foo',      'bar',      '\\foo\\bar'),
             'Multiple atoms'                   => array('\\foo',      'bar\\baz', '\\foo\\bar\\baz'),
             'Multiple atoms to multiple atoms' => array('\\foo\\bar', 'baz\\qux', '\\foo\\bar\\baz\\qux'),

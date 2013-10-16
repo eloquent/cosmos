@@ -28,6 +28,7 @@ class ClassNameFactoryTest extends PHPUnit_Framework_TestCase
     {
         //                                                 className               atoms                        isQualified
         return array(
+            'Root namespace'                      => array('\\',                   array(),                     true),
             'Qualified'                           => array('\\Namespace\\Class',   array('Namespace', 'Class'), true),
             'Qualified with empty atoms'          => array('\\Namespace\\\\Class', array('Namespace', 'Class'), true),
             'Qualified with empty atoms at start' => array('\\\\Class',            array('Class'),              true),
@@ -64,12 +65,5 @@ class ClassNameFactoryTest extends PHPUnit_Framework_TestCase
         $this->assertSame($atoms, $path->atoms());
         $this->assertSame($isQualified, $path instanceof QualifiedClassNameInterface);
         $this->assertSame($isQualified, !$path instanceof ClassNameReferenceInterface);
-    }
-
-    public function testCreateFailureEmptyQualified()
-    {
-        $this->setExpectedException('Eloquent\Cosmos\ClassName\Exception\InvalidClassNameException');
-
-        $this->factory->create('\\');
     }
 }

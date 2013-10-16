@@ -40,16 +40,10 @@ class QualifiedClassName extends AbsolutePath implements
      * Construct a new fully qualified class name.
      *
      * @param mixed<string> $atoms The class name atoms.
-     *
-     * @throws InvalidPathAtomExceptionInterface If any of the supplied class name atoms are invalid.
      */
     public function __construct($atoms)
     {
         parent::__construct($atoms);
-
-        if (count($this->atoms()) < 1) {
-            throw new Exception\InvalidClassNameException;
-        }
     }
 
     /**
