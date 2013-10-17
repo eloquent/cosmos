@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\ClassName\Resolver\Consumer;
+namespace Eloquent\Cosmos\Resolution\Consumer;
 
 use Phake;
 use PHPUnit_Framework_TestCase;
@@ -29,7 +29,7 @@ class ClassNameResolverTraitTest extends PHPUnit_Framework_TestCase
 
     public function testSetClassNameResolver()
     {
-        $classNameResolver = Phake::mock('Eloquent\Cosmos\ClassName\Resolver\ClassNameResolverInterface');
+        $classNameResolver = Phake::mock('Eloquent\Cosmos\Resolution\ClassNameResolverInterface');
         $this->consumer->setClassNameResolver($classNameResolver);
 
         $this->assertSame($classNameResolver, $this->consumer->classNameResolver());
@@ -39,7 +39,7 @@ class ClassNameResolverTraitTest extends PHPUnit_Framework_TestCase
     {
         $classNameResolver = $this->consumer->classNameResolver();
 
-        $this->assertInstanceOf('Eloquent\Cosmos\ClassName\Resolver\ClassNameResolverInterface', $classNameResolver);
+        $this->assertInstanceOf('Eloquent\Cosmos\Resolution\ClassNameResolverInterface', $classNameResolver);
         $this->assertSame($classNameResolver, $this->consumer->classNameResolver());
     }
 }

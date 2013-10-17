@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\ClassName\Resolver\Consumer;
+namespace Eloquent\Cosmos\Resolution\Consumer;
 
-use Eloquent\Cosmos\ClassName\Resolver\ClassNameResolver;
-use Eloquent\Cosmos\ClassName\Resolver\ClassNameResolverInterface;
+use Eloquent\Cosmos\Resolution\ClassNameResolver;
+use Eloquent\Cosmos\Resolution\ClassNameResolverInterface;
 
 /**
  * A trait for classes that take a class name resolver as a dependency.

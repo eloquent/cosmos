@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\ClassName\Resolver;
+namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Eloquent\Cosmos\ClassName\ResolutionContext;
 use PHPUnit_Framework_TestCase;
 
 class BoundClassNameResolverTest extends PHPUnit_Framework_TestCase

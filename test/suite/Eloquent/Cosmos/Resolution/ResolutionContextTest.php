@@ -9,8 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\ClassName;
+namespace Eloquent\Cosmos\Resolution;
 
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\ClassName\QualifiedClassName;
 use PHPUnit_Framework_TestCase;
 
 class ResolutionContextTest extends PHPUnit_Framework_TestCase
@@ -19,7 +21,7 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->factory = new Factory\ClassNameFactory;
+        $this->factory = new ClassNameFactory;
         $this->primaryNamespace = $this->factory->create('\VendorA\PackageA');
         $this->useStatements = array(
             new UseStatement($this->factory->create('\VendorB\PackageB')),

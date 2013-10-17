@@ -9,11 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\ClassName\Resolver;
+namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\ClassName\ClassNameInterface;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
-use Eloquent\Cosmos\ClassName\ResolutionContextInterface;
 
 /**
  * Resolves class names against a supplied context.

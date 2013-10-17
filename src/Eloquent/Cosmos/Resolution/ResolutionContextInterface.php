@@ -9,7 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\ClassName;
+namespace Eloquent\Cosmos\Resolution;
+
+use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
 
 /**
  * The interface implemented by class name resolution contexts.

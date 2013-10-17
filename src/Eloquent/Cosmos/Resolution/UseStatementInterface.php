@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\ClassName;
+namespace Eloquent\Cosmos\Resolution;
 
 /**
  * The interface implemented by use statements.

@@ -9,8 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\ClassName;
+namespace Eloquent\Cosmos\Resolution;
 
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use PHPUnit_Framework_TestCase;
 
 class UseStatementTest extends PHPUnit_Framework_TestCase
@@ -19,7 +20,7 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->factory = new Factory\ClassNameFactory;
+        $this->factory = new ClassNameFactory;
         $this->className = $this->factory->create('\\Namespace\\Class');
         $this->alias = $this->factory->create('Alias');
         $this->useStatement = new UseStatement($this->className, $this->alias);

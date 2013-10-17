@@ -9,7 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\ClassName;
+namespace Eloquent\Cosmos\Resolution;
+
+use Eloquent\Cosmos\ClassName\ClassNameReference;
+use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
+use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
 
 /**
  * Represents a combined namespace and set of use statements.
@@ -19,17 +25,17 @@ class ResolutionContext implements ResolutionContextInterface
     /**
      * Construct a new class name resolution context.
      *
-     * @param QualifiedClassNameInterface|null       $primaryNamespace The namespace.
-     * @param array<UseStatementInterface>|null      $useStatements    The use statements.
-     * @param Factory\ClassNameFactoryInterface|null $factory          The class name factory to use.
+     * @param QualifiedClassNameInterface|null  $primaryNamespace The namespace.
+     * @param array<UseStatementInterface>|null $useStatements    The use statements.
+     * @param ClassNameFactoryInterface|null    $factory          The class name factory to use.
      */
     public function __construct(
         QualifiedClassNameInterface $primaryNamespace = null,
         array $useStatements = null,
-        Factory\ClassNameFactoryInterface $factory = null
+        ClassNameFactoryInterface $factory = null
     ) {
         if (null === $factory) {
-            $factory = new Factory\ClassNameFactory;
+            $factory = new ClassNameFactory;
         }
         if (null === $primaryNamespace) {
             $primaryNamespace = $factory->createFromAtoms(array(), true);
@@ -103,7 +109,7 @@ class ResolutionContext implements ResolutionContextInterface
     /**
      * Get the class name factory.
      *
-     * @return Factory\ClassNameFactoryInterface The class name factory.
+     * @return ClassNameFactoryInterface The class name factory.
      */
     public function factory()
     {

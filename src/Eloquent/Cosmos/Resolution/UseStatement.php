@@ -9,7 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\ClassName;
+namespace Eloquent\Cosmos\Resolution;
+
+use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
+use Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException;
+use Eloquent\Cosmos\ClassName\QualifiedClassName;
+use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
 
 /**
  * Represents a use statement.
@@ -22,7 +27,7 @@ class UseStatement implements UseStatementInterface
      * @param QualifiedClassNameInterface      $className The class name.
      * @param ClassNameReferenceInterface|null $alias     The alias for the class name.
      *
-     * @throws Exception\InvalidClassNameAtomException If an invalid alias is supplied.
+     * @throws InvalidClassNameAtomException If an invalid alias is supplied.
      */
     public function __construct(
         QualifiedClassNameInterface $className,
@@ -39,9 +44,7 @@ class UseStatement implements UseStatementInterface
                 QualifiedClassName::SELF_ATOM === $aliasAtoms[0] ||
                 QualifiedClassName::PARENT_ATOM === $aliasAtoms[0]
             ) {
-                throw new Exception\InvalidClassNameAtomException(
-                    $alias->string()
-                );
+                throw new InvalidClassNameAtomException($alias->string());
             }
 
             $this->alias = $normalizedAlias;

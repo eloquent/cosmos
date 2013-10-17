@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\ClassName\Resolver;
+namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\ClassName\ClassNameInterface;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
