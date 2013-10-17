@@ -29,4 +29,13 @@ interface ResolutionContextInterface
      * @return array<UseStatementInterface> The use statements.
      */
     public function useStatements();
+
+    /**
+     * Resolve a class name reference against this context.
+     *
+     * @param ClassNameReferenceInterface $reference The reference to resolve.
+     *
+     * @return QualifiedClassNameInterface The resolved, qualified class name.
+     */
+    public function resolve(ClassNameReferenceInterface $reference);
 }

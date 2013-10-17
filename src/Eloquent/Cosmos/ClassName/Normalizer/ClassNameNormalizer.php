@@ -12,20 +12,21 @@
 namespace Eloquent\Cosmos\ClassName\Normalizer;
 
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Eloquent\Pathogen\Factory\PathFactoryInterface;
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
 use Eloquent\Pathogen\Normalizer\PathNormalizer;
 
 /**
  * Normalizes class names.
  */
-class ClassNameNormalizer extends PathNormalizer
+class ClassNameNormalizer extends PathNormalizer implements
+    ClassNameNormalizerInterface
 {
     /**
      * Construct a new class name normalizer.
      *
-     * @param PathFactoryInterface|null $factory The path factory to use.
+     * @param ClassNameFactoryInterface|null $factory The class name factory to use.
      */
-    public function __construct(PathFactoryInterface $factory = null)
+    public function __construct(ClassNameFactoryInterface $factory = null)
     {
         if (null === $factory) {
             $factory = new ClassNameFactory;

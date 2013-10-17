@@ -15,12 +15,11 @@ use Eloquent\Cosmos\ClassName\ClassNameInterface;
 use Eloquent\Cosmos\ClassName\ClassNameReference;
 use Eloquent\Cosmos\ClassName\QualifiedClassName;
 use Eloquent\Pathogen\Exception\InvalidPathAtomExceptionInterface;
-use Eloquent\Pathogen\Factory\PathFactoryInterface;
 
 /**
  * Creates class name instances.
  */
-class ClassNameFactory implements PathFactoryInterface
+class ClassNameFactory implements ClassNameFactoryInterface
 {
     /**
      * Creates a new class name instance from its string representation.
@@ -84,6 +83,10 @@ class ClassNameFactory implements PathFactoryInterface
         $isQualified = null,
         $hasTrailingSeparator = null
     ) {
+        if (null === $isQualified) {
+            $isQualified = true;
+        }
+
         if ($isQualified) {
             return new QualifiedClassName($atoms);
         }

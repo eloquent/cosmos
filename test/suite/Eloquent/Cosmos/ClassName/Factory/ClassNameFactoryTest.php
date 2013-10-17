@@ -60,10 +60,17 @@ class ClassNameFactoryTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateFromAtoms($pathString, array $atoms, $isQualified)
     {
-        $path = $this->factory->createFromAtoms($atoms, $isQualified);
+        $className = $this->factory->createFromAtoms($atoms, $isQualified);
 
-        $this->assertSame($atoms, $path->atoms());
-        $this->assertSame($isQualified, $path instanceof QualifiedClassNameInterface);
-        $this->assertSame($isQualified, !$path instanceof ClassNameReferenceInterface);
+        $this->assertSame($atoms, $className->atoms());
+        $this->assertSame($isQualified, $className instanceof QualifiedClassNameInterface);
+        $this->assertSame($isQualified, !$className instanceof ClassNameReferenceInterface);
+    }
+
+    public function testCreateFromAtomsDefaults()
+    {
+        $className = $this->factory->createFromAtoms(array());
+
+        $this->assertTrue($className instanceof QualifiedClassNameInterface);
     }
 }
