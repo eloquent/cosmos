@@ -161,4 +161,11 @@ class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame($normalizedClassName, $className->normalize($normalizer));
     }
+
+    public function testShortName()
+    {
+        $className = $this->factory->create('\foo\bar\baz');
+
+        $this->assertSame('baz', $className->shortName()->string());
+    }
 }

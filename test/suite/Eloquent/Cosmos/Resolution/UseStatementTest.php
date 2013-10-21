@@ -21,7 +21,7 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->factory = new ClassNameFactory;
-        $this->className = $this->factory->create('\\Namespace\\Class');
+        $this->className = $this->factory->create('\Namespace\Class');
         $this->alias = $this->factory->create('Alias');
         $this->useStatement = new UseStatement($this->className, $this->alias);
     }
@@ -61,5 +61,31 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException('Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException');
         new UseStatement($this->className, $this->alias);
+    }
+
+    public function testEffectiveAlias()
+    {
+        $this->assertSame('Alias', $this->useStatement->effectiveAlias()->string());
+    }
+
+    public function testEffectiveAliasNoAlias()
+    {
+        $this->useStatement = new UseStatement($this->className);
+
+        $this->assertSame('Class', $this->useStatement->effectiveAlias()->string());
+    }
+
+    public function testString()
+    {
+        $this->assertSame('use Namespace\Class as Alias', $this->useStatement->string());
+        $this->assertSame('use Namespace\Class as Alias', strval($this->useStatement));
+    }
+
+    public function testStringNoAlias()
+    {
+        $this->useStatement = new UseStatement($this->className);
+
+        $this->assertSame('use Namespace\Class', $this->useStatement->string());
+        $this->assertSame('use Namespace\Class', strval($this->useStatement));
     }
 }

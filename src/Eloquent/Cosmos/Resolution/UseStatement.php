@@ -34,8 +34,29 @@ class UseStatement implements UseStatementInterface
         ClassNameReferenceInterface $alias = null
     ) {
         $this->className = $className->normalize();
+        $this->setAlias($alias);
+    }
 
-        if (null !== $alias) {
+    /**
+     * Get the class name.
+     *
+     * @return QualifiedClassNameInterface The class name.
+     */
+    public function className()
+    {
+        return $this->className;
+    }
+
+    /**
+     * Set the alias for the class name.
+     *
+     * @param ClassNameReferenceInterface|null $alias The alias, or null to remove the alias.
+     */
+    public function setAlias(ClassNameReferenceInterface $alias = null)
+    {
+        if (null === $alias) {
+            $this->alias = null;
+        } else {
             $normalizedAlias = $alias->normalize();
             $aliasAtoms = $normalizedAlias->atoms();
 
@@ -52,16 +73,6 @@ class UseStatement implements UseStatementInterface
     }
 
     /**
-     * Get the class name.
-     *
-     * @return QualifiedClassNameInterface The class name.
-     */
-    public function className()
-    {
-        return $this->className;
-    }
-
-    /**
      * Get the alias for the class name.
      *
      * @return ClassNameReferenceInterface|null The alias, or null if no alias is in use.
@@ -69,6 +80,51 @@ class UseStatement implements UseStatementInterface
     public function alias()
     {
         return $this->alias;
+    }
+
+    /**
+     * Get the effective alias for the class name.
+     *
+     * @return ClassNameReferenceInterface The alias, or the last atom of the class name.
+     */
+    public function effectiveAlias()
+    {
+        if (null === $this->alias()) {
+            return $this->className()->shortName();
+        }
+
+        return $this->alias();
+    }
+
+    /**
+     * Generate a string representation of this use statement.
+     *
+     * @return string A string representation of this use statement.
+     */
+    public function string()
+    {
+        if (null === $this->alias()) {
+            return sprintf(
+                'use %s',
+                $this->className()->toRelative()->string()
+            );
+        }
+
+        return sprintf(
+            'use %s as %s',
+            $this->className()->toRelative()->string(),
+            $this->alias()->string()
+        );
+    }
+
+    /**
+     * Generate a string representation of this use statement.
+     *
+     * @return string A string representation of this use statement.
+     */
+    public function __toString()
+    {
+        return $this->string();
     }
 
     private $className;

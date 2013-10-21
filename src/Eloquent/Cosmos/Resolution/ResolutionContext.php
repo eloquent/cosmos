@@ -151,13 +151,8 @@ class ResolutionContext implements ResolutionContextInterface
     {
         $index = array();
         foreach ($this->useStatements as $useStatement) {
-            if (null === $useStatement->alias()) {
-                $alias = $useStatement->className()->name();
-            } else {
-                $alias = $useStatement->alias()->string();
-            }
-
-            $index[$alias] = $useStatement->className();
+            $index[$useStatement->effectiveAlias()->string()] =
+                $useStatement->className();
         }
 
         return $index;

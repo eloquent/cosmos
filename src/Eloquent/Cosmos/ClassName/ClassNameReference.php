@@ -49,6 +49,25 @@ class ClassNameReference extends RelativePath implements
     }
 
     /**
+     * Get the last atom of this class name as a class name reference.
+     *
+     * If this class name is already a short class name reference, it will be
+     * returned unaltered.
+     *
+     * @return ClassNameReferenceInterface The short class name.
+     */
+    public function shortName()
+    {
+        $atoms = $this->atoms();
+        $numAtoms = count($atoms);
+        if ($numAtoms < 2) {
+            return $this;
+        }
+
+        return $this->createPath(array($atoms[$numAtoms - 1]), false);
+    }
+
+    /**
      * Validates the supplied class name atom.
      *
      * @param string $atom The atom to validate.
