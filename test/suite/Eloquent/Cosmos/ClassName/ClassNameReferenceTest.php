@@ -25,13 +25,13 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
 
     public function classNameData()
     {
-        //                             className               atoms
+        //                             className             atoms
         return array(
-            'Self'            => array('.',                    array('.')),
-            'Single atom'     => array('Class',                array('Class')),
-            'Multiple atoms'  => array('Namespace\\Class',     array('Namespace', 'Class')),
-            'Parent atom'     => array('Namespace\\..\\Class', array('Namespace', '..', 'Class')),
-            'Self atom'       => array('Namespace\\.\\Class',  array('Namespace', '.', 'Class')),
+            'Self'            => array('.',                  array('.')),
+            'Single atom'     => array('Class',              array('Class')),
+            'Multiple atoms'  => array('Namespace\Class',    array('Namespace', 'Class')),
+            'Parent atom'     => array('Namespace\..\Class', array('Namespace', '..', 'Class')),
+            'Self atom'       => array('Namespace\.\Class',  array('Namespace', '.', 'Class')),
         );
     }
 
@@ -56,7 +56,7 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(__NAMESPACE__ . '\Exception\InvalidClassNameAtomException');
 
-        $this->factory->create('Namespace\\Class-Name');
+        $this->factory->create('Namespace\Class-Name');
     }
 
     public function namePartData()
@@ -89,12 +89,12 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
 
     public function joinData()
     {
-        //                                              className   reference   expectedResult
+        //                                              className  reference  expectedResult
         return array(
-            'Single atom'                      => array('foo',      'bar',      'foo\\bar'),
-            'Multiple atoms'                   => array('foo',      'bar\\baz', 'foo\\bar\\baz'),
-            'Multiple atoms to multiple atoms' => array('foo\\bar', 'baz\\qux', 'foo\\bar\\baz\\qux'),
-            'Special atoms'                    => array('foo',      '.\\..',    'foo\\.\\..'),
+            'Single atom'                      => array('foo',     'bar',     'foo\bar'),
+            'Multiple atoms'                   => array('foo',     'bar\baz', 'foo\bar\baz'),
+            'Multiple atoms to multiple atoms' => array('foo\bar', 'baz\qux', 'foo\bar\baz\qux'),
+            'Special atoms'                    => array('foo',     '.\..',    'foo\.\..'),
         );
     }
 
@@ -113,7 +113,7 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
     public function testJoinFailureQualified()
     {
         $className = $this->factory->create('foo');
-        $reference = $this->factory->create('\\bar');
+        $reference = $this->factory->create('\bar');
 
         $this->setExpectedException('PHPUnit_Framework_Error');
         $className->join($reference);
@@ -121,7 +121,7 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
 
     public function testNormalize()
     {
-        $className = $this->factory->create('foo\\..\\bar');
+        $className = $this->factory->create('foo\..\bar');
         $normalizedClassName = $this->factory->create('bar');
 
         $this->assertEquals($normalizedClassName, $className->normalize());
@@ -129,7 +129,7 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
 
     public function testNormalizeCustomNormalizer()
     {
-        $className = $this->factory->create('foo\\..\\bar');
+        $className = $this->factory->create('foo\..\bar');
         $normalizedClassName = $this->factory->create('bar');
         $normalizer = Phake::mock('Eloquent\Pathogen\Normalizer\PathNormalizerInterface');
         Phake::when($normalizer)->normalize($className)->thenReturn($normalizedClassName);

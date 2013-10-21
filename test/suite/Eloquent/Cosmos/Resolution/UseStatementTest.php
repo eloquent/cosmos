@@ -41,7 +41,7 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorFailureInvalidAliasMultipleAtoms()
     {
-        $this->alias = $this->factory->create('Namespace\\Alias');
+        $this->alias = $this->factory->create('Namespace\Alias');
 
         $this->setExpectedException('Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException');
         new UseStatement($this->className, $this->alias);
