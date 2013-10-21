@@ -16,6 +16,7 @@ use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 
 /**
  * Represents a combined namespace and set of use statements.

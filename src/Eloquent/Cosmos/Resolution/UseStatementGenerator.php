@@ -14,7 +14,10 @@ namespace Eloquent\Cosmos\Resolution;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
-use Eloquent\Cosmos\Resolution\UseStatementInterface;
+use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
+use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
+use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 
 /**
  * Generates use statements for importing sets of classes.
@@ -24,22 +27,28 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
     /**
      * Construct a new use statement generator.
      *
-     * @param integer|null                   $maxReferenceAtoms The maximum acceptable number of atoms for class references relative to the namespace.
-     * @param ClassNameFactoryInterface|null $factory           The class name factory to use.
+     * @param integer|null                      $maxReferenceAtoms   The maximum acceptable number of atoms for class references relative to the namespace.
+     * @param UseStatementFactoryInterface|null $useStatementFactory The use statement factory to use.
+     * @param ClassNameFactoryInterface|null    $classNameFactory    The class name factory to use.
      */
     public function __construct(
         $maxReferenceAtoms = null,
-        ClassNameFactoryInterface $factory = null
+        UseStatementFactoryInterface $useStatementFactory = null,
+        ClassNameFactoryInterface $classNameFactory = null
     ) {
         if (null === $maxReferenceAtoms) {
             $maxReferenceAtoms = 2;
         }
-        if (null === $factory) {
-            $factory = new ClassNameFactory;
+        if (null === $useStatementFactory) {
+            $useStatementFactory = new UseStatementFactory;
+        }
+        if (null === $classNameFactory) {
+            $classNameFactory = new ClassNameFactory;
         }
 
         $this->maxReferenceAtoms = $maxReferenceAtoms;
-        $this->factory = $factory;
+        $this->useStatementFactory = $useStatementFactory;
+        $this->classNameFactory = $classNameFactory;
     }
 
     /**
@@ -54,13 +63,23 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
     }
 
     /**
+     * Get the use statement factory.
+     *
+     * @return UseStatementFactoryInterface The use statement factory to use.
+     */
+    public function useStatementFactory()
+    {
+        return $this->useStatementFactory;
+    }
+
+    /**
      * Get the class name factory.
      *
      * @return ClassNameFactoryInterface The class name factory.
      */
-    public function factory()
+    public function classNameFactory()
     {
-        return $this->factory;
+        return $this->classNameFactory;
     }
 
     /**
@@ -76,7 +95,7 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
         QualifiedClassNameInterface $primaryNamespace = null
     ) {
         if (null === $primaryNamespace) {
-            $primaryNamespace = $this->factory()
+            $primaryNamespace = $this->classNameFactory()
                 ->createFromAtoms(array(), true);
         } else {
             $primaryNamespace = $primaryNamespace->normalize();
@@ -90,10 +109,12 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
                 $numReferenceAtoms = count($className->atoms()) -
                     count($primaryNamespace->atoms());
                 if ($numReferenceAtoms > $this->maxReferenceAtoms()) {
-                    $useStatements[] = new UseStatement($className);
+                    $useStatements[] = $this->useStatementFactory()
+                        ->create($className);
                 }
             } else {
-                $useStatements[] = new UseStatement($className);
+                $useStatements[] = $this->useStatementFactory()
+                    ->create($className);
             }
         }
 
@@ -174,7 +195,7 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
                     ->sliceAtoms($startIndex, 1);
                 $prefix = array_pop($prefixAtoms);
                 $currentAlias = $useStatement->effectiveAlias()->name();
-                $newAlias = $this->factory()->createFromAtoms(
+                $newAlias = $this->classNameFactory()->createFromAtoms(
                     array($prefix . $currentAlias),
                     false
                 );
@@ -198,5 +219,6 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
     }
 
     private $maxReferenceAtoms;
-    private $factory;
+    private $useStatementFactory;
+    private $classNameFactory;
 }

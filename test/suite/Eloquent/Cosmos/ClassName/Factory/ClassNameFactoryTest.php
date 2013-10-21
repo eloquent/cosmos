@@ -26,20 +26,20 @@ class ClassNameFactoryTest extends PHPUnit_Framework_TestCase
 
     public function createData()
     {
-        //                                                 className            atoms                        isQualified
+        //                                                 className              atoms                        isQualified
         return array(
-            'Root namespace'                      => array('\\',                array(),                     true),
-            'Qualified'                           => array('\Namespace\Class',  array('Namespace', 'Class'), true),
-            'Qualified with empty atoms'          => array('\Namespace\Class',  array('Namespace', 'Class'), true),
-            'Qualified with empty atoms at start' => array('\Class',            array('Class'),              true),
-            'Qualified with empty atoms at end'   => array('\Class\\',          array('Class'),              true),
+            'Root namespace'                      => array('\\',                  array(),                     true),
+            'Qualified'                           => array('\Namespace\Class',    array('Namespace', 'Class'), true),
+            'Qualified with empty atoms'          => array('\Namespace\\\\Class', array('Namespace', 'Class'), true),
+            'Qualified with empty atoms at start' => array('\\\\Class',           array('Class'),              true),
+            'Qualified with empty atoms at end'   => array('\Class\\\\',          array('Class'),              true),
 
-            'Empty'                               => array('',                  array('.'),                  false),
-            'Self'                                => array('.',                 array('.'),                  false),
-            'Reference'                           => array('Namespace\Class',   array('Namespace', 'Class'), false),
-            'Reference with trailing separator'   => array('Namespace\Class\\', array('Namespace', 'Class'), false),
-            'Reference with empty atoms'          => array('Namespace\Class',   array('Namespace', 'Class'), false),
-            'Reference with empty atoms at end'   => array('Namespace\Class\\', array('Namespace', 'Class'), false),
+            'Empty'                               => array('',                    array('.'),                  false),
+            'Self'                                => array('.',                   array('.'),                  false),
+            'Reference'                           => array('Namespace\Class',     array('Namespace', 'Class'), false),
+            'Reference with trailing separator'   => array('Namespace\Class\\',   array('Namespace', 'Class'), false),
+            'Reference with empty atoms'          => array('Namespace\\\\Class',  array('Namespace', 'Class'), false),
+            'Reference with empty atoms at end'   => array('Namespace\Class\\\\', array('Namespace', 'Class'), false),
         );
     }
 

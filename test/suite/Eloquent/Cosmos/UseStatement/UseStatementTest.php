@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution;
+namespace Eloquent\Cosmos\UseStatement;
 
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use PHPUnit_Framework_TestCase;

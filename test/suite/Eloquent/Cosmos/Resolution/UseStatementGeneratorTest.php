@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use PHPUnit_Framework_TestCase;
 
 class UseStatementGeneratorTest extends PHPUnit_Framework_TestCase
@@ -20,14 +21,16 @@ class UseStatementGeneratorTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->factory = new ClassNameFactory;
-        $this->generator = new UseStatementGenerator(3, $this->factory);
+        $this->useStatementFactory = new UseStatementFactory;
+        $this->classNameFactory = new ClassNameFactory;
+        $this->generator = new UseStatementGenerator(3, $this->useStatementFactory, $this->classNameFactory);
     }
 
     public function testConstructor()
     {
         $this->assertSame(3, $this->generator->maxReferenceAtoms());
-        $this->assertSame($this->factory, $this->generator->factory());
+        $this->assertSame($this->useStatementFactory, $this->generator->useStatementFactory());
+        $this->assertSame($this->classNameFactory, $this->generator->classNameFactory());
     }
 
     public function testConstructorDefaults()
@@ -35,24 +38,25 @@ class UseStatementGeneratorTest extends PHPUnit_Framework_TestCase
         $this->generator = new UseStatementGenerator;
 
         $this->assertSame(2, $this->generator->maxReferenceAtoms());
-        $this->assertEquals($this->factory, $this->generator->factory());
+        $this->assertEquals($this->useStatementFactory, $this->generator->useStatementFactory());
+        $this->assertEquals($this->classNameFactory, $this->generator->classNameFactory());
     }
 
     public function testGenerate()
     {
-        $primaryNamespace = $this->factory->create('\VendorA\PackageA');
+        $primaryNamespace = $this->classNameFactory->create('\VendorA\PackageA');
         $classNames = array(
-            $this->factory->create('\VendorC\PackageC'),
-            $this->factory->create('\VendorC\PackageC'),
-            $this->factory->create('\VendorB\PackageB'),
-            $this->factory->create('\VendorA\PackageA\Foo'),
-            $this->factory->create('\VendorA\PackageA\Foo\Bar\Baz'),
-            $this->factory->create('\VendorA\PackageA\Foo\Bar\Baz\Doom'),
-            $this->factory->create('\Foo\Bar\Baz\Qux'),
-            $this->factory->create('\Doom\Bar\Baz\Qux'),
-            $this->factory->create('\Bar\Baz\Qux'),
-            $this->factory->create('\Bar\Baz\Qux'),
-            $this->factory->create('\Foo'),
+            $this->classNameFactory->create('\VendorC\PackageC'),
+            $this->classNameFactory->create('\VendorC\PackageC'),
+            $this->classNameFactory->create('\VendorB\PackageB'),
+            $this->classNameFactory->create('\VendorA\PackageA\Foo'),
+            $this->classNameFactory->create('\VendorA\PackageA\Foo\Bar\Baz'),
+            $this->classNameFactory->create('\VendorA\PackageA\Foo\Bar\Baz\Doom'),
+            $this->classNameFactory->create('\Foo\Bar\Baz\Qux'),
+            $this->classNameFactory->create('\Doom\Bar\Baz\Qux'),
+            $this->classNameFactory->create('\Bar\Baz\Qux'),
+            $this->classNameFactory->create('\Bar\Baz\Qux'),
+            $this->classNameFactory->create('\Foo'),
         );
         $useStatements = $this->generator->generate($classNames, $primaryNamespace);
         $actual = array();
@@ -75,17 +79,17 @@ class UseStatementGeneratorTest extends PHPUnit_Framework_TestCase
     public function testGenerateDefaultNamespace()
     {
         $classNames = array(
-            $this->factory->create('\VendorC\PackageC'),
-            $this->factory->create('\VendorC\PackageC'),
-            $this->factory->create('\VendorB\PackageB'),
-            $this->factory->create('\VendorA\PackageA\Foo'),
-            $this->factory->create('\VendorA\PackageA\Foo\Bar\Baz'),
-            $this->factory->create('\VendorA\PackageA\Foo\Bar\Baz\Doom'),
-            $this->factory->create('\Foo\Bar\Baz\Qux'),
-            $this->factory->create('\Doom\Bar\Baz\Qux'),
-            $this->factory->create('\Bar\Baz\Qux'),
-            $this->factory->create('\Bar\Baz\Qux'),
-            $this->factory->create('\Foo'),
+            $this->classNameFactory->create('\VendorC\PackageC'),
+            $this->classNameFactory->create('\VendorC\PackageC'),
+            $this->classNameFactory->create('\VendorB\PackageB'),
+            $this->classNameFactory->create('\VendorA\PackageA\Foo'),
+            $this->classNameFactory->create('\VendorA\PackageA\Foo\Bar\Baz'),
+            $this->classNameFactory->create('\VendorA\PackageA\Foo\Bar\Baz\Doom'),
+            $this->classNameFactory->create('\Foo\Bar\Baz\Qux'),
+            $this->classNameFactory->create('\Doom\Bar\Baz\Qux'),
+            $this->classNameFactory->create('\Bar\Baz\Qux'),
+            $this->classNameFactory->create('\Bar\Baz\Qux'),
+            $this->classNameFactory->create('\Foo'),
         );
         $useStatements = $this->generator->generate($classNames);
         $actual = array();
