@@ -3,20 +3,20 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "aea9b218da5a3437805af1efd3298a2a",
+    "hash": "cdc9a0a6d1a6aeabdacb2fc15935f2ef",
     "packages": [
         {
             "name": "eloquent/pathogen",
-            "version": "0.4.0",
+            "version": "0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eloquent/pathogen.git",
-                "reference": "723452b1bc3be2eaa7c5603f44354c8cb731aaf6"
+                "reference": "9ce5c33088bebcdb0e6f297ef40d52334c9a2e4e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/pathogen/zipball/723452b1bc3be2eaa7c5603f44354c8cb731aaf6",
-                "reference": "723452b1bc3be2eaa7c5603f44354c8cb731aaf6",
+                "url": "https://api.github.com/repos/eloquent/pathogen/zipball/9ce5c33088bebcdb0e6f297ef40d52334c9a2e4e",
+                "reference": "9ce5c33088bebcdb0e6f297ef40d52334c9a2e4e",
                 "shasum": ""
             },
             "require": {
@@ -57,7 +57,7 @@
                 "manipulation",
                 "path"
             ],
-            "time": "2013-10-18 04:30:47"
+            "time": "2013-10-27 23:57:50"
         },
         {
             "name": "icecave/isolator",

@@ -191,12 +191,12 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
 
                 $changes = true;
 
-                $prefixAtoms = $useStatement->className()
-                    ->sliceAtoms($startIndex, 1);
-                $prefix = array_pop($prefixAtoms);
                 $currentAlias = $useStatement->effectiveAlias()->name();
                 $newAlias = $this->classNameFactory()->createFromAtoms(
-                    array($prefix . $currentAlias),
+                    array(
+                        $useStatement->className()->atomAt($startIndex) .
+                        $currentAlias
+                    ),
                     false
                 );
                 $useStatement->setAlias($newAlias);
