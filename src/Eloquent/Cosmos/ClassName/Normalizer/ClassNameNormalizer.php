@@ -22,6 +22,20 @@ class ClassNameNormalizer extends PathNormalizer implements
     ClassNameNormalizerInterface
 {
     /**
+     * Get a static instance of this class name normalizer.
+     *
+     * @return ClassNameNormalizerInterface The static class name normalizer.
+     */
+    public static function instance()
+    {
+        if (null === static::$instance) {
+            static::$instance = new static;
+        }
+
+        return static::$instance;
+    }
+
+    /**
      * Construct a new class name normalizer.
      *
      * @param ClassNameFactoryInterface|null $factory The class name factory to use.
@@ -29,9 +43,11 @@ class ClassNameNormalizer extends PathNormalizer implements
     public function __construct(ClassNameFactoryInterface $factory = null)
     {
         if (null === $factory) {
-            $factory = new ClassNameFactory;
+            $factory = ClassNameFactory::instance();
         }
 
         parent::__construct($factory);
     }
+
+    private static $instance;
 }

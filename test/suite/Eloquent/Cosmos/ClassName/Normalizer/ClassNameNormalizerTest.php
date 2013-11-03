@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\ClassName\Normalizer;
 
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
 class ClassNameNormalizerTest extends PHPUnit_Framework_TestCase
@@ -101,5 +102,15 @@ class ClassNameNormalizerTest extends PHPUnit_Framework_TestCase
         $normalized = $this->normalizer->normalize($className);
 
         $this->assertSame($expectedResult, $normalized->string());
+    }
+
+    public function testInstance()
+    {
+        $class = Liberator::liberateClass(__NAMESPACE__ . '\ClassNameNormalizer');
+        $class->instance = null;
+        $actual = ClassNameNormalizer::instance();
+
+        $this->assertInstanceOf(__NAMESPACE__ . '\ClassNameNormalizer', $actual);
+        $this->assertSame($actual, ClassNameNormalizer::instance());
     }
 }

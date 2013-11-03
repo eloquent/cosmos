@@ -11,7 +11,6 @@
 
 namespace Eloquent\Cosmos\ClassName;
 
-use Phake;
 use PHPUnit_Framework_TestCase;
 
 class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
@@ -150,16 +149,6 @@ class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
         $normalizedClassName = $this->factory->create('\bar');
 
         $this->assertEquals($normalizedClassName, $className->normalize());
-    }
-
-    public function testNormalizeCustomNormalizer()
-    {
-        $className = $this->factory->create('\foo\..\bar');
-        $normalizedClassName = $this->factory->create('\bar');
-        $normalizer = Phake::mock('Eloquent\Pathogen\Normalizer\PathNormalizerInterface');
-        Phake::when($normalizer)->normalize($className)->thenReturn($normalizedClassName);
-
-        $this->assertSame($normalizedClassName, $className->normalize($normalizer));
     }
 
     public function testShortName()

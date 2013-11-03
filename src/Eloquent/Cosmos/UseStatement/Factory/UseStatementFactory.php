@@ -22,6 +22,20 @@ use Eloquent\Cosmos\UseStatement\UseStatement;
 class UseStatementFactory implements UseStatementFactoryInterface
 {
     /**
+     * Get a static instance of this use statement factory.
+     *
+     * @return UseStatementFactoryInterface The static use statement factory.
+     */
+    public static function instance()
+    {
+        if (null === static::$instance) {
+            static::$instance = new static;
+        }
+
+        return static::$instance;
+    }
+
+    /**
      * Create a new use statement.
      *
      * @param QualifiedClassNameInterface      $className The class name.
@@ -35,4 +49,6 @@ class UseStatementFactory implements UseStatementFactoryInterface
     ) {
         return new UseStatement($className, $alias);
     }
+
+    private static $instance;
 }

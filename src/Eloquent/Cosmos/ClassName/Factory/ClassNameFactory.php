@@ -22,6 +22,20 @@ use Eloquent\Pathogen\Exception\InvalidPathAtomExceptionInterface;
 class ClassNameFactory implements ClassNameFactoryInterface
 {
     /**
+     * Get a static instance of this class name factory.
+     *
+     * @return ClassNameFactoryInterface The static class name factory.
+     */
+    public static function instance()
+    {
+        if (null === static::$instance) {
+            static::$instance = new static;
+        }
+
+        return static::$instance;
+    }
+
+    /**
      * Creates a new class name instance from its string representation.
      *
      * @param string $className The string representation of the class name.
@@ -93,4 +107,6 @@ class ClassNameFactory implements ClassNameFactoryInterface
 
         return new ClassNameReference($atoms);
     }
+
+    private static $instance;
 }

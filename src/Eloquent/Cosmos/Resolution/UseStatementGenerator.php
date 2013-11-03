@@ -40,10 +40,10 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
             $maxReferenceAtoms = 2;
         }
         if (null === $useStatementFactory) {
-            $useStatementFactory = new UseStatementFactory;
+            $useStatementFactory = UseStatementFactory::instance();
         }
         if (null === $classNameFactory) {
-            $classNameFactory = new ClassNameFactory;
+            $classNameFactory = ClassNameFactory::instance();
         }
 
         $this->maxReferenceAtoms = $maxReferenceAtoms;

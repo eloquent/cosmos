@@ -13,6 +13,7 @@ namespace Eloquent\Cosmos\UseStatement\Factory;
 
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
 class UseStatementTest extends PHPUnit_Framework_TestCase
@@ -34,5 +35,15 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
         $expected = new UseStatement($this->className, $this->alias);
 
         $this->assertEquals($expected, $actual);
+    }
+
+    public function testInstance()
+    {
+        $class = Liberator::liberateClass(__NAMESPACE__ . '\UseStatementFactory');
+        $class->instance = null;
+        $actual = UseStatementFactory::instance();
+
+        $this->assertInstanceOf(__NAMESPACE__ . '\UseStatementFactory', $actual);
+        $this->assertSame($actual, UseStatementFactory::instance());
     }
 }

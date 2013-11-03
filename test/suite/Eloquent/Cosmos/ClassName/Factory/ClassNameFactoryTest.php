@@ -13,6 +13,7 @@ namespace Eloquent\Cosmos\ClassName\Factory;
 
 use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
 class ClassNameFactoryTest extends PHPUnit_Framework_TestCase
@@ -72,5 +73,15 @@ class ClassNameFactoryTest extends PHPUnit_Framework_TestCase
         $className = $this->factory->createFromAtoms(array());
 
         $this->assertTrue($className instanceof QualifiedClassNameInterface);
+    }
+
+    public function testInstance()
+    {
+        $class = Liberator::liberateClass(__NAMESPACE__ . '\ClassNameFactory');
+        $class->instance = null;
+        $actual = ClassNameFactory::instance();
+
+        $this->assertInstanceOf(__NAMESPACE__ . '\ClassNameFactory', $actual);
+        $this->assertSame($actual, ClassNameFactory::instance());
     }
 }

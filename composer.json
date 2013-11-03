@@ -13,10 +13,11 @@
     ],
     "require": {
         "php": ">=5.3",
-        "eloquent/pathogen": "~0.5.0",
+        "eloquent/pathogen": "dev-develop@dev",
         "icecave/isolator": "~2"
     },
     "require-dev": {
+        "eloquent/liberator": "~1",
         "icecave/archer": "~1"
     },
     "autoload": {

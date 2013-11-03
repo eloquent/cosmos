@@ -12,7 +12,6 @@
 namespace Eloquent\Cosmos\ClassName;
 
 use Eloquent\Pathogen\Exception\InvalidPathAtomExceptionInterface;
-use Eloquent\Pathogen\Normalizer\PathNormalizerInterface;
 use Eloquent\Pathogen\RelativePath;
 
 /**
@@ -84,30 +83,22 @@ class ClassNameReference extends RelativePath implements
     }
 
     /**
-     * Create a new class name instance.
+     * Get the class name factory.
      *
-     * @param mixed<string> $atoms                The class name atoms.
-     * @param boolean       $isQualified          True if the class name is fully qualified.
-     * @param boolean|null  $hasTrailingSeparator Ignored.
-     *
-     * @return ClassNameInterface                The newly created class name instance.
-     * @throws InvalidPathAtomExceptionInterface If any of the supplied atoms are invalid.
+     * @return Factory\ClassNameFactoryInterface The class name factory.
      */
-    protected function createPath(
-        $atoms,
-        $isQualified,
-        $hasTrailingSeparator = null
-    ) {
-        return new ClassNameReference($atoms);
+    protected static function factory()
+    {
+        return Factory\ClassNameFactory::instance();
     }
 
     /**
-     * Create a new default class name normalizer.
+     * Get the class name normalizer.
      *
-     * @return PathNormalizerInterface The newly created normalizer.
+     * @return Normalizer\ClassNameNormalizerInterface The class name normalizer.
      */
-    protected function createDefaultNormalizer()
+    protected static function normalizer()
     {
-        return new Normalizer\ClassNameNormalizer;
+        return Normalizer\ClassNameNormalizer::instance();
     }
 }

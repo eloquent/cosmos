@@ -51,7 +51,7 @@ trait ClassNameFactoryTrait
      */
     protected function createDefaultClassNameFactory()
     {
-        return new ClassNameFactory;
+        return ClassNameFactory::instance();
     }
 
     private $classNameFactory;

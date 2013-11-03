@@ -36,7 +36,7 @@ class ResolutionContext implements ResolutionContextInterface
         ClassNameFactoryInterface $factory = null
     ) {
         if (null === $factory) {
-            $factory = new ClassNameFactory;
+            $factory = ClassNameFactory::instance();
         }
         if (null === $primaryNamespace) {
             $primaryNamespace = $factory->createFromAtoms(array(), true);
