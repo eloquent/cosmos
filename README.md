@@ -2,9 +2,9 @@
 
 *A library for representing and manipulating PHP class names.*
 
-[![Build Status]][Latest build]
-[![Test Coverage]][Test coverage report]
-[![Uses Semantic Versioning]][SemVer]
+[![The most recent stable version is 2.3.1][version-image]][Semantic versioning]
+[![Current build status image][build-image]][Current build status]
+[![Current coverage status image][coverage-image]][Current coverage status]
 
 ## Installation and documentation
 
@@ -190,11 +190,12 @@ echo $resolver->resolve(ClassName::fromString('\Betelgeuse'));
 
 <!-- References -->
 
-[Build Status]: https://api.travis-ci.org/eloquent/cosmos.png?branch=master
+[API documentation]: http://lqnt.co/php-lcs/artifacts/documentation/api/
 [Composer]: http://getcomposer.org/
-[eloquent/cosmos]: https://packagist.org/packages/eloquent/cosmos
-[Latest build]: https://travis-ci.org/eloquent/cosmos
-[SemVer]: http://semver.org/
-[Test coverage report]: https://coveralls.io/r/eloquent/cosmos
-[Test Coverage]: https://coveralls.io/repos/eloquent/cosmos/badge.png?branch=master
-[Uses Semantic Versioning]: http://b.repl.ca/v1/semver-yes-brightgreen.png
+[build-image]: http://img.shields.io/travis/eloquent/php-lcs/develop.svg "Current build status for the develop branch"
+[Current build status]: https://travis-ci.org/eloquent/php-lcs
+[coverage-image]: http://img.shields.io/coveralls/eloquent/php-lcs/develop.svg "Current test coverage for the develop branch"
+[Current coverage status]: https://coveralls.io/r/eloquent/php-lcs
+[eloquent/lcs]: https://packagist.org/packages/eloquent/lcs
+[Semantic versioning]: http://semver.org/
+[version-image]: http://img.shields.io/:semver-2.3.1-brightgreen.svg "This project uses semantic versioning"
