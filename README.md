@@ -190,12 +190,12 @@ echo $resolver->resolve(ClassName::fromString('\Betelgeuse'));
 
 <!-- References -->
 
-[API documentation]: http://lqnt.co/php-lcs/artifacts/documentation/api/
+[API documentation]: http://lqnt.co/cosmos/artifacts/documentation/api/
 [Composer]: http://getcomposer.org/
-[build-image]: http://img.shields.io/travis/eloquent/php-lcs/develop.svg "Current build status for the develop branch"
-[Current build status]: https://travis-ci.org/eloquent/php-lcs
-[coverage-image]: http://img.shields.io/coveralls/eloquent/php-lcs/develop.svg "Current test coverage for the develop branch"
-[Current coverage status]: https://coveralls.io/r/eloquent/php-lcs
+[build-image]: http://img.shields.io/travis/eloquent/cosmos/develop.svg "Current build status for the develop branch"
+[Current build status]: https://travis-ci.org/eloquent/cosmos
+[coverage-image]: http://img.shields.io/coveralls/eloquent/cosmos/develop.svg "Current test coverage for the develop branch"
+[Current coverage status]: https://coveralls.io/r/eloquent/cosmos
 [eloquent/lcs]: https://packagist.org/packages/eloquent/lcs
 [Semantic versioning]: http://semver.org/
 [version-image]: http://img.shields.io/:semver-2.3.1-brightgreen.svg "This project uses semantic versioning"
