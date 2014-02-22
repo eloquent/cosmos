@@ -39,7 +39,7 @@ class ClassNameResolver implements ClassNameResolverInterface
     /**
      * Construct a new class name resolver.
      *
-     * @param ResolutionContextFactoryInterface $contextFactory The resolution context factory to use.
+     * @param ResolutionContextFactoryInterface|null $contextFactory The resolution context factory to use.
      */
     public function __construct(
         ResolutionContextFactoryInterface $contextFactory = null
@@ -118,6 +118,57 @@ class ClassNameResolver implements ClassNameResolverInterface
         }
 
         return $context->primaryNamespace()->join($className);
+    }
+
+    /**
+     * Find the shortest class name that will resolve to the supplied qualified
+     * class name from within the supplied resolution context.
+     *
+     * If the qualified class is not a child of the primary namespace, and there
+     * are no related use statements, this method will return a qualified class
+     * name.
+     *
+     * @param ResolutionContextInterface  $context   The resolution context.
+     * @param QualifiedClassNameInterface $className The class name to resolve.
+     *
+     * @return ClassNameInterface The shortest class name.
+     */
+    public function relativeToContext(
+        ResolutionContextInterface $context,
+        QualifiedClassNameInterface $className
+    ) {
+        $className = $className->normalize();
+
+        if ($context->primaryNamespace()->isAncestorOf($className)) {
+            $match = $className->relativeTo($context->primaryNamespace());
+
+            if ($context->classNameByShortName($match->firstAtomShortName())) {
+                $match = $match
+                    ->replace(0, array(ClassNameReference::NAMESPACE_ATOM), 0);
+            }
+        } else {
+            $match = $className;
+        }
+
+        $matchSize = count($match->atoms());
+
+        foreach ($context->useStatements() as $useStatement) {
+            if ($useStatement->className()->atoms() === $className->atoms()) {
+                $match = $useStatement->effectiveAlias();
+                $matchSize = 1;
+            } elseif ($useStatement->className()->isAncestorOf($className)) {
+                $thisMatch = $useStatement->effectiveAlias()
+                    ->join($className->relativeTo($useStatement->className()));
+                $thisMatchSize = count($thisMatch->atoms());
+
+                if ($thisMatchSize < $matchSize) {
+                    $match = $thisMatch;
+                    $matchSize = $thisMatchSize;
+                }
+            }
+        }
+
+        return $match;
     }
 
     private static $instance;

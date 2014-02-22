@@ -34,4 +34,22 @@ interface ClassNameResolverInterface extends BasePathResolverInterface
         ResolutionContextInterface $context,
         ClassNameInterface $className
     );
+
+    /**
+     * Find the shortest class name that will resolve to the supplied qualified
+     * class name from within the supplied resolution context.
+     *
+     * If the qualified class is not a child of the primary namespace, and there
+     * are no related use statements, this method will return a qualified class
+     * name.
+     *
+     * @param ResolutionContextInterface  $context   The resolution context.
+     * @param QualifiedClassNameInterface $className The class name to resolve.
+     *
+     * @return ClassNameInterface The shortest class name.
+     */
+    public function relativeToContext(
+        ResolutionContextInterface $context,
+        QualifiedClassNameInterface $className
+    );
 }
