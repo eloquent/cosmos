@@ -11,6 +11,8 @@
 
 namespace Eloquent\Cosmos\ClassName;
 
+use Eloquent\Cosmos\Resolution\ResolutionContext;
+use Eloquent\Cosmos\UseStatement\UseStatement;
 use PHPUnit_Framework_TestCase;
 
 class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
@@ -20,6 +22,13 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->factory = new Factory\ClassNameFactory;
+
+        $this->primaryNamespace = $this->factory->create('\VendorA\PackageA');
+        $this->useStatements = array(
+            new UseStatement($this->factory->create('\VendorB\PackageB')),
+            new UseStatement($this->factory->create('\VendorC\PackageC')),
+        );
+        $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->factory);
     }
 
     public function classNameData()
@@ -126,6 +135,39 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($normalizedClassName, $className->normalize());
     }
 
+    public function resolveAgainstData()
+    {
+        //                                                                                        namespace      className   expectedResult
+        return array(
+            'Root against single atom'                                                   => array('\\',         'foo',       '\foo'),
+            'Single atom against single atom'                                            => array('\foo',       'bar',       '\foo\bar'),
+            'Multiple atoms against single atom'                                         => array('\foo\bar',   'baz',       '\foo\bar\baz'),
+            'Multiple atoms with slash against single atoms'                             => array('\foo\bar\\', 'baz',       '\foo\bar\baz'),
+            'Multiple atoms against multiple atoms'                                      => array('\foo\bar',   'baz\qux',   '\foo\bar\baz\qux'),
+            'Multiple atoms with slash against multiple atoms'                           => array('\foo\bar\\', 'baz\qux',   '\foo\bar\baz\qux'),
+            'Multiple atoms with slash against multiple atoms with slash'                => array('\foo\bar\\', 'baz\qux\\', '\foo\bar\baz\qux'),
+            'Root against parent atom'                                                   => array('\\',         '..',        '\..'),
+            'Single atom against parent atom'                                            => array('\foo',       '..',        '\foo\..'),
+            'Single atom with slash against parent atom'                                 => array('\foo\\',     '..',        '\foo\..'),
+            'Single atom with slash against parent atom with slash'                      => array('\foo\\',     '..\\',      '\foo\..'),
+            'Multiple atoms against parent and single atom'                              => array('\foo\bar',   '..\baz',    '\foo\bar\..\baz'),
+            'Multiple atoms with slash against parent atom and single atom'              => array('\foo\bar\\', '..\baz',    '\foo\bar\..\baz'),
+            'Multiple atoms with slash against parent atom and single atom with slash'   => array('\foo\bar\\', '..\baz\\',  '\foo\bar\..\baz'),
+        );
+    }
+
+    /**
+     * @dataProvider resolveAgainstData
+     */
+    public function testResolveAgainstRelativePaths($namespaceString, $classNameString, $expectedResult)
+    {
+        $namespace = $this->factory->create($namespaceString);
+        $className = $this->factory->create($classNameString);
+        $resolved = $className->resolveAgainst($namespace);
+
+        $this->assertSame($expectedResult, $resolved->string());
+    }
+
     public function testShortName()
     {
         $className = $this->factory->create('foo\bar\baz');
@@ -152,5 +194,81 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
         $className = $this->factory->create('foo');
 
         $this->assertSame($className, $className->firstAtomShortName());
+    }
+
+    public function testResolveAgainstContext()
+    {
+        $reference = $this->factory->create('Class');
+
+        $this->assertSame(
+            '\VendorA\PackageA\Class',
+            $reference->resolveAgainstContext($this->context)->string()
+        );
+    }
+
+    public function testResolveAgainstContextGlobalNsNoUseStatements()
+    {
+        $this->context = new ResolutionContext;
+
+        $this->assertSame('\Class', $this->factory->create('Class')->resolveAgainstContext($this->context)->string());
+        $this->assertSame(
+            '\Vendor\Package',
+            $this->factory->create('Vendor\Package')->resolveAgainstContext($this->context)->string()
+        );
+    }
+
+    /**
+     * @link http://php.net/manual/en/language.namespaces.importing.php
+     */
+    public function testResolveAgainstContextDocumentationExamples()
+    {
+        $this->context = new ResolutionContext(
+            $this->factory->create('\foo'),
+            array(
+                new UseStatement(
+                    $this->factory->create('\My\Full\Classname'),
+                    $this->factory->create('Another')
+                ),
+                new UseStatement($this->factory->create('\My\Full\NSname')),
+                new UseStatement($this->factory->create('\ArrayObject')),
+            )
+        );
+
+        $this->assertSame(
+            '\foo\Another',
+            $this->factory->create('namespace\Another')->resolveAgainstContext($this->context)->string()
+        );
+        $this->assertSame(
+            '\My\Full\Classname',
+            $this->factory->create('Another')->resolveAgainstContext($this->context)->string()
+        );
+        $this->assertSame(
+            '\My\Full\Classname\thing',
+            $this->factory->create('Another\thing')->resolveAgainstContext($this->context)->string()
+        );
+        $this->assertSame(
+            '\My\Full\NSname\subns',
+            $this->factory->create('NSname\subns')->resolveAgainstContext($this->context)->string()
+        );
+        $this->assertSame(
+            '\ArrayObject',
+            $this->factory->create('ArrayObject')->resolveAgainstContext($this->context)->string()
+        );
+    }
+
+    public function testResolveAgainstContextSpecialAtoms()
+    {
+        $this->assertSame(
+            '\VendorA\PackageA\.\PackageB\Class',
+            $this->factory->create('.\PackageB\Class')->resolveAgainstContext($this->context)->string()
+        );
+        $this->assertSame(
+            '\VendorA\PackageA\..\PackageD\Class',
+            $this->factory->create('..\PackageD\Class')->resolveAgainstContext($this->context)->string()
+        );
+        $this->assertSame(
+            '\VendorB\PackageB\..\PackageD\Class',
+            $this->factory->create('PackageB\..\PackageD\Class')->resolveAgainstContext($this->context)->string()
+        );
     }
 }

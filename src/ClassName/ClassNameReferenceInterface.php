@@ -11,6 +11,7 @@
 
 namespace Eloquent\Cosmos\ClassName;
 
+use Eloquent\Cosmos\Resolution\ResolutionContextInterface;
 use Eloquent\Pathogen\RelativePathInterface;
 
 /**
@@ -20,4 +21,12 @@ interface ClassNameReferenceInterface extends
     RelativePathInterface,
     ClassNameInterface
 {
+    /**
+     * Resolve this class name against the supplied resolution context.
+     *
+     * @param ResolutionContextInterface $context The resolution context.
+     *
+     * @return QualifiedClassNameInterface The resolved, qualified class name.
+     */
+    public function resolveAgainstContext(ResolutionContextInterface $context);
 }

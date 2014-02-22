@@ -11,6 +11,9 @@
 
 namespace Eloquent\Cosmos\ClassName;
 
+use Eloquent\Cosmos\Resolution\ClassNameResolver;
+use Eloquent\Cosmos\Resolution\ClassNameResolverInterface;
+use Eloquent\Cosmos\Resolution\ResolutionContextInterface;
 use Eloquent\Pathogen\Exception\InvalidPathAtomExceptionInterface;
 use Eloquent\Pathogen\RelativePath;
 
@@ -91,6 +94,18 @@ class ClassNameReference extends RelativePath implements
     }
 
     /**
+     * Resolve this class name against the supplied resolution context.
+     *
+     * @param ResolutionContextInterface $context The resolution context.
+     *
+     * @return QualifiedClassNameInterface The resolved, qualified class name.
+     */
+    public function resolveAgainstContext(ResolutionContextInterface $context)
+    {
+        return static::resolver()->resolveAgainstContext($context, $this);
+    }
+
+    /**
      * Validates the supplied class name atom.
      *
      * @param string $atom The atom to validate.
@@ -124,5 +139,15 @@ class ClassNameReference extends RelativePath implements
     protected static function normalizer()
     {
         return Normalizer\ClassNameNormalizer::instance();
+    }
+
+    /**
+     * Get the class name resolver.
+     *
+     * @return ClassNameResolverInterface The class name resolver.
+     */
+    protected static function resolver()
+    {
+        return ClassNameResolver::instance();
     }
 }
