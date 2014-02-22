@@ -33,11 +33,13 @@ interface ResolutionContextInterface
     public function useStatements();
 
     /**
-     * Resolve a class name reference against this context.
+     * Get the class name or namespace associated with the supplied short name.
      *
-     * @param ClassNameReferenceInterface $reference The reference to resolve.
+     * @param ClassNameReferenceInterface $shortName The short name.
      *
-     * @return QualifiedClassNameInterface The resolved, qualified class name.
+     * @return QualifiedClassNameInterface The class/namespace name.
      */
-    public function resolve(ClassNameReferenceInterface $reference);
+    public function classNameByShortName(
+        ClassNameReferenceInterface $shortName
+    );
 }

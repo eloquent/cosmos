@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
@@ -27,7 +28,11 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
         $this->classNameFactory = new ClassNameFactory;
 
         $this->primaryNamespace = $this->classNameFactory->create('\VendorA\PackageA');
-        $this->context = new ResolutionContext($this->primaryNamespace);
+        $this->useStatements = array(
+            new UseStatement($this->classNameFactory->create('\VendorB\PackageB')),
+            new UseStatement($this->classNameFactory->create('\VendorC\PackageC')),
+        );
+        $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->classNameFactory);
     }
 
     public function testConstructor()
@@ -63,6 +68,79 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
         $this->assertSame(
             '\VendorA\PackageA\Class',
             $this->resolver->resolveAgainstContext($this->context, $reference)->string()
+        );
+    }
+
+    public function testResolveAgainstContextGlobalNsNoUseStatements()
+    {
+        $this->context = new ResolutionContext;
+
+        $this->assertSame(
+            '\Class',
+            $this->resolver->resolveAgainstContext($this->context, $this->classNameFactory->create('Class'))->string()
+        );
+        $this->assertSame(
+            '\Vendor\Package',
+            $this->resolver->resolveAgainstContext($this->context, $this->classNameFactory->create('Vendor\Package'))
+                ->string()
+        );
+    }
+
+    /**
+     * @link http://php.net/manual/en/language.namespaces.importing.php
+     */
+    public function testResolveAgainstContextDocumentationExamples()
+    {
+        $this->context = new ResolutionContext(
+            $this->classNameFactory->create('\foo'),
+            array(
+                new UseStatement(
+                    $this->classNameFactory->create('\My\Full\Classname'),
+                    $this->classNameFactory->create('Another')
+                ),
+                new UseStatement($this->classNameFactory->create('\My\Full\NSname')),
+                new UseStatement($this->classNameFactory->create('\ArrayObject')),
+            )
+        );
+
+        $this->assertSame(
+            '\My\Full\Classname',
+            $this->resolver->resolveAgainstContext($this->context, $this->classNameFactory->create('Another'))->string()
+        );
+        $this->assertSame(
+            '\My\Full\Classname\thing',
+            $this->resolver->resolveAgainstContext($this->context, $this->classNameFactory->create('Another\thing'))
+                ->string()
+        );
+        $this->assertSame(
+            '\My\Full\NSname\subns',
+            $this->resolver->resolveAgainstContext($this->context, $this->classNameFactory->create('NSname\subns'))
+                ->string()
+        );
+        $this->assertSame(
+            '\ArrayObject',
+            $this->resolver->resolveAgainstContext($this->context, $this->classNameFactory->create('ArrayObject'))
+                ->string()
+        );
+    }
+
+    public function testResolveAgainstContextSpecialAtoms()
+    {
+        $this->assertSame(
+            '\VendorA\PackageA\.\PackageB\Class',
+            $this->resolver->resolveAgainstContext($this->context, $this->classNameFactory->create('.\PackageB\Class'))
+                ->string()
+        );
+        $this->assertSame(
+            '\VendorA\PackageA\..\PackageD\Class',
+            $this->resolver->resolveAgainstContext($this->context, $this->classNameFactory->create('..\PackageD\Class'))
+                ->string()
+        );
+        $this->assertSame(
+            '\VendorB\PackageB\..\PackageD\Class',
+            $this->resolver
+                ->resolveAgainstContext($this->context, $this->classNameFactory->create('PackageB\..\PackageD\Class'))
+                ->string()
         );
     }
 

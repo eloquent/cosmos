@@ -139,4 +139,18 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame($className, $className->shortName());
     }
+
+    public function testFirstAtomShortName()
+    {
+        $className = $this->factory->create('foo\bar\baz');
+
+        $this->assertSame('foo', $className->firstAtomShortName()->string());
+    }
+
+    public function testFirstAtomShortNameUnchanged()
+    {
+        $className = $this->factory->create('foo');
+
+        $this->assertSame($className, $className->firstAtomShortName());
+    }
 }

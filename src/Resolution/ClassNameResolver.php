@@ -100,7 +100,17 @@ class ClassNameResolver implements ClassNameResolverInterface
             return $className;
         }
 
-        return $context->resolve($className);
+        if ($firstAtom = $className->firstAtomShortName()) {
+            if ($parent = $context->classNameByShortName($firstAtom)) {
+                if (count($className->atoms()) < 2) {
+                    return $parent;
+                }
+
+                return $parent->joinAtomSequence($className->sliceAtoms(1));
+            }
+        }
+
+        return $context->primaryNamespace()->join($className);
     }
 
     private static $instance;

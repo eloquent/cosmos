@@ -63,6 +63,22 @@ class QualifiedClassName extends AbsolutePath implements
     }
 
     /**
+     * Get the first atom of this class name as a class name reference.
+     *
+     * If this class name is already a short class name reference, it will be
+     * returned unaltered.
+     *
+     * @return ClassNameReferenceInterface The short class name.
+     */
+    public function firstAtomShortName()
+    {
+        $atoms = $this->atoms();
+        $numAtoms = count($atoms);
+
+        return $this->createPath(array($atoms[0]), false);
+    }
+
+    /**
      * Validates the supplied class name atom.
      *
      * @param string $atom The atom to validate.

@@ -35,7 +35,6 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
     {
         $this->assertSame($this->primaryNamespace, $this->context->primaryNamespace());
         $this->assertSame($this->useStatements, $this->context->useStatements());
-        $this->assertSame($this->factory, $this->context->factory());
     }
 
     public function testConstructorDefaults()
@@ -44,24 +43,9 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(new QualifiedClassName(array()), $this->context->primaryNamespace());
         $this->assertSame(array(), $this->context->useStatements());
-        $this->assertEquals($this->factory, $this->context->factory());
     }
 
-    public function testResolveGlobalNsNoUseStatements()
-    {
-        $this->context = new ResolutionContext;
-
-        $this->assertSame('\Class', $this->context->resolve($this->factory->create('Class'))->string());
-        $this->assertSame(
-            '\Vendor\Package',
-            $this->context->resolve($this->factory->create('Vendor\Package'))->string()
-        );
-    }
-
-    /**
-     * @link http://php.net/manual/en/language.namespaces.importing.php
-     */
-    public function testResolveDocumentationExamples()
+    public function testClassNameByShortName()
     {
         $this->context = new ResolutionContext(
             $this->factory->create('\foo'),
@@ -72,31 +56,19 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $this->assertSame('\My\Full\Classname', $this->context->resolve($this->factory->create('Another'))->string());
         $this->assertSame(
-            '\My\Full\Classname\thing',
-            $this->context->resolve($this->factory->create('Another\thing'))->string()
+            '\My\Full\Classname',
+            $this->context->classNameByShortName($this->factory->create('Another'))->string()
         );
         $this->assertSame(
-            '\My\Full\NSname\subns',
-            $this->context->resolve($this->factory->create('NSname\subns'))->string()
-        );
-        $this->assertSame('\ArrayObject', $this->context->resolve($this->factory->create('ArrayObject'))->string());
-    }
-
-    public function testResolveSpecialAtoms()
-    {
-        $this->assertSame(
-            '\VendorA\PackageA\.\PackageB\Class',
-            $this->context->resolve($this->factory->create('.\PackageB\Class'))->string()
+            '\My\Full\NSname',
+            $this->context->classNameByShortName($this->factory->create('NSname'))->string()
         );
         $this->assertSame(
-            '\VendorA\PackageA\..\PackageD\Class',
-            $this->context->resolve($this->factory->create('..\PackageD\Class'))->string()
+            '\ArrayObject',
+            $this->context->classNameByShortName($this->factory->create('ArrayObject'))->string()
         );
-        $this->assertSame(
-            '\VendorB\PackageB\..\PackageD\Class',
-            $this->context->resolve($this->factory->create('PackageB\..\PackageD\Class'))->string()
-        );
+        $this->assertNull($this->context->classNameByShortName($this->factory->create('Classname')));
+        $this->assertNull($this->context->classNameByShortName($this->factory->create('FooClass')));
     }
 }

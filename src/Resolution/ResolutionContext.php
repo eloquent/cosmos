@@ -11,7 +11,6 @@
 
 namespace Eloquent\Cosmos\Resolution;
 
-use Eloquent\Cosmos\ClassName\ClassNameReference;
 use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
@@ -47,7 +46,8 @@ class ResolutionContext implements ResolutionContextInterface
 
         $this->primaryNamespace = $primaryNamespace;
         $this->useStatements = $useStatements;
-        $this->factory = $factory;
+
+        $this->index = $this->buildIndex();
     }
 
     /**
@@ -71,59 +71,22 @@ class ResolutionContext implements ResolutionContextInterface
     }
 
     /**
-     * Resolve a class name reference against this context.
+     * Get the class name or namespace associated with the supplied short name.
      *
-     * @param ClassNameReferenceInterface $reference The reference to resolve.
+     * @param ClassNameReferenceInterface $shortName The short name.
      *
-     * @return QualifiedClassNameInterface The resolved, qualified class name.
+     * @return QualifiedClassNameInterface|null The class name / namespace, or null if no associated class name / namespace exists.
      */
-    public function resolve(ClassNameReferenceInterface $reference)
-    {
-        $atoms = $reference->atoms();
-        $numAtoms = count($atoms);
-
-        $firstAtom = null;
-        if ($numAtoms > 0) {
-            $firstAtom = $atoms[0];
+    public function classNameByShortName(
+        ClassNameReferenceInterface $shortName
+    ) {
+        $index = $this->index();
+        $shortNameString = $shortName->atomAt(0);
+        if (array_key_exists($shortNameString, $index)) {
+            return $index[$shortNameString];
         }
 
-        if (
-            null !== $firstAtom &&
-            ClassNameReference::PARENT_ATOM !== $firstAtom
-        ) {
-            $index = $this->index();
-            if (array_key_exists($firstAtom, $index)) {
-                $parent = $index[$firstAtom];
-
-                if ($numAtoms < 2) {
-                    return $parent;
-                }
-
-                return $parent->joinAtomSequence($reference->sliceAtoms(1));
-            }
-        }
-
-        return $this->primaryNamespace()->join($reference);
-    }
-
-    /**
-     * Get the class name factory.
-     *
-     * @return ClassNameFactoryInterface The class name factory.
-     */
-    public function factory()
-    {
-        return $this->factory;
-    }
-
-    /**
-     * Sets the internal class name index for resolving class name references.
-     *
-     * @param array $index The index.
-     */
-    protected function setIndex(array $index)
-    {
-        $this->index = $index;
+        return null;
     }
 
     /**
@@ -135,10 +98,6 @@ class ResolutionContext implements ResolutionContextInterface
      */
     protected function index()
     {
-        if (null === $this->index) {
-            $this->setIndex($this->buildIndex());
-        }
-
         return $this->index;
     }
 
@@ -150,7 +109,7 @@ class ResolutionContext implements ResolutionContextInterface
     protected function buildIndex()
     {
         $index = array();
-        foreach ($this->useStatements as $useStatement) {
+        foreach ($this->useStatements() as $useStatement) {
             $index[$useStatement->effectiveAlias()->string()] =
                 $useStatement->className();
         }
@@ -160,6 +119,5 @@ class ResolutionContext implements ResolutionContextInterface
 
     private $primaryNamespace;
     private $useStatements;
-    private $factory;
     private $index;
 }
