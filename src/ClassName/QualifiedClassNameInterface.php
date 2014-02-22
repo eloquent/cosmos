@@ -11,6 +11,7 @@
 
 namespace Eloquent\Cosmos\ClassName;
 
+use Eloquent\Cosmos\Resolution\ResolutionContextInterface;
 use Eloquent\Pathogen\AbsolutePathInterface;
 
 /**
@@ -20,4 +21,17 @@ interface QualifiedClassNameInterface extends
     AbsolutePathInterface,
     ClassNameInterface
 {
+    /**
+     * Find the shortest class name that will resolve to this class name from
+     * within the supplied resolution context.
+     *
+     * If this class is not a child of the primary namespace, and there are no
+     * related use statements, this method will return a qualified class
+     * name.
+     *
+     * @param ResolutionContextInterface $context The resolution context.
+     *
+     * @return ClassNameInterface The shortest class name.
+     */
+    public function relativeToContext(ResolutionContextInterface $context);
 }

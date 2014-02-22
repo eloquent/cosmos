@@ -11,6 +11,8 @@
 
 namespace Eloquent\Cosmos\ClassName;
 
+use Eloquent\Cosmos\Resolution\ResolutionContext;
+use Eloquent\Cosmos\UseStatement\UseStatement;
 use PHPUnit_Framework_TestCase;
 
 class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
@@ -219,5 +221,48 @@ class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
         $className = $this->factory->create('\foo\bar\baz');
 
         $this->assertSame('foo', $className->firstAtomShortName()->string());
+    }
+
+    public function relativeToContextData()
+    {
+        //                                           className                   expected
+        return array(
+            'Primary namespace +1'          => array('\Foo\Bar\Baz',             'Baz'),
+            'Primary namespace +2'          => array('\Foo\Bar\Baz\Qux',         'Baz\Qux'),
+            'Primary namespace +3'          => array('\Foo\Bar\Baz\Qux\Doom',    'Baz\Qux\Doom'),
+            'Use statement'                 => array('\Baz\Qux',                 'Qux'),
+            'Use statement +1'              => array('\Baz\Qux\Doom',            'Qux\Doom'),
+            'Use statement +2'              => array('\Baz\Qux\Doom\Splat',      'Qux\Doom\Splat'),
+            'Alias'                         => array('\Doom\Splat',              'Ping'),
+            'Alias +1'                      => array('\Doom\Splat\Pong',         'Ping\Pong'),
+            'Alias +2'                      => array('\Doom\Splat\Pong\Pang',    'Ping\Pong\Pang'),
+            'Shortest use statement'        => array('\Pong\Pang\Peng',          'Peng'),
+            'Use statement not too short'   => array('\Pong\Pang\Ping',          'Pang\Ping'),
+            'No relevant statements'        => array('\Zing\Zang\Zong',          '\Zing\Zang\Zong'),
+            'Avoid use statement clash'     => array('\Foo\Bar\Qux',             'namespace\Qux'),
+            'Avoid use statement clash + N' => array('\Foo\Bar\Qux\Doom\Splat',  'namespace\Qux\Doom\Splat'),
+            'Avoid use alias clash'         => array('\Foo\Bar\Ping',            'namespace\Ping'),
+            'Avoid use alias clash + N'     => array('\Foo\Bar\Ping\Doom\Splat', 'namespace\Ping\Doom\Splat'),
+        );
+    }
+
+    /**
+     * @dataProvider relativeToContextData
+     */
+    public function testRelativeToContext($classNameString, $expected)
+    {
+        $this->primaryNamespace = $this->factory->create('\Foo\Bar');
+        $this->useStatements = array(
+            new UseStatement($this->factory->create('\Baz\Qux')),
+            new UseStatement($this->factory->create('\Doom\Splat'), $this->factory->create('Ping')),
+            new UseStatement($this->factory->create('\Pong\Pang')),
+            new UseStatement($this->factory->create('\Pong\Pang\Peng')),
+        );
+        $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->factory);
+
+        $this->assertSame(
+            $expected,
+            $this->factory->create($classNameString)->relativeToContext($this->context)->string()
+        );
     }
 }
