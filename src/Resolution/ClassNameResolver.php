@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\ClassName\ClassNameInterface;
+use Eloquent\Cosmos\ClassName\ClassNameReference;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
 use Eloquent\Pathogen\AbsolutePathInterface;
 use Eloquent\Pathogen\PathInterface;
@@ -101,7 +102,13 @@ class ClassNameResolver implements ClassNameResolverInterface
         }
 
         if ($firstAtom = $className->firstAtomShortName()) {
-            if ($parent = $context->classNameByShortName($firstAtom)) {
+            if (ClassNameReference::NAMESPACE_ATOM === $firstAtom->atomAt(0)) {
+                $parent = $context->primaryNamespace();
+            } else {
+                $parent = $context->classNameByShortName($firstAtom);
+            }
+
+            if ($parent) {
                 if (count($className->atoms()) < 2) {
                     return $parent;
                 }

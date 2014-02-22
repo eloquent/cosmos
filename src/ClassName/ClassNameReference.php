@@ -36,6 +36,11 @@ class ClassNameReference extends RelativePath implements
     const CLASS_NAME_PATTERN = '/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/';
 
     /**
+     * The atom used to represent the current namespace.
+     */
+    const NAMESPACE_ATOM = 'namespace';
+
+    /**
      * Construct a new class name reference.
      *
      * @param mixed<string> $atoms The class name atoms.

@@ -104,6 +104,11 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertSame(
+            '\foo\Another',
+            $this->resolver->resolveAgainstContext($this->context, $this->classNameFactory->create('namespace\Another'))
+                ->string()
+        );
+        $this->assertSame(
             '\My\Full\Classname',
             $this->resolver->resolveAgainstContext($this->context, $this->classNameFactory->create('Another'))->string()
         );
