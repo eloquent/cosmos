@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\ClassName;
 
 use Eloquent\Pathogen\Path;
+use ReflectionClass;
 
 /**
  * A static utility class for constructing class names.
@@ -20,6 +21,30 @@ use Eloquent\Pathogen\Path;
  */
 abstract class ClassName extends Path
 {
+    /**
+     * Get the class name of the supplied object.
+     *
+     * @param object $object The object.
+     *
+     * @return QualifiedClassNameInterface The object's qualified class name.
+     */
+    public static function fromObject($object)
+    {
+        return static::factory()->createFromObject($object);
+    }
+
+    /**
+     * Get the class name of the supplied class or object reflector.
+     *
+     * @param ReflectionClass $reflector The reflector.
+     *
+     * @return QualifiedClassNameInterface The qualified class name.
+     */
+    public static function fromReflector(ReflectionClass $reflector)
+    {
+        return static::factory()->createFromReflector($reflector);
+    }
+
     /**
      * Get the class name factory.
      *

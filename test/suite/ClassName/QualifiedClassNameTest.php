@@ -14,6 +14,7 @@ namespace Eloquent\Cosmos\ClassName;
 use Eloquent\Cosmos\Resolution\ResolutionContext;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 
 class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
 {
@@ -62,6 +63,26 @@ class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame($atoms, $className->atoms());
         $this->assertTrue($className instanceof QualifiedClassName);
+    }
+
+    public function testFromObject()
+    {
+        $className = QualifiedClassName::fromString('\Class');
+
+        $this->assertSame(
+            '\Eloquent\Cosmos\ClassName\QualifiedClassName',
+            QualifiedClassName::fromObject($className)->string()
+        );
+    }
+
+    public function testFromReflector()
+    {
+        $reflector = new ReflectionClass('Eloquent\Cosmos\ClassName\Factory\ClassNameFactory');
+
+        $this->assertSame(
+            '\Eloquent\Cosmos\ClassName\Factory\ClassNameFactory',
+            QualifiedClassName::fromReflector($reflector)->string()
+        );
     }
 
     public function classNameData()

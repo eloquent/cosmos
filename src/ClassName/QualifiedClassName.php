@@ -15,6 +15,7 @@ use Eloquent\Cosmos\Resolution\ClassNameResolver;
 use Eloquent\Cosmos\Resolution\ClassNameResolverInterface;
 use Eloquent\Cosmos\Resolution\ResolutionContextInterface;
 use Eloquent\Pathogen\AbsolutePath;
+use ReflectionClass;
 
 /**
  * Represents a fully qualified class name.
@@ -36,6 +37,30 @@ class QualifiedClassName extends AbsolutePath implements
      * The regular expression used to validate class name atoms.
      */
     const CLASS_NAME_PATTERN = '/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/';
+
+    /**
+     * Get the class name of the supplied object.
+     *
+     * @param object $object The object.
+     *
+     * @return QualifiedClassNameInterface The object's qualified class name.
+     */
+    public static function fromObject($object)
+    {
+        return static::factory()->createFromObject($object);
+    }
+
+    /**
+     * Get the class name of the supplied class or object reflector.
+     *
+     * @param ReflectionClass $reflector The reflector.
+     *
+     * @return QualifiedClassNameInterface The qualified class name.
+     */
+    public static function fromReflector(ReflectionClass $reflector)
+    {
+        return static::factory()->createFromReflector($reflector);
+    }
 
     /**
      * Construct a new fully qualified class name.

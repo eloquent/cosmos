@@ -15,6 +15,7 @@ use Eloquent\Cosmos\ClassName\ClassNameReference;
 use Eloquent\Cosmos\ClassName\QualifiedClassName;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 
 class ClassNameFactoryTest extends PHPUnit_Framework_TestCase
 {
@@ -73,6 +74,24 @@ class ClassNameFactoryTest extends PHPUnit_Framework_TestCase
         $className = $this->factory->createFromAtoms(array());
 
         $this->assertTrue($className instanceof QualifiedClassName);
+    }
+
+    public function testCreateFromObject()
+    {
+        $this->assertSame(
+            '\Eloquent\Cosmos\ClassName\Factory\ClassNameFactory',
+            $this->factory->createFromObject($this->factory)->string()
+        );
+    }
+
+    public function testCreateFromReflector()
+    {
+        $reflector = new ReflectionClass('Eloquent\Cosmos\ClassName\Factory\ClassNameFactory');
+
+        $this->assertSame(
+            '\Eloquent\Cosmos\ClassName\Factory\ClassNameFactory',
+            $this->factory->createFromReflector($reflector)->string()
+        );
     }
 
     public function testInstance()

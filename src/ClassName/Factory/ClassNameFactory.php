@@ -14,7 +14,9 @@ namespace Eloquent\Cosmos\ClassName\Factory;
 use Eloquent\Cosmos\ClassName\ClassNameInterface;
 use Eloquent\Cosmos\ClassName\ClassNameReference;
 use Eloquent\Cosmos\ClassName\QualifiedClassName;
+use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
 use Eloquent\Pathogen\Exception\InvalidPathAtomExceptionInterface;
+use ReflectionClass;
 
 /**
  * Creates class name instances.
@@ -106,6 +108,30 @@ class ClassNameFactory implements ClassNameFactoryInterface
         }
 
         return new ClassNameReference($atoms);
+    }
+
+    /**
+     * Get the class name of the supplied object.
+     *
+     * @param object $object The object.
+     *
+     * @return QualifiedClassNameInterface The object's qualified class name.
+     */
+    public function createFromObject($object)
+    {
+        return $this->create('\\' . get_class($object));
+    }
+
+    /**
+     * Get the class name of the supplied class or object reflector.
+     *
+     * @param ReflectionClass $reflector The reflector.
+     *
+     * @return QualifiedClassNameInterface The qualified class name.
+     */
+    public function createFromReflector(ReflectionClass $reflector)
+    {
+        return $this->create('\\' . $reflector->getName());
     }
 
     private static $instance;

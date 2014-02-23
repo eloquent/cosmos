@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\ClassName;
 
 use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 
 class ClassNameTest extends PHPUnit_Framework_TestCase
 {
@@ -63,5 +64,22 @@ class ClassNameTest extends PHPUnit_Framework_TestCase
         $className = ClassName::fromAtoms(array());
 
         $this->assertTrue($className instanceof QualifiedClassNameInterface);
+    }
+
+    public function testFromObject()
+    {
+        $className = ClassName::fromString('\Class');
+
+        $this->assertSame('\Eloquent\Cosmos\ClassName\QualifiedClassName', ClassName::fromObject($className)->string());
+    }
+
+    public function testFromReflector()
+    {
+        $reflector = new ReflectionClass('Eloquent\Cosmos\ClassName\Factory\ClassNameFactory');
+
+        $this->assertSame(
+            '\Eloquent\Cosmos\ClassName\Factory\ClassNameFactory',
+            ClassName::fromReflector($reflector)->string()
+        );
     }
 }
