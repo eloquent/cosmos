@@ -196,6 +196,6 @@ echo $resolver->resolve(ClassName::fromString('\Betelgeuse'));
 [Current build status]: https://travis-ci.org/eloquent/cosmos
 [coverage-image]: http://img.shields.io/coveralls/eloquent/cosmos/develop.svg "Current test coverage for the develop branch"
 [Current coverage status]: https://coveralls.io/r/eloquent/cosmos
-[eloquent/lcs]: https://packagist.org/packages/eloquent/lcs
+[eloquent/cosmos]: https://packagist.org/packages/eloquent/cosmos
 [Semantic versioning]: http://semver.org/
 [version-image]: http://img.shields.io/:semver-2.3.1-brightgreen.svg "This project uses semantic versioning"
