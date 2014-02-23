@@ -9,22 +9,12 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\ClassName\Factory;
+namespace Eloquent\Cosmos\ClassName;
 
-use Eloquent\Cosmos\ClassName\ClassNameReference;
-use Eloquent\Cosmos\ClassName\QualifiedClassName;
-use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
-class ClassNameFactoryTest extends PHPUnit_Framework_TestCase
+class ClassNameTest extends PHPUnit_Framework_TestCase
 {
-    protected function setUp()
-    {
-        parent::setUp();
-
-        $this->factory = new ClassNameFactory;
-    }
-
     public function createData()
     {
         //                                                 className              atoms                        isQualified
@@ -47,41 +37,31 @@ class ClassNameFactoryTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider createData
      */
-    public function testCreate($classNameString, array $atoms, $isQualified)
+    public function testFromString($classNameString, array $atoms, $isQualified)
     {
-        $className = $this->factory->create($classNameString);
+        $className = ClassName::fromString($classNameString);
 
         $this->assertSame($atoms, $className->atoms());
-        $this->assertSame($isQualified, $className instanceof QualifiedClassName);
-        $this->assertSame($isQualified, !$className instanceof ClassNameReference);
+        $this->assertSame($isQualified, $className instanceof QualifiedClassNameInterface);
+        $this->assertSame($isQualified, !$className instanceof ClassNameReferenceInterface);
     }
 
     /**
      * @dataProvider createData
      */
-    public function testCreateFromAtoms($pathString, array $atoms, $isQualified)
+    public function testFromAtoms($pathString, array $atoms, $isQualified)
     {
-        $className = $this->factory->createFromAtoms($atoms, $isQualified);
+        $className = ClassName::fromAtoms($atoms, $isQualified);
 
         $this->assertSame($atoms, $className->atoms());
-        $this->assertSame($isQualified, $className instanceof QualifiedClassName);
-        $this->assertSame($isQualified, !$className instanceof ClassNameReference);
+        $this->assertSame($isQualified, $className instanceof QualifiedClassNameInterface);
+        $this->assertSame($isQualified, !$className instanceof ClassNameReferenceInterface);
     }
 
-    public function testCreateFromAtomsDefaults()
+    public function testFromAtomsDefaults()
     {
-        $className = $this->factory->createFromAtoms(array());
+        $className = ClassName::fromAtoms(array());
 
-        $this->assertTrue($className instanceof QualifiedClassName);
-    }
-
-    public function testInstance()
-    {
-        $class = Liberator::liberateClass(__NAMESPACE__ . '\ClassNameFactory');
-        $class->instance = null;
-        $actual = ClassNameFactory::instance();
-
-        $this->assertInstanceOf(__NAMESPACE__ . '\ClassNameFactory', $actual);
-        $this->assertSame($actual, ClassNameFactory::instance());
+        $this->assertTrue($className instanceof QualifiedClassNameInterface);
     }
 }

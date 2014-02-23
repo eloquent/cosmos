@@ -24,6 +24,46 @@ class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
         $this->factory = new Factory\ClassNameFactory;
     }
 
+    public function createData()
+    {
+        //                                                 className              atoms
+        return array(
+            'Root namespace'                      => array('\\',                  array()),
+            'Qualified'                           => array('\Namespace\Class',    array('Namespace', 'Class')),
+            'Qualified with empty atoms'          => array('\Namespace\\\\Class', array('Namespace', 'Class')),
+            'Qualified with empty atoms at start' => array('\\\\Class',           array('Class')),
+            'Qualified with empty atoms at end'   => array('\Class\\\\',          array('Class')),
+        );
+    }
+
+    /**
+     * @dataProvider createData
+     */
+    public function testFromString($classNameString, array $atoms)
+    {
+        $className = QualifiedClassName::fromString($classNameString);
+
+        $this->assertSame($atoms, $className->atoms());
+        $this->assertTrue($className instanceof QualifiedClassName);
+    }
+
+    public function testFromStringFailureReference()
+    {
+        $this->setExpectedException('Eloquent\Pathogen\Exception\NonAbsolutePathException');
+        QualifiedClassName::fromString('Class');
+    }
+
+    /**
+     * @dataProvider createData
+     */
+    public function testFromAtoms($pathString, array $atoms)
+    {
+        $className = QualifiedClassName::fromAtoms($atoms);
+
+        $this->assertSame($atoms, $className->atoms());
+        $this->assertTrue($className instanceof QualifiedClassName);
+    }
+
     public function classNameData()
     {
         //                             className              atoms

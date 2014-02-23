@@ -31,6 +31,47 @@ class ClassNameReferenceTest extends PHPUnit_Framework_TestCase
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->factory);
     }
 
+    public function createData()
+    {
+        //                                                 className              atoms
+        return array(
+            'Empty'                               => array('',                    array('.')),
+            'Self'                                => array('.',                   array('.')),
+            'Reference'                           => array('Namespace\Class',     array('Namespace', 'Class')),
+            'Reference with trailing separator'   => array('Namespace\Class\\',   array('Namespace', 'Class')),
+            'Reference with empty atoms'          => array('Namespace\\\\Class',  array('Namespace', 'Class')),
+            'Reference with empty atoms at end'   => array('Namespace\Class\\\\', array('Namespace', 'Class')),
+        );
+    }
+
+    /**
+     * @dataProvider createData
+     */
+    public function testFromString($classNameString, array $atoms)
+    {
+        $className = ClassNameReference::fromString($classNameString);
+
+        $this->assertSame($atoms, $className->atoms());
+        $this->assertTrue($className instanceof ClassNameReference);
+    }
+
+    public function testFromStringFailureQualified()
+    {
+        $this->setExpectedException('Eloquent\Pathogen\Exception\NonRelativePathException');
+        ClassNameReference::fromString('\Class');
+    }
+
+    /**
+     * @dataProvider createData
+     */
+    public function testFromAtoms($pathString, array $atoms)
+    {
+        $className = ClassNameReference::fromAtoms($atoms);
+
+        $this->assertSame($atoms, $className->atoms());
+        $this->assertTrue($className instanceof ClassNameReference);
+    }
+
     public function classNameData()
     {
         //                             className             atoms
