@@ -70,7 +70,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 $lineNumber = $token[2];
             }
 
-            $lineNumber += preg_match_all('/$/', $tokens[$index][1]);
+            $lineNumber += preg_match_all('/$/', $tokens[$index][1], $matches);
         }
 
         return $tokens;
