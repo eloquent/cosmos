@@ -71,9 +71,7 @@ class ClassNameResolver implements ClassNameResolverInterface
      *
      * @return QualifiedClassNameInterface The resolved, qualified class name.
      */
-    // @codeCoverageIgnoreStart
     public function resolve(
-        // @codeCoverageIgnoreEnd
         AbsolutePathInterface $primaryNamespace,
         PathInterface $className
     ) {

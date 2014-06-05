@@ -37,7 +37,7 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
         ClassNameFactoryInterface $classNameFactory = null
     ) {
         if (null === $maxReferenceAtoms) {
-            $maxReferenceAtoms = 2;
+            $maxReferenceAtoms = 1;
         }
         if (null === $useStatementFactory) {
             $useStatementFactory = UseStatementFactory::instance();

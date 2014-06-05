@@ -37,7 +37,7 @@ class UseStatementGeneratorTest extends PHPUnit_Framework_TestCase
     {
         $this->generator = new UseStatementGenerator;
 
-        $this->assertSame(2, $this->generator->maxReferenceAtoms());
+        $this->assertSame(1, $this->generator->maxReferenceAtoms());
         $this->assertEquals($this->useStatementFactory, $this->generator->useStatementFactory());
         $this->assertEquals($this->classNameFactory, $this->generator->classNameFactory());
     }
