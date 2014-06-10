@@ -13,6 +13,8 @@ namespace Eloquent\Cosmos\Resolution\Parser;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\Resolution\ResolutionContext;
+use Eloquent\Cosmos\UseStatement\UseStatement;
+use Icecave\Isolator\Isolator;
 
 /**
  * The interface implemented by resolution context parsers.
@@ -34,6 +36,21 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     }
 
     /**
+     * Construct a new resolution context parser.
+     *
+     * @param Isolator|null $isolator The isolator to use.
+     */
+    public function __construct(Isolator $isolator = null)
+    {
+        $isolator = Isolator::get($isolator);
+
+        $this->traitTokenType = 'trait';
+        if ($isolator->defined('T_TRAIT')) {
+            $this->traitTokenType = $isolator->constant('T_TRAIT');
+        }
+    }
+
+    /**
      * Parse all resolution contexts from the supplied source code.
      *
      * @param string      $source The source code to parse.
@@ -46,16 +63,216 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         $tokens = $this->normalizeTokens(token_get_all($source));
 
         $contexts = array();
-        $context = new ResolutionContext;
-        do {
-            $classNames = $this->parseClassNames($tokens);
-            foreach ($classNames as $index => $className) {
-                $classNames[$index] = $className
-                    ->resolveAgainst($context->primaryNamespace());
-            }
+        $this->setState('start');
+        $buffer = '';
+        $context = null;
+        $namespaceName = null;
+        $useStatements = array();
+        $classNames = array();
+        $classBracketDepth = 0;
 
+        foreach ($tokens as $token) {
+            switch ($this->state()) {
+                case 'start':
+                    switch ($token[0]) {
+                        case T_NAMESPACE:
+                            $this->pushState('namespace-name');
+
+                            break;
+
+                        case T_USE:
+                            $this->setState('use-statement-class-name');
+
+                            break;
+
+                        case T_CLASS:
+                        case T_INTERFACE:
+                        case $this->traitTokenType:
+                            $context = new ResolutionContext;
+                            $this->setState('class-name');
+
+                            break;
+                    }
+
+                    break;
+
+                case 'namespace-name':
+                    switch ($token[0]) {
+                        case T_NS_SEPARATOR:
+                            if ('' === $buffer) {
+                                $this->popState();
+
+                                break;
+                            }
+
+                        case T_STRING:
+                            $buffer .= $token[1];
+
+                            break;
+
+                        case ';':
+                        case '{':
+                            $namespaceName = ClassName::fromString($buffer)
+                                ->toAbsolute();
+                            $buffer = '';
+                            $this->setState('namespace-header');
+
+                            break;
+                    }
+
+                    break;
+
+                case 'namespace-header':
+                    switch ($token[0]) {
+                        case T_USE:
+                            $this->setState('use-statement-class-name');
+
+                            break;
+
+                        case T_NAMESPACE:
+                            $this->pushState('namespace-name');
+
+                            break;
+
+                        case T_CLASS:
+                        case T_INTERFACE:
+                        case $this->traitTokenType:
+                            $context = new ResolutionContext(
+                                $namespaceName,
+                                $useStatements
+                            );
+                            $useStatements = array();
+                            $this->setState('class-name');
+
+                            break;
+                    }
+
+                    break;
+
+                case 'use-statement-class-name':
+                    switch ($token[0]) {
+                        case T_STRING:
+                        case T_NS_SEPARATOR:
+                            $buffer .= $token[1];
+
+                            break;
+
+                        case T_AS:
+                            $this->setState('use-statement-alias');
+
+                            break;
+
+                        case ';':
+                            $useStatements[] = new UseStatement(
+                                ClassName::fromString($buffer)->toAbsolute()
+                            );
+                            $buffer = '';
+                            $this->setState('namespace-header');
+
+                            break;
+                    }
+
+                    break;
+
+                case 'use-statement-alias':
+                    switch ($token[0]) {
+                        case T_STRING:
+                            $useStatements[] = new UseStatement(
+                                ClassName::fromString($buffer)->toAbsolute(),
+                                ClassName::fromString($token[1])
+                            );
+                            $buffer = '';
+                            $this->setState('namespace-header');
+
+                            break;
+                    }
+
+                    break;
+
+                case 'class-name':
+                    switch ($token[0]) {
+                        case T_STRING:
+                        case T_NS_SEPARATOR:
+                            $buffer .= $token[1];
+
+                            break;
+
+                        case T_EXTENDS:
+                        case T_IMPLEMENTS:
+                            $classNames[] = $context->primaryNamespace()
+                                ->resolve(ClassName::fromString($buffer));
+                            $buffer = '';
+                            $this->setState('class-header');
+
+                            break;
+
+                        case '{':
+                            $classNames[] = $context->primaryNamespace()
+                                ->resolve(ClassName::fromString($buffer));
+                            $buffer = '';
+                            $this->setState('class-body');
+                            $classBracketDepth++;
+
+                            break;
+                    }
+
+                    break;
+
+                case 'class-header':
+                    switch ($token[0]) {
+                        case '{':
+                            $this->setState('class-body');
+                            $classBracketDepth++;
+
+                            break;
+                    }
+
+                    break;
+
+                case 'class-body':
+                    switch ($token[0]) {
+                        case '{':
+                            $classBracketDepth++;
+
+                            break;
+
+                        case '}':
+                            if (0 === --$classBracketDepth) {
+                                $this->setState('class-end');
+                            }
+
+                            break;
+                    }
+
+                    break;
+
+                case 'class-end':
+                    switch ($token[0]) {
+                        case T_NAMESPACE:
+                            $contexts[] = new ParsedResolutionContext(
+                                $context,
+                                $classNames
+                            );
+                            $classNames = array();
+                            $this->pushState('namespace-name');
+
+                            break;
+
+                        case T_CLASS:
+                        case T_INTERFACE:
+                        case $this->traitTokenType:
+                            $this->setState('class-name');
+
+                            break;
+                    }
+
+                    break;
+            }
+        }
+
+        if (count($classNames) > 0) {
             $contexts[] = new ParsedResolutionContext($context, $classNames);
-        } while ($context = $this->parseContext($tokens));
+        }
 
         return $contexts;
     }
@@ -76,51 +293,36 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         return $tokens;
     }
 
-    private function parseContext(&$tokens)
+    private function clearStates()
     {
-        return null;
+        $this->stateStack = array();
     }
 
-    private function parseClassNames(&$tokens)
+    private function setState($state)
     {
-        $classNames = array();
-        while ($className = $this->parseClassName($tokens)) {
-            $classNames[] = $className;
-        }
-
-        return $classNames;
+        // echo 'SET STATE: ' . $state . PHP_EOL;
+        $this->stateStack = array($state);
     }
 
-    private function parseClassName(&$tokens)
+    private function pushState($state)
     {
-        $typeTypes = array(T_CLASS, T_INTERFACE);
-        if (defined('T_TRAIT')) {
-            $typeTypes[] = T_TRAIT;
-        }
-
-        if (!$token = $this->consumeUntil($typeTypes, $tokens)) {
-            return null;
-        }
-        if (!$token = $this->consumeUntil(T_STRING, $tokens)) {
-            return null;
-        }
-
-        return ClassName::fromString($token[1]);
+        // echo 'PUSH STATE: ' . $state . PHP_EOL;
+        array_push($this->stateStack, $state);
     }
 
-    private function consumeUntil($types, &$tokens)
+    private function popState()
     {
-        if (!is_array($types)) {
-            $types = array($types);
-        }
+        $state = array_pop($this->stateStack);
+        // echo 'POP STATE: ' . $state . ' TO ' . $this->state() . PHP_EOL;
+        return $state;
+    }
 
-        $token = current($tokens);
-        while ($token && !in_array($token[0], $types)) {
-            $token = next($tokens);
-        }
-
-        return $token;
+    private function state()
+    {
+        return $this->stateStack[count($this->stateStack) - 1];
     }
 
     private static $instance;
+    private $traitTokenType;
+    private $stateStack;
 }
