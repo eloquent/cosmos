@@ -11,6 +11,8 @@
 
 namespace Eloquent\Cosmos\ClassName;
 
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
 use Eloquent\Pathogen\Path;
 use ReflectionClass;
 
@@ -48,10 +50,10 @@ abstract class ClassName extends Path
     /**
      * Get the class name factory.
      *
-     * @return Factory\ClassNameFactoryInterface The class name factory.
+     * @return ClassNameFactoryInterface The class name factory.
      */
     protected static function factory()
     {
-        return Factory\ClassNameFactory::instance();
+        return ClassNameFactory::instance();
     }
 }

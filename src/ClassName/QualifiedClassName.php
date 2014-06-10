@@ -11,6 +11,11 @@
 
 namespace Eloquent\Cosmos\ClassName;
 
+use Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException;
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
+use Eloquent\Cosmos\ClassName\Normalizer\ClassNameNormalizer;
+use Eloquent\Cosmos\ClassName\Normalizer\ClassNameNormalizerInterface;
 use Eloquent\Cosmos\Resolution\ClassNameResolver;
 use Eloquent\Cosmos\Resolution\ClassNameResolverInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
@@ -133,28 +138,28 @@ class QualifiedClassName extends AbsolutePath implements
         }
 
         if (!preg_match(static::CLASS_NAME_PATTERN, $atom)) {
-            throw new Exception\InvalidClassNameAtomException($atom);
+            throw new InvalidClassNameAtomException($atom);
         }
     }
 
     /**
      * Get the class name factory.
      *
-     * @return Factory\ClassNameFactoryInterface The class name factory.
+     * @return ClassNameFactoryInterface The class name factory.
      */
     protected static function factory()
     {
-        return Factory\ClassNameFactory::instance();
+        return ClassNameFactory::instance();
     }
 
     /**
      * Get the class name normalizer.
      *
-     * @return Normalizer\ClassNameNormalizerInterface The class name normalizer.
+     * @return ClassNameNormalizerInterface The class name normalizer.
      */
     protected static function normalizer()
     {
-        return Normalizer\ClassNameNormalizer::instance();
+        return ClassNameNormalizer::instance();
     }
 
     /**
