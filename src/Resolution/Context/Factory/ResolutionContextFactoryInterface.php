@@ -37,6 +37,17 @@ interface ResolutionContextFactoryInterface
 
     /**
      * Construct a new class name resolution context by inspecting the source
+     * code of the supplied object's class.
+     *
+     * @param object $object The object.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws SourceCodeReadException    If the source code cannot be read.
+     */
+    public function createFromObject($object);
+
+    /**
+     * Construct a new class name resolution context by inspecting the source
      * code of the supplied class.
      *
      * @param QualifiedClassNameInterface $className The class.

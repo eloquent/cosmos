@@ -25,6 +25,7 @@ use Eloquent\Pathogen\FileSystem\FileSystemPath;
 use Icecave\Isolator\Isolator;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionObject;
 
 /**
  * Creates class name resolution contexts.
@@ -114,6 +115,20 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
             $useStatements,
             $this->classNameFactory()
         );
+    }
+
+    /**
+     * Construct a new class name resolution context by inspecting the source
+     * code of the supplied object's class.
+     *
+     * @param object $object The object.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws SourceCodeReadException    If the source code cannot be read.
+     */
+    public function createFromObject($object)
+    {
+        return $this->createFromReflector(new ReflectionObject($object));
     }
 
     /**

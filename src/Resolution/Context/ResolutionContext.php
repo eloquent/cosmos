@@ -15,13 +15,59 @@ use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
+use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactoryInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
+use ReflectionClass;
 
 /**
  * Represents a combined namespace and set of use statements.
  */
 class ResolutionContext implements ResolutionContextInterface
 {
+    /**
+     * Construct a new class name resolution context by inspecting the source
+     * code of the supplied object's class.
+     *
+     * @param object $object The object.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws SourceCodeReadException    If the source code cannot be read.
+     */
+    public static function fromObject($object)
+    {
+        return static::factory()->createFromObject($object);
+    }
+
+    /**
+     * Construct a new class name resolution context by inspecting the source
+     * code of the supplied class.
+     *
+     * @param QualifiedClassNameInterface $className The class.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws UndefinedClassException    If the class does not exist.
+     * @throws SourceCodeReadException    If the source code cannot be read.
+     */
+    public static function fromClass(QualifiedClassNameInterface $className)
+    {
+        return static::factory()->createFromClass($className);
+    }
+
+    /**
+     * Construct a new class name resolution context by inspecting the source
+     * code of the supplied class reflector.
+     *
+     * @param ReflectionClass $reflector The reflector.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws SourceCodeReadException    If the source code cannot be read.
+     */
+    public static function fromReflector(ReflectionClass $reflector)
+    {
+        return static::factory()->createFromReflector($reflector);
+    }
+
     /**
      * Construct a new class name resolution context.
      *
@@ -87,6 +133,16 @@ class ResolutionContext implements ResolutionContextInterface
         }
 
         return null;
+    }
+
+    /**
+     * Get the resolution context factory.
+     *
+     * @return ResolutionContextFactoryInterface The resolution context factory.
+     */
+    protected static function factory()
+    {
+        return ResolutionContextFactory::instance();
     }
 
     /**
