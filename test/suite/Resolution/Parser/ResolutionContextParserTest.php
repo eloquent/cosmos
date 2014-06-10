@@ -12,6 +12,11 @@
 namespace Eloquent\Cosmos\Resolution\Parser;
 
 use Eloquent\Cosmos\ClassName\ClassName;
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\ClassName\Normalizer\ClassNameNormalizer;
+use Eloquent\Cosmos\Resolution\ClassNameResolver;
+use Eloquent\Cosmos\Resolution\ResolutionContextFactory;
+use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
@@ -22,7 +27,38 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
+        $this->classNameFactory = new ClassNameFactory;
+        $this->classNameResolver = new ClassNameResolver;
+        $this->classNameNormalizer = new ClassNameNormalizer;
+        $this->useStatementFactory = new UseStatementFactory;
+        $this->contextFactory = new ResolutionContextFactory;
+        $this->parser = new ResolutionContextParser(
+            $this->classNameFactory,
+            $this->classNameResolver,
+            $this->classNameNormalizer,
+            $this->useStatementFactory,
+            $this->contextFactory
+        );
+    }
+
+    public function testConstructor()
+    {
+        $this->assertSame($this->classNameFactory, $this->parser->classNameFactory());
+        $this->assertSame($this->classNameResolver, $this->parser->classNameResolver());
+        $this->assertSame($this->classNameNormalizer, $this->parser->classNameNormalizer());
+        $this->assertSame($this->useStatementFactory, $this->parser->useStatementFactory());
+        $this->assertSame($this->contextFactory, $this->parser->contextFactory());
+    }
+
+    public function testConstructorDefaults()
+    {
         $this->parser = new ResolutionContextParser;
+
+        $this->assertSame(ClassNameFactory::instance(), $this->parser->classNameFactory());
+        $this->assertSame(ClassNameResolver::instance(), $this->parser->classNameResolver());
+        $this->assertSame(ClassNameNormalizer::instance(), $this->parser->classNameNormalizer());
+        $this->assertSame(UseStatementFactory::instance(), $this->parser->useStatementFactory());
+        $this->assertSame(ResolutionContextFactory::instance(), $this->parser->contextFactory());
     }
 
     public function testInstance()

@@ -12,7 +12,16 @@
 namespace Eloquent\Cosmos\Resolution\Parser;
 
 use Eloquent\Cosmos\ClassName\ClassName;
-use Eloquent\Cosmos\Resolution\ResolutionContext;
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
+use Eloquent\Cosmos\ClassName\Normalizer\ClassNameNormalizer;
+use Eloquent\Cosmos\ClassName\Normalizer\ClassNameNormalizerInterface;
+use Eloquent\Cosmos\Resolution\ClassNameResolver;
+use Eloquent\Cosmos\Resolution\ClassNameResolverInterface;
+use Eloquent\Cosmos\Resolution\ResolutionContextFactory;
+use Eloquent\Cosmos\Resolution\ResolutionContextFactoryInterface;
+use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
+use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Icecave\Isolator\Isolator;
 
@@ -38,16 +47,98 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     /**
      * Construct a new resolution context parser.
      *
-     * @param Isolator|null $isolator The isolator to use.
+     * @param ClassNameFactoryInterface|null         $classNameFactory    The class name factory to use.
+     * @param ClassNameResolverInterface|null        $classNameResolver   The class name resolver to use.
+     * @param ClassNameNormalizerInterface|null      $classNameNormalizer The class name normalizer to use.
+     * @param UseStatementFactoryInterface|null      $useStatementFactory The use statement factory to use.
+     * @param ResolutionContextFactoryInterface|null $contextFactory      The resolution context factory to use.
+     * @param Isolator|null                          $isolator            The isolator to use.
      */
-    public function __construct(Isolator $isolator = null)
-    {
+    public function __construct(
+        ClassNameFactoryInterface $classNameFactory = null,
+        ClassNameResolverInterface $classNameResolver = null,
+        ClassNameNormalizerInterface $classNameNormalizer = null,
+        UseStatementFactoryInterface $useStatementFactory = null,
+        ResolutionContextFactoryInterface $contextFactory = null,
+        Isolator $isolator = null
+    ) {
+        if (null === $classNameFactory) {
+            $classNameFactory = ClassNameFactory::instance();
+        }
+        if (null === $classNameResolver) {
+            $classNameResolver = ClassNameResolver::instance();
+        }
+        if (null === $classNameNormalizer) {
+            $classNameNormalizer = ClassNameNormalizer::instance();
+        }
+        if (null === $useStatementFactory) {
+            $useStatementFactory = UseStatementFactory::instance();
+        }
+        if (null === $contextFactory) {
+            $contextFactory = ResolutionContextFactory::instance();
+        }
+
+        $this->classNameFactory = $classNameFactory;
+        $this->classNameResolver = $classNameResolver;
+        $this->classNameNormalizer = $classNameNormalizer;
+        $this->useStatementFactory = $useStatementFactory;
+        $this->contextFactory = $contextFactory;
         $isolator = Isolator::get($isolator);
 
         $this->traitTokenType = 'trait';
         if ($isolator->defined('T_TRAIT')) {
             $this->traitTokenType = $isolator->constant('T_TRAIT');
         }
+    }
+
+    /**
+     * Get the class name factory.
+     *
+     * @return ClassNameFactoryInterface The class name factory.
+     */
+    public function classNameFactory()
+    {
+        return $this->classNameFactory;
+    }
+
+    /**
+     * Get the class name resolver.
+     *
+     * @return ClassNameResolverInterface The class name resolver.
+     */
+    public function classNameResolver()
+    {
+        return $this->classNameResolver;
+    }
+
+    /**
+     * Get the class name normalizer.
+     *
+     * @return ClassNameNormalizerInterface The class name normalizer.
+     */
+    public function classNameNormalizer()
+    {
+        return $this->classNameNormalizer;
+    }
+
+    /**
+     * Get the use statement factory.
+     *
+     * @return UseStatementFactoryInterface The use statement factory.
+     */
+    public function useStatementFactory()
+    {
+        return $this->useStatementFactory;
+    }
+
+    /**
+     * Get the resolution context factory.
+     *
+     * @return ResolutionContextFactoryInterface The resolution context factory.
+     */
+    public function contextFactory()
+    {
+        return $this->contextFactory;
     }
 
     /**
@@ -88,7 +179,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case T_CLASS:
                         case T_INTERFACE:
                         case $this->traitTokenType:
-                            $context = new ResolutionContext;
+                            $context = $this->contextFactory()->create();
                             $this->setState('class-name');
 
                             break;
@@ -112,8 +203,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case ';':
                         case '{':
-                            $namespaceName = ClassName::fromString($buffer)
-                                ->toAbsolute();
+                            $namespaceName = $this->classNameFactory()
+                                ->create($buffer)->toAbsolute();
                             $buffer = '';
                             $this->setState('namespace-header');
 
@@ -137,10 +228,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case T_CLASS:
                         case T_INTERFACE:
                         case $this->traitTokenType:
-                            $context = new ResolutionContext(
-                                $namespaceName,
-                                $useStatements
-                            );
+                            $context = $this->contextFactory()
+                                ->create($namespaceName, $useStatements);
                             $useStatements = array();
                             $this->setState('class-name');
 
@@ -163,9 +252,11 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             break;
 
                         case ';':
-                            $useStatements[] = new UseStatement(
-                                ClassName::fromString($buffer)->toAbsolute()
-                            );
+                            $useStatements[] = $this->useStatementFactory()
+                                ->create(
+                                    $this->classNameFactory()->create($buffer)
+                                        ->toAbsolute()
+                                );
                             $buffer = '';
                             $this->setState('namespace-header');
 
@@ -177,10 +268,12 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 case 'use-statement-alias':
                     switch ($token[0]) {
                         case T_STRING:
-                            $useStatements[] = new UseStatement(
-                                ClassName::fromString($buffer)->toAbsolute(),
-                                ClassName::fromString($token[1])
-                            );
+                            $useStatements[] = $this->useStatementFactory()
+                                ->create(
+                                    $this->classNameFactory()->create($buffer)
+                                        ->toAbsolute(),
+                                    $this->classNameFactory()->create($token[1])
+                                );
                             $buffer = '';
                             $this->setState('namespace-header');
 
@@ -199,18 +292,28 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case T_EXTENDS:
                         case T_IMPLEMENTS:
-                            $classNames[] = $context->primaryNamespace()
-                                ->resolve(ClassName::fromString($buffer))
-                                ->normalize();
+                            $classNames[] = $this->classNameNormalizer()
+                                ->normalize(
+                                    $this->classNameResolver()->resolve(
+                                        $context->primaryNamespace(),
+                                        $this->classNameFactory()
+                                            ->create($buffer)
+                                    )
+                                );
                             $buffer = '';
                             $this->setState('class-header');
 
                             break;
 
                         case '{':
-                            $classNames[] = $context->primaryNamespace()
-                                ->resolve(ClassName::fromString($buffer))
-                                ->normalize();
+                            $classNames[] = $this->classNameNormalizer()
+                                ->normalize(
+                                    $this->classNameResolver()->resolve(
+                                        $context->primaryNamespace(),
+                                        $this->classNameFactory()
+                                            ->create($buffer)
+                                    )
+                                );
                             $buffer = '';
                             $this->setState('class-body');
                             $classBracketDepth++;
@@ -320,6 +423,11 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     }
 
     private static $instance;
+    private $classNameFactory;
+    private $classNameResolver;
+    private $classNameNormalizer;
+    private $useStatementFactory;
+    private $contextFactory;
     private $traitTokenType;
     private $stateStack;
 }
