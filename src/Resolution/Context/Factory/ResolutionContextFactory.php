@@ -9,11 +9,13 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution;
+namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 
 /**
@@ -65,6 +67,8 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
      *
      * @param QualifiedClassNameInterface|null  $primaryNamespace The namespace.
      * @param array<UseStatementInterface>|null $useStatements    The use statements.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
      */
     public function create(
         QualifiedClassNameInterface $primaryNamespace = null,

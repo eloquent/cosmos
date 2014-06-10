@@ -12,7 +12,7 @@
 namespace Eloquent\Cosmos\Resolution\Parser;
 
 use Eloquent\Cosmos\ClassName\ClassName;
-use Eloquent\Cosmos\Resolution\ResolutionContext;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use PHPUnit_Framework_TestCase;
 
 class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase

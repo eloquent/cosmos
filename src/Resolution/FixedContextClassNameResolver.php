@@ -12,6 +12,8 @@
 namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Pathogen\PathInterface;
 use Eloquent\Pathogen\Resolver\PathResolverInterface;
 

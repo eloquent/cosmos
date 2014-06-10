@@ -13,7 +13,7 @@ namespace Eloquent\Cosmos\ClassName;
 
 use Eloquent\Cosmos\Resolution\ClassNameResolver;
 use Eloquent\Cosmos\Resolution\ClassNameResolverInterface;
-use Eloquent\Cosmos\Resolution\ResolutionContextInterface;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Pathogen\AbsolutePath;
 use ReflectionClass;
 

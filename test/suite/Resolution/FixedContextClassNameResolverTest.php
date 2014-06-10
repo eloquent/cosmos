@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use PHPUnit_Framework_TestCase;
 
 class FixedContextClassNameResolverTest extends PHPUnit_Framework_TestCase

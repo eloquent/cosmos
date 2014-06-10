@@ -9,7 +9,7 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution;
+namespace Eloquent\Cosmos\Resolution\Context;
 
 use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
 

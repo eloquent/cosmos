@@ -11,7 +11,7 @@
 
 namespace Eloquent\Cosmos\Resolution\Parser;
 
-use Eloquent\Cosmos\Resolution\ResolutionContextInterface;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 
 /**
  * The interface implemented by parsed resolution contexts.

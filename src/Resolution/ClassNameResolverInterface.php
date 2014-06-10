@@ -13,6 +13,7 @@ namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\ClassName\ClassNameInterface;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Pathogen\Resolver\BasePathResolverInterface;
 
 /**

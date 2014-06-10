@@ -11,7 +11,7 @@
 
 namespace Eloquent\Cosmos\ClassName;
 
-use Eloquent\Cosmos\Resolution\ResolutionContext;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use PHPUnit_Framework_TestCase;
 

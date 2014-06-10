@@ -15,7 +15,7 @@ use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\Normalizer\ClassNameNormalizer;
 use Eloquent\Cosmos\Resolution\ClassNameResolver;
-use Eloquent\Cosmos\Resolution\ResolutionContextFactory;
+use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
