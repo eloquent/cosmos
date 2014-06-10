@@ -19,10 +19,9 @@ interface ResolutionContextParserInterface
     /**
      * Parse all resolution contexts from the supplied source code.
      *
-     * @param string      $source The source code to parse.
-     * @param string|null $path   The path, if known.
+     * @param string $source The source code to parse.
      *
      * @return array<ParsedResolutionContextInterface> The parsed resolution contexts.
      */
-    public function parseSource($source, $path = null);
+    public function parseSource($source);
 }

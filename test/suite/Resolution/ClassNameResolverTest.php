@@ -12,7 +12,6 @@
 namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
@@ -24,8 +23,7 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->contextFactory = new ResolutionContextFactory;
-        $this->resolver = new ClassNameResolver($this->contextFactory);
+        $this->resolver = new ClassNameResolver;
 
         $this->classNameFactory = new ClassNameFactory;
 
@@ -35,18 +33,6 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
             new UseStatement($this->classNameFactory->create('\VendorC\PackageC')),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->classNameFactory);
-    }
-
-    public function testConstructor()
-    {
-        $this->assertSame($this->contextFactory, $this->resolver->contextFactory());
-    }
-
-    public function testConstructorDefaults()
-    {
-        $this->resolver = new ClassNameResolver;
-
-        $this->assertSame(ResolutionContextFactory::instance(), $this->resolver->contextFactory());
     }
 
     public function testResolve()

@@ -14,8 +14,6 @@ namespace Eloquent\Cosmos\Resolution;
 use Eloquent\Cosmos\ClassName\ClassNameInterface;
 use Eloquent\Cosmos\ClassName\ClassNameReference;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
-use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
-use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactoryInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Pathogen\AbsolutePathInterface;
 use Eloquent\Pathogen\PathInterface;
@@ -40,31 +38,6 @@ class ClassNameResolver implements ClassNameResolverInterface
     }
 
     /**
-     * Construct a new class name resolver.
-     *
-     * @param ResolutionContextFactoryInterface|null $contextFactory The resolution context factory to use.
-     */
-    public function __construct(
-        ResolutionContextFactoryInterface $contextFactory = null
-    ) {
-        if (null === $contextFactory) {
-            $contextFactory = ResolutionContextFactory::instance();
-        }
-
-        $this->contextFactory = $contextFactory;
-    }
-
-    /**
-     * Get the resolution context factory.
-     *
-     * @return ResolutionContextFactoryInterface The resolution context factory.
-     */
-    public function contextFactory()
-    {
-        return $this->contextFactory;
-    }
-
-    /**
      * Resolve a class name against the supplied namespace.
      *
      * This method assumes no use statements are defined.
@@ -78,10 +51,11 @@ class ClassNameResolver implements ClassNameResolverInterface
         AbsolutePathInterface $primaryNamespace,
         PathInterface $className
     ) {
-        return $this->resolveAgainstContext(
-            $this->contextFactory()->create($primaryNamespace),
-            $className
-        );
+        if ($className instanceof QualifiedClassNameInterface) {
+            return $className;
+        }
+
+        return $primaryNamespace->join($className);
     }
 
     /**
@@ -173,5 +147,4 @@ class ClassNameResolver implements ClassNameResolverInterface
     }
 
     private static $instance;
-    private $contextFactory;
 }

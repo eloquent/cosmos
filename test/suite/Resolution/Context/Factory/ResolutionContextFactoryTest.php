@@ -11,11 +11,16 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
+use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
+use Phake;
 use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 
 class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
 {
@@ -24,18 +29,21 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->classNameFactory = new ClassNameFactory;
-        $this->factory = new ResolutionContextFactory($this->classNameFactory);
+        $this->contextParser = new ResolutionContextParser;
+        $this->factory = new ResolutionContextFactory($this->classNameFactory, $this->contextParser);
 
         $this->primaryNamespace = $this->classNameFactory->create('\VendorA\PackageA');
         $this->useStatements = array(
             new UseStatement($this->classNameFactory->create('\VendorB\PackageB')),
             new UseStatement($this->classNameFactory->create('\VendorC\PackageC')),
         );
+        $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->classNameFactory);
     }
 
     public function testConstructor()
     {
         $this->assertSame($this->classNameFactory, $this->factory->classNameFactory());
+        $this->assertSame($this->contextParser, $this->factory->contextParser());
     }
 
     public function testConstructorDefaults()
@@ -43,14 +51,86 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
         $this->factory = new ResolutionContextFactory;
 
         $this->assertSame(ClassNameFactory::instance(), $this->factory->classNameFactory());
+        $this->assertEquals(
+            new ResolutionContextParser($this->classNameFactory, null, null, null, $this->factory),
+            $this->factory->contextParser()
+        );
     }
 
     public function testCreate()
     {
         $actual = $this->factory->create($this->primaryNamespace, $this->useStatements);
-        $expected = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->classNameFactory);
 
-        $this->assertEquals($expected, $actual);
+        $this->assertEquals($this->context, $actual);
+    }
+
+    public function testCreateFromClass()
+    {
+        $actual = $this->factory->createFromClass(ClassName::fromString('\\' . __CLASS__));
+        $expected = <<<'EOD'
+namespace Eloquent\Cosmos\Resolution\Context\Factory;
+
+use Eloquent\Cosmos\ClassName\ClassName;
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
+use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Liberator\Liberator;
+use Phake;
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
+
+EOD;
+
+        $this->assertSame($expected, $this->renderContext($actual));
+    }
+
+    public function testCreateFromClassFailureUndefined()
+    {
+        $this->setExpectedException('Eloquent\Cosmos\Exception\UndefinedClassException');
+        $this->factory->createFromClass(ClassName::fromString('\Foo'));
+    }
+
+    public function testCreateFromReflector()
+    {
+        $actual = $this->factory->createFromReflector(new ReflectionClass(__CLASS__));
+        $expected = <<<'EOD'
+namespace Eloquent\Cosmos\Resolution\Context\Factory;
+
+use Eloquent\Cosmos\ClassName\ClassName;
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
+use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Liberator\Liberator;
+use Phake;
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
+
+EOD;
+
+        $this->assertSame($expected, $this->renderContext($actual));
+    }
+
+    public function testCreateFromReflectorFailureFileSystemRead()
+    {
+        $reflector = Phake::mock('ReflectionClass');
+        Phake::when($reflector)->getFileName()->thenReturn('/path/to/foo');
+
+        $this->setExpectedException('Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException');
+        $this->factory->createFromReflector($reflector);
+    }
+
+    public function testCreateFromReflectorFailureNoMatchingClassName()
+    {
+        $reflector = Phake::mock('ReflectionClass');
+        Phake::when($reflector)->getName()->thenReturn('Foo');
+        Phake::when($reflector)->getFileName()->thenReturn(__FILE__);
+
+        $this->setExpectedException('Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException');
+        $this->factory->createFromReflector($reflector);
     }
 
     public function testInstance()
@@ -61,5 +141,21 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf(__NAMESPACE__ . '\ResolutionContextFactory', $actual);
         $this->assertSame($actual, ResolutionContextFactory::instance());
+    }
+
+    protected function renderContext(ResolutionContextInterface $context)
+    {
+        $rendered = '';
+        if ($context->primaryNamespace()->isRoot()) {
+            $rendered .= "namespace;\n\n";
+        } else {
+            $rendered .= sprintf("namespace %s;\n\n", $context->primaryNamespace()->toRelative()->string());
+        }
+
+        foreach ($context->useStatements() as $useStatement) {
+            $rendered .= $useStatement->string() . ";\n";
+        }
+
+        return $rendered;
     }
 }
