@@ -518,6 +518,118 @@ EOD;
         $this->assertSame($expected, $this->renderContexts($actual));
     }
 
+    public function testTraitSupport()
+    {
+        if (!defined('T_TRAIT')) {
+            $this->markTestSkipped('Requires trait support.');
+        }
+
+        $this->parser = new ResolutionContextParser;
+        $source = <<<'EOD'
+<?php
+
+    declare ( ticks = 1 ) ;
+
+    namespace NamespaceA \ NamespaceB ;
+
+    use ClassF ;
+
+    use ClassG as ClassH ;
+
+    use NamespaceD \ ClassI ;
+
+    use NamespaceE \ ClassJ as ClassK ;
+
+    use NamespaceF \ NamespaceG \ ClassL ;
+
+    $object = new namespace \ ClassA ;
+
+    interface InterfaceA
+    {
+        public function functionA ( ) ;
+    }
+
+    interface InterfaceB
+    {
+        public function functionB ( ) ;
+        public function functionC ( ) ;
+    }
+
+    interface InterfaceC extends InterfaceA , InterfaceB
+    {
+    }
+
+    trait TraitA
+    {
+    }
+
+    trait TraitB
+    {
+    }
+
+    trait TraitC
+    {
+        use TraitA ;
+
+        use TraitB ;
+    }
+
+    class ClassB
+    {
+    }
+
+    class ClassC implements InterfaceA
+    {
+        public function functionA()
+        {
+        }
+    }
+
+    class ClassD implements InterfaceA , InterfaceB
+    {
+        use TraitA ;
+
+        use TraitB ;
+
+        public function functionA()
+        {
+        }
+
+        public function functionB()
+        {
+        }
+
+        public function functionC()
+        {
+        }
+    }
+
+EOD;
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use ClassF;
+use ClassG as ClassH;
+use NamespaceD\ClassI;
+use NamespaceE\ClassJ as ClassK;
+use NamespaceF\NamespaceG\ClassL;
+
+\NamespaceA\NamespaceB\InterfaceA;
+\NamespaceA\NamespaceB\InterfaceB;
+\NamespaceA\NamespaceB\InterfaceC;
+\NamespaceA\NamespaceB\TraitA;
+\NamespaceA\NamespaceB\TraitB;
+\NamespaceA\NamespaceB\TraitC;
+\NamespaceA\NamespaceB\ClassB;
+\NamespaceA\NamespaceB\ClassC;
+\NamespaceA\NamespaceB\ClassD;
+
+EOD;
+        $actual = $this->parser->parseSource($source);
+
+        $this->assertSame($expected, $this->renderContexts($actual));
+    }
+
     protected function renderContexts(array $contexts)
     {
         $rendered = '';
