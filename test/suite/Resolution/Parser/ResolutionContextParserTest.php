@@ -19,6 +19,8 @@ use Eloquent\Cosmos\Resolution\ResolutionContextFactory;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
+use Icecave\Isolator\Isolator;
+use Phake;
 use PHPUnit_Framework_TestCase;
 
 class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
@@ -32,12 +34,15 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         $this->classNameNormalizer = new ClassNameNormalizer;
         $this->useStatementFactory = new UseStatementFactory;
         $this->contextFactory = new ResolutionContextFactory;
+        $this->isolator = Phake::mock(Isolator::className());
+        Phake::when($this->isolator)->defined('T_TRAIT')->thenReturn(false);
         $this->parser = new ResolutionContextParser(
             $this->classNameFactory,
             $this->classNameResolver,
             $this->classNameNormalizer,
             $this->useStatementFactory,
-            $this->contextFactory
+            $this->contextFactory,
+            $this->isolator
         );
     }
 
@@ -59,6 +64,15 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         $this->assertSame(ClassNameNormalizer::instance(), $this->parser->classNameNormalizer());
         $this->assertSame(UseStatementFactory::instance(), $this->parser->useStatementFactory());
         $this->assertSame(ResolutionContextFactory::instance(), $this->parser->contextFactory());
+    }
+
+    public function testConstructorTraitSupport()
+    {
+        Phake::when($this->isolator)->defined('T_TRAIT')->thenReturn(true);
+        Phake::when($this->isolator)->constant('T_TRAIT')->thenReturn(111);
+        $this->parser = new ResolutionContextParser(null, null, null, null, null, $this->isolator);
+
+        $this->assertSame(111, Liberator::liberate($this->parser)->traitTokenType);
     }
 
     public function testInstance()
@@ -456,6 +470,49 @@ namespace;
 \ClassD;
 
 EOD;
+        $actual = $this->parser->parseSource($source);
+
+        $this->assertSame($expected, $this->renderContexts($actual));
+    }
+
+    public function testNoClasses()
+    {
+        $source = <<<'EOD'
+<?php
+
+    declare ( ticks = 1 ) ;
+
+    namespace NamespaceA \ NamespaceB
+    {
+        use ClassF ;
+
+        use ClassG as ClassH ;
+
+        use NamespaceD \ ClassI ;
+
+        use NamespaceE \ ClassJ as ClassK ;
+
+        use NamespaceF \ NamespaceG \ ClassL ;
+
+        $object = new namespace \ ClassA ;
+    }
+
+    namespace NamespaceC
+    {
+        use ClassM ;
+
+        use ClassN ;
+    }
+
+    namespace
+    {
+        use ClassO ;
+
+        use ClassP ;
+    }
+
+EOD;
+        $expected = '';
         $actual = $this->parser->parseSource($source);
 
         $this->assertSame($expected, $this->renderContexts($actual));

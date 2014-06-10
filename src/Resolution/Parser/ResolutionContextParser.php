@@ -6,7 +6,7 @@
  * Copyright © 2014 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
- * that was distributed with this source code.
+ * that was distrig2ted with this source code.
  */
 
 namespace Eloquent\Cosmos\Resolution\Parser;
@@ -26,7 +26,10 @@ use Eloquent\Cosmos\UseStatement\UseStatement;
 use Icecave\Isolator\Isolator;
 
 /**
- * The interface implemented by resolution context parsers.
+ * Parses resolution contexts from source code.
+ *
+ * The behaviour of this class is undefined for syntactically invalid source
+ * code.
  */
 class ResolutionContextParser implements ResolutionContextParserInterface
 {
@@ -152,27 +155,31 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     public function parseSource($source, $path = null)
     {
         $tokens = $this->normalizeTokens(token_get_all($source));
-
         $contexts = array();
-        $this->setState('start');
-        $buffer = '';
+
+        $state = 'start';
+        $stateStack = array();
+        $transition = null;
+        $atoms = array();
         $context = null;
         $namespaceName = null;
         $useStatements = array();
+        $useStatementAlias = null;
         $classNames = array();
         $classBracketDepth = 0;
 
         foreach ($tokens as $token) {
-            switch ($this->state()) {
+            switch ($state) {
                 case 'start':
                     switch ($token[0]) {
                         case T_NAMESPACE:
-                            $this->pushState('namespace-name');
+                            array_push($stateStack, $state);
+                            $state = 'namespace-name';
 
                             break;
 
                         case T_USE:
-                            $this->setState('use-statement-class-name');
+                            $state = 'use-statement-class-name';
 
                             break;
 
@@ -180,7 +187,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case T_INTERFACE:
                         case $this->traitTokenType:
                             $context = $this->contextFactory()->create();
-                            $this->setState('class-name');
+                            $state = 'class-name';
 
                             break;
                     }
@@ -190,23 +197,23 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 case 'namespace-name':
                     switch ($token[0]) {
                         case T_NS_SEPARATOR:
-                            if ('' === $buffer) {
-                                $this->popState();
-
-                                break;
+                            if (array() === $atoms) {
+                                $state = array_pop($stateStack);
                             }
 
+                            break;
+
                         case T_STRING:
-                            $buffer .= $token[1];
+                            $atoms[] = $token[1];
 
                             break;
 
                         case ';':
                         case '{':
                             $namespaceName = $this->classNameFactory()
-                                ->create($buffer)->toAbsolute();
-                            $buffer = '';
-                            $this->setState('namespace-header');
+                                ->createFromAtoms($atoms, true);
+                            $atoms = array();
+                            $state = 'namespace-header';
 
                             break;
                     }
@@ -216,12 +223,13 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 case 'namespace-header':
                     switch ($token[0]) {
                         case T_USE:
-                            $this->setState('use-statement-class-name');
+                            $state = 'use-statement-class-name';
 
                             break;
 
                         case T_NAMESPACE:
-                            $this->pushState('namespace-name');
+                            array_push($stateStack, $state);
+                            $state = 'namespace-name';
 
                             break;
 
@@ -231,7 +239,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $context = $this->contextFactory()
                                 ->create($namespaceName, $useStatements);
                             $useStatements = array();
-                            $this->setState('class-name');
+                            $state = 'class-name';
 
                             break;
                     }
@@ -241,24 +249,18 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 case 'use-statement-class-name':
                     switch ($token[0]) {
                         case T_STRING:
-                        case T_NS_SEPARATOR:
-                            $buffer .= $token[1];
+                            $atoms[] = $token[1];
 
                             break;
 
                         case T_AS:
-                            $this->setState('use-statement-alias');
+                            $state = 'use-statement-alias';
 
                             break;
 
                         case ';':
-                            $useStatements[] = $this->useStatementFactory()
-                                ->create(
-                                    $this->classNameFactory()->create($buffer)
-                                        ->toAbsolute()
-                                );
-                            $buffer = '';
-                            $this->setState('namespace-header');
+                            $transition = 'use-statement-end';
+                            $state = 'namespace-header';
 
                             break;
                     }
@@ -268,14 +270,10 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 case 'use-statement-alias':
                     switch ($token[0]) {
                         case T_STRING:
-                            $useStatements[] = $this->useStatementFactory()
-                                ->create(
-                                    $this->classNameFactory()->create($buffer)
-                                        ->toAbsolute(),
-                                    $this->classNameFactory()->create($token[1])
-                                );
-                            $buffer = '';
-                            $this->setState('namespace-header');
+                            $useStatementAlias = $this->classNameFactory()
+                                ->create($token[1]);
+                            $transition = 'use-statement-end';
+                            $state = 'namespace-header';
 
                             break;
                     }
@@ -285,37 +283,20 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 case 'class-name':
                     switch ($token[0]) {
                         case T_STRING:
-                        case T_NS_SEPARATOR:
-                            $buffer .= $token[1];
+                            $atoms[] = $token[1];
 
                             break;
 
                         case T_EXTENDS:
                         case T_IMPLEMENTS:
-                            $classNames[] = $this->classNameNormalizer()
-                                ->normalize(
-                                    $this->classNameResolver()->resolve(
-                                        $context->primaryNamespace(),
-                                        $this->classNameFactory()
-                                            ->create($buffer)
-                                    )
-                                );
-                            $buffer = '';
-                            $this->setState('class-header');
+                            $transition = 'class-name-end';
+                            $state = 'class-header';
 
                             break;
 
                         case '{':
-                            $classNames[] = $this->classNameNormalizer()
-                                ->normalize(
-                                    $this->classNameResolver()->resolve(
-                                        $context->primaryNamespace(),
-                                        $this->classNameFactory()
-                                            ->create($buffer)
-                                    )
-                                );
-                            $buffer = '';
-                            $this->setState('class-body');
+                            $transition = 'class-name-end';
+                            $state = 'class-body';
                             $classBracketDepth++;
 
                             break;
@@ -326,7 +307,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 case 'class-header':
                     switch ($token[0]) {
                         case '{':
-                            $this->setState('class-body');
+                            $state = 'class-body';
                             $classBracketDepth++;
 
                             break;
@@ -343,7 +324,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case '}':
                             if (0 === --$classBracketDepth) {
-                                $this->setState('class-end');
+                                $state = 'class-end';
                             }
 
                             break;
@@ -359,20 +340,51 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                 $classNames
                             );
                             $classNames = array();
-                            $this->pushState('namespace-name');
+
+                            array_push($stateStack, $state);
+                            $state = 'namespace-name';
 
                             break;
 
                         case T_CLASS:
                         case T_INTERFACE:
                         case $this->traitTokenType:
-                            $this->setState('class-name');
+                            $state = 'class-name';
 
                             break;
                     }
 
                     break;
             }
+
+            switch ($transition) {
+                case 'class-name-end':
+                    $classNames[] = $this->classNameNormalizer()
+                        ->normalize(
+                            $this->classNameResolver()->resolve(
+                                $context->primaryNamespace(),
+                                $this->classNameFactory()
+                                    ->createFromAtoms($atoms, false)
+                            )
+                        );
+                    $atoms = array();
+
+                    break;
+
+                case 'use-statement-end':
+                    $useStatements[] = $this->useStatementFactory()
+                        ->create(
+                            $this->classNameFactory()
+                                ->createFromAtoms($atoms, true),
+                            $useStatementAlias
+                        );
+                    $atoms = array();
+                    $useStatementAlias = null;
+
+                    break;
+            }
+
+            $transition = null;
         }
 
         if (count($classNames) > 0) {
@@ -384,42 +396,13 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
     private function normalizeTokens($tokens)
     {
-        $lineNumber = 0;
         foreach ($tokens as $index => $token) {
             if (is_string($token)) {
-                $tokens[$index] = array($token, $token, $lineNumber);
-            } else {
-                $lineNumber = $token[2];
+                $tokens[$index] = array($token, $token, 0);
             }
-
-            $lineNumber += preg_match_all('/$/', $tokens[$index][1], $matches);
         }
 
         return $tokens;
-    }
-
-    private function setState($state)
-    {
-        // echo 'SET STATE: ' . $state . PHP_EOL;
-        $this->stateStack = array($state);
-    }
-
-    private function pushState($state)
-    {
-        // echo 'PUSH STATE: ' . $state . PHP_EOL;
-        array_push($this->stateStack, $state);
-    }
-
-    private function popState()
-    {
-        $state = array_pop($this->stateStack);
-        // echo 'POP STATE: ' . $state . ' TO ' . $this->state() . PHP_EOL;
-        return $state;
-    }
-
-    private function state()
-    {
-        return $this->stateStack[count($this->stateStack) - 1];
     }
 
     private static $instance;
@@ -429,5 +412,4 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     private $useStatementFactory;
     private $contextFactory;
     private $traitTokenType;
-    private $stateStack;
 }
