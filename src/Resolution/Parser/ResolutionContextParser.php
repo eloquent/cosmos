@@ -200,7 +200,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case T_EXTENDS:
                         case T_IMPLEMENTS:
                             $classNames[] = $context->primaryNamespace()
-                                ->resolve(ClassName::fromString($buffer));
+                                ->resolve(ClassName::fromString($buffer))
+                                ->normalize();
                             $buffer = '';
                             $this->setState('class-header');
 
@@ -208,7 +209,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case '{':
                             $classNames[] = $context->primaryNamespace()
-                                ->resolve(ClassName::fromString($buffer));
+                                ->resolve(ClassName::fromString($buffer))
+                                ->normalize();
                             $buffer = '';
                             $this->setState('class-body');
                             $classBracketDepth++;
@@ -291,11 +293,6 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         }
 
         return $tokens;
-    }
-
-    private function clearStates()
-    {
-        $this->stateStack = array();
     }
 
     private function setState($state)
