@@ -183,11 +183,12 @@ class ClassNameResolverTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $class = Liberator::liberateClass(__NAMESPACE__ . '\ClassNameResolver');
-        $class->instance = null;
-        $actual = ClassNameResolver::instance();
+        $class = get_class($this->resolver);
+        $liberatedClass = Liberator::liberateClass($class);
+        $liberatedClass->instance = null;
+        $actual = $class::instance();
 
-        $this->assertInstanceOf(__NAMESPACE__ . '\ClassNameResolver', $actual);
-        $this->assertSame($actual, ClassNameResolver::instance());
+        $this->assertInstanceOf($class, $actual);
+        $this->assertSame($actual, $class::instance());
     }
 }

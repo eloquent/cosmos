@@ -106,11 +106,12 @@ class ClassNameNormalizerTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $class = Liberator::liberateClass(__NAMESPACE__ . '\ClassNameNormalizer');
-        $class->instance = null;
-        $actual = ClassNameNormalizer::instance();
+        $class = get_class($this->normalizer);
+        $liberatedClass = Liberator::liberateClass($class);
+        $liberatedClass->instance = null;
+        $actual = $class::instance();
 
-        $this->assertInstanceOf(__NAMESPACE__ . '\ClassNameNormalizer', $actual);
-        $this->assertSame($actual, ClassNameNormalizer::instance());
+        $this->assertInstanceOf($class, $actual);
+        $this->assertSame($actual, $class::instance());
     }
 }

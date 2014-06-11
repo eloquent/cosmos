@@ -39,11 +39,12 @@ class UseStatementFactoryTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $class = Liberator::liberateClass(__NAMESPACE__ . '\UseStatementFactory');
-        $class->instance = null;
-        $actual = UseStatementFactory::instance();
+        $class = get_class($this->factory);
+        $liberatedClass = Liberator::liberateClass($class);
+        $liberatedClass->instance = null;
+        $actual = $class::instance();
 
-        $this->assertInstanceOf(__NAMESPACE__ . '\UseStatementFactory', $actual);
-        $this->assertSame($actual, UseStatementFactory::instance());
+        $this->assertInstanceOf($class, $actual);
+        $this->assertSame($actual, $class::instance());
     }
 }

@@ -96,11 +96,12 @@ class ClassNameFactoryTest extends PHPUnit_Framework_TestCase
 
     public function testInstance()
     {
-        $class = Liberator::liberateClass(__NAMESPACE__ . '\ClassNameFactory');
-        $class->instance = null;
-        $actual = ClassNameFactory::instance();
+        $class = get_class($this->factory);
+        $liberatedClass = Liberator::liberateClass($class);
+        $liberatedClass->instance = null;
+        $actual = $class::instance();
 
-        $this->assertInstanceOf(__NAMESPACE__ . '\ClassNameFactory', $actual);
-        $this->assertSame($actual, ClassNameFactory::instance());
+        $this->assertInstanceOf($class, $actual);
+        $this->assertSame($actual, $class::instance());
     }
 }

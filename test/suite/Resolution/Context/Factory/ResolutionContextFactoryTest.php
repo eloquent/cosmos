@@ -157,12 +157,13 @@ EOD;
 
     public function testInstance()
     {
-        $class = Liberator::liberateClass(__NAMESPACE__ . '\ResolutionContextFactory');
-        $class->instance = null;
-        $actual = ResolutionContextFactory::instance();
+        $class = get_class($this->factory);
+        $liberatedClass = Liberator::liberateClass($class);
+        $liberatedClass->instance = null;
+        $actual = $class::instance();
 
-        $this->assertInstanceOf(__NAMESPACE__ . '\ResolutionContextFactory', $actual);
-        $this->assertSame($actual, ResolutionContextFactory::instance());
+        $this->assertInstanceOf($class, $actual);
+        $this->assertSame($actual, $class::instance());
     }
 
     protected function renderContext(ResolutionContextInterface $context)
