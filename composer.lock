@@ -4,20 +4,20 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2d8d1f1c2ee46a2f7c16efbc88c4ac79",
+    "hash": "45932aae58e7ef3f9e38ce83d4dfba48",
     "packages": [
         {
             "name": "eloquent/pathogen",
-            "version": "0.6.0",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eloquent/pathogen.git",
-                "reference": "45c84b1707ca0ddcadfae99f62cca142baafb9e4"
+                "reference": "1f599c0ee5db2b9e7f29345b22b65c60d32dfc03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/pathogen/zipball/45c84b1707ca0ddcadfae99f62cca142baafb9e4",
-                "reference": "45c84b1707ca0ddcadfae99f62cca142baafb9e4",
+                "url": "https://api.github.com/repos/eloquent/pathogen/zipball/1f599c0ee5db2b9e7f29345b22b65c60d32dfc03",
+                "reference": "1f599c0ee5db2b9e7f29345b22b65c60d32dfc03",
                 "shasum": ""
             },
             "require": {
@@ -27,7 +27,7 @@
             },
             "require-dev": {
                 "eloquent/liberator": "~2",
-                "icecave/archer": "~1"
+                "icecave/archer": "dev-develop@dev"
             },
             "type": "library",
             "autoload": {
@@ -59,7 +59,7 @@
                 "manipulation",
                 "path"
             ],
-            "time": "2014-02-19 03:09:40"
+            "time": "2014-06-11 02:05:55"
         },
         {
             "name": "icecave/isolator",
@@ -1211,6 +1211,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "eloquent/pathogen": 20,
         "icecave/archer": 20
     },
     "platform": {

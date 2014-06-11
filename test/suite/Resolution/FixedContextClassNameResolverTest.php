@@ -38,7 +38,7 @@ class FixedContextClassNameResolverTest extends PHPUnit_Framework_TestCase
         $this->resolver = new FixedContextClassNameResolver;
 
         $this->assertEquals(new ResolutionContext, $this->resolver->context());
-        $this->assertEquals($this->innerResolver, $this->resolver->resolver());
+        $this->assertSame(ClassNameResolver::instance(), $this->resolver->resolver());
     }
 
     public function testResolve()

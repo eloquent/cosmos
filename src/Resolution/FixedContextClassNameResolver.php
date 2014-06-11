@@ -36,7 +36,7 @@ class FixedContextClassNameResolver implements PathResolverInterface
             $context = new ResolutionContext;
         }
         if (null === $resolver) {
-            $resolver = new ClassNameResolver;
+            $resolver = ClassNameResolver::instance();
         }
 
         $this->context = $context;
