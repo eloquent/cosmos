@@ -21,6 +21,20 @@ use ReflectionClass;
 interface ClassNameFactoryInterface extends PathFactoryInterface
 {
     /**
+     * Creates a new qualified class name instance from its string
+     * representation, regardless of whether it starts with a namespace
+     * separator.
+     *
+     * This method emulates the manner in which class names are typically
+     * interpreted at run time.
+     *
+     * @param string $className The string representation of the class name.
+     *
+     * @return QualifiedClassNameInterface The newly created qualified class name instance.
+     */
+    public function createRuntime($className);
+
+    /**
      * Get the class name of the supplied object.
      *
      * @param object $object The object.

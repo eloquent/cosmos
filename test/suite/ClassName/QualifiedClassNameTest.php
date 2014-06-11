@@ -65,6 +65,36 @@ class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($className instanceof QualifiedClassName);
     }
 
+    public function fromRuntimeStringData()
+    {
+        //                                                 className              atoms
+        return array(
+            'Root namespace'                      => array('\\',                  array()),
+            'Qualified'                           => array('\Namespace\Class',    array('Namespace', 'Class')),
+            'Qualified with empty atoms'          => array('\Namespace\\\\Class', array('Namespace', 'Class')),
+            'Qualified with empty atoms at start' => array('\\\\Class',           array('Class')),
+            'Qualified with empty atoms at end'   => array('\Class\\\\',          array('Class')),
+
+            'Empty'                               => array('',                    array()),
+            'Self'                                => array('.',                   array('.')),
+            'Reference'                           => array('Namespace\Class',     array('Namespace', 'Class')),
+            'Reference with trailing separator'   => array('Namespace\Class\\',   array('Namespace', 'Class')),
+            'Reference with empty atoms'          => array('Namespace\\\\Class',  array('Namespace', 'Class')),
+            'Reference with empty atoms at end'   => array('Namespace\Class\\\\', array('Namespace', 'Class')),
+        );
+    }
+
+    /**
+     * @dataProvider fromRuntimeStringData
+     */
+    public function testFromRuntimeString($classNameString, array $atoms)
+    {
+        $className = QualifiedClassName::fromRuntimeString($classNameString);
+
+        $this->assertSame($atoms, $className->atoms());
+        $this->assertTrue($className instanceof QualifiedClassName);
+    }
+
     public function testFromObject()
     {
         $className = QualifiedClassName::fromString('\Class');
