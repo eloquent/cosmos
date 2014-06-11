@@ -11,9 +11,12 @@
 
 namespace Eloquent\Cosmos\Resolution;
 
+use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 
 class FixedContextClassNameResolverTest extends PHPUnit_Framework_TestCase
 {
@@ -25,6 +28,8 @@ class FixedContextClassNameResolverTest extends PHPUnit_Framework_TestCase
         $this->context = new ResolutionContext($this->factory->create('\VendorA\PackageA'));
         $this->innerResolver = new ClassNameResolver;
         $this->resolver = new FixedContextClassNameResolver($this->context, $this->innerResolver);
+
+        $this->contextFactory = ResolutionContextFactory::instance();
     }
 
     public function testConstructor()
@@ -48,5 +53,36 @@ class FixedContextClassNameResolverTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame($qualified, $this->resolver->resolve($qualified));
         $this->assertSame('\VendorA\PackageA\Class', $this->resolver->resolve($reference)->string());
+    }
+
+    public function testFromObject()
+    {
+        $actual = FixedContextClassNameResolver::fromObject($this);
+        $expected =
+            new FixedContextClassNameResolver($this->contextFactory->createFromObject($this), $this->innerResolver);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFromClass()
+    {
+        $className = ClassName::fromString('\\' . __CLASS__);
+        $actual = FixedContextClassNameResolver::fromClass($className);
+        $expected =
+            new FixedContextClassNameResolver($this->contextFactory->createFromClass($className), $this->innerResolver);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFromReflector()
+    {
+        $reflector = new ReflectionClass('\\' . __CLASS__);
+        $actual = FixedContextClassNameResolver::fromReflector($reflector);
+        $expected = new FixedContextClassNameResolver(
+            $this->contextFactory->createFromReflector($reflector),
+            $this->innerResolver
+        );
+
+        $this->assertEquals($expected, $actual);
     }
 }

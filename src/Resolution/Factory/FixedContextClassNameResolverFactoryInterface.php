@@ -24,7 +24,7 @@ use ReflectionClass;
 interface FixedContextClassNameResolverFactoryInterface
 {
     /**
-     * Construct a new class name resolution context.
+     * Construct a new fixed context class name resolver.
      *
      * @param ResolutionContextInterface|null $context The resolution context.
      *
@@ -33,8 +33,8 @@ interface FixedContextClassNameResolverFactoryInterface
     public function create(ResolutionContextInterface $context = null);
 
     /**
-     * Construct a new class name resolution context by inspecting the source
-     * code of the supplied object's class.
+     * Construct a new fixed context class name resolver by inspecting the
+     * source code of the supplied object's class.
      *
      * @param object $object The object.
      *
@@ -44,8 +44,8 @@ interface FixedContextClassNameResolverFactoryInterface
     public function createFromObject($object);
 
     /**
-     * Construct a new class name resolution context by inspecting the source
-     * code of the supplied class.
+     * Construct a new fixed context class name resolver by inspecting the
+     * source code of the supplied class.
      *
      * @param QualifiedClassNameInterface $className The class.
      *
@@ -56,8 +56,8 @@ interface FixedContextClassNameResolverFactoryInterface
     public function createFromClass(QualifiedClassNameInterface $className);
 
     /**
-     * Construct a new class name resolution context by inspecting the source
-     * code of the supplied class reflector.
+     * Construct a new fixed context class name resolver by inspecting the
+     * source code of the supplied class reflector.
      *
      * @param ReflectionClass $reflector The reflector.
      *

@@ -12,16 +12,64 @@
 namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\Exception\UndefinedClassException;
+use Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+use Eloquent\Cosmos\Resolution\Factory\FixedContextClassNameResolverFactory;
+use Eloquent\Cosmos\Resolution\Factory\FixedContextClassNameResolverFactoryInterface;
 use Eloquent\Pathogen\PathInterface;
 use Eloquent\Pathogen\Resolver\PathResolverInterface;
+use ReflectionClass;
 
 /**
  * Resolves class names against a fixed context.
  */
 class FixedContextClassNameResolver implements PathResolverInterface
 {
+    /**
+     * Construct a new fixed context class name resolver by inspecting the
+     * source code of the supplied object's class.
+     *
+     * @param object $object The object.
+     *
+     * @return PathResolverInterface   The newly created resolver.
+     * @throws SourceCodeReadException If the source code cannot be read.
+     */
+    public static function fromObject($object)
+    {
+        return static::factory()->createFromObject($object);
+    }
+
+    /**
+     * Construct a new fixed context class name resolver by inspecting the
+     * source code of the supplied class.
+     *
+     * @param QualifiedClassNameInterface $className The class.
+     *
+     * @return PathResolverInterface   The newly created resolver.
+     * @throws UndefinedClassException If the class does not exist.
+     * @throws SourceCodeReadException If the source code cannot be read.
+     */
+    public static function fromClass(QualifiedClassNameInterface $className)
+    {
+        return static::factory()->createFromClass($className);
+    }
+
+    /**
+     * Construct a new fixed context class name resolver by inspecting the
+     * source code of the supplied class reflector.
+     *
+     * @param ReflectionClass $reflector The reflector.
+     *
+     * @return PathResolverInterface   The newly created resolver.
+     * @throws SourceCodeReadException If the source code cannot be read.
+     */
+    public static function fromReflector(ReflectionClass $reflector)
+    {
+        return static::factory()->createFromReflector($reflector);
+    }
+
     /**
      * Construct a new fixed context class name resolver.
      *
@@ -76,6 +124,16 @@ class FixedContextClassNameResolver implements PathResolverInterface
     {
         return $this->resolver()
             ->resolveAgainstContext($this->context(), $className);
+    }
+
+    /**
+     * Get the fixed context class name resolver factory.
+     *
+     * @return FixedContextClassNameResolverFactoryInterface The fixed context class name resolver factory.
+     */
+    protected static function factory()
+    {
+        return FixedContextClassNameResolverFactory::instance();
     }
 
     private $context;
