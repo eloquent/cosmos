@@ -115,6 +115,15 @@ class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testGlobalNamespace()
+    {
+        $className = QualifiedClassName::globalNamespace();
+
+        $this->assertSame(array(), $className->atoms());
+        $this->assertTrue($className instanceof QualifiedClassName);
+        $this->assertSame($className, QualifiedClassName::globalNamespace());
+    }
+
     public function classNameData()
     {
         //                             className              atoms

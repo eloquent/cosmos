@@ -94,7 +94,7 @@ EOD;
 
     public function testFromClass()
     {
-        $actual = ResolutionContext::fromClass(ClassName::fromString('\\' . __CLASS__));
+        $actual = ResolutionContext::fromClass(ClassName::fromRuntimeString(__CLASS__));
         $expected = <<<'EOD'
 namespace Eloquent\Cosmos\Resolution\Context;
 
@@ -112,7 +112,7 @@ EOD;
 
     public function testFromReflector()
     {
-        $actual = ResolutionContext::fromReflector(new ReflectionClass('\\' . __CLASS__));
+        $actual = ResolutionContext::fromReflector(new ReflectionClass(__CLASS__));
         $expected = <<<'EOD'
 namespace Eloquent\Cosmos\Resolution\Context;
 

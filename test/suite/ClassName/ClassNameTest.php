@@ -112,4 +112,13 @@ class ClassNameTest extends PHPUnit_Framework_TestCase
             ClassName::fromReflector($reflector)->string()
         );
     }
+
+    public function testGlobalNamespace()
+    {
+        $className = ClassName::globalNamespace();
+
+        $this->assertSame(array(), $className->atoms());
+        $this->assertTrue($className instanceof QualifiedClassName);
+        $this->assertSame($className, ClassName::globalNamespace());
+    }
 }

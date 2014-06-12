@@ -85,6 +85,16 @@ class QualifiedClassName extends AbsolutePath implements
     }
 
     /**
+     * Get the qualified class name representing the global namespace.
+     *
+     * @return QualifiedClassNameInterface The global namespace class name.
+     */
+    public static function globalNamespace()
+    {
+        return static::factory()->globalNamespace();
+    }
+
+    /**
      * Construct a new fully qualified class name.
      *
      * @param mixed<string> $atoms The class name atoms.

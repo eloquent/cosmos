@@ -38,6 +38,8 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
             new UseStatement($this->classNameFactory->create('\VendorC\PackageC')),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->classNameFactory);
+
+        $this->classNameFactory->globalNamespace();
     }
 
     public function testConstructor()
@@ -88,7 +90,7 @@ EOD;
 
     public function testCreateFromClass()
     {
-        $actual = $this->factory->createFromClass(ClassName::fromString('\\' . __CLASS__));
+        $actual = $this->factory->createFromClass(ClassName::fromRuntimeString(__CLASS__));
         $expected = <<<'EOD'
 namespace Eloquent\Cosmos\Resolution\Context\Factory;
 

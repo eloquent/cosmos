@@ -124,6 +124,15 @@ class ClassNameFactoryTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testGlobalNamespace()
+    {
+        $className = $this->factory->globalNamespace();
+
+        $this->assertSame(array(), $className->atoms());
+        $this->assertTrue($className instanceof QualifiedClassName);
+        $this->assertSame($className, $this->factory->globalNamespace());
+    }
+
     public function testInstance()
     {
         $class = get_class($this->factory);

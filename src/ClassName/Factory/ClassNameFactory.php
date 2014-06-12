@@ -51,7 +51,7 @@ class ClassNameFactory implements ClassNameFactoryInterface
         }
 
         if (QualifiedClassName::ATOM_SEPARATOR === $className) {
-            return $this->createFromAtoms(array(), true);
+            return $this->globalNamespace();
         }
 
         $isQualified = false;
@@ -140,7 +140,7 @@ class ClassNameFactory implements ClassNameFactoryInterface
      */
     public function createFromObject($object)
     {
-        return $this->create('\\' . get_class($object));
+        return $this->createRuntime(get_class($object));
     }
 
     /**
@@ -152,8 +152,23 @@ class ClassNameFactory implements ClassNameFactoryInterface
      */
     public function createFromReflector(ReflectionClass $reflector)
     {
-        return $this->create('\\' . $reflector->getName());
+        return $this->createRuntime($reflector->getName());
+    }
+
+    /**
+     * Get the qualified class name representing the global namespace.
+     *
+     * @return QualifiedClassNameInterface The global namespace class name.
+     */
+    public function globalNamespace()
+    {
+        if (null === $this->globalNamespace) {
+            $this->globalNamespace = $this->createFromAtoms(array(), true);
+        }
+
+        return $this->globalNamespace;
     }
 
     private static $instance;
+    private $globalNamespace;
 }

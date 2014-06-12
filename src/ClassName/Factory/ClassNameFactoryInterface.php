@@ -51,4 +51,11 @@ interface ClassNameFactoryInterface extends PathFactoryInterface
      * @return QualifiedClassNameInterface The qualified class name.
      */
     public function createFromReflector(ReflectionClass $reflector);
+
+    /**
+     * Get the qualified class name representing the global namespace.
+     *
+     * @return QualifiedClassNameInterface The global namespace class name.
+     */
+    public function globalNamespace();
 }

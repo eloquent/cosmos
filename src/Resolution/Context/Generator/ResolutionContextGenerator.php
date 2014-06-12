@@ -114,8 +114,7 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
         QualifiedClassNameInterface $primaryNamespace = null
     ) {
         if (null === $primaryNamespace) {
-            $primaryNamespace = $this->classNameFactory()
-                ->createFromAtoms(array(), true);
+            $primaryNamespace = $this->classNameFactory()->globalNamespace();
         } else {
             $primaryNamespace = $primaryNamespace->normalize();
         }

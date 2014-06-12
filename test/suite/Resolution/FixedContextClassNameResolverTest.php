@@ -66,7 +66,7 @@ class FixedContextClassNameResolverTest extends PHPUnit_Framework_TestCase
 
     public function testFromClass()
     {
-        $className = ClassName::fromString('\\' . __CLASS__);
+        $className = ClassName::fromRuntimeString(__CLASS__);
         $actual = FixedContextClassNameResolver::fromClass($className);
         $expected =
             new FixedContextClassNameResolver($this->contextFactory->createFromClass($className), $this->innerResolver);
@@ -76,7 +76,7 @@ class FixedContextClassNameResolverTest extends PHPUnit_Framework_TestCase
 
     public function testFromReflector()
     {
-        $reflector = new ReflectionClass('\\' . __CLASS__);
+        $reflector = new ReflectionClass(__CLASS__);
         $actual = FixedContextClassNameResolver::fromReflector($reflector);
         $expected = new FixedContextClassNameResolver(
             $this->contextFactory->createFromReflector($reflector),

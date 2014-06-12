@@ -65,6 +65,16 @@ abstract class ClassName extends Path
     }
 
     /**
+     * Get the qualified class name representing the global namespace.
+     *
+     * @return QualifiedClassNameInterface The global namespace class name.
+     */
+    public static function globalNamespace()
+    {
+        return static::factory()->globalNamespace();
+    }
+
+    /**
      * Get the class name factory.
      *
      * @return ClassNameFactoryInterface The class name factory.

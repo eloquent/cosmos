@@ -115,6 +115,6 @@ class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertSame($expected, $actual);
-        $this->assertEquals(ClassName::fromString('\\'), $context->primaryNamespace());
+        $this->assertEquals(ClassName::globalNamespace(), $context->primaryNamespace());
     }
 }
