@@ -9,7 +9,7 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Parser;
+namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
@@ -411,6 +411,75 @@ EOD;
         $this->assertSame($expected, $this->renderContexts($actual));
     }
 
+    public function testNoUseStatements()
+    {
+        $source = <<<'EOD'
+<?php
+
+    declare ( ticks = 1 ) ;
+
+    namespace NamespaceA \ NamespaceB ;
+
+    $object = new namespace \ ClassA ;
+
+    interface InterfaceA
+    {
+        public function functionA ( ) ;
+    }
+
+    interface InterfaceB
+    {
+        public function functionB ( ) ;
+        public function functionC ( ) ;
+    }
+
+    interface InterfaceC extends InterfaceA , InterfaceB
+    {
+    }
+
+    class ClassB
+    {
+    }
+
+    class ClassC implements InterfaceA
+    {
+        public function functionA()
+        {
+        }
+    }
+
+    class ClassD implements InterfaceA , InterfaceB
+    {
+        public function functionA()
+        {
+        }
+
+        public function functionB()
+        {
+        }
+
+        public function functionC()
+        {
+        }
+    }
+
+EOD;
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+\NamespaceA\NamespaceB\InterfaceA;
+\NamespaceA\NamespaceB\InterfaceB;
+\NamespaceA\NamespaceB\InterfaceC;
+\NamespaceA\NamespaceB\ClassB;
+\NamespaceA\NamespaceB\ClassC;
+\NamespaceA\NamespaceB\ClassD;
+
+EOD;
+        $actual = $this->parser->parseSource($source);
+
+        $this->assertSame($expected, $this->renderContexts($actual));
+    }
+
     public function testNoNamespaceOrUseStatements()
     {
         $source = <<<'EOD'
@@ -515,7 +584,10 @@ EOD;
     }
 
 EOD;
-        $expected = '';
+        $expected = <<<'EOD'
+namespace;
+
+EOD;
         $actual = $this->parser->parseSource($source);
 
         $this->assertSame($expected, $this->renderContexts($actual));
@@ -651,12 +723,16 @@ EOD;
     {
         $rendered = '';
         if ($context->context()->primaryNamespace()->isRoot()) {
-            $rendered .= "namespace;\n\n";
+            $rendered .= "namespace;\n";
+
+            if (count($context->context()->useStatements()) > 0) {
+                $rendered .= "\n";
+            }
         }
 
         $rendered .= $this->contextRenderer->renderContext($context->context());
 
-        if (count($context->context()->useStatements()) > 0) {
+        if (count($context->classNames()) > 0) {
             $rendered .= "\n";
         }
 

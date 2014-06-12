@@ -13,9 +13,9 @@ namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
 use Phake;
@@ -75,9 +75,9 @@ namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
 use Phake;
@@ -97,9 +97,9 @@ namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
 use Phake;
@@ -119,9 +119,9 @@ namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
 use Phake;
@@ -147,9 +147,9 @@ namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
 use Phake;

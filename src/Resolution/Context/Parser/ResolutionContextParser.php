@@ -9,7 +9,7 @@
  * that was distrig2ted with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Parser;
+namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
@@ -386,9 +386,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
             $transition = null;
         }
 
-        if (count($classNames) > 0) {
-            $contexts[] = new ParsedResolutionContext($context, $classNames);
-        }
+        $contexts[] = new ParsedResolutionContext($context, $classNames);
 
         return $contexts;
     }

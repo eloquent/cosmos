@@ -9,7 +9,7 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Parser;
+namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
