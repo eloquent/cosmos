@@ -9,35 +9,43 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution;
+namespace Eloquent\Cosmos\Resolution\Context\Generator;
 
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
+use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactoryInterface;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 
 /**
- * Generates use statements for importing sets of classes.
+ * Generates resolution contexts for importing sets of classes.
  */
-class UseStatementGenerator implements UseStatementGeneratorInterface
+class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
 {
     /**
-     * Construct a new use statement generator.
+     * Construct a new resolution context generator.
      *
-     * @param integer|null                      $maxReferenceAtoms   The maximum acceptable number of atoms for class references relative to the namespace.
-     * @param UseStatementFactoryInterface|null $useStatementFactory The use statement factory to use.
-     * @param ClassNameFactoryInterface|null    $classNameFactory    The class name factory to use.
+     * @param integer|null                           $maxReferenceAtoms   The maximum acceptable number of atoms for class references relative to the namespace.
+     * @param ResolutionContextFactoryInterface|null $contextFactory      The resolution context factory to use.
+     * @param UseStatementFactoryInterface|null      $useStatementFactory The use statement factory to use.
+     * @param ClassNameFactoryInterface|null         $classNameFactory    The class name factory to use.
      */
     public function __construct(
         $maxReferenceAtoms = null,
+        ResolutionContextFactoryInterface $contextFactory = null,
         UseStatementFactoryInterface $useStatementFactory = null,
         ClassNameFactoryInterface $classNameFactory = null
     ) {
         if (null === $maxReferenceAtoms) {
             $maxReferenceAtoms = 1;
+        }
+        if (null === $contextFactory) {
+            $contextFactory = ResolutionContextFactory::instance();
         }
         if (null === $useStatementFactory) {
             $useStatementFactory = UseStatementFactory::instance();
@@ -47,6 +55,7 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
         }
 
         $this->maxReferenceAtoms = $maxReferenceAtoms;
+        $this->contextFactory = $contextFactory;
         $this->useStatementFactory = $useStatementFactory;
         $this->classNameFactory = $classNameFactory;
     }
@@ -60,6 +69,16 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
     public function maxReferenceAtoms()
     {
         return $this->maxReferenceAtoms;
+    }
+
+    /**
+     * Get the resolution context factory.
+     *
+     * @return ResolutionContextFactoryInterface The resolution context factory.
+     */
+    public function contextFactory()
+    {
+        return $this->contextFactory;
     }
 
     /**
@@ -83,12 +102,12 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
     }
 
     /**
-     * Generate a set of use statements for importing the specified classes.
+     * Generate a resolution context for importing the specified classes.
      *
      * @param array<QualifiedClassNameInterface> $classNames       The classes to generate use statements for.
      * @param QualifiedClassNameInterface|null   $primaryNamespace The namespace, or null to use the global namespace.
      *
-     * @return array<UseStatementInterface> The use statements.
+     * @return ResolutionContextInterface The generated resolution context.
      */
     public function generate(
         array $classNames,
@@ -118,7 +137,8 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
             }
         }
 
-        return $this->normalize($useStatements);
+        return $this->contextFactory()
+            ->create($primaryNamespace, $this->normalize($useStatements));
     }
 
     /**
@@ -220,5 +240,6 @@ class UseStatementGenerator implements UseStatementGeneratorInterface
 
     private $maxReferenceAtoms;
     private $useStatementFactory;
+    private $contextFactory;
     private $classNameFactory;
 }

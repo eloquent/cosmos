@@ -21,7 +21,7 @@ features a comprehensive API for performing many tasks, including:
 - Resolving class name references relative to a resolution context
 - Finding the shortest reference to a qualified class name relative to a
   resolution context
-- Generating an optimal set of `use` statements for a set of class names
+- Generating an optimal resolution context for a set of class names
 
 *Cosmos* is primarily designed to aid in code generation, and resolution of
 class names contained in comment annotations, but should be useful in any

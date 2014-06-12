@@ -9,35 +9,45 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution;
+namespace Eloquent\Cosmos\Resolution\Context\Generator;
 
+use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use PHPUnit_Framework_TestCase;
 
-class UseStatementGeneratorTest extends PHPUnit_Framework_TestCase
+class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
     {
         parent::setUp();
 
+        $this->contextFactory = new ResolutionContextFactory;
         $this->useStatementFactory = new UseStatementFactory;
         $this->classNameFactory = new ClassNameFactory;
-        $this->generator = new UseStatementGenerator(3, $this->useStatementFactory, $this->classNameFactory);
+        $this->generator = new ResolutionContextGenerator(
+            3,
+            $this->contextFactory,
+            $this->useStatementFactory,
+            $this->classNameFactory
+        );
     }
 
     public function testConstructor()
     {
         $this->assertSame(3, $this->generator->maxReferenceAtoms());
+        $this->assertSame($this->contextFactory, $this->generator->contextFactory());
         $this->assertSame($this->useStatementFactory, $this->generator->useStatementFactory());
         $this->assertSame($this->classNameFactory, $this->generator->classNameFactory());
     }
 
     public function testConstructorDefaults()
     {
-        $this->generator = new UseStatementGenerator;
+        $this->generator = new ResolutionContextGenerator;
 
         $this->assertSame(1, $this->generator->maxReferenceAtoms());
+        $this->assertSame(ResolutionContextFactory::instance(), $this->generator->contextFactory());
         $this->assertSame(UseStatementFactory::instance(), $this->generator->useStatementFactory());
         $this->assertSame(ClassNameFactory::instance(), $this->generator->classNameFactory());
     }
@@ -58,9 +68,9 @@ class UseStatementGeneratorTest extends PHPUnit_Framework_TestCase
             $this->classNameFactory->create('\Bar\Baz\Qux'),
             $this->classNameFactory->create('\Foo'),
         );
-        $useStatements = $this->generator->generate($classNames, $primaryNamespace);
+        $context = $this->generator->generate($classNames, $primaryNamespace);
         $actual = array();
-        foreach ($useStatements as $useStatement) {
+        foreach ($context->useStatements() as $useStatement) {
             $actual[] = $useStatement->string();
         }
         $expected = array(
@@ -74,6 +84,7 @@ class UseStatementGeneratorTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertSame($expected, $actual);
+        $this->assertEquals($primaryNamespace, $context->primaryNamespace());
     }
 
     public function testGenerateDefaultNamespace()
@@ -91,9 +102,9 @@ class UseStatementGeneratorTest extends PHPUnit_Framework_TestCase
             $this->classNameFactory->create('\Bar\Baz\Qux'),
             $this->classNameFactory->create('\Foo'),
         );
-        $useStatements = $this->generator->generate($classNames);
+        $context = $this->generator->generate($classNames);
         $actual = array();
-        foreach ($useStatements as $useStatement) {
+        foreach ($context->useStatements() as $useStatement) {
             $actual[] = $useStatement->string();
         }
         $expected = array(
@@ -104,5 +115,6 @@ class UseStatementGeneratorTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertSame($expected, $actual);
+        $this->assertEquals(ClassName::fromString('\\'), $context->primaryNamespace());
     }
 }

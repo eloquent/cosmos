@@ -9,22 +9,23 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution;
+namespace Eloquent\Cosmos\Resolution\Context\Generator;
 
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 
 /**
- * The interface implemented by use statement generators.
+ * The interface implemented by resolution context generators.
  */
-interface UseStatementGeneratorInterface
+interface ResolutionContextGeneratorInterface
 {
     /**
-     * Generate a set of use statements for importing the specified classes.
+     * Generate a resolution context for importing the specified classes.
      *
      * @param array<QualifiedClassNameInterface> $classNames       The classes to generate use statements for.
      * @param QualifiedClassNameInterface|null   $primaryNamespace The namespace, or null to use the global namespace.
      *
-     * @return array<UseStatementInterface> The use statements.
+     * @return ResolutionContextInterface The generated resolution context.
      */
     public function generate(
         array $classNames,
