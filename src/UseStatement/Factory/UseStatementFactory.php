@@ -11,9 +11,9 @@
 
 namespace Eloquent\Cosmos\UseStatement\Factory;
 
-use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
-use Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException;
-use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 
 /**
@@ -38,16 +38,16 @@ class UseStatementFactory implements UseStatementFactoryInterface
     /**
      * Create a new use statement.
      *
-     * @param QualifiedClassNameInterface      $className The class name.
-     * @param ClassNameReferenceInterface|null $alias     The alias for the class name.
+     * @param QualifiedSymbolInterface      $symbol The symbol.
+     * @param SymbolReferenceInterface|null $alias  The alias for the symbol.
      *
-     * @throws InvalidClassNameAtomException If an invalid alias is supplied.
+     * @throws InvalidSymbolAtomException If an invalid alias is supplied.
      */
     public function create(
-        QualifiedClassNameInterface $className,
-        ClassNameReferenceInterface $alias = null
+        QualifiedSymbolInterface $symbol,
+        SymbolReferenceInterface $alias = null
     ) {
-        return new UseStatement($className, $alias);
+        return new UseStatement($symbol, $alias);
     }
 
     private static $instance;

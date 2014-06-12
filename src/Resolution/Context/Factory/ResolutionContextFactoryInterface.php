@@ -11,34 +11,36 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
-use Eloquent\Cosmos\ClassName\ClassNameInterface;
-use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
-use Eloquent\Cosmos\Exception\UndefinedClassException;
+use Eloquent\Cosmos\Exception\UndefinedSymbolException;
+use Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 use ReflectionClass;
+use ReflectionFunction;
 
 /**
- * The interface implemented by class name resolution context factories.
+ * The interface implemented by symbol resolution context factories.
  */
 interface ResolutionContextFactoryInterface
 {
     /**
-     * Construct a new class name resolution context.
+     * Construct a new symbol resolution context.
      *
-     * @param QualifiedClassNameInterface|null  $primaryNamespace The namespace.
+     * @param QualifiedSymbolInterface|null     $primaryNamespace The namespace.
      * @param array<UseStatementInterface>|null $useStatements    The use statements.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      */
     public function create(
-        QualifiedClassNameInterface $primaryNamespace = null,
+        QualifiedSymbolInterface $primaryNamespace = null,
         array $useStatements = null
     );
 
     /**
-     * Construct a new class name resolution context by inspecting the source
-     * code of the supplied object's class.
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied object's class.
      *
      * @param object $object The object.
      *
@@ -48,25 +50,36 @@ interface ResolutionContextFactoryInterface
     public function createFromObject($object);
 
     /**
-     * Construct a new class name resolution context by inspecting the source
-     * code of the supplied class.
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied symbol.
      *
-     * @param ClassNameInterface|string $className The class.
+     * @param SymbolInterface|string $symbol The symbol.
      *
      * @return ResolutionContextInterface The newly created resolution context.
-     * @throws UndefinedClassException    If the class does not exist.
+     * @throws UndefinedSymbolException   If the symbol does not exist.
      * @throws SourceCodeReadException    If the source code cannot be read.
      */
-    public function createFromClass($className);
+    public function createFromSymbol($symbol);
 
     /**
-     * Construct a new class name resolution context by inspecting the source
-     * code of the supplied class reflector.
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied class or object reflector.
      *
-     * @param ReflectionClass $reflector The reflector.
+     * @param ReflectionClass $class The class or object reflector.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws SourceCodeReadException    If the source code cannot be read.
      */
-    public function createFromReflector(ReflectionClass $reflector);
+    public function createFromClass(ReflectionClass $class);
+
+    /**
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied function reflector.
+     *
+     * @param ReflectionFunction $function The function reflector.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws SourceCodeReadException    If the source code cannot be read.
+     */
+    public function createFromFunction(ReflectionFunction $function);
 }

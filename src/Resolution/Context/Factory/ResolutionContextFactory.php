@@ -11,25 +11,25 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
-use Eloquent\Cosmos\ClassName\ClassNameInterface;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
-use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
-use Eloquent\Cosmos\Exception\UndefinedClassException;
+use Eloquent\Cosmos\Exception\UndefinedSymbolException;
 use Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException;
 use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParserInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactoryInterface;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 use Eloquent\Pathogen\FileSystem\FileSystemPath;
 use Icecave\Isolator\Isolator;
 use ReflectionClass;
-use ReflectionException;
+use ReflectionFunction;
 use ReflectionObject;
 
 /**
- * Creates class name resolution contexts.
+ * Creates symbol resolution contexts.
  */
 class ResolutionContextFactory implements ResolutionContextFactoryInterface
 {
@@ -48,24 +48,24 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
     }
 
     /**
-     * Construct a new class name resolution context factory.
+     * Construct a new symbol resolution context factory.
      *
-     * @param ClassNameFactoryInterface|null        $classNameFactory The class name factory to use.
-     * @param ResolutionContextParserInterface|null $contextParser    The context parser to use.
-     * @param Isolator|null                         $isolator         The isolator to use.
+     * @param SymbolFactoryInterface|null           $symbolFactory The symbol factory to use.
+     * @param ResolutionContextParserInterface|null $contextParser The context parser to use.
+     * @param Isolator|null                         $isolator      The isolator to use.
      */
     public function __construct(
-        ClassNameFactoryInterface $classNameFactory = null,
+        SymbolFactoryInterface $symbolFactory = null,
         ResolutionContextParserInterface $contextParser = null,
         Isolator $isolator = null
     ) {
-        if (null === $classNameFactory) {
-            $classNameFactory = ClassNameFactory::instance();
+        if (null === $symbolFactory) {
+            $symbolFactory = SymbolFactory::instance();
         }
         $isolator = Isolator::get($isolator);
         if (null === $contextParser) {
             $contextParser = new ResolutionContextParser(
-                $classNameFactory,
+                $symbolFactory,
                 null,
                 null,
                 null,
@@ -74,19 +74,19 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
             );
         }
 
-        $this->classNameFactory = $classNameFactory;
+        $this->symbolFactory = $symbolFactory;
         $this->contextParser = $contextParser;
         $this->isolator = $isolator;
     }
 
     /**
-     * Get the class name factory.
+     * Get the symbol factory.
      *
-     * @return ClassNameFactoryInterface The class name factory.
+     * @return SymbolFactoryInterface The symbol factory.
      */
-    public function classNameFactory()
+    public function symbolFactory()
     {
-        return $this->classNameFactory;
+        return $this->symbolFactory;
     }
 
     /**
@@ -100,27 +100,27 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
     }
 
     /**
-     * Construct a new class name resolution context.
+     * Construct a new symbol resolution context.
      *
-     * @param QualifiedClassNameInterface|null  $primaryNamespace The namespace.
+     * @param QualifiedSymbolInterface|null     $primaryNamespace The namespace.
      * @param array<UseStatementInterface>|null $useStatements    The use statements.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      */
     public function create(
-        QualifiedClassNameInterface $primaryNamespace = null,
+        QualifiedSymbolInterface $primaryNamespace = null,
         array $useStatements = null
     ) {
         return new ResolutionContext(
             $primaryNamespace,
             $useStatements,
-            $this->classNameFactory()
+            $this->symbolFactory()
         );
     }
 
     /**
-     * Construct a new class name resolution context by inspecting the source
-     * code of the supplied object's class.
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied object's class.
      *
      * @param object $object The object.
      *
@@ -129,64 +129,63 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
      */
     public function createFromObject($object)
     {
-        return $this->createFromReflector(new ReflectionObject($object));
+        return $this->createFromClass(new ReflectionObject($object));
     }
 
     /**
-     * Construct a new class name resolution context by inspecting the source
-     * code of the supplied class.
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied symbol.
      *
-     * @param ClassNameInterface|string $className The class.
+     * @param SymbolInterface|string $symbol The symbol.
      *
      * @return ResolutionContextInterface The newly created resolution context.
-     * @throws UndefinedClassException    If the class does not exist.
+     * @throws UndefinedSymbolException   If the symbol does not exist.
      * @throws SourceCodeReadException    If the source code cannot be read.
      */
-    public function createFromClass($className)
+    public function createFromSymbol($symbol)
     {
-        if ($className instanceof ClassNameInterface) {
-            $className = $className->string();
+        if ($symbol instanceof SymbolInterface) {
+            $symbol = $symbol->string();
         }
 
-        try {
-            $reflector = new ReflectionClass($className);
-        } catch (ReflectionException $e) {
-            throw new UndefinedClassException(
-                $this->classNameFactory()->createRuntime($className),
-                $e
-            );
+        if (class_exists($symbol)) {
+            return $this->createFromClass(new ReflectionClass($symbol));
+        }
+        if (function_exists($symbol)) {
+            return $this->createFromFunction(new ReflectionFunction($symbol));
         }
 
-        return $this->createFromReflector($reflector);
+        throw new UndefinedSymbolException(
+            $this->symbolFactory()->createRuntime($symbol)
+        );
     }
 
     /**
-     * Construct a new class name resolution context by inspecting the source
-     * code of the supplied class reflector.
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied class or object reflector.
      *
-     * @param ReflectionClass $reflector The reflector.
+     * @param ReflectionClass $class The class or object reflector.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws SourceCodeReadException    If the source code cannot be read.
      */
-    public function createFromReflector(ReflectionClass $reflector)
+    public function createFromClass(ReflectionClass $class)
     {
-        $className = '\\' . $reflector->getName();
+        $symbol = '\\' . $class->getName();
 
-        $source = @$this->isolator()
-            ->file_get_contents($reflector->getFileName());
+        $source = @$this->isolator()->file_get_contents($class->getFileName());
         if (false === $source) {
             throw new SourceCodeReadException(
-                $this->classNameFactory()->create($className),
-                FileSystemPath::fromString($reflector->getFileName())
+                $this->symbolFactory()->create($symbol),
+                FileSystemPath::fromString($class->getFileName())
             );
         }
 
         $parsedContexts = $this->contextParser()->parseSource($source);
         $context = null;
         foreach ($parsedContexts as $parsedContext) {
-            foreach ($parsedContext->classNames() as $thisClassName) {
-                if ($thisClassName->string() === $className) {
+            foreach ($parsedContext->symbols() as $thisSymbol) {
+                if ($thisSymbol->string() === $symbol) {
                     $context = $parsedContext->context();
 
                     break 2;
@@ -196,12 +195,25 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
 
         if (null === $context) {
             throw new SourceCodeReadException(
-                $this->classNameFactory()->create($className),
-                FileSystemPath::fromString($reflector->getFileName())
+                $this->symbolFactory()->create($symbol),
+                FileSystemPath::fromString($class->getFileName())
             );
         }
 
         return $context;
+    }
+
+    /**
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied function reflector.
+     *
+     * @param ReflectionFunction $function The function reflector.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws SourceCodeReadException    If the source code cannot be read.
+     */
+    public function createFromFunction(ReflectionFunction $function)
+    {
     }
 
     /**
@@ -215,7 +227,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
     }
 
     private static $instance;
-    private $classNameFactory;
+    private $symbolFactory;
     private $contextParser;
     private $isolator;
 }

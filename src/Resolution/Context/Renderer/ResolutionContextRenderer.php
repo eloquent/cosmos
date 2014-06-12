@@ -11,10 +11,10 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Renderer;
 
-use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
-use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 
 /**
@@ -38,7 +38,7 @@ class ResolutionContextRenderer implements ResolutionContextRendererInterface,
     }
 
     /**
-     * Render a class name resolution context.
+     * Render a symbol resolution context.
      *
      * @param ResolutionContextInterface $context The context to render.
      *
@@ -85,7 +85,7 @@ class ResolutionContextRenderer implements ResolutionContextRendererInterface,
      */
     public function visitUseStatement(UseStatementInterface $useStatement)
     {
-        $rendered = 'use ' . $useStatement->className()->accept($this);
+        $rendered = 'use ' . $useStatement->symbol()->accept($this);
         if (null !== $useStatement->alias()) {
             $rendered .= ' as ' . $useStatement->alias()->accept($this);
         }
@@ -94,29 +94,27 @@ class ResolutionContextRenderer implements ResolutionContextRendererInterface,
     }
 
     /**
-     * Visit a qualified class name.
+     * Visit a qualified symbol.
      *
-     * @param QualifiedClassNameInterface $className The class name to visit.
+     * @param QualifiedSymbolInterface $symbol The symbol to visit.
      *
      * @return mixed The result of visitation.
      */
-    public function visitQualifiedClassName(
-        QualifiedClassNameInterface $className
-    ) {
-        return $className->toRelative()->accept($this);
+    public function visitQualifiedSymbol(QualifiedSymbolInterface $symbol)
+    {
+        return $symbol->toRelative()->accept($this);
     }
 
     /**
-     * Visit a class name reference.
+     * Visit a symbol reference.
      *
-     * @param ClassNameReferenceInterface $className The class name to visit.
+     * @param SymbolReferenceInterface $symbol The symbol to visit.
      *
      * @return mixed The result of visitation.
      */
-    public function visitClassNameReference(
-        ClassNameReferenceInterface $className
-    ) {
-        return $className->string();
+    public function visitSymbolReference(SymbolReferenceInterface $symbol)
+    {
+        return $symbol->string();
     }
 
     private static $instance;

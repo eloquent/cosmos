@@ -11,17 +11,18 @@
 
 namespace Eloquent\Cosmos\Resolution\Context;
 
-use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 
 /**
- * The interface implemented by class name resolution contexts.
+ * The interface implemented by symbol resolution contexts.
  */
 interface ResolutionContextInterface extends ResolutionContextElementInterface
 {
     /**
      * Get the namespace.
      *
-     * @return QualifiedClassNameInterface The namespace.
+     * @return QualifiedSymbolInterface The namespace.
      */
     public function primaryNamespace();
 
@@ -33,13 +34,12 @@ interface ResolutionContextInterface extends ResolutionContextElementInterface
     public function useStatements();
 
     /**
-     * Get the class name or namespace associated with the supplied short name.
+     * Get the symbol associated with the supplied symbol reference's first
+     * atom.
      *
-     * @param ClassNameReferenceInterface $shortName The short name.
+     * @param SymbolReferenceInterface $symbol The symbol reference.
      *
-     * @return QualifiedClassNameInterface The class/namespace name.
+     * @return QualifiedSymbolInterface|null The symbol, or null if no associated symbol exists.
      */
-    public function classNameByShortName(
-        ClassNameReferenceInterface $shortName
-    );
+    public function symbolByFirstAtom(SymbolReferenceInterface $symbol);
 }

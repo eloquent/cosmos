@@ -11,8 +11,8 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
-use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+use Eloquent\Cosmos\Symbol\Symbol;
 use PHPUnit_Framework_TestCase;
 
 class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
@@ -22,14 +22,14 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->context = new ResolutionContext;
-        $this->classNames = array(ClassName::fromString('\ClassA'), ClassName::fromString('\ClassB'));
-        $this->parsedContext = new ParsedResolutionContext($this->context, $this->classNames);
+        $this->symbols = array(Symbol::fromString('\SymbolA'), Symbol::fromString('\SymbolB'));
+        $this->parsedContext = new ParsedResolutionContext($this->context, $this->symbols);
     }
 
     public function testConstructor()
     {
         $this->assertSame($this->context, $this->parsedContext->context());
-        $this->assertSame($this->classNames, $this->parsedContext->classNames());
+        $this->assertSame($this->symbols, $this->parsedContext->symbols());
     }
 
     public function testConstructorDefaults()
@@ -37,6 +37,6 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
         $this->parsedContext = new ParsedResolutionContext;
 
         $this->assertEquals(new ResolutionContext, $this->parsedContext->context());
-        $this->assertSame(array(), $this->parsedContext->classNames());
+        $this->assertSame(array(), $this->parsedContext->symbols());
     }
 }

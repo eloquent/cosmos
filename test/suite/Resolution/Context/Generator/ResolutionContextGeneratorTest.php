@@ -11,9 +11,9 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Generator;
 
-use Eloquent\Cosmos\ClassName\ClassName;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use PHPUnit_Framework_TestCase;
 
@@ -25,12 +25,12 @@ class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
 
         $this->contextFactory = new ResolutionContextFactory;
         $this->useStatementFactory = new UseStatementFactory;
-        $this->classNameFactory = new ClassNameFactory;
+        $this->symbolFactory = new SymbolFactory;
         $this->generator = new ResolutionContextGenerator(
             3,
             $this->contextFactory,
             $this->useStatementFactory,
-            $this->classNameFactory
+            $this->symbolFactory
         );
     }
 
@@ -39,7 +39,7 @@ class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
         $this->assertSame(3, $this->generator->maxReferenceAtoms());
         $this->assertSame($this->contextFactory, $this->generator->contextFactory());
         $this->assertSame($this->useStatementFactory, $this->generator->useStatementFactory());
-        $this->assertSame($this->classNameFactory, $this->generator->classNameFactory());
+        $this->assertSame($this->symbolFactory, $this->generator->symbolFactory());
     }
 
     public function testConstructorDefaults()
@@ -49,26 +49,26 @@ class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
         $this->assertSame(1, $this->generator->maxReferenceAtoms());
         $this->assertSame(ResolutionContextFactory::instance(), $this->generator->contextFactory());
         $this->assertSame(UseStatementFactory::instance(), $this->generator->useStatementFactory());
-        $this->assertSame(ClassNameFactory::instance(), $this->generator->classNameFactory());
+        $this->assertSame(SymbolFactory::instance(), $this->generator->symbolFactory());
     }
 
     public function testGenerate()
     {
-        $primaryNamespace = $this->classNameFactory->create('\VendorA\PackageA');
-        $classNames = array(
-            $this->classNameFactory->create('\VendorC\PackageC'),
-            $this->classNameFactory->create('\VendorC\PackageC'),
-            $this->classNameFactory->create('\VendorB\PackageB'),
-            $this->classNameFactory->create('\VendorA\PackageA\Foo'),
-            $this->classNameFactory->create('\VendorA\PackageA\Foo\Bar\Baz'),
-            $this->classNameFactory->create('\VendorA\PackageA\Foo\Bar\Baz\Doom'),
-            $this->classNameFactory->create('\Foo\Bar\Baz\Qux'),
-            $this->classNameFactory->create('\Doom\Bar\Baz\Qux'),
-            $this->classNameFactory->create('\Bar\Baz\Qux'),
-            $this->classNameFactory->create('\Bar\Baz\Qux'),
-            $this->classNameFactory->create('\Foo'),
+        $primaryNamespace = $this->symbolFactory->create('\VendorA\PackageA');
+        $symbols = array(
+            $this->symbolFactory->create('\VendorC\PackageC'),
+            $this->symbolFactory->create('\VendorC\PackageC'),
+            $this->symbolFactory->create('\VendorB\PackageB'),
+            $this->symbolFactory->create('\VendorA\PackageA\Foo'),
+            $this->symbolFactory->create('\VendorA\PackageA\Foo\Bar\Baz'),
+            $this->symbolFactory->create('\VendorA\PackageA\Foo\Bar\Baz\Doom'),
+            $this->symbolFactory->create('\Foo\Bar\Baz\Qux'),
+            $this->symbolFactory->create('\Doom\Bar\Baz\Qux'),
+            $this->symbolFactory->create('\Bar\Baz\Qux'),
+            $this->symbolFactory->create('\Bar\Baz\Qux'),
+            $this->symbolFactory->create('\Foo'),
         );
-        $context = $this->generator->generate($classNames, $primaryNamespace);
+        $context = $this->generator->generate($symbols, $primaryNamespace);
         $actual = array();
         foreach ($context->useStatements() as $useStatement) {
             $actual[] = $useStatement->string();
@@ -89,20 +89,20 @@ class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
 
     public function testGenerateDefaultNamespace()
     {
-        $classNames = array(
-            $this->classNameFactory->create('\VendorC\PackageC'),
-            $this->classNameFactory->create('\VendorC\PackageC'),
-            $this->classNameFactory->create('\VendorB\PackageB'),
-            $this->classNameFactory->create('\VendorA\PackageA\Foo'),
-            $this->classNameFactory->create('\VendorA\PackageA\Foo\Bar\Baz'),
-            $this->classNameFactory->create('\VendorA\PackageA\Foo\Bar\Baz\Doom'),
-            $this->classNameFactory->create('\Foo\Bar\Baz\Qux'),
-            $this->classNameFactory->create('\Doom\Bar\Baz\Qux'),
-            $this->classNameFactory->create('\Bar\Baz\Qux'),
-            $this->classNameFactory->create('\Bar\Baz\Qux'),
-            $this->classNameFactory->create('\Foo'),
+        $symbols = array(
+            $this->symbolFactory->create('\VendorC\PackageC'),
+            $this->symbolFactory->create('\VendorC\PackageC'),
+            $this->symbolFactory->create('\VendorB\PackageB'),
+            $this->symbolFactory->create('\VendorA\PackageA\Foo'),
+            $this->symbolFactory->create('\VendorA\PackageA\Foo\Bar\Baz'),
+            $this->symbolFactory->create('\VendorA\PackageA\Foo\Bar\Baz\Doom'),
+            $this->symbolFactory->create('\Foo\Bar\Baz\Qux'),
+            $this->symbolFactory->create('\Doom\Bar\Baz\Qux'),
+            $this->symbolFactory->create('\Bar\Baz\Qux'),
+            $this->symbolFactory->create('\Bar\Baz\Qux'),
+            $this->symbolFactory->create('\Foo'),
         );
-        $context = $this->generator->generate($classNames);
+        $context = $this->generator->generate($symbols);
         $actual = array();
         foreach ($context->useStatements() as $useStatement) {
             $actual[] = $useStatement->string();
@@ -115,6 +115,6 @@ class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertSame($expected, $actual);
-        $this->assertEquals(ClassName::globalNamespace(), $context->primaryNamespace());
+        $this->assertEquals(Symbol::globalNamespace(), $context->primaryNamespace());
     }
 }

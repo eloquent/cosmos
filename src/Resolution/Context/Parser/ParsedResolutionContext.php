@@ -13,31 +13,32 @@ namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 
 /**
- * Represents a parsed resolution context and its related class names.
+ * Represents a parsed resolution context and its related symbols.
  */
 class ParsedResolutionContext implements ParsedResolutionContextInterface
 {
     /**
      * Construct a new parsed resolution context.
      *
-     * @param ResolutionContextInterface|null         $context    The resolution context.
-     * @param array<QualifiedClassNameInterface>|null $classNames The class names defined under the parsed resolution context.
+     * @param ResolutionContextInterface|null      $context The resolution context.
+     * @param array<QualifiedSymbolInterface>|null $symbols The symbols defined under the parsed resolution context.
      */
     public function __construct(
         ResolutionContextInterface $context = null,
-        array $classNames = null
+        array $symbols = null
     ) {
         if (null === $context) {
             $context = new ResolutionContext;
         }
-        if (null === $classNames) {
-            $classNames = array();
+        if (null === $symbols) {
+            $symbols = array();
         }
 
         $this->context = $context;
-        $this->classNames = $classNames;
+        $this->symbols = $symbols;
     }
 
     /**
@@ -51,15 +52,15 @@ class ParsedResolutionContext implements ParsedResolutionContextInterface
     }
 
     /**
-     * Get the class names defined under the parsed resolution context.
+     * Get the symbols defined under the parsed resolution context.
      *
-     * @return array<QualifiedClassNameInterface> The defined class names.
+     * @return array<QualifiedSymbolInterface> The defined symbols.
      */
-    public function classNames()
+    public function symbols()
     {
-        return $this->classNames;
+        return $this->symbols;
     }
 
     private $context;
-    private $classNames;
+    private $symbols;
 }

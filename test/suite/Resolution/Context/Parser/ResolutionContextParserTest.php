@@ -11,12 +11,11 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
-use Eloquent\Cosmos\ClassName\ClassName;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Eloquent\Cosmos\ClassName\Normalizer\ClassNameNormalizer;
-use Eloquent\Cosmos\Resolution\ClassNameResolver;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
+use Eloquent\Cosmos\Resolution\SymbolResolver;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\Normalizer\SymbolNormalizer;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
@@ -30,17 +29,17 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->classNameFactory = new ClassNameFactory;
-        $this->classNameResolver = new ClassNameResolver;
-        $this->classNameNormalizer = new ClassNameNormalizer;
+        $this->symbolFactory = new SymbolFactory;
+        $this->symbolResolver = new SymbolResolver;
+        $this->symbolNormalizer = new SymbolNormalizer;
         $this->useStatementFactory = new UseStatementFactory;
         $this->contextFactory = new ResolutionContextFactory;
         $this->isolator = Phake::mock(Isolator::className());
         Phake::when($this->isolator)->defined('T_TRAIT')->thenReturn(false);
         $this->parser = new ResolutionContextParser(
-            $this->classNameFactory,
-            $this->classNameResolver,
-            $this->classNameNormalizer,
+            $this->symbolFactory,
+            $this->symbolResolver,
+            $this->symbolNormalizer,
             $this->useStatementFactory,
             $this->contextFactory,
             $this->isolator
@@ -51,9 +50,9 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
 
     public function testConstructor()
     {
-        $this->assertSame($this->classNameFactory, $this->parser->classNameFactory());
-        $this->assertSame($this->classNameResolver, $this->parser->classNameResolver());
-        $this->assertSame($this->classNameNormalizer, $this->parser->classNameNormalizer());
+        $this->assertSame($this->symbolFactory, $this->parser->symbolFactory());
+        $this->assertSame($this->symbolResolver, $this->parser->symbolResolver());
+        $this->assertSame($this->symbolNormalizer, $this->parser->symbolNormalizer());
         $this->assertSame($this->useStatementFactory, $this->parser->useStatementFactory());
         $this->assertSame($this->contextFactory, $this->parser->contextFactory());
     }
@@ -62,9 +61,9 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
     {
         $this->parser = new ResolutionContextParser;
 
-        $this->assertSame(ClassNameFactory::instance(), $this->parser->classNameFactory());
-        $this->assertSame(ClassNameResolver::instance(), $this->parser->classNameResolver());
-        $this->assertSame(ClassNameNormalizer::instance(), $this->parser->classNameNormalizer());
+        $this->assertSame(SymbolFactory::instance(), $this->parser->symbolFactory());
+        $this->assertSame(SymbolResolver::instance(), $this->parser->symbolResolver());
+        $this->assertSame(SymbolNormalizer::instance(), $this->parser->symbolNormalizer());
         $this->assertSame(UseStatementFactory::instance(), $this->parser->useStatementFactory());
         $this->assertSame(ResolutionContextFactory::instance(), $this->parser->contextFactory());
     }
@@ -76,17 +75,6 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         $this->parser = new ResolutionContextParser(null, null, null, null, null, $this->isolator);
 
         $this->assertSame(111, Liberator::liberate($this->parser)->traitTokenType);
-    }
-
-    public function testInstance()
-    {
-        $class = get_class($this->parser);
-        $liberatedClass = Liberator::liberateClass($class);
-        $liberatedClass->instance = null;
-        $actual = $class::instance();
-
-        $this->assertInstanceOf($class, $actual);
-        $this->assertSame($actual, $class::instance());
     }
 
     public function testRegularNamespaces()
@@ -705,6 +693,17 @@ EOD;
         $this->assertSame($expected, $this->renderContexts($actual));
     }
 
+    public function testInstance()
+    {
+        $class = get_class($this->parser);
+        $liberatedClass = Liberator::liberateClass($class);
+        $liberatedClass->instance = null;
+        $actual = $class::instance();
+
+        $this->assertInstanceOf($class, $actual);
+        $this->assertSame($actual, $class::instance());
+    }
+
     protected function renderContexts(array $contexts)
     {
         $rendered = '';
@@ -732,12 +731,12 @@ EOD;
 
         $rendered .= $this->contextRenderer->renderContext($context->context());
 
-        if (count($context->classNames()) > 0) {
+        if (count($context->symbols()) > 0) {
             $rendered .= "\n";
         }
 
-        foreach ($context->classNames() as $className) {
-            $rendered .= $className->string() . ";\n";
+        foreach ($context->symbols() as $symbol) {
+            $rendered .= $symbol->string() . ";\n";
         }
 
         return $rendered;

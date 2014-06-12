@@ -11,15 +11,14 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
-use Eloquent\Cosmos\ClassName\ClassName;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
-use Eloquent\Cosmos\ClassName\Normalizer\ClassNameNormalizer;
-use Eloquent\Cosmos\ClassName\Normalizer\ClassNameNormalizerInterface;
-use Eloquent\Cosmos\Resolution\ClassNameResolver;
-use Eloquent\Cosmos\Resolution\ClassNameResolverInterface;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactoryInterface;
+use Eloquent\Cosmos\Resolution\SymbolResolver;
+use Eloquent\Cosmos\Resolution\SymbolResolverInterface;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactoryInterface;
+use Eloquent\Cosmos\Symbol\Normalizer\SymbolNormalizer;
+use Eloquent\Cosmos\Symbol\Normalizer\SymbolNormalizerInterface;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
 use Eloquent\Cosmos\UseStatement\UseStatement;
@@ -50,29 +49,29 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     /**
      * Construct a new resolution context parser.
      *
-     * @param ClassNameFactoryInterface|null         $classNameFactory    The class name factory to use.
-     * @param ClassNameResolverInterface|null        $classNameResolver   The class name resolver to use.
-     * @param ClassNameNormalizerInterface|null      $classNameNormalizer The class name normalizer to use.
+     * @param SymbolFactoryInterface|null            $symbolFactory       The symbol factory to use.
+     * @param SymbolResolverInterface|null           $symbolResolver      The symbol resolver to use.
+     * @param SymbolNormalizerInterface|null         $symbolNormalizer    The symbol normalizer to use.
      * @param UseStatementFactoryInterface|null      $useStatementFactory The use statement factory to use.
      * @param ResolutionContextFactoryInterface|null $contextFactory      The resolution context factory to use.
      * @param Isolator|null                          $isolator            The isolator to use.
      */
     public function __construct(
-        ClassNameFactoryInterface $classNameFactory = null,
-        ClassNameResolverInterface $classNameResolver = null,
-        ClassNameNormalizerInterface $classNameNormalizer = null,
+        SymbolFactoryInterface $symbolFactory = null,
+        SymbolResolverInterface $symbolResolver = null,
+        SymbolNormalizerInterface $symbolNormalizer = null,
         UseStatementFactoryInterface $useStatementFactory = null,
         ResolutionContextFactoryInterface $contextFactory = null,
         Isolator $isolator = null
     ) {
-        if (null === $classNameFactory) {
-            $classNameFactory = ClassNameFactory::instance();
+        if (null === $symbolFactory) {
+            $symbolFactory = SymbolFactory::instance();
         }
-        if (null === $classNameResolver) {
-            $classNameResolver = ClassNameResolver::instance();
+        if (null === $symbolResolver) {
+            $symbolResolver = SymbolResolver::instance();
         }
-        if (null === $classNameNormalizer) {
-            $classNameNormalizer = ClassNameNormalizer::instance();
+        if (null === $symbolNormalizer) {
+            $symbolNormalizer = SymbolNormalizer::instance();
         }
         if (null === $useStatementFactory) {
             $useStatementFactory = UseStatementFactory::instance();
@@ -81,9 +80,9 @@ class ResolutionContextParser implements ResolutionContextParserInterface
             $contextFactory = ResolutionContextFactory::instance();
         }
 
-        $this->classNameFactory = $classNameFactory;
-        $this->classNameResolver = $classNameResolver;
-        $this->classNameNormalizer = $classNameNormalizer;
+        $this->symbolFactory = $symbolFactory;
+        $this->symbolResolver = $symbolResolver;
+        $this->symbolNormalizer = $symbolNormalizer;
         $this->useStatementFactory = $useStatementFactory;
         $this->contextFactory = $contextFactory;
         $isolator = Isolator::get($isolator);
@@ -95,33 +94,33 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     }
 
     /**
-     * Get the class name factory.
+     * Get the symbol factory.
      *
-     * @return ClassNameFactoryInterface The class name factory.
+     * @return SymbolFactoryInterface The symbol factory.
      */
-    public function classNameFactory()
+    public function symbolFactory()
     {
-        return $this->classNameFactory;
+        return $this->symbolFactory;
     }
 
     /**
-     * Get the class name resolver.
+     * Get the symbol resolver.
      *
-     * @return ClassNameResolverInterface The class name resolver.
+     * @return SymbolResolverInterface The symbol resolver.
      */
-    public function classNameResolver()
+    public function symbolResolver()
     {
-        return $this->classNameResolver;
+        return $this->symbolResolver;
     }
 
     /**
-     * Get the class name normalizer.
+     * Get the symbol normalizer.
      *
-     * @return ClassNameNormalizerInterface The class name normalizer.
+     * @return SymbolNormalizerInterface The symbol normalizer.
      */
-    public function classNameNormalizer()
+    public function symbolNormalizer()
     {
-        return $this->classNameNormalizer;
+        return $this->symbolNormalizer;
     }
 
     /**
@@ -164,8 +163,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         $namespaceName = null;
         $useStatements = array();
         $useStatementAlias = null;
-        $classNames = array();
-        $classBracketDepth = 0;
+        $symbols = array();
+        $symbolBracketDepth = 0;
 
         foreach ($tokens as $token) {
             switch ($state) {
@@ -186,7 +185,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case T_INTERFACE:
                         case $this->traitTokenType:
                             $context = $this->contextFactory()->create();
-                            $state = 'class-name';
+                            $state = 'symbol';
 
                             break;
                     }
@@ -209,7 +208,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case ';':
                         case '{':
-                            $namespaceName = $this->classNameFactory()
+                            $namespaceName = $this->symbolFactory()
                                 ->createFromAtoms($atoms, true);
                             $atoms = array();
                             $state = 'namespace-header';
@@ -238,7 +237,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $context = $this->contextFactory()
                                 ->create($namespaceName, $useStatements);
                             $useStatements = array();
-                            $state = 'class-name';
+                            $state = 'symbol';
 
                             break;
                     }
@@ -269,7 +268,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 case 'use-statement-alias':
                     switch ($token[0]) {
                         case T_STRING:
-                            $useStatementAlias = $this->classNameFactory()
+                            $useStatementAlias = $this->symbolFactory()
                                 ->create($token[1]);
                             $transition = 'use-statement-end';
                             $state = 'namespace-header';
@@ -279,7 +278,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                     break;
 
-                case 'class-name':
+                case 'symbol':
                     switch ($token[0]) {
                         case T_STRING:
                             $atoms[] = $token[1];
@@ -288,42 +287,42 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case T_EXTENDS:
                         case T_IMPLEMENTS:
-                            $transition = 'class-name-end';
-                            $state = 'class-header';
+                            $transition = 'symbol-end';
+                            $state = 'symbol-header';
 
                             break;
 
                         case '{':
-                            $transition = 'class-name-end';
-                            $state = 'class-body';
-                            $classBracketDepth++;
-
-                            break;
-                    }
-
-                    break;
-
-                case 'class-header':
-                    switch ($token[0]) {
-                        case '{':
-                            $state = 'class-body';
-                            $classBracketDepth++;
+                            $transition = 'symbol-end';
+                            $state = 'symbol-body';
+                            $symbolBracketDepth++;
 
                             break;
                     }
 
                     break;
 
-                case 'class-body':
+                case 'symbol-header':
                     switch ($token[0]) {
                         case '{':
-                            $classBracketDepth++;
+                            $state = 'symbol-body';
+                            $symbolBracketDepth++;
+
+                            break;
+                    }
+
+                    break;
+
+                case 'symbol-body':
+                    switch ($token[0]) {
+                        case '{':
+                            $symbolBracketDepth++;
 
                             break;
 
                         case '}':
-                            if (0 === --$classBracketDepth) {
-                                $state = 'class-end';
+                            if (0 === --$symbolBracketDepth) {
+                                $state = 'symbol-end';
                             }
 
                             break;
@@ -331,14 +330,14 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                     break;
 
-                case 'class-end':
+                case 'symbol-end':
                     switch ($token[0]) {
                         case T_NAMESPACE:
                             $contexts[] = new ParsedResolutionContext(
                                 $context,
-                                $classNames
+                                $symbols
                             );
-                            $classNames = array();
+                            $symbols = array();
 
                             array_push($stateStack, $state);
                             $state = 'namespace-name';
@@ -348,7 +347,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case T_CLASS:
                         case T_INTERFACE:
                         case $this->traitTokenType:
-                            $state = 'class-name';
+                            $state = 'symbol';
 
                             break;
                     }
@@ -357,26 +356,23 @@ class ResolutionContextParser implements ResolutionContextParserInterface
             }
 
             switch ($transition) {
-                case 'class-name-end':
-                    $classNames[] = $this->classNameNormalizer()
-                        ->normalize(
-                            $this->classNameResolver()->resolve(
-                                $context->primaryNamespace(),
-                                $this->classNameFactory()
-                                    ->createFromAtoms($atoms, false)
-                            )
-                        );
+                case 'symbol-end':
+                    $symbols[] = $this->symbolNormalizer()->normalize(
+                        $this->symbolResolver()->resolve(
+                            $context->primaryNamespace(),
+                            $this->symbolFactory()
+                                ->createFromAtoms($atoms, false)
+                        )
+                    );
                     $atoms = array();
 
                     break;
 
                 case 'use-statement-end':
-                    $useStatements[] = $this->useStatementFactory()
-                        ->create(
-                            $this->classNameFactory()
-                                ->createFromAtoms($atoms, true),
-                            $useStatementAlias
-                        );
+                    $useStatements[] = $this->useStatementFactory()->create(
+                        $this->symbolFactory()->createFromAtoms($atoms, true),
+                        $useStatementAlias
+                    );
                     $atoms = array();
                     $useStatementAlias = null;
 
@@ -386,7 +382,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
             $transition = null;
         }
 
-        $contexts[] = new ParsedResolutionContext($context, $classNames);
+        $contexts[] = new ParsedResolutionContext($context, $symbols);
 
         return $contexts;
     }
@@ -403,9 +399,9 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     }
 
     private static $instance;
-    private $classNameFactory;
-    private $classNameResolver;
-    private $classNameNormalizer;
+    private $symbolFactory;
+    private $symbolResolver;
+    private $symbolNormalizer;
     private $useStatementFactory;
     private $contextFactory;
     private $traitTokenType;

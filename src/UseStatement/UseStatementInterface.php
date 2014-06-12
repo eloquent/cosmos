@@ -11,9 +11,9 @@
 
 namespace Eloquent\Cosmos\UseStatement;
 
-use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
-use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextElementInterface;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 
 /**
  * The interface implemented by use statements.
@@ -21,30 +21,30 @@ use Eloquent\Cosmos\Resolution\Context\ResolutionContextElementInterface;
 interface UseStatementInterface extends ResolutionContextElementInterface
 {
     /**
-     * Get the class name.
+     * Get the symbol.
      *
-     * @return QualifiedClassNameInterface The class name.
+     * @return QualifiedSymbolInterface The symbol.
      */
-    public function className();
+    public function symbol();
 
     /**
-     * Set the alias for the class name.
+     * Set the alias for the symbol.
      *
-     * @param ClassNameReferenceInterface|null $alias The alias, or null to remove the alias.
+     * @param SymbolReferenceInterface|null $alias The alias, or null to remove the alias.
      */
-    public function setAlias(ClassNameReferenceInterface $alias = null);
+    public function setAlias(SymbolReferenceInterface $alias = null);
 
     /**
-     * Get the alias for the class name.
+     * Get the alias for the symbol.
      *
-     * @return ClassNameReferenceInterface|null The alias, or null if no alias is in use.
+     * @return SymbolReferenceInterface|null The alias, or null if no alias is in use.
      */
     public function alias();
 
     /**
-     * Get the effective alias for the class name.
+     * Get the effective alias for the symbol.
      *
-     * @return ClassNameReferenceInterface The alias, or the last atom of the class name.
+     * @return SymbolReferenceInterface The alias, or the last atom of the symbol.
      */
     public function effectiveAlias();
 

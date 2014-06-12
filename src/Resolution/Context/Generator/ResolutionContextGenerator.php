@@ -11,35 +11,35 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Generator;
 
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
-use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactoryInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactoryInterface;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 
 /**
- * Generates resolution contexts for importing sets of classes.
+ * Generates resolution contexts for importing sets of symbols.
  */
 class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
 {
     /**
      * Construct a new resolution context generator.
      *
-     * @param integer|null                           $maxReferenceAtoms   The maximum acceptable number of atoms for class references relative to the namespace.
+     * @param integer|null                           $maxReferenceAtoms   The maximum acceptable number of atoms for symbol references relative to the namespace.
      * @param ResolutionContextFactoryInterface|null $contextFactory      The resolution context factory to use.
      * @param UseStatementFactoryInterface|null      $useStatementFactory The use statement factory to use.
-     * @param ClassNameFactoryInterface|null         $classNameFactory    The class name factory to use.
+     * @param SymbolFactoryInterface|null            $symbolFactory       The symbol factory to use.
      */
     public function __construct(
         $maxReferenceAtoms = null,
         ResolutionContextFactoryInterface $contextFactory = null,
         UseStatementFactoryInterface $useStatementFactory = null,
-        ClassNameFactoryInterface $classNameFactory = null
+        SymbolFactoryInterface $symbolFactory = null
     ) {
         if (null === $maxReferenceAtoms) {
             $maxReferenceAtoms = 1;
@@ -50,18 +50,18 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
         if (null === $useStatementFactory) {
             $useStatementFactory = UseStatementFactory::instance();
         }
-        if (null === $classNameFactory) {
-            $classNameFactory = ClassNameFactory::instance();
+        if (null === $symbolFactory) {
+            $symbolFactory = SymbolFactory::instance();
         }
 
         $this->maxReferenceAtoms = $maxReferenceAtoms;
         $this->contextFactory = $contextFactory;
         $this->useStatementFactory = $useStatementFactory;
-        $this->classNameFactory = $classNameFactory;
+        $this->symbolFactory = $symbolFactory;
     }
 
     /**
-     * Get the maximum acceptable number of atoms for class references relative
+     * Get the maximum acceptable number of atoms for symbol references relative
      * to the namespace.
      *
      * @return integer The maximum number of atoms.
@@ -92,47 +92,47 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
     }
 
     /**
-     * Get the class name factory.
+     * Get the symbol factory.
      *
-     * @return ClassNameFactoryInterface The class name factory.
+     * @return SymbolFactoryInterface The symbol factory.
      */
-    public function classNameFactory()
+    public function symbolFactory()
     {
-        return $this->classNameFactory;
+        return $this->symbolFactory;
     }
 
     /**
-     * Generate a resolution context for importing the specified classes.
+     * Generate a resolution context for importing the specified symbols.
      *
-     * @param array<QualifiedClassNameInterface> $classNames       The classes to generate use statements for.
-     * @param QualifiedClassNameInterface|null   $primaryNamespace The namespace, or null to use the global namespace.
+     * @param array<QualifiedSymbolInterface> $symbols          The symbols to generate use statements for.
+     * @param QualifiedSymbolInterface|null   $primaryNamespace The namespace, or null to use the global namespace.
      *
      * @return ResolutionContextInterface The generated resolution context.
      */
     public function generate(
-        array $classNames,
-        QualifiedClassNameInterface $primaryNamespace = null
+        array $symbols,
+        QualifiedSymbolInterface $primaryNamespace = null
     ) {
         if (null === $primaryNamespace) {
-            $primaryNamespace = $this->classNameFactory()->globalNamespace();
+            $primaryNamespace = $this->symbolFactory()->globalNamespace();
         } else {
             $primaryNamespace = $primaryNamespace->normalize();
         }
 
         $useStatements = array();
-        foreach ($classNames as $className) {
-            $className = $className->normalize();
+        foreach ($symbols as $symbol) {
+            $symbol = $symbol->normalize();
 
-            if ($primaryNamespace->isAncestorOf($className)) {
-                $numReferenceAtoms = count($className->atoms()) -
+            if ($primaryNamespace->isAncestorOf($symbol)) {
+                $numReferenceAtoms = count($symbol->atoms()) -
                     count($primaryNamespace->atoms());
                 if ($numReferenceAtoms > $this->maxReferenceAtoms()) {
                     $useStatements[] = $this->useStatementFactory()
-                        ->create($className);
+                        ->create($symbol);
                 }
             } else {
                 $useStatements[] = $this->useStatementFactory()
-                    ->create($className);
+                    ->create($symbol);
             }
         }
 
@@ -202,7 +202,7 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
             }
 
             foreach ($useStatements as $index => $useStatement) {
-                $startIndex = count($useStatement->className()->atoms()) -
+                $startIndex = count($useStatement->symbol()->atoms()) -
                     ($level + 2);
                 if ($startIndex < 0) {
                     continue;
@@ -211,9 +211,9 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
                 $changes = true;
 
                 $currentAlias = $useStatement->effectiveAlias()->name();
-                $newAlias = $this->classNameFactory()->createFromAtoms(
+                $newAlias = $this->symbolFactory()->createFromAtoms(
                     array(
-                        $useStatement->className()->atomAt($startIndex) .
+                        $useStatement->symbol()->atomAt($startIndex) .
                         $currentAlias
                     ),
                     false
@@ -240,5 +240,5 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
     private $maxReferenceAtoms;
     private $useStatementFactory;
     private $contextFactory;
-    private $classNameFactory;
+    private $symbolFactory;
 }

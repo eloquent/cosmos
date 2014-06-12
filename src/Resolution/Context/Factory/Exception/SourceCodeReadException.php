@@ -11,7 +11,7 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Factory\Exception;
 
-use Eloquent\Cosmos\ClassName\ClassNameInterface;
+use Eloquent\Cosmos\Symbol\SymbolInterface;
 use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use Exception;
 
@@ -23,22 +23,22 @@ final class SourceCodeReadException extends Exception
     /**
      * Construct a new source code read exception.
      *
-     * @param ClassNameInterface      $className The class name.
-     * @param FileSystemPathInterface $path      The path.
-     * @param Exception|null          $cause     The cause, if available.
+     * @param SymbolInterface         $symbol The symbol.
+     * @param FileSystemPathInterface $path   The path.
+     * @param Exception|null          $cause  The cause, if available.
      */
     public function __construct(
-        ClassNameInterface $className,
+        SymbolInterface $symbol,
         FileSystemPathInterface $path,
         Exception $cause = null
     ) {
-        $this->className = $className;
+        $this->symbol = $symbol;
         $this->path = $path;
 
         parent::__construct(
             sprintf(
-                'Unable to read the source code for class %s from %s.',
-                var_export($className->string(), true),
+                'Unable to read the source code for symbol %s from %s.',
+                var_export($symbol->string(), true),
                 var_export($path->string(), true)
             ),
             0,
@@ -47,13 +47,13 @@ final class SourceCodeReadException extends Exception
     }
 
     /**
-     * Get the class name.
+     * Get the symbol.
      *
-     * @return ClassNameInterface The class name.
+     * @return SymbolInterface The symbol.
      */
-    public function className()
+    public function symbol()
     {
-        return $this->className;
+        return $this->symbol;
     }
 
     /**
@@ -66,6 +66,6 @@ final class SourceCodeReadException extends Exception
         return $this->path;
     }
 
-    private $className;
+    private $symbol;
     private $path;
 }

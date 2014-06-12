@@ -14,12 +14,12 @@ namespace Eloquent\Cosmos\Resolution\Context\Renderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 
 /**
- * The interface implemented by class name resolution context renderers.
+ * The interface implemented by symbol resolution context renderers.
  */
 interface ResolutionContextRendererInterface
 {
     /**
-     * Render a class name resolution context.
+     * Render a symbol resolution context.
      *
      * @param ResolutionContextInterface $context The context to render.
      *

@@ -11,12 +11,12 @@
 
 namespace Eloquent\Cosmos\Resolution\Context;
 
-use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
-use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 
 /**
- * The interface implemented by class name resolution context visitors.
+ * The interface implemented by symbol resolution context visitors.
  */
 interface ResolutionContextVisitorInterface
 {
@@ -39,24 +39,20 @@ interface ResolutionContextVisitorInterface
     public function visitUseStatement(UseStatementInterface $useStatement);
 
     /**
-     * Visit a qualified class name.
+     * Visit a qualified symbol.
      *
-     * @param QualifiedClassNameInterface $className The class name to visit.
+     * @param QualifiedSymbolInterface $symbol The symbol to visit.
      *
      * @return mixed The result of visitation.
      */
-    public function visitQualifiedClassName(
-        QualifiedClassNameInterface $className
-    );
+    public function visitQualifiedSymbol(QualifiedSymbolInterface $symbol);
 
     /**
-     * Visit a class name reference.
+     * Visit a symbol reference.
      *
-     * @param ClassNameReferenceInterface $className The class name to visit.
+     * @param SymbolReferenceInterface $symbol The symbol to visit.
      *
      * @return mixed The result of visitation.
      */
-    public function visitClassNameReference(
-        ClassNameReferenceInterface $className
-    );
+    public function visitSymbolReference(SymbolReferenceInterface $symbol);
 }

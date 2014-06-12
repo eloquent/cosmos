@@ -11,15 +11,18 @@
 
 namespace Eloquent\Cosmos\Resolution\Context;
 
-use Eloquent\Cosmos\ClassName\ClassNameInterface;
-use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
-use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\Exception\UndefinedSymbolException;
+use Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactoryInterface;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactoryInterface;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 use ReflectionClass;
+use ReflectionFunction;
 
 /**
  * Represents a combined namespace and set of use statements.
@@ -27,8 +30,8 @@ use ReflectionClass;
 class ResolutionContext implements ResolutionContextInterface
 {
     /**
-     * Construct a new class name resolution context by inspecting the source
-     * code of the supplied object's class.
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied object's class.
      *
      * @param object $object The object.
      *
@@ -41,51 +44,65 @@ class ResolutionContext implements ResolutionContextInterface
     }
 
     /**
-     * Construct a new class name resolution context by inspecting the source
-     * code of the supplied class.
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied symbol.
      *
-     * @param ClassNameInterface|string $className The class.
+     * @param SymbolInterface|string $symbol The symbol.
      *
      * @return ResolutionContextInterface The newly created resolution context.
-     * @throws UndefinedClassException    If the class does not exist.
+     * @throws UndefinedSymbolException   If the symbol does not exist.
      * @throws SourceCodeReadException    If the source code cannot be read.
      */
-    public static function fromClass($className)
+    public static function fromSymbol($symbol)
     {
-        return static::factory()->createFromClass($className);
+        return static::factory()->createFromSymbol($symbol);
     }
 
     /**
-     * Construct a new class name resolution context by inspecting the source
-     * code of the supplied class reflector.
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied class or object reflector.
      *
-     * @param ReflectionClass $reflector The reflector.
+     * @param ReflectionClass $class The class or object reflector.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws SourceCodeReadException    If the source code cannot be read.
      */
-    public static function fromReflector(ReflectionClass $reflector)
+    public static function fromClass(ReflectionClass $class)
     {
-        return static::factory()->createFromReflector($reflector);
+        return static::factory()->createFromClass($class);
     }
 
     /**
-     * Construct a new class name resolution context.
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied function reflector.
      *
-     * @param QualifiedClassNameInterface|null  $primaryNamespace The namespace.
+     * @param ReflectionFunction $function The function reflector.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws SourceCodeReadException    If the source code cannot be read.
+     */
+    public static function fromFunction(ReflectionFunction $function)
+    {
+        return static::factory()->createFromFunction($function);
+    }
+
+    /**
+     * Construct a new symbol resolution context.
+     *
+     * @param QualifiedSymbolInterface|null     $primaryNamespace The namespace.
      * @param array<UseStatementInterface>|null $useStatements    The use statements.
-     * @param ClassNameFactoryInterface|null    $factory          The class name factory to use.
+     * @param SymbolFactoryInterface|null       $symbolFactory    The symbol factory to use.
      */
     public function __construct(
-        QualifiedClassNameInterface $primaryNamespace = null,
+        QualifiedSymbolInterface $primaryNamespace = null,
         array $useStatements = null,
-        ClassNameFactoryInterface $factory = null
+        SymbolFactoryInterface $symbolFactory = null
     ) {
-        if (null === $factory) {
-            $factory = ClassNameFactory::instance();
+        if (null === $symbolFactory) {
+            $symbolFactory = SymbolFactory::instance();
         }
         if (null === $primaryNamespace) {
-            $primaryNamespace = $factory->globalNamespace();
+            $primaryNamespace = $symbolFactory->globalNamespace();
         }
         if (null === $useStatements) {
             $useStatements = array();
@@ -100,7 +117,7 @@ class ResolutionContext implements ResolutionContextInterface
     /**
      * Get the namespace.
      *
-     * @return QualifiedClassNameInterface The namespace.
+     * @return QualifiedSymbolInterface The namespace.
      */
     public function primaryNamespace()
     {
@@ -118,19 +135,19 @@ class ResolutionContext implements ResolutionContextInterface
     }
 
     /**
-     * Get the class name or namespace associated with the supplied short name.
+     * Get the symbol associated with the supplied symbol reference's first
+     * atom.
      *
-     * @param ClassNameReferenceInterface $shortName The short name.
+     * @param SymbolReferenceInterface $symbol The symbol reference.
      *
-     * @return QualifiedClassNameInterface|null The class name / namespace, or null if no associated class name / namespace exists.
+     * @return QualifiedSymbolInterface|null The symbol, or null if no associated symbol exists.
      */
-    public function classNameByShortName(
-        ClassNameReferenceInterface $shortName
-    ) {
+    public function symbolByFirstAtom(SymbolReferenceInterface $symbol)
+    {
         $index = $this->index();
-        $shortNameString = $shortName->atomAt(0);
-        if (array_key_exists($shortNameString, $index)) {
-            return $index[$shortNameString];
+        $firstAtom = $symbol->atomAt(0);
+        if (array_key_exists($firstAtom, $index)) {
+            return $index[$firstAtom];
         }
 
         return null;
@@ -159,7 +176,7 @@ class ResolutionContext implements ResolutionContextInterface
     }
 
     /**
-     * Get an index for resolving class name references.
+     * Get an index for resolving symbol references.
      *
      * The first time this method is called, the index will be built.
      *
@@ -171,7 +188,7 @@ class ResolutionContext implements ResolutionContextInterface
     }
 
     /**
-     * Builds the internal index used to resolve class name references.
+     * Builds the internal index used to resolve symbol references.
      *
      * @return array The index.
      */
@@ -180,7 +197,7 @@ class ResolutionContext implements ResolutionContextInterface
         $index = array();
         foreach ($this->useStatements() as $useStatement) {
             $index[$useStatement->effectiveAlias()->string()] =
-                $useStatement->className();
+                $useStatement->symbol();
         }
 
         return $index;

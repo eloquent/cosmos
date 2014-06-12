@@ -12,7 +12,7 @@
 namespace Eloquent\Cosmos\Resolution\Context;
 
 /**
- * The interface implemented by class name resolution context elements.
+ * The interface implemented by symbol resolution context elements.
  */
 interface ResolutionContextElementInterface
 {

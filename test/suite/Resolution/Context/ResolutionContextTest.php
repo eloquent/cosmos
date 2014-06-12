@@ -11,10 +11,10 @@
 
 namespace Eloquent\Cosmos\Resolution\Context;
 
-use Eloquent\Cosmos\ClassName\ClassName;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Eloquent\Cosmos\ClassName\QualifiedClassName;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\QualifiedSymbol;
+use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Phake;
 use PHPUnit_Framework_TestCase;
@@ -26,13 +26,13 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->factory = new ClassNameFactory;
-        $this->primaryNamespace = $this->factory->create('\VendorA\PackageA');
+        $this->symbolFactory = new SymbolFactory;
+        $this->primaryNamespace = $this->symbolFactory->create('\VendorA\PackageA');
         $this->useStatements = array(
-            new UseStatement($this->factory->create('\VendorB\PackageB')),
-            new UseStatement($this->factory->create('\VendorC\PackageC')),
+            new UseStatement($this->symbolFactory->create('\VendorB\PackageB')),
+            new UseStatement($this->symbolFactory->create('\VendorC\PackageC')),
         );
-        $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->factory);
+        $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->symbolFactory);
 
         $this->contextRenderer = ResolutionContextRenderer::instance();
     }
@@ -47,35 +47,35 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
     {
         $this->context = new ResolutionContext;
 
-        $this->assertEquals(new QualifiedClassName(array()), $this->context->primaryNamespace());
+        $this->assertEquals(new QualifiedSymbol(array()), $this->context->primaryNamespace());
         $this->assertSame(array(), $this->context->useStatements());
     }
 
-    public function testClassNameByShortName()
+    public function testSymbolByFirstAtom()
     {
         $this->context = new ResolutionContext(
-            $this->factory->create('\foo'),
+            $this->symbolFactory->create('\foo'),
             array(
-                new UseStatement($this->factory->create('\My\Full\Classname'), $this->factory->create('Another')),
-                new UseStatement($this->factory->create('\My\Full\NSname')),
-                new UseStatement($this->factory->create('\ArrayObject')),
+                new UseStatement($this->symbolFactory->create('\My\Full\Classname'), $this->symbolFactory->create('Another')),
+                new UseStatement($this->symbolFactory->create('\My\Full\NSname')),
+                new UseStatement($this->symbolFactory->create('\ArrayObject')),
             )
         );
 
         $this->assertSame(
             '\My\Full\Classname',
-            $this->context->classNameByShortName($this->factory->create('Another'))->string()
+            $this->context->symbolByFirstAtom($this->symbolFactory->create('Another'))->string()
         );
         $this->assertSame(
             '\My\Full\NSname',
-            $this->context->classNameByShortName($this->factory->create('NSname'))->string()
+            $this->context->symbolByFirstAtom($this->symbolFactory->create('NSname'))->string()
         );
         $this->assertSame(
             '\ArrayObject',
-            $this->context->classNameByShortName($this->factory->create('ArrayObject'))->string()
+            $this->context->symbolByFirstAtom($this->symbolFactory->create('ArrayObject'))->string()
         );
-        $this->assertNull($this->context->classNameByShortName($this->factory->create('Classname')));
-        $this->assertNull($this->context->classNameByShortName($this->factory->create('FooClass')));
+        $this->assertNull($this->context->symbolByFirstAtom($this->symbolFactory->create('Classname')));
+        $this->assertNull($this->context->symbolByFirstAtom($this->symbolFactory->create('FooClass')));
     }
 
     public function testFromObject()
@@ -84,10 +84,10 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
         $expected = <<<'EOD'
 namespace Eloquent\Cosmos\Resolution\Context;
 
-use Eloquent\Cosmos\ClassName\ClassName;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Eloquent\Cosmos\ClassName\QualifiedClassName;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\QualifiedSymbol;
+use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Phake;
 use PHPUnit_Framework_TestCase;
@@ -96,38 +96,64 @@ use ReflectionClass;
 EOD;
 
         $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromSymbol()
+    {
+        $actual = ResolutionContext::fromSymbol(Symbol::fromRuntimeString(__CLASS__));
+        $expected = <<<'EOD'
+namespace Eloquent\Cosmos\Resolution\Context;
+
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\QualifiedSymbol;
+use Eloquent\Cosmos\Symbol\Symbol;
+use Eloquent\Cosmos\UseStatement\UseStatement;
+use Phake;
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromSymbolWithString()
+    {
+        $actual = ResolutionContext::fromSymbol(__CLASS__);
+        $expected = <<<'EOD'
+namespace Eloquent\Cosmos\Resolution\Context;
+
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\QualifiedSymbol;
+use Eloquent\Cosmos\Symbol\Symbol;
+use Eloquent\Cosmos\UseStatement\UseStatement;
+use Phake;
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromSymbolFailureUndefined()
+    {
+        $this->setExpectedException('Eloquent\Cosmos\Exception\UndefinedSymbolException');
+        ResolutionContext::fromSymbol(Symbol::fromString('\Foo'));
     }
 
     public function testFromClass()
     {
-        $actual = ResolutionContext::fromClass(ClassName::fromRuntimeString(__CLASS__));
+        $actual = ResolutionContext::fromClass(new ReflectionClass(__CLASS__));
         $expected = <<<'EOD'
 namespace Eloquent\Cosmos\Resolution\Context;
 
-use Eloquent\Cosmos\ClassName\ClassName;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Eloquent\Cosmos\ClassName\QualifiedClassName;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
-use Eloquent\Cosmos\UseStatement\UseStatement;
-use Phake;
-use PHPUnit_Framework_TestCase;
-use ReflectionClass;
-
-EOD;
-
-        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
-    }
-
-    public function testFromReflector()
-    {
-        $actual = ResolutionContext::fromReflector(new ReflectionClass(__CLASS__));
-        $expected = <<<'EOD'
-namespace Eloquent\Cosmos\Resolution\Context;
-
-use Eloquent\Cosmos\ClassName\ClassName;
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Eloquent\Cosmos\ClassName\QualifiedClassName;
-use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\QualifiedSymbol;
+use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Phake;
 use PHPUnit_Framework_TestCase;

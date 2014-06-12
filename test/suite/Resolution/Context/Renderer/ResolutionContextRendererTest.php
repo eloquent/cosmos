@@ -11,8 +11,8 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Renderer;
 
-use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
@@ -29,24 +29,21 @@ class ResolutionContextRendererTest extends PHPUnit_Framework_TestCase
     public function testRenderContext()
     {
         $context = new ResolutionContext(
-            ClassName::fromString('\NamespaceA\NamespaceB'),
+            Symbol::fromString('\NamespaceA\NamespaceB'),
             array(
-                new UseStatement(ClassName::fromString('\NamespaceC\NamespaceD\ClassA')),
-                new UseStatement(
-                    ClassName::fromString('\NamespaceE\NamespaceF\ClassB'),
-                    ClassName::fromString('ClassC')
-                ),
-                new UseStatement(ClassName::fromString('\ClassD')),
-                new UseStatement(ClassName::fromString('\ClassE'), ClassName::fromString('ClassF')),
+                new UseStatement(Symbol::fromString('\NamespaceC\NamespaceD\SymbolA')),
+                new UseStatement(Symbol::fromString('\NamespaceE\NamespaceF\SymbolB'), Symbol::fromString('SymbolC')),
+                new UseStatement(Symbol::fromString('\SymbolD')),
+                new UseStatement(Symbol::fromString('\SymbolE'), Symbol::fromString('SymbolF')),
             )
         );
         $expected = <<<'EOD'
 namespace NamespaceA\NamespaceB;
 
-use NamespaceC\NamespaceD\ClassA;
-use NamespaceE\NamespaceF\ClassB as ClassC;
-use ClassD;
-use ClassE as ClassF;
+use NamespaceC\NamespaceD\SymbolA;
+use NamespaceE\NamespaceF\SymbolB as SymbolC;
+use SymbolD;
+use SymbolE as SymbolF;
 
 EOD;
 
@@ -58,20 +55,17 @@ EOD;
         $context = new ResolutionContext(
             null,
             array(
-                new UseStatement(ClassName::fromString('\NamespaceC\NamespaceD\ClassA')),
-                new UseStatement(
-                    ClassName::fromString('\NamespaceE\NamespaceF\ClassB'),
-                    ClassName::fromString('ClassC')
-                ),
-                new UseStatement(ClassName::fromString('\ClassD')),
-                new UseStatement(ClassName::fromString('\ClassE'), ClassName::fromString('ClassF')),
+                new UseStatement(Symbol::fromString('\NamespaceC\NamespaceD\SymbolA')),
+                new UseStatement(Symbol::fromString('\NamespaceE\NamespaceF\SymbolB'), Symbol::fromString('SymbolC')),
+                new UseStatement(Symbol::fromString('\SymbolD')),
+                new UseStatement(Symbol::fromString('\SymbolE'), Symbol::fromString('SymbolF')),
             )
         );
         $expected = <<<'EOD'
-use NamespaceC\NamespaceD\ClassA;
-use NamespaceE\NamespaceF\ClassB as ClassC;
-use ClassD;
-use ClassE as ClassF;
+use NamespaceC\NamespaceD\SymbolA;
+use NamespaceE\NamespaceF\SymbolB as SymbolC;
+use SymbolD;
+use SymbolE as SymbolF;
 
 EOD;
 

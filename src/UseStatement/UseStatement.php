@@ -11,11 +11,11 @@
 
 namespace Eloquent\Cosmos\UseStatement;
 
-use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
-use Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException;
-use Eloquent\Cosmos\ClassName\QualifiedClassName;
-use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface;
+use Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException;
+use Eloquent\Cosmos\Symbol\QualifiedSymbol;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 
 /**
  * Represents a use statement.
@@ -25,35 +25,35 @@ class UseStatement implements UseStatementInterface
     /**
      * Construct a new use statement.
      *
-     * @param QualifiedClassNameInterface      $className The class name.
-     * @param ClassNameReferenceInterface|null $alias     The alias for the class name.
+     * @param QualifiedSymbolInterface      $symbol The symbol.
+     * @param SymbolReferenceInterface|null $alias  The alias for the symbol.
      *
-     * @throws InvalidClassNameAtomException If an invalid alias is supplied.
+     * @throws InvalidSymbolAtomException If an invalid alias is supplied.
      */
     public function __construct(
-        QualifiedClassNameInterface $className,
-        ClassNameReferenceInterface $alias = null
+        QualifiedSymbolInterface $symbol,
+        SymbolReferenceInterface $alias = null
     ) {
-        $this->className = $className->normalize();
+        $this->symbol = $symbol->normalize();
         $this->setAlias($alias);
     }
 
     /**
-     * Get the class name.
+     * Get the symbol.
      *
-     * @return QualifiedClassNameInterface The class name.
+     * @return QualifiedSymbolInterface The symbol.
      */
-    public function className()
+    public function symbol()
     {
-        return $this->className;
+        return $this->symbol;
     }
 
     /**
-     * Set the alias for the class name.
+     * Set the alias for the symbol.
      *
-     * @param ClassNameReferenceInterface|null $alias The alias, or null to remove the alias.
+     * @param SymbolReferenceInterface|null $alias The alias, or null to remove the alias.
      */
-    public function setAlias(ClassNameReferenceInterface $alias = null)
+    public function setAlias(SymbolReferenceInterface $alias = null)
     {
         if (null === $alias) {
             $this->alias = null;
@@ -63,10 +63,10 @@ class UseStatement implements UseStatementInterface
 
             if (
                 count($aliasAtoms) > 1 ||
-                QualifiedClassName::SELF_ATOM === $aliasAtoms[0] ||
-                QualifiedClassName::PARENT_ATOM === $aliasAtoms[0]
+                QualifiedSymbol::SELF_ATOM === $aliasAtoms[0] ||
+                QualifiedSymbol::PARENT_ATOM === $aliasAtoms[0]
             ) {
-                throw new InvalidClassNameAtomException($alias->string());
+                throw new InvalidSymbolAtomException($alias->string());
             }
 
             $this->alias = $normalizedAlias;
@@ -74,9 +74,9 @@ class UseStatement implements UseStatementInterface
     }
 
     /**
-     * Get the alias for the class name.
+     * Get the alias for the symbol.
      *
-     * @return ClassNameReferenceInterface|null The alias, or null if no alias is in use.
+     * @return SymbolReferenceInterface|null The alias, or null if no alias is in use.
      */
     public function alias()
     {
@@ -84,14 +84,14 @@ class UseStatement implements UseStatementInterface
     }
 
     /**
-     * Get the effective alias for the class name.
+     * Get the effective alias for the symbol.
      *
-     * @return ClassNameReferenceInterface The alias, or the last atom of the class name.
+     * @return SymbolReferenceInterface The alias, or the last atom of the symbol.
      */
     public function effectiveAlias()
     {
         if (null === $this->alias()) {
-            return $this->className()->shortName();
+            return $this->symbol()->lastAtomAsReference();
         }
 
         return $this->alias();
@@ -105,15 +105,12 @@ class UseStatement implements UseStatementInterface
     public function string()
     {
         if (null === $this->alias()) {
-            return sprintf(
-                'use %s',
-                $this->className()->toRelative()->string()
-            );
+            return sprintf('use %s', $this->symbol()->toRelative()->string());
         }
 
         return sprintf(
             'use %s as %s',
-            $this->className()->toRelative()->string(),
+            $this->symbol()->toRelative()->string(),
             $this->alias()->string()
         );
     }
@@ -140,6 +137,6 @@ class UseStatement implements UseStatementInterface
         return $visitor->visitUseStatement($this);
     }
 
-    private $className;
+    private $symbol;
     private $alias;
 }

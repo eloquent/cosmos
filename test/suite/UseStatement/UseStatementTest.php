@@ -11,9 +11,9 @@
 
 namespace Eloquent\Cosmos\UseStatement;
 
-use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
-use Phake;
+use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use PHPUnit_Framework_TestCase;
+use Phake;
 
 class UseStatementTest extends PHPUnit_Framework_TestCase
 {
@@ -21,21 +21,21 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->factory = new ClassNameFactory;
-        $this->className = $this->factory->create('\Namespace\Class');
+        $this->factory = new SymbolFactory;
+        $this->symbol = $this->factory->create('\Namespace\Symbol');
         $this->alias = $this->factory->create('Alias');
-        $this->useStatement = new UseStatement($this->className, $this->alias);
+        $this->useStatement = new UseStatement($this->symbol, $this->alias);
     }
 
     public function testConstructor()
     {
-        $this->assertEquals($this->className, $this->useStatement->className());
+        $this->assertEquals($this->symbol, $this->useStatement->symbol());
         $this->assertEquals($this->alias, $this->useStatement->alias());
     }
 
     public function testConstructorDefaults()
     {
-        $this->useStatement = new UseStatement($this->className);
+        $this->useStatement = new UseStatement($this->symbol);
 
         $this->assertNull($this->useStatement->alias());
     }
@@ -44,24 +44,24 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
     {
         $this->alias = $this->factory->create('Namespace\Alias');
 
-        $this->setExpectedException('Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException');
-        new UseStatement($this->className, $this->alias);
+        $this->setExpectedException('Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException');
+        new UseStatement($this->symbol, $this->alias);
     }
 
     public function testConstructorFailureInvalidAliasSelfAtom()
     {
         $this->alias = $this->factory->create('.');
 
-        $this->setExpectedException('Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException');
-        new UseStatement($this->className, $this->alias);
+        $this->setExpectedException('Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException');
+        new UseStatement($this->symbol, $this->alias);
     }
 
     public function testConstructorFailureInvalidAliasParentAtom()
     {
         $this->alias = $this->factory->create('..');
 
-        $this->setExpectedException('Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException');
-        new UseStatement($this->className, $this->alias);
+        $this->setExpectedException('Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException');
+        new UseStatement($this->symbol, $this->alias);
     }
 
     public function testEffectiveAlias()
@@ -71,23 +71,23 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
 
     public function testEffectiveAliasNoAlias()
     {
-        $this->useStatement = new UseStatement($this->className);
+        $this->useStatement = new UseStatement($this->symbol);
 
-        $this->assertSame('Class', $this->useStatement->effectiveAlias()->string());
+        $this->assertSame('Symbol', $this->useStatement->effectiveAlias()->string());
     }
 
     public function testString()
     {
-        $this->assertSame('use Namespace\Class as Alias', $this->useStatement->string());
-        $this->assertSame('use Namespace\Class as Alias', strval($this->useStatement));
+        $this->assertSame('use Namespace\Symbol as Alias', $this->useStatement->string());
+        $this->assertSame('use Namespace\Symbol as Alias', strval($this->useStatement));
     }
 
     public function testStringNoAlias()
     {
-        $this->useStatement = new UseStatement($this->className);
+        $this->useStatement = new UseStatement($this->symbol);
 
-        $this->assertSame('use Namespace\Class', $this->useStatement->string());
-        $this->assertSame('use Namespace\Class', strval($this->useStatement));
+        $this->assertSame('use Namespace\Symbol', $this->useStatement->string());
+        $this->assertSame('use Namespace\Symbol', strval($this->useStatement));
     }
 
     public function testAccept()
