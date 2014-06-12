@@ -13,8 +13,8 @@ namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
@@ -38,6 +38,7 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
             new UseStatement($this->classNameFactory->create('\VendorC\PackageC')),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->classNameFactory);
+        $this->contextRenderer = ResolutionContextRenderer::instance();
 
         $this->classNameFactory->globalNamespace();
     }
@@ -74,8 +75,8 @@ namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
@@ -85,7 +86,7 @@ use ReflectionClass;
 
 EOD;
 
-        $this->assertSame($expected, $this->renderContext($actual));
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
     public function testCreateFromClass()
@@ -96,8 +97,8 @@ namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
@@ -107,7 +108,7 @@ use ReflectionClass;
 
 EOD;
 
-        $this->assertSame($expected, $this->renderContext($actual));
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
     public function testCreateFromClassWithString()
@@ -118,8 +119,8 @@ namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
@@ -129,7 +130,7 @@ use ReflectionClass;
 
 EOD;
 
-        $this->assertSame($expected, $this->renderContext($actual));
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
     public function testCreateFromClassFailureUndefined()
@@ -146,8 +147,8 @@ namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
@@ -157,7 +158,7 @@ use ReflectionClass;
 
 EOD;
 
-        $this->assertSame($expected, $this->renderContext($actual));
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
     public function testCreateFromReflectorFailureFileSystemRead()
@@ -188,21 +189,5 @@ EOD;
 
         $this->assertInstanceOf($class, $actual);
         $this->assertSame($actual, $class::instance());
-    }
-
-    protected function renderContext(ResolutionContextInterface $context)
-    {
-        $rendered = '';
-        if ($context->primaryNamespace()->isRoot()) {
-            $rendered .= "namespace;\n\n";
-        } else {
-            $rendered .= sprintf("namespace %s;\n\n", $context->primaryNamespace()->toRelative()->string());
-        }
-
-        foreach ($context->useStatements() as $useStatement) {
-            $rendered .= $useStatement->string() . ";\n";
-        }
-
-        return $rendered;
     }
 }

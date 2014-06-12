@@ -14,6 +14,7 @@ namespace Eloquent\Cosmos\Resolution\Context;
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\QualifiedClassName;
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Phake;
 use PHPUnit_Framework_TestCase;
@@ -32,6 +33,8 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
             new UseStatement($this->factory->create('\VendorC\PackageC')),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->factory);
+
+        $this->contextRenderer = ResolutionContextRenderer::instance();
     }
 
     public function testConstructor()
@@ -84,6 +87,7 @@ namespace Eloquent\Cosmos\Resolution\Context;
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\QualifiedClassName;
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Phake;
 use PHPUnit_Framework_TestCase;
@@ -91,7 +95,7 @@ use ReflectionClass;
 
 EOD;
 
-        $this->assertSame($expected, $this->renderContext($actual));
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
     public function testFromClass()
@@ -103,6 +107,7 @@ namespace Eloquent\Cosmos\Resolution\Context;
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\QualifiedClassName;
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Phake;
 use PHPUnit_Framework_TestCase;
@@ -110,7 +115,7 @@ use ReflectionClass;
 
 EOD;
 
-        $this->assertSame($expected, $this->renderContext($actual));
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
     public function testFromReflector()
@@ -122,6 +127,7 @@ namespace Eloquent\Cosmos\Resolution\Context;
 use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\QualifiedClassName;
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Phake;
 use PHPUnit_Framework_TestCase;
@@ -129,7 +135,7 @@ use ReflectionClass;
 
 EOD;
 
-        $this->assertSame($expected, $this->renderContext($actual));
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
     public function testAccept()
@@ -138,21 +144,5 @@ EOD;
         $this->context->accept($visitor);
 
         Phake::verify($visitor)->visitResolutionContext($this->identicalTo($this->context));
-    }
-
-    protected function renderContext(ResolutionContextInterface $context)
-    {
-        $rendered = '';
-        if ($context->primaryNamespace()->isRoot()) {
-            $rendered .= "namespace;\n\n";
-        } else {
-            $rendered .= sprintf("namespace %s;\n\n", $context->primaryNamespace()->toRelative()->string());
-        }
-
-        foreach ($context->useStatements() as $useStatement) {
-            $rendered .= $useStatement->string() . ";\n";
-        }
-
-        return $rendered;
     }
 }

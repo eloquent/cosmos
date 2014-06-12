@@ -16,6 +16,7 @@ use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\Normalizer\ClassNameNormalizer;
 use Eloquent\Cosmos\Resolution\ClassNameResolver;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
@@ -44,6 +45,8 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
             $this->contextFactory,
             $this->isolator
         );
+
+        $this->contextRenderer = ResolutionContextRenderer::instance();
     }
 
     public function testConstructor()
@@ -649,13 +652,9 @@ EOD;
         $rendered = '';
         if ($context->context()->primaryNamespace()->isRoot()) {
             $rendered .= "namespace;\n\n";
-        } else {
-            $rendered .= sprintf("namespace %s;\n\n", $context->context()->primaryNamespace()->toRelative()->string());
         }
 
-        foreach ($context->context()->useStatements() as $useStatement) {
-            $rendered .= $useStatement->string() . ";\n";
-        }
+        $rendered .= $this->contextRenderer->renderContext($context->context());
 
         if (count($context->context()->useStatements()) > 0) {
             $rendered .= "\n";
