@@ -16,7 +16,7 @@ use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
 /**
  * The interface implemented by class name resolution contexts.
  */
-interface ResolutionContextInterface
+interface ResolutionContextInterface extends ResolutionContextElementInterface
 {
     /**
      * Get the namespace.

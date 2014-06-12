@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\UseStatement;
 
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Phake;
 use PHPUnit_Framework_TestCase;
 
 class UseStatementTest extends PHPUnit_Framework_TestCase
@@ -87,5 +88,13 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('use Namespace\Class', $this->useStatement->string());
         $this->assertSame('use Namespace\Class', strval($this->useStatement));
+    }
+
+    public function testAccept()
+    {
+        $visitor = Phake::mock('Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface');
+        $this->useStatement->accept($visitor);
+
+        Phake::verify($visitor)->visitUseStatement($this->identicalTo($this->useStatement));
     }
 }

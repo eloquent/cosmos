@@ -15,6 +15,7 @@ use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
 use Eloquent\Cosmos\ClassName\Exception\InvalidClassNameAtomException;
 use Eloquent\Cosmos\ClassName\QualifiedClassName;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface;
 
 /**
  * Represents a use statement.
@@ -125,6 +126,18 @@ class UseStatement implements UseStatementInterface
     public function __toString()
     {
         return $this->string();
+    }
+
+    /**
+     * Accept a visitor.
+     *
+     * @param ResolutionContextVisitorInterface $visitor The visitor to accept.
+     *
+     * @return mixed The result of visitation.
+     */
+    public function accept(ResolutionContextVisitorInterface $visitor)
+    {
+        return $visitor->visitUseStatement($this);
     }
 
     private $className;

@@ -137,6 +137,18 @@ class ResolutionContext implements ResolutionContextInterface
     }
 
     /**
+     * Accept a visitor.
+     *
+     * @param ResolutionContextVisitorInterface $visitor The visitor to accept.
+     *
+     * @return mixed The result of visitation.
+     */
+    public function accept(ResolutionContextVisitorInterface $visitor)
+    {
+        return $visitor->visitResolutionContext($this);
+    }
+
+    /**
      * Get the resolution context factory.
      *
      * @return ResolutionContextFactoryInterface The resolution context factory.

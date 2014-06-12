@@ -13,6 +13,7 @@ namespace Eloquent\Cosmos\ClassName;
 
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
 
@@ -364,5 +365,14 @@ class QualifiedClassNameTest extends PHPUnit_Framework_TestCase
             $expected,
             $this->factory->create($classNameString)->relativeToContext($this->context)->string()
         );
+    }
+
+    public function testAccept()
+    {
+        $visitor = Phake::mock('Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface');
+        $className = $this->factory->create('\Foo\Bar');
+        $className->accept($visitor);
+
+        Phake::verify($visitor)->visitQualifiedClassName($this->identicalTo($className));
     }
 }

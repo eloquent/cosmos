@@ -11,12 +11,14 @@
 
 namespace Eloquent\Cosmos\ClassName;
 
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextElementInterface;
 use Eloquent\Pathogen\PathInterface;
 
 /**
  * The common interface implemented by class names and class name references.
  */
-interface ClassNameInterface extends PathInterface
+interface ClassNameInterface extends PathInterface,
+    ResolutionContextElementInterface
 {
     /**
      * Get the last atom of this class name as a class name reference.

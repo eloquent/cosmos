@@ -19,6 +19,7 @@ use Eloquent\Cosmos\ClassName\Normalizer\ClassNameNormalizerInterface;
 use Eloquent\Cosmos\Resolution\ClassNameResolver;
 use Eloquent\Cosmos\Resolution\ClassNameResolverInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface;
 use Eloquent\Pathogen\Exception\InvalidPathAtomExceptionInterface;
 use Eloquent\Pathogen\RelativePath;
 
@@ -108,6 +109,18 @@ class ClassNameReference extends RelativePath implements
     public function resolveAgainstContext(ResolutionContextInterface $context)
     {
         return static::resolver()->resolveAgainstContext($context, $this);
+    }
+
+    /**
+     * Accept a visitor.
+     *
+     * @param ResolutionContextVisitorInterface $visitor The visitor to accept.
+     *
+     * @return mixed The result of visitation.
+     */
+    public function accept(ResolutionContextVisitorInterface $visitor)
+    {
+        return $visitor->visitClassNameReference($this);
     }
 
     /**

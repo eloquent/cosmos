@@ -13,11 +13,12 @@ namespace Eloquent\Cosmos\UseStatement;
 
 use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
 use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextElementInterface;
 
 /**
  * The interface implemented by use statements.
  */
-interface UseStatementInterface
+interface UseStatementInterface extends ResolutionContextElementInterface
 {
     /**
      * Get the class name.

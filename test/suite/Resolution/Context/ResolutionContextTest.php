@@ -15,6 +15,7 @@ use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\QualifiedClassName;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
 
@@ -84,6 +85,7 @@ use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\QualifiedClassName;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
 
@@ -102,6 +104,7 @@ use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\QualifiedClassName;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
 
@@ -120,12 +123,21 @@ use Eloquent\Cosmos\ClassName\ClassName;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\QualifiedClassName;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
 
 EOD;
 
         $this->assertSame($expected, $this->renderContext($actual));
+    }
+
+    public function testAccept()
+    {
+        $visitor = Phake::mock('Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface');
+        $this->context->accept($visitor);
+
+        Phake::verify($visitor)->visitResolutionContext($this->identicalTo($this->context));
     }
 
     protected function renderContext(ResolutionContextInterface $context)
