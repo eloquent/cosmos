@@ -11,7 +11,7 @@
 
 namespace Eloquent\Cosmos\Resolution\Factory;
 
-use Eloquent\Cosmos\ClassName\QualifiedClassNameInterface;
+use Eloquent\Cosmos\ClassName\ClassNameInterface;
 use Eloquent\Cosmos\Exception\UndefinedClassException;
 use Eloquent\Cosmos\Resolution\ClassNameResolver;
 use Eloquent\Cosmos\Resolution\ClassNameResolverInterface;
@@ -115,13 +115,13 @@ class FixedContextClassNameResolverFactory implements
      * Construct a new fixed context class name resolver by inspecting the
      * source code of the supplied class.
      *
-     * @param QualifiedClassNameInterface $className The class.
+     * @param ClassNameInterface|string $className The class.
      *
      * @return PathResolverInterface   The newly created resolver.
      * @throws UndefinedClassException If the class does not exist.
      * @throws SourceCodeReadException If the source code cannot be read.
      */
-    public function createFromClass(QualifiedClassNameInterface $className)
+    public function createFromClass($className)
     {
         return $this
             ->create($this->contextFactory()->createFromClass($className));

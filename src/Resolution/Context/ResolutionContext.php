@@ -11,6 +11,7 @@
 
 namespace Eloquent\Cosmos\Resolution\Context;
 
+use Eloquent\Cosmos\ClassName\ClassNameInterface;
 use Eloquent\Cosmos\ClassName\ClassNameReferenceInterface;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
 use Eloquent\Cosmos\ClassName\Factory\ClassNameFactoryInterface;
@@ -43,13 +44,13 @@ class ResolutionContext implements ResolutionContextInterface
      * Construct a new class name resolution context by inspecting the source
      * code of the supplied class.
      *
-     * @param QualifiedClassNameInterface $className The class.
+     * @param ClassNameInterface|string $className The class.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws UndefinedClassException    If the class does not exist.
      * @throws SourceCodeReadException    If the source code cannot be read.
      */
-    public static function fromClass(QualifiedClassNameInterface $className)
+    public static function fromClass($className)
     {
         return static::factory()->createFromClass($className);
     }

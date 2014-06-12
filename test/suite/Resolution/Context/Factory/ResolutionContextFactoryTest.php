@@ -110,6 +110,28 @@ EOD;
         $this->assertSame($expected, $this->renderContext($actual));
     }
 
+    public function testCreateFromClassWithString()
+    {
+        $actual = $this->factory->createFromClass(__CLASS__);
+        $expected = <<<'EOD'
+namespace Eloquent\Cosmos\Resolution\Context\Factory;
+
+use Eloquent\Cosmos\ClassName\ClassName;
+use Eloquent\Cosmos\ClassName\Factory\ClassNameFactory;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+use Eloquent\Cosmos\Resolution\Parser\ResolutionContextParser;
+use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Liberator\Liberator;
+use Phake;
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
+
+EOD;
+
+        $this->assertSame($expected, $this->renderContext($actual));
+    }
+
     public function testCreateFromClassFailureUndefined()
     {
         $this->setExpectedException('Eloquent\Cosmos\Exception\UndefinedClassException');
