@@ -141,6 +141,8 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         }
     }
 
+    $object = new namespace \ ClassA ;
+
     namespace NamespaceC ;
 
     use ClassM ;
@@ -222,6 +224,8 @@ EOD;
         {
         }
 
+        $object = new namespace \ ClassA ;
+
         class ClassB
         {
         }
@@ -247,6 +251,8 @@ EOD;
             {
             }
         }
+
+        $object = new namespace \ ClassA ;
     }
 
     namespace NamespaceC
@@ -262,6 +268,8 @@ EOD;
         interface InterfaceD
         {
         }
+
+        $object = new namespace \ ClassA ;
     }
 
     namespace
@@ -269,6 +277,8 @@ EOD;
         use ClassO ;
 
         use ClassP ;
+
+        $object = new namespace \ ClassA ;
 
         class ClassQ
         {
