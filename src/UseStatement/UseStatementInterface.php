@@ -49,6 +49,13 @@ interface UseStatementInterface extends ResolutionContextElementInterface
     public function effectiveAlias();
 
     /**
+     * Get the use statement type.
+     *
+     * @return UseStatementType The type.
+     */
+    public function type();
+
+    /**
      * Generate a string representation of this use statement.
      *
      * @return string A string representation of this use statement.

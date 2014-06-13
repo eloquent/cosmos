@@ -24,13 +24,14 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
         $this->factory = new SymbolFactory;
         $this->symbol = $this->factory->create('\Namespace\Symbol');
         $this->alias = $this->factory->create('Alias');
-        $this->useStatement = new UseStatement($this->symbol, $this->alias);
+        $this->useStatement = new UseStatement($this->symbol, $this->alias, UseStatementType::CONSTANT());
     }
 
     public function testConstructor()
     {
         $this->assertEquals($this->symbol, $this->useStatement->symbol());
         $this->assertEquals($this->alias, $this->useStatement->alias());
+        $this->assertSame(UseStatementType::CONSTANT(), $this->useStatement->type());
     }
 
     public function testConstructorDefaults()
@@ -38,6 +39,7 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
         $this->useStatement = new UseStatement($this->symbol);
 
         $this->assertNull($this->useStatement->alias());
+        $this->assertSame(UseStatementType::TYPE(), $this->useStatement->type());
     }
 
     public function testConstructorFailureInvalidAliasMultipleAtoms()

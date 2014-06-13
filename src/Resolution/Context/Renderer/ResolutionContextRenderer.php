@@ -16,6 +16,7 @@ use Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
+use Eloquent\Cosmos\UseStatement\UseStatementType;
 
 /**
  * Renders resolution contexts using standard PHP syntax.
@@ -85,7 +86,18 @@ class ResolutionContextRenderer implements ResolutionContextRendererInterface,
      */
     public function visitUseStatement(UseStatementInterface $useStatement)
     {
-        $rendered = 'use ' . $useStatement->symbol()->accept($this);
+        $rendered = 'use ';
+        if (
+            $useStatement->type()->anyOf(
+                UseStatementType::FUNCT1ON(),
+                UseStatementType::CONSTANT()
+            )
+        ) {
+            $rendered .= $useStatement->type()->value() . ' ';
+        }
+
+        $rendered .= $useStatement->symbol()->accept($this);
+
         if (null !== $useStatement->alias()) {
             $rendered .= ' as ' . $useStatement->alias()->accept($this);
         }

@@ -27,15 +27,22 @@ class UseStatement implements UseStatementInterface
      *
      * @param QualifiedSymbolInterface      $symbol The symbol.
      * @param SymbolReferenceInterface|null $alias  The alias for the symbol.
+     * @param UseStatementType|null         $type   The use statement type.
      *
      * @throws InvalidSymbolAtomException If an invalid alias is supplied.
      */
     public function __construct(
         QualifiedSymbolInterface $symbol,
-        SymbolReferenceInterface $alias = null
+        SymbolReferenceInterface $alias = null,
+        UseStatementType $type = null
     ) {
+        if (null === $type) {
+            $type = UseStatementType::TYPE();
+        }
+
         $this->symbol = $symbol->normalize();
         $this->setAlias($alias);
+        $this->type = $type;
     }
 
     /**
@@ -98,6 +105,16 @@ class UseStatement implements UseStatementInterface
     }
 
     /**
+     * Get the use statement type.
+     *
+     * @return UseStatementType The type.
+     */
+    public function type()
+    {
+        return $this->type;
+    }
+
+    /**
      * Generate a string representation of this use statement.
      *
      * @return string A string representation of this use statement.
@@ -139,4 +156,5 @@ class UseStatement implements UseStatementInterface
 
     private $symbol;
     private $alias;
+    private $type;
 }
