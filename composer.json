@@ -13,6 +13,7 @@
     ],
     "require": {
         "php": ">=5.3",
+        "eloquent/enumeration": "~5",
         "eloquent/pathogen": "dev-develop@dev",
         "icecave/isolator": "~2"
     },
