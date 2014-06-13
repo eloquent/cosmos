@@ -613,10 +613,6 @@ EOD;
 
     public function testTraitSupport()
     {
-        if (!defined('T_TRAIT')) {
-            $this->markTestSkipped('Requires trait support.');
-        }
-
         $this->parser = new ResolutionContextParser;
         $source = <<<'EOD'
 <?php
@@ -716,6 +712,30 @@ use NamespaceF\NamespaceG\ClassL;
 \NamespaceA\NamespaceB\ClassB;
 \NamespaceA\NamespaceB\ClassC;
 \NamespaceA\NamespaceB\ClassD;
+
+EOD;
+        $actual = $this->parser->parseSource($source);
+
+        $this->assertSame($expected, $this->renderContexts($actual));
+    }
+
+    public function testNamespaceAndTraitOnly()
+    {
+        $this->parser = new ResolutionContextParser;
+        $source = <<<'EOD'
+<?php
+
+    namespace NamespaceA;
+
+    trait TraitA
+    {
+    }
+
+EOD;
+        $expected = <<<'EOD'
+namespace NamespaceA;
+
+\NamespaceA\TraitA;
 
 EOD;
         $actual = $this->parser->parseSource($source);

@@ -155,7 +155,6 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     {
         $tokens = $this->normalizeTokens(token_get_all($source));
         $tokens[] = array('end');
-        $numTokens = count($tokens);
         $contexts = array();
 
         $state = 'start';
@@ -185,6 +184,15 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $state = 'symbol';
 
                             break;
+
+                        // @codeCoverageIgnoreStart
+                        case T_STRING:
+                            if ('trait' === strtolower($token[1])) {
+                                $state = 'symbol';
+                            }
+
+                            break;
+                        // @codeCoverageIgnoreEnd
                     }
 
                     break;
@@ -250,6 +258,15 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $state = 'symbol';
 
                             break;
+
+                        // @codeCoverageIgnoreStart
+                        case T_STRING:
+                            if ('trait' === strtolower($token[1])) {
+                                $state = 'symbol';
+                            }
+
+                            break;
+                        // @codeCoverageIgnoreEnd
                     }
 
                     break;
@@ -362,7 +379,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                     break;
             }
 
-            if ($numTokens - 1 === $index) {
+            if ('end' === $token[0]) {
                 $transition = 'context-end';
             }
 
