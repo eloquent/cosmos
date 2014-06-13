@@ -15,6 +15,7 @@ use Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Cosmos\UseStatement\UseStatementType;
 
 /**
  * Creates use statement instances.
@@ -40,14 +41,16 @@ class UseStatementFactory implements UseStatementFactoryInterface
      *
      * @param QualifiedSymbolInterface      $symbol The symbol.
      * @param SymbolReferenceInterface|null $alias  The alias for the symbol.
+     * @param UseStatementType|null         $type   The use statement type.
      *
      * @throws InvalidSymbolAtomException If an invalid alias is supplied.
      */
     public function create(
         QualifiedSymbolInterface $symbol,
-        SymbolReferenceInterface $alias = null
+        SymbolReferenceInterface $alias = null,
+        UseStatementType $type = null
     ) {
-        return new UseStatement($symbol, $alias);
+        return new UseStatement($symbol, $alias, $type);
     }
 
     private static $instance;

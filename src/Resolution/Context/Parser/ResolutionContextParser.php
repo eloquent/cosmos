@@ -22,6 +22,7 @@ use Eloquent\Cosmos\Symbol\Normalizer\SymbolNormalizerInterface;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Cosmos\UseStatement\UseStatementType;
 use Icecave\Isolator\Isolator;
 
 /**
@@ -153,39 +154,58 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     public function parseSource($source)
     {
         $tokens = $this->normalizeTokens(token_get_all($source));
+        $tokens[] = array('end');
+        $numTokens = count($tokens);
         $contexts = array();
 
         $state = 'start';
-        $stateStack = array();
-        $transition = null;
-        $atoms = array();
-        $context = null;
-        $namespaceName = null;
-        $useStatements = array();
-        $useStatementAlias = null;
-        $symbols = array();
+        $stateStack = $atoms = $useStatements = $symbols = array();
+        $transition = $namespaceName = $useStatementAlias = $useStatementType =
+            null;
         $symbolBracketDepth = 0;
 
-        foreach ($tokens as $token) {
+        foreach ($tokens as $index => $token) {
             switch ($state) {
                 case 'start':
                     switch ($token[0]) {
                         case T_NAMESPACE:
                             array_push($stateStack, $state);
-                            $state = 'namespace-name';
+                            $state = 'potential-namespace-name';
 
                             break;
 
                         case T_USE:
-                            $state = 'use-statement-class-name';
+                            $state = 'use-statement';
 
                             break;
 
                         case T_CLASS:
                         case T_INTERFACE:
                         case $this->traitTokenType:
-                            $context = $this->contextFactory()->create();
                             $state = 'symbol';
+
+                            break;
+                    }
+
+                    break;
+
+                case 'potential-namespace-name':
+                    switch ($token[0]) {
+                        case T_NS_SEPARATOR:
+                            $state = array_pop($stateStack);
+
+                            break;
+
+                        case T_STRING:
+                            $transition = 'context-end';
+                            $atoms[] = $token[1];
+                            $state = 'namespace-name';
+
+                            break;
+
+                        case '{':
+                            $transition = 'context-end';
+                            $state = 'namespace-header';
 
                             break;
                     }
@@ -194,13 +214,6 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                 case 'namespace-name':
                     switch ($token[0]) {
-                        case T_NS_SEPARATOR:
-                            if (array() === $atoms) {
-                                $state = array_pop($stateStack);
-                            }
-
-                            break;
-
                         case T_STRING:
                             $atoms[] = $token[1];
 
@@ -221,23 +234,41 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 case 'namespace-header':
                     switch ($token[0]) {
                         case T_USE:
-                            $state = 'use-statement-class-name';
+                            $state = 'use-statement';
 
                             break;
 
                         case T_NAMESPACE:
                             array_push($stateStack, $state);
-                            $state = 'namespace-name';
+                            $state = 'potential-namespace-name';
 
                             break;
 
                         case T_CLASS:
                         case T_INTERFACE:
                         case $this->traitTokenType:
-                            $context = $this->contextFactory()
-                                ->create($namespaceName, $useStatements);
-                            $useStatements = array();
                             $state = 'symbol';
+
+                            break;
+                    }
+
+                    break;
+
+                case 'use-statement':
+                    switch ($token[0]) {
+                        case T_STRING:
+                            $atoms[] = $token[1];
+                            $state = 'use-statement-class-name';
+
+                            break;
+
+                        case T_FUNCTION:
+                            $useStatementType = UseStatementType::FUNCT1ON();
+
+                            break;
+
+                        case T_CONST:
+                            $useStatementType = UseStatementType::CONSTANT();
 
                             break;
                     }
@@ -322,32 +353,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case '}':
                             if (0 === --$symbolBracketDepth) {
-                                $state = 'symbol-end';
+                                $state = 'start';
                             }
-
-                            break;
-                    }
-
-                    break;
-
-                case 'symbol-end':
-                    switch ($token[0]) {
-                        case T_NAMESPACE:
-                            $contexts[] = new ParsedResolutionContext(
-                                $context,
-                                $symbols
-                            );
-                            $symbols = array();
-
-                            array_push($stateStack, $state);
-                            $state = 'namespace-name';
-
-                            break;
-
-                        case T_CLASS:
-                        case T_INTERFACE:
-                        case $this->traitTokenType:
-                            $state = 'symbol';
 
                             break;
                     }
@@ -355,15 +362,14 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                     break;
             }
 
+            if ($numTokens - 1 === $index) {
+                $transition = 'context-end';
+            }
+
             switch ($transition) {
                 case 'symbol-end':
-                    $symbols[] = $this->symbolNormalizer()->normalize(
-                        $this->symbolResolver()->resolve(
-                            $context->primaryNamespace(),
-                            $this->symbolFactory()
-                                ->createFromAtoms($atoms, false)
-                        )
-                    );
+                    $symbols[] = $this->symbolFactory()
+                        ->createFromAtoms($atoms, false);
                     $atoms = array();
 
                     break;
@@ -371,18 +377,43 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 case 'use-statement-end':
                     $useStatements[] = $this->useStatementFactory()->create(
                         $this->symbolFactory()->createFromAtoms($atoms, true),
-                        $useStatementAlias
+                        $useStatementAlias,
+                        $useStatementType
                     );
                     $atoms = array();
-                    $useStatementAlias = null;
+                    $useStatementAlias = $useStatementType = null;
+
+                    break;
+
+                case 'context-end':
+                    if (
+                        'end' !== $token[0] &&
+                        null === $namespaceName &&
+                        0 === count($useStatements) &&
+                        0 === count($symbols)
+                    ) {
+                        break;
+                    }
+
+                    $context = $this->contextFactory()
+                        ->create($namespaceName, $useStatements);
+                    $namespaceName = null;
+                    $useStatements = array();
+
+                    foreach ($symbols as $index => $symbol) {
+                        $symbols[$index] = $this->symbolResolver()
+                            ->resolveAgainstContext($context, $symbol);
+                    }
+
+                    $contexts[] =
+                        new ParsedResolutionContext($context, $symbols);
+                    $symbols = array();
 
                     break;
             }
 
             $transition = null;
         }
-
-        $contexts[] = new ParsedResolutionContext($context, $symbols);
 
         return $contexts;
     }

@@ -113,6 +113,8 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
     {
     }
 
+    $object = new namespace \ ClassA ;
+
     class ClassB
     {
     }
@@ -573,6 +575,34 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use ClassF;
+use ClassG as ClassH;
+use NamespaceD\ClassI;
+use NamespaceE\ClassJ as ClassK;
+use NamespaceF\NamespaceG\ClassL;
+
+namespace NamespaceC;
+
+use ClassM;
+use ClassN;
+
+namespace;
+
+use ClassO;
+use ClassP;
+
+EOD;
+        $actual = $this->parser->parseSource($source);
+
+        $this->assertSame($expected, $this->renderContexts($actual));
+    }
+
+    public function testEmptySource()
+    {
+        $source = '';
+        $expected = <<<'EOD'
 namespace;
 
 EOD;
@@ -686,6 +716,62 @@ use NamespaceF\NamespaceG\ClassL;
 \NamespaceA\NamespaceB\ClassB;
 \NamespaceA\NamespaceB\ClassC;
 \NamespaceA\NamespaceB\ClassD;
+
+EOD;
+        $actual = $this->parser->parseSource($source);
+
+        $this->assertSame($expected, $this->renderContexts($actual));
+    }
+
+    public function testUseStatementTypes()
+    {
+        $this->parser = new ResolutionContextParser;
+        $source = <<<'EOD'
+<?php
+
+    use ClassF ;
+
+    use ClassG as ClassH ;
+
+    use NamespaceD \ ClassI ;
+
+    use NamespaceE \ ClassJ as ClassK ;
+
+    use NamespaceF \ NamespaceG \ ClassL ;
+
+    use function FunctionA ;
+
+    use function FunctionB as FunctionC ;
+
+    use function NamespaceG \ FunctionD ;
+
+    use function NamespaceH \ FunctionE as FunctionF ;
+
+    use const CONSTANT_A ;
+
+    use const CONSTANT_B as CONSTANT_C ;
+
+    use const NamespaceI \ CONSTANT_D ;
+
+    use const NamespaceJ \ CONSTANT_E as CONSTANT_F ;
+
+EOD;
+        $expected = <<<'EOD'
+namespace;
+
+use ClassF;
+use ClassG as ClassH;
+use NamespaceD\ClassI;
+use NamespaceE\ClassJ as ClassK;
+use NamespaceF\NamespaceG\ClassL;
+use function FunctionA;
+use function FunctionB as FunctionC;
+use function NamespaceG\FunctionD;
+use function NamespaceH\FunctionE as FunctionF;
+use const CONSTANT_A;
+use const CONSTANT_B as CONSTANT_C;
+use const NamespaceI\CONSTANT_D;
+use const NamespaceJ\CONSTANT_E as CONSTANT_F;
 
 EOD;
         $actual = $this->parser->parseSource($source);
