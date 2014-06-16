@@ -203,6 +203,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case T_CLASS:
                         case T_INTERFACE:
                         case $this->traitTokenType:
+                        case T_FUNCTION:
+                        case T_CONST:
                             $state = static::STATE_SYMBOL;
 
                             break;
@@ -275,6 +277,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case T_CLASS:
                         case T_INTERFACE:
                         case $this->traitTokenType:
+                        case T_FUNCTION:
+                        case T_CONST:
                             $state = static::STATE_SYMBOL;
 
                             break;
@@ -346,6 +350,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case T_EXTENDS:
                         case T_IMPLEMENTS:
+                        case '(':
+                        case '=':
                             $transition = static::TRANSITION_SYMBOL_END;
                             $state = static::STATE_SYMBOL_HEADER;
 
@@ -366,6 +372,11 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case '{':
                             $state = static::STATE_SYMBOL_BODY;
                             $symbolBracketDepth++;
+
+                            break;
+
+                        case ';':
+                            $state = static::STATE_START;
 
                             break;
                     }

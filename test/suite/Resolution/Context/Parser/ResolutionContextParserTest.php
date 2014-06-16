@@ -141,6 +141,17 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         }
     }
 
+    public function FunctionA(ClassA $a, ClassB $b = null, ClassC $C = null)
+    {
+    }
+
+    public function FunctionB()
+    {
+    }
+
+    const CONSTANT_A = 'CONSTANT_A_VALUE';
+    const CONSTANT_B = CONSTANT_C;
+
     $object = new namespace \ ClassA ;
 
     namespace NamespaceC ;
@@ -173,6 +184,10 @@ use NamespaceF\NamespaceG\ClassL;
 \NamespaceA\NamespaceB\ClassB;
 \NamespaceA\NamespaceB\ClassC;
 \NamespaceA\NamespaceB\ClassD;
+\NamespaceA\NamespaceB\FunctionA;
+\NamespaceA\NamespaceB\FunctionB;
+\NamespaceA\NamespaceB\CONSTANT_A;
+\NamespaceA\NamespaceB\CONSTANT_B;
 
 namespace NamespaceC;
 
@@ -252,6 +267,17 @@ EOD;
             }
         }
 
+        function FunctionA(ClassA $a, ClassB $b = null, ClassC $C = null)
+        {
+        }
+
+        function FunctionB()
+        {
+        }
+
+        const CONSTANT_A = 'CONSTANT_A_VALUE';
+        const CONSTANT_B = CONSTANT_C;
+
         $object = new namespace \ ClassA ;
     }
 
@@ -287,6 +313,12 @@ EOD;
         interface InterfaceE
         {
         }
+
+        function FunctionC()
+        {
+        }
+
+        const CONSTANT_D = 'CONSTANT_D_VALUE';
     }
 
 EOD;
@@ -305,6 +337,10 @@ use NamespaceF\NamespaceG\ClassL;
 \NamespaceA\NamespaceB\ClassB;
 \NamespaceA\NamespaceB\ClassC;
 \NamespaceA\NamespaceB\ClassD;
+\NamespaceA\NamespaceB\FunctionA;
+\NamespaceA\NamespaceB\FunctionB;
+\NamespaceA\NamespaceB\CONSTANT_A;
+\NamespaceA\NamespaceB\CONSTANT_B;
 
 namespace NamespaceC;
 
@@ -321,6 +357,8 @@ use ClassP;
 
 \ClassQ;
 \InterfaceE;
+\FunctionC;
+\CONSTANT_D;
 
 EOD;
         $actual = $this->parser->parseSource($source);
