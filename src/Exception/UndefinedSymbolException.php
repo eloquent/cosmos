@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\Exception;
 
 use Eloquent\Cosmos\Symbol\SymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolType;
 use Exception;
 
 /**
@@ -23,17 +24,21 @@ final class UndefinedSymbolException extends Exception
      * Construct a new undefined symbol exception.
      *
      * @param SymbolInterface $symbol The symbol.
+     * @param SymbolType      $type   The symbol type.
      * @param Exception|null  $cause  The cause, if available.
      */
     public function __construct(
         SymbolInterface $symbol,
+        SymbolType $type,
         Exception $cause = null
     ) {
         $this->symbol = $symbol;
+        $this->type = $type;
 
         parent::__construct(
             sprintf(
-                'Undefined symbol %s.',
+                'Undefined %s %s.',
+                $type->value(),
                 var_export($symbol->string(), true)
             ),
             0,
@@ -51,5 +56,16 @@ final class UndefinedSymbolException extends Exception
         return $this->symbol;
     }
 
+    /**
+     * Get the undefined symbol type.
+     *
+     * @return SymbolType The type.
+     */
+    public function type()
+    {
+        return $this->type;
+    }
+
     private $symbol;
+    private $type;
 }

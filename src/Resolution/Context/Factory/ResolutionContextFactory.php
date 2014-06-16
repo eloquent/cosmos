@@ -21,10 +21,12 @@ use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactoryInterface;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 use Eloquent\Pathogen\FileSystem\FileSystemPath;
 use Icecave\Isolator\Isolator;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionFunction;
 use ReflectionObject;
 
@@ -134,7 +136,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
 
     /**
      * Construct a new symbol resolution context by inspecting the source code
-     * of the supplied symbol.
+     * of the supplied class, interface, or trait symbol.
      *
      * @param SymbolInterface|string $symbol The symbol.
      *
@@ -148,16 +150,46 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
             $symbol = $symbol->string();
         }
 
-        if (class_exists($symbol)) {
-            return $this->createFromClass(new ReflectionClass($symbol));
-        }
-        if (function_exists($symbol)) {
-            return $this->createFromFunction(new ReflectionFunction($symbol));
+        try {
+            $class = new ReflectionClass($symbol);
+        } catch (ReflectionException $e) {
+            throw new UndefinedSymbolException(
+                $this->symbolFactory()->createRuntime($symbol),
+                SymbolType::CLA55(),
+                $e
+            );
         }
 
-        throw new UndefinedSymbolException(
-            $this->symbolFactory()->createRuntime($symbol)
-        );
+        return $this->createFromClass($class);
+    }
+
+    /**
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied function symbol.
+     *
+     * @param SymbolInterface|string $symbol The symbol.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws UndefinedSymbolException   If the symbol does not exist.
+     * @throws SourceCodeReadException    If the source code cannot be read.
+     */
+    public function createFromFunctionSymbol($symbol)
+    {
+        if ($symbol instanceof SymbolInterface) {
+            $symbol = $symbol->string();
+        }
+
+        try {
+            $function = new ReflectionFunction($symbol);
+        } catch (ReflectionException $e) {
+            throw new UndefinedSymbolException(
+                $this->symbolFactory()->createRuntime($symbol),
+                SymbolType::FUNCT1ON(),
+                $e
+            );
+        }
+
+        return $this->createFromFunction($function);
     }
 
     /**
@@ -171,39 +203,13 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
      */
     public function createFromClass(ReflectionClass $class)
     {
-        $symbol = '\\' . $class->getName();
-
-        $source = @$this->isolator()->file_get_contents($class->getFileName());
-        if (false === $source) {
-            throw new SourceCodeReadException(
-                $this->symbolFactory()->create($symbol),
-                FileSystemPath::fromString($class->getFileName())
-            );
-        }
-
-        $parsedContexts = $this->contextParser()->parseSource($source);
-        $context = null;
-        foreach ($parsedContexts as $parsedContext) {
-            foreach ($parsedContext->symbols() as $parsedSymbol) {
-                if (
-                    $parsedSymbol->type()->isType() &&
-                    $parsedSymbol->symbol()->string() === $symbol
-                ) {
-                    $context = $parsedContext->context();
-
-                    break 2;
-                }
+        return $this->findContext(
+            $class->getFileName(),
+            $class->getName(),
+            function (SymbolType $type) {
+                return $type->isType();
             }
-        }
-
-        if (null === $context) {
-            throw new SourceCodeReadException(
-                $this->symbolFactory()->create($symbol),
-                FileSystemPath::fromString($class->getFileName())
-            );
-        }
-
-        return $context;
+        );
     }
 
     /**
@@ -217,6 +223,59 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
      */
     public function createFromFunction(ReflectionFunction $function)
     {
+        return $this->findContext(
+            $function->getFileName(),
+            $function->getName(),
+            function (SymbolType $type) {
+                return SymbolType::FUNCT1ON() === $type;
+            }
+        );
+    }
+
+    private function findContext($path, $symbol, $typeTest)
+    {
+        if (false === $path) {
+            return $this->create();
+        }
+
+        $symbol = '\\' . $symbol;
+        $parsedContexts = $this->parseContexts($path, $symbol);
+
+        $context = null;
+        foreach ($parsedContexts as $parsedContext) {
+            foreach ($parsedContext->symbols() as $parsedSymbol) {
+                if (
+                    $typeTest($parsedSymbol->type()) &&
+                    $parsedSymbol->symbol()->string() === $symbol
+                ) {
+                    $context = $parsedContext->context();
+
+                    break 2;
+                }
+            }
+        }
+
+        if (null === $context) {
+            throw new SourceCodeReadException(
+                $this->symbolFactory()->create($symbol),
+                FileSystemPath::fromString($path)
+            );
+        }
+
+        return $context;
+    }
+
+    private function parseContexts($path, $symbol)
+    {
+        $source = @$this->isolator()->file_get_contents($path);
+        if (false === $source) {
+            throw new SourceCodeReadException(
+                $this->symbolFactory()->create($symbol),
+                FileSystemPath::fromString($path)
+            );
+        }
+
+        return $this->contextParser()->parseSource($source);
     }
 
     /**

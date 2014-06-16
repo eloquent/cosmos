@@ -51,7 +51,7 @@ interface ResolutionContextFactoryInterface
 
     /**
      * Construct a new symbol resolution context by inspecting the source code
-     * of the supplied symbol.
+     * of the supplied class, interface, or trait symbol.
      *
      * @param SymbolInterface|string $symbol The symbol.
      *
@@ -60,6 +60,18 @@ interface ResolutionContextFactoryInterface
      * @throws SourceCodeReadException    If the source code cannot be read.
      */
     public function createFromSymbol($symbol);
+
+    /**
+     * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied function symbol.
+     *
+     * @param SymbolInterface|string $symbol The symbol.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws UndefinedSymbolException   If the symbol does not exist.
+     * @throws SourceCodeReadException    If the source code cannot be read.
+     */
+    public function createFromFunctionSymbol($symbol);
 
     /**
      * Construct a new symbol resolution context by inspecting the source code

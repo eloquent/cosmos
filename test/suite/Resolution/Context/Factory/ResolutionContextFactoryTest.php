@@ -21,6 +21,7 @@ use Eloquent\Liberator\Liberator;
 use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
 class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
 {
@@ -42,6 +43,8 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
 
         SymbolFactory::instance()->globalNamespace();
         $this->symbolFactory->globalNamespace();
+
+        require_once __DIR__ . '/../../../../src/functions.php';
     }
 
     public function testConstructor()
@@ -84,6 +87,7 @@ use Eloquent\Liberator\Liberator;
 use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
 EOD;
 
@@ -106,6 +110,7 @@ use Eloquent\Liberator\Liberator;
 use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
 EOD;
 
@@ -128,6 +133,7 @@ use Eloquent\Liberator\Liberator;
 use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
 EOD;
 
@@ -136,8 +142,55 @@ EOD;
 
     public function testCreateFromSymbolFailureUndefined()
     {
-        $this->setExpectedException('Eloquent\Cosmos\Exception\UndefinedSymbolException');
+        $this->setExpectedException('Eloquent\Cosmos\Exception\UndefinedSymbolException', "Undefined class '\\\\Foo'.");
         $this->factory->createFromSymbol(Symbol::fromString('\Foo'));
+    }
+
+    public function testCreateFromFunctionSymbol()
+    {
+        $actual = $this->factory->createFromFunctionSymbol(Symbol::fromString('\FunctionA'));
+        $expected = <<<'EOD'
+use NamespaceA\ClassA;
+use NamespaceB\ClassB as ClassC;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFunctionSymbolWithNamespacedFunction()
+    {
+        $actual = $this->factory->createFromFunctionSymbol(Symbol::fromString('\NamespaceA\NamespaceB\FunctionB'));
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use ClassD;
+use ClassE as ClassF;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFunctionSymbolWithString()
+    {
+        $actual = $this->factory->createFromFunctionSymbol('FunctionA');
+        $expected = <<<'EOD'
+use NamespaceA\ClassA;
+use NamespaceB\ClassB as ClassC;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFunctionSymbolFailureUndefined()
+    {
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Exception\UndefinedSymbolException',
+            "Undefined function '\\\\Foo'."
+        );
+        $this->factory->createFromFunctionSymbol(Symbol::fromString('\Foo'));
     }
 
     public function testCreateFromClass()
@@ -156,8 +209,17 @@ use Eloquent\Liberator\Liberator;
 use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
 EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromClassWithInbuiltClass()
+    {
+        $actual = $this->factory->createFromClass(new ReflectionClass('ReflectionClass'));
+        $expected = '';
 
         $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
@@ -179,6 +241,59 @@ EOD;
 
         $this->setExpectedException('Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException');
         $this->factory->createFromClass($class);
+    }
+
+    public function testCreateFromFunction()
+    {
+        $actual = $this->factory->createFromFunction(new ReflectionFunction('FunctionA'));
+        $expected = <<<'EOD'
+use NamespaceA\ClassA;
+use NamespaceB\ClassB as ClassC;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFunctionWithNamespacedFunction()
+    {
+        $actual = $this->factory->createFromFunction(new ReflectionFunction('NamespaceA\NamespaceB\FunctionB'));
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use ClassD;
+use ClassE as ClassF;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFunctionWithInbuiltFunction()
+    {
+        $actual = $this->factory->createFromFunction(new ReflectionFunction('printf'));
+        $expected = '';
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFunctionFailureFileSystemRead()
+    {
+        $function = Phake::mock('ReflectionFunction');
+        Phake::when($function)->getFileName()->thenReturn('/path/to/foo');
+
+        $this->setExpectedException('Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException');
+        $this->factory->createFromFunction($function);
+    }
+
+    public function testCreateFromFunctionFailureNoMatchingSymbol()
+    {
+        $function = Phake::mock('ReflectionFunction');
+        Phake::when($function)->getName()->thenReturn('Foo');
+        Phake::when($function)->getFileName()->thenReturn(__FILE__);
+
+        $this->setExpectedException('Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException');
+        $this->factory->createFromFunction($function);
     }
 
     public function testInstance()
