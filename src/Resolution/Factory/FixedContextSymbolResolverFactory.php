@@ -114,7 +114,7 @@ class FixedContextSymbolResolverFactory implements
 
     /**
      * Construct a new fixed context symbol resolver by inspecting the source
-     * code of the supplied symbol.
+     * code of the supplied class, interface, or trait symbol.
      *
      * @param SymbolInterface|string $symbol The symbol.
      *
@@ -126,6 +126,23 @@ class FixedContextSymbolResolverFactory implements
     {
         return $this
             ->create($this->contextFactory()->createFromSymbol($symbol));
+    }
+
+    /**
+     * Construct a new fixed context symbol resolver by inspecting the source
+     * code of the supplied function symbol.
+     *
+     * @param SymbolInterface|string $symbol The symbol.
+     *
+     * @return PathResolverInterface    The newly created resolver.
+     * @throws UndefinedSymbolException If the symbol does not exist.
+     * @throws SourceCodeReadException  If the source code cannot be read.
+     */
+    public function createFromFunctionSymbol($symbol)
+    {
+        return $this->create(
+            $this->contextFactory()->createFromFunctionSymbol($symbol)
+        );
     }
 
     /**

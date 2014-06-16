@@ -17,6 +17,7 @@ use Eloquent\Cosmos\UseStatement\UseStatement;
 use PHPUnit_Framework_TestCase;
 use Phake;
 use ReflectionClass;
+use ReflectionFunction;
 
 class QualifiedSymbolTest extends PHPUnit_Framework_TestCase
 {
@@ -112,6 +113,13 @@ class QualifiedSymbolTest extends PHPUnit_Framework_TestCase
             '\Eloquent\Cosmos\Symbol\Factory\SymbolFactory',
             QualifiedSymbol::fromClass($class)->string()
         );
+    }
+
+    public function testFromFunction()
+    {
+        $function = new ReflectionFunction('printf');
+
+        $this->assertSame('\printf', QualifiedSymbol::fromFunction($function)->string());
     }
 
     public function testGlobalNamespace()

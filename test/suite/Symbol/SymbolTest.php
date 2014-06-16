@@ -13,6 +13,7 @@ namespace Eloquent\Cosmos\Symbol;
 
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
 class SymbolTest extends PHPUnit_Framework_TestCase
 {
@@ -108,6 +109,13 @@ class SymbolTest extends PHPUnit_Framework_TestCase
         $class = new ReflectionClass('Eloquent\Cosmos\Symbol\Factory\SymbolFactory');
 
         $this->assertSame('\Eloquent\Cosmos\Symbol\Factory\SymbolFactory', Symbol::fromClass($class)->string());
+    }
+
+    public function testFromFunction()
+    {
+        $function = new ReflectionFunction('printf');
+
+        $this->assertSame('\printf', Symbol::fromFunction($function)->string());
     }
 
     public function testGlobalNamespace()

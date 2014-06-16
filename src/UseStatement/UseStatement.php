@@ -16,7 +16,6 @@ use Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException;
 use Eloquent\Cosmos\Symbol\QualifiedSymbol;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
-use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
 
 /**
  * Represents a use statement.
@@ -143,16 +142,6 @@ class UseStatement implements UseStatementInterface
     public function accept(ResolutionContextVisitorInterface $visitor)
     {
         return $visitor->visitUseStatement($this);
-    }
-
-    /**
-     * Get the use statement factory.
-     *
-     * @return UseStatementFactoryInterface The use statement factory.
-     */
-    protected static function factory()
-    {
-        return UseStatementFactory::instance();
     }
 
     private $symbol;

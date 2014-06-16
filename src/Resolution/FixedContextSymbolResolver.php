@@ -45,7 +45,7 @@ class FixedContextSymbolResolver implements PathResolverInterface
 
     /**
      * Construct a new fixed context symbol resolver by inspecting the source
-     * code of the supplied symbol.
+     * code of the supplied class, interface, or trait symbol.
      *
      * @param SymbolInterface|string $symbol The symbol.
      *
@@ -56,6 +56,21 @@ class FixedContextSymbolResolver implements PathResolverInterface
     public static function fromSymbol($symbol)
     {
         return static::factory()->createFromSymbol($symbol);
+    }
+
+    /**
+     * Construct a new fixed context symbol resolver by inspecting the source
+     * code of the supplied function symbol.
+     *
+     * @param SymbolInterface|string $symbol The symbol.
+     *
+     * @return PathResolverInterface    The newly created resolver.
+     * @throws UndefinedSymbolException If the symbol does not exist.
+     * @throws SourceCodeReadException  If the source code cannot be read.
+     */
+    public static function fromFunctionSymbol($symbol)
+    {
+        return static::factory()->createFromFunctionSymbol($symbol);
     }
 
     /**

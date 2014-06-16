@@ -16,6 +16,7 @@ use Eloquent\Cosmos\Symbol\SymbolReference;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
 class SymbolFactoryTest extends PHPUnit_Framework_TestCase
 {
@@ -122,6 +123,13 @@ class SymbolFactoryTest extends PHPUnit_Framework_TestCase
             '\Eloquent\Cosmos\Symbol\Factory\SymbolFactory',
             $this->factory->createFromClass($class)->string()
         );
+    }
+
+    public function testCreateFromFunction()
+    {
+        $function = new ReflectionFunction('printf');
+
+        $this->assertSame('\printf', $this->factory->createFromFunction($function)->string());
     }
 
     public function testGlobalNamespace()

@@ -19,6 +19,7 @@ use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
 class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
 {
@@ -71,11 +72,14 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testCreateFromSymbolWithString()
+    public function testCreateFromFunctionSymbol()
     {
-        $symbol = __CLASS__;
-        $actual = $this->factory->createFromSymbol($symbol);
-        $expected = new FixedContextSymbolResolver($this->contextFactory->createFromSymbol($symbol), $this->resolver);
+        $symbol = Symbol::fromRuntimeString('\printf');
+        $actual = $this->factory->createFromFunctionSymbol($symbol);
+        $expected = new FixedContextSymbolResolver(
+            $this->contextFactory->createFromFunctionSymbol($symbol),
+            $this->resolver
+        );
 
         $this->assertEquals($expected, $actual);
     }
@@ -85,6 +89,18 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
         $class = new ReflectionClass(__CLASS__);
         $actual = $this->factory->createFromClass($class);
         $expected = new FixedContextSymbolResolver($this->contextFactory->createFromClass($class), $this->resolver);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testCreateFromFunction()
+    {
+        $function = new ReflectionFunction('\printf');
+        $actual = $this->factory->createFromFunction($function);
+        $expected = new FixedContextSymbolResolver(
+            $this->contextFactory->createFromFunction($function),
+            $this->resolver
+        );
 
         $this->assertEquals($expected, $actual);
     }
