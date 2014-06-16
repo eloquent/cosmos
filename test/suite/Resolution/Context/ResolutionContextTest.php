@@ -19,6 +19,7 @@ use Eloquent\Cosmos\UseStatement\UseStatement;
 use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
 class ResolutionContextTest extends PHPUnit_Framework_TestCase
 {
@@ -92,6 +93,7 @@ use Eloquent\Cosmos\UseStatement\UseStatement;
 use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
 EOD;
 
@@ -112,36 +114,23 @@ use Eloquent\Cosmos\UseStatement\UseStatement;
 use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
 
 EOD;
 
         $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
-    public function testFromSymbolWithString()
+    public function testFromFunctionSymbol()
     {
-        $actual = ResolutionContext::fromSymbol(__CLASS__);
+        $actual = ResolutionContext::fromFunctionSymbol(Symbol::fromString('\FunctionA'));
         $expected = <<<'EOD'
-namespace Eloquent\Cosmos\Resolution\Context;
-
-use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
-use Eloquent\Cosmos\Symbol\QualifiedSymbol;
-use Eloquent\Cosmos\Symbol\Symbol;
-use Eloquent\Cosmos\UseStatement\UseStatement;
-use Phake;
-use PHPUnit_Framework_TestCase;
-use ReflectionClass;
+use NamespaceA\ClassA;
+use NamespaceB\ClassB as ClassC;
 
 EOD;
 
         $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
-    }
-
-    public function testFromSymbolFailureUndefined()
-    {
-        $this->setExpectedException('Eloquent\Cosmos\Exception\UndefinedSymbolException');
-        ResolutionContext::fromSymbol(Symbol::fromString('\Foo'));
     }
 
     public function testFromClass()
@@ -158,6 +147,19 @@ use Eloquent\Cosmos\UseStatement\UseStatement;
 use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
+use ReflectionFunction;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromFunction()
+    {
+        $actual = ResolutionContext::fromFunction(new ReflectionFunction('FunctionA'));
+        $expected = <<<'EOD'
+use NamespaceA\ClassA;
+use NamespaceB\ClassB as ClassC;
 
 EOD;
 

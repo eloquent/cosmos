@@ -791,6 +791,52 @@ EOD;
         $this->assertSame($expected, $this->renderContexts($actual));
     }
 
+    public function testNamespaceAndFunctionOnly()
+    {
+        $this->parser = new ResolutionContextParser;
+        $source = <<<'EOD'
+<?php
+
+    namespace NamespaceA;
+
+    function FunctionA
+    {
+    }
+
+EOD;
+        $expected = <<<'EOD'
+namespace NamespaceA;
+
+function \NamespaceA\FunctionA;
+
+EOD;
+        $actual = $this->parser->parseSource($source);
+
+        $this->assertSame($expected, $this->renderContexts($actual));
+    }
+
+    public function testNamespaceAndConstantOnly()
+    {
+        $this->parser = new ResolutionContextParser;
+        $source = <<<'EOD'
+<?php
+
+    namespace NamespaceA;
+
+    const CONSTANT_A = 'CONSTANT_A_VALUE';
+
+EOD;
+        $expected = <<<'EOD'
+namespace NamespaceA;
+
+const \NamespaceA\CONSTANT_A;
+
+EOD;
+        $actual = $this->parser->parseSource($source);
+
+        $this->assertSame($expected, $this->renderContexts($actual));
+    }
+
     public function testUseStatementTypes()
     {
         $this->parser = new ResolutionContextParser;

@@ -60,6 +60,21 @@ class ResolutionContext implements ResolutionContextInterface
 
     /**
      * Construct a new symbol resolution context by inspecting the source code
+     * of the supplied function symbol.
+     *
+     * @param SymbolInterface|string $symbol The symbol.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws UndefinedSymbolException   If the symbol does not exist.
+     * @throws SourceCodeReadException    If the source code cannot be read.
+     */
+    public static function fromFunctionSymbol($symbol)
+    {
+        return static::factory()->createFromFunctionSymbol($symbol);
+    }
+
+    /**
+     * Construct a new symbol resolution context by inspecting the source code
      * of the supplied class or object reflector.
      *
      * @param ReflectionClass $class The class or object reflector.
