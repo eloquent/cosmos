@@ -184,8 +184,11 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
         $parsedContexts = $this->contextParser()->parseSource($source);
         $context = null;
         foreach ($parsedContexts as $parsedContext) {
-            foreach ($parsedContext->symbols() as $thisSymbol) {
-                if ($thisSymbol->string() === $symbol) {
+            foreach ($parsedContext->symbols() as $parsedSymbol) {
+                if (
+                    $parsedSymbol->type()->isType() &&
+                    $parsedSymbol->symbol()->string() === $symbol
+                ) {
                     $context = $parsedContext->context();
 
                     break 2;

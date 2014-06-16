@@ -37,7 +37,7 @@ final class SymbolType extends AbstractValueMultiton
         new static('INTERF4CE', 'interface', true);
         new static('TRA1T', 'trait', true);
         new static('FUNCT1ON', 'function', false);
-        new static('CONSTANT', 'constant', false);
+        new static('CONSTANT', 'const', false);
     }
 
     /**

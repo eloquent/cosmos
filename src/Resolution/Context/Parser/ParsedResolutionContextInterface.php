@@ -12,7 +12,6 @@
 namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
-use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 
 /**
  * The interface implemented by parsed resolution contexts.
@@ -29,7 +28,7 @@ interface ParsedResolutionContextInterface
     /**
      * Get the symbols defined under the parsed resolution context.
      *
-     * @return array<QualifiedSymbolInterface> The defined symbols.
+     * @return array<ParsedSymbolInterface> The defined symbols.
      */
     public function symbols();
 }

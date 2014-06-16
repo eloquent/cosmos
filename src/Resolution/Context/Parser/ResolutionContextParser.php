@@ -19,6 +19,7 @@ use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactoryInterface;
 use Eloquent\Cosmos\Symbol\Normalizer\SymbolNormalizer;
 use Eloquent\Cosmos\Symbol\Normalizer\SymbolNormalizerInterface;
+use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
 use Eloquent\Cosmos\UseStatement\UseStatement;
@@ -175,7 +176,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         $state = static::STATE_START;
         $stateStack = $atoms = $useStatements = $symbols = array();
         $transition = $namespaceName = $useStatementAlias = $useStatementType =
-            null;
+            $symbolType = null;
         $symbolBracketDepth = 0;
 
         foreach ($tokens as $index => $token) {
@@ -193,6 +194,18 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                             break;
 
+                        case T_CLASS:
+                            $state = static::STATE_SYMBOL;
+                            $symbolType = SymbolType::CLA55();
+
+                            break;
+
+                        case T_INTERFACE:
+                            $state = static::STATE_SYMBOL;
+                            $symbolType = SymbolType::INTERF4CE();
+
+                            break;
+
                         // @codeCoverageIgnoreStart
                         case T_STRING:
                             if ('trait' !== strtolower($token[1])) {
@@ -200,11 +213,20 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             }
                         // @codeCoverageIgnoreEnd
 
-                        case T_CLASS:
-                        case T_INTERFACE:
                         case $this->traitTokenType:
+                            $symbolType = SymbolType::TRA1T();
+                            $state = static::STATE_SYMBOL;
+
+                            break;
+
                         case T_FUNCTION:
+                            $symbolType = SymbolType::FUNCT1ON();
+                            $state = static::STATE_SYMBOL;
+
+                            break;
+
                         case T_CONST:
+                            $symbolType = SymbolType::CONSTANT();
                             $state = static::STATE_SYMBOL;
 
                             break;
@@ -267,6 +289,18 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                             break;
 
+                        case T_CLASS:
+                            $state = static::STATE_SYMBOL;
+                            $symbolType = SymbolType::CLA55();
+
+                            break;
+
+                        case T_INTERFACE:
+                            $state = static::STATE_SYMBOL;
+                            $symbolType = SymbolType::INTERF4CE();
+
+                            break;
+
                         // @codeCoverageIgnoreStart
                         case T_STRING:
                             if ('trait' !== strtolower($token[1])) {
@@ -274,11 +308,20 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             }
                         // @codeCoverageIgnoreEnd
 
-                        case T_CLASS:
-                        case T_INTERFACE:
                         case $this->traitTokenType:
+                            $symbolType = SymbolType::TRA1T();
+                            $state = static::STATE_SYMBOL;
+
+                            break;
+
                         case T_FUNCTION:
+                            $symbolType = SymbolType::FUNCT1ON();
+                            $state = static::STATE_SYMBOL;
+
+                            break;
+
                         case T_CONST:
+                            $symbolType = SymbolType::CONSTANT();
                             $state = static::STATE_SYMBOL;
 
                             break;
@@ -407,9 +450,12 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
             switch ($transition) {
                 case static::TRANSITION_SYMBOL_END:
-                    $symbols[] = $this->symbolFactory()
-                        ->createFromAtoms($atoms, false);
+                    $symbols[] = array(
+                        $this->symbolFactory()->createFromAtoms($atoms, false),
+                        $symbolType,
+                    );
                     $atoms = array();
+                    $symbolType = null;
 
                     break;
 
@@ -439,9 +485,14 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                     $namespaceName = null;
                     $useStatements = array();
 
-                    foreach ($symbols as $index => $symbol) {
-                        $symbols[$index] = $this->symbolResolver()
-                            ->resolveAgainstContext($context, $symbol);
+                    foreach ($symbols as $index => $parsedSymbol) {
+                        list($symbol, $type) = $parsedSymbol;
+
+                        $symbols[$index] = new ParsedSymbol(
+                            $this->symbolResolver()
+                                ->resolveAgainstContext($context, $symbol),
+                            $type
+                        );
                     }
 
                     $contexts[] =

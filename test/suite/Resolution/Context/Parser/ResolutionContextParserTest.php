@@ -178,24 +178,24 @@ use NamespaceD\ClassI;
 use NamespaceE\ClassJ as ClassK;
 use NamespaceF\NamespaceG\ClassL;
 
-\NamespaceA\NamespaceB\InterfaceA;
-\NamespaceA\NamespaceB\InterfaceB;
-\NamespaceA\NamespaceB\InterfaceC;
-\NamespaceA\NamespaceB\ClassB;
-\NamespaceA\NamespaceB\ClassC;
-\NamespaceA\NamespaceB\ClassD;
-\NamespaceA\NamespaceB\FunctionA;
-\NamespaceA\NamespaceB\FunctionB;
-\NamespaceA\NamespaceB\CONSTANT_A;
-\NamespaceA\NamespaceB\CONSTANT_B;
+interface \NamespaceA\NamespaceB\InterfaceA;
+interface \NamespaceA\NamespaceB\InterfaceB;
+interface \NamespaceA\NamespaceB\InterfaceC;
+class \NamespaceA\NamespaceB\ClassB;
+class \NamespaceA\NamespaceB\ClassC;
+class \NamespaceA\NamespaceB\ClassD;
+function \NamespaceA\NamespaceB\FunctionA;
+function \NamespaceA\NamespaceB\FunctionB;
+const \NamespaceA\NamespaceB\CONSTANT_A;
+const \NamespaceA\NamespaceB\CONSTANT_B;
 
 namespace NamespaceC;
 
 use ClassM;
 use ClassN;
 
-\NamespaceC\ClassE;
-\NamespaceC\InterfaceD;
+class \NamespaceC\ClassE;
+interface \NamespaceC\InterfaceD;
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -331,34 +331,34 @@ use NamespaceD\ClassI;
 use NamespaceE\ClassJ as ClassK;
 use NamespaceF\NamespaceG\ClassL;
 
-\NamespaceA\NamespaceB\InterfaceA;
-\NamespaceA\NamespaceB\InterfaceB;
-\NamespaceA\NamespaceB\InterfaceC;
-\NamespaceA\NamespaceB\ClassB;
-\NamespaceA\NamespaceB\ClassC;
-\NamespaceA\NamespaceB\ClassD;
-\NamespaceA\NamespaceB\FunctionA;
-\NamespaceA\NamespaceB\FunctionB;
-\NamespaceA\NamespaceB\CONSTANT_A;
-\NamespaceA\NamespaceB\CONSTANT_B;
+interface \NamespaceA\NamespaceB\InterfaceA;
+interface \NamespaceA\NamespaceB\InterfaceB;
+interface \NamespaceA\NamespaceB\InterfaceC;
+class \NamespaceA\NamespaceB\ClassB;
+class \NamespaceA\NamespaceB\ClassC;
+class \NamespaceA\NamespaceB\ClassD;
+function \NamespaceA\NamespaceB\FunctionA;
+function \NamespaceA\NamespaceB\FunctionB;
+const \NamespaceA\NamespaceB\CONSTANT_A;
+const \NamespaceA\NamespaceB\CONSTANT_B;
 
 namespace NamespaceC;
 
 use ClassM;
 use ClassN;
 
-\NamespaceC\ClassE;
-\NamespaceC\InterfaceD;
+class \NamespaceC\ClassE;
+interface \NamespaceC\InterfaceD;
 
 namespace;
 
 use ClassO;
 use ClassP;
 
-\ClassQ;
-\InterfaceE;
-\FunctionC;
-\CONSTANT_D;
+class \ClassQ;
+interface \InterfaceE;
+function \FunctionC;
+const \CONSTANT_D;
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -436,12 +436,12 @@ use NamespaceD\ClassI;
 use NamespaceE\ClassJ as ClassK;
 use NamespaceF\NamespaceG\ClassL;
 
-\InterfaceA;
-\InterfaceB;
-\InterfaceC;
-\ClassB;
-\ClassC;
-\ClassD;
+interface \InterfaceA;
+interface \InterfaceB;
+interface \InterfaceC;
+class \ClassB;
+class \ClassC;
+class \ClassD;
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -505,12 +505,12 @@ EOD;
         $expected = <<<'EOD'
 namespace NamespaceA\NamespaceB;
 
-\NamespaceA\NamespaceB\InterfaceA;
-\NamespaceA\NamespaceB\InterfaceB;
-\NamespaceA\NamespaceB\InterfaceC;
-\NamespaceA\NamespaceB\ClassB;
-\NamespaceA\NamespaceB\ClassC;
-\NamespaceA\NamespaceB\ClassD;
+interface \NamespaceA\NamespaceB\InterfaceA;
+interface \NamespaceA\NamespaceB\InterfaceB;
+interface \NamespaceA\NamespaceB\InterfaceC;
+class \NamespaceA\NamespaceB\ClassB;
+class \NamespaceA\NamespaceB\ClassC;
+class \NamespaceA\NamespaceB\ClassD;
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -572,12 +572,12 @@ EOD;
         $expected = <<<'EOD'
 namespace;
 
-\InterfaceA;
-\InterfaceB;
-\InterfaceC;
-\ClassB;
-\ClassC;
-\ClassD;
+interface \InterfaceA;
+interface \InterfaceB;
+interface \InterfaceC;
+class \ClassB;
+class \ClassC;
+class \ClassD;
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -751,15 +751,15 @@ use NamespaceD\ClassI;
 use NamespaceE\ClassJ as ClassK;
 use NamespaceF\NamespaceG\ClassL;
 
-\NamespaceA\NamespaceB\InterfaceA;
-\NamespaceA\NamespaceB\InterfaceB;
-\NamespaceA\NamespaceB\InterfaceC;
-\NamespaceA\NamespaceB\TraitA;
-\NamespaceA\NamespaceB\TraitB;
-\NamespaceA\NamespaceB\TraitC;
-\NamespaceA\NamespaceB\ClassB;
-\NamespaceA\NamespaceB\ClassC;
-\NamespaceA\NamespaceB\ClassD;
+interface \NamespaceA\NamespaceB\InterfaceA;
+interface \NamespaceA\NamespaceB\InterfaceB;
+interface \NamespaceA\NamespaceB\InterfaceC;
+trait \NamespaceA\NamespaceB\TraitA;
+trait \NamespaceA\NamespaceB\TraitB;
+trait \NamespaceA\NamespaceB\TraitC;
+class \NamespaceA\NamespaceB\ClassB;
+class \NamespaceA\NamespaceB\ClassC;
+class \NamespaceA\NamespaceB\ClassD;
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -783,7 +783,7 @@ EOD;
         $expected = <<<'EOD'
 namespace NamespaceA;
 
-\NamespaceA\TraitA;
+trait \NamespaceA\TraitA;
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -890,7 +890,7 @@ EOD;
         }
 
         foreach ($context->symbols() as $symbol) {
-            $rendered .= $symbol->string() . ";\n";
+            $rendered .= $symbol->type()->value() . ' '. $symbol->symbol()->string() . ";\n";
         }
 
         return $rendered;
