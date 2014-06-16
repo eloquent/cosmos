@@ -150,16 +150,15 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
      */
     protected function normalize(array $useStatements)
     {
-        $normalized = array();
+        $seen = array();
         $byAlias = array();
-
         foreach ($useStatements as $index => $useStatement) {
             $key = $useStatement->string();
-            if (array_key_exists($key, $normalized)) {
+            if (array_key_exists($key, $seen)) {
                 continue;
             }
 
-            $normalized[$key] = $useStatement;
+            $seen[$key] = true;
 
             $aliasString = $useStatement->effectiveAlias()->string();
             if (!array_key_exists($aliasString, $byAlias)) {
@@ -168,17 +167,16 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
             $byAlias[$aliasString][] = $useStatement;
         }
 
-        $this->applyAliases($byAlias);
+        $byAlias = $this->applyAliases($byAlias);
 
-        usort(
-            $normalized,
-            function (
-                UseStatementInterface $left,
-                UseStatementInterface $right
-            ) {
-                return strcmp($left->string(), $right->string());
-            }
-        );
+        $normalized = array();
+        foreach ($byAlias as $useStatements) {
+            list($useStatement) = $useStatements;
+            $key = $useStatement->string();
+
+            $normalized[$key] = $useStatement;
+        }
+        ksort($normalized);
 
         return $normalized;
     }
@@ -188,6 +186,8 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
      *
      * @param array<string,UseStatementInterface> $byAlias An index of effective alias to use statements.
      * @param integer|null                        $level   The recursion level.
+     *
+     * @return array<string,UseStatementInterface> The index with aliases applied.
      */
     protected function applyAliases(array $byAlias, $level = null)
     {
@@ -197,7 +197,8 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
 
         $changes = false;
         foreach ($byAlias as $alias => $useStatements) {
-            if (count($useStatements) < 2) {
+            $numUseStatements = count($useStatements);
+            if ($numUseStatements < 2) {
                 continue;
             }
 
@@ -218,9 +219,14 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
                     ),
                     false
                 );
-                $useStatement->setAlias($newAlias);
+                $useStatement = $this->useStatementFactory()->create(
+                    $useStatement->symbol(),
+                    $newAlias,
+                    $useStatement->type()
+                );
 
                 unset($useStatements[$index]);
+                $numUseStatements--;
 
                 $aliasString = $newAlias->string();
                 if (!array_key_exists($aliasString, $byAlias)) {
@@ -229,12 +235,18 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
                 $byAlias[$aliasString][] = $useStatement;
             }
 
-            $byAlias[$alias] = $useStatements;
+            if ($numUseStatements > 0) {
+                $byAlias[$alias] = array_values($useStatements);
+            } else {
+                unset($byAlias[$alias]);
+            }
         }
 
         if ($changes) {
-            $this->applyAliases($byAlias, $level + 1);
+            return $this->applyAliases($byAlias, $level + 1);
         }
+
+        return $byAlias;
     }
 
     private $maxReferenceAtoms;

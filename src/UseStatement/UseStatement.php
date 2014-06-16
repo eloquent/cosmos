@@ -16,6 +16,7 @@ use Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException;
 use Eloquent\Cosmos\Symbol\QualifiedSymbol;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
+use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
 
 /**
  * Represents a use statement.
@@ -41,27 +42,6 @@ class UseStatement implements UseStatementInterface
         }
 
         $this->symbol = $symbol->normalize();
-        $this->setAlias($alias);
-        $this->type = $type;
-    }
-
-    /**
-     * Get the symbol.
-     *
-     * @return QualifiedSymbolInterface The symbol.
-     */
-    public function symbol()
-    {
-        return $this->symbol;
-    }
-
-    /**
-     * Set the alias for the symbol.
-     *
-     * @param SymbolReferenceInterface|null $alias The alias, or null to remove the alias.
-     */
-    public function setAlias(SymbolReferenceInterface $alias = null)
-    {
         if (null === $alias) {
             $this->alias = null;
         } else {
@@ -78,6 +58,17 @@ class UseStatement implements UseStatementInterface
 
             $this->alias = $normalizedAlias;
         }
+        $this->type = $type;
+    }
+
+    /**
+     * Get the symbol.
+     *
+     * @return QualifiedSymbolInterface The symbol.
+     */
+    public function symbol()
+    {
+        return $this->symbol;
     }
 
     /**
@@ -152,6 +143,16 @@ class UseStatement implements UseStatementInterface
     public function accept(ResolutionContextVisitorInterface $visitor)
     {
         return $visitor->visitUseStatement($this);
+    }
+
+    /**
+     * Get the use statement factory.
+     *
+     * @return UseStatementFactoryInterface The use statement factory.
+     */
+    protected static function factory()
+    {
+        return UseStatementFactory::instance();
     }
 
     private $symbol;

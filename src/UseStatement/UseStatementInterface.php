@@ -28,13 +28,6 @@ interface UseStatementInterface extends ResolutionContextElementInterface
     public function symbol();
 
     /**
-     * Set the alias for the symbol.
-     *
-     * @param SymbolReferenceInterface|null $alias The alias, or null to remove the alias.
-     */
-    public function setAlias(SymbolReferenceInterface $alias = null);
-
-    /**
      * Get the alias for the symbol.
      *
      * @return SymbolReferenceInterface|null The alias, or null if no alias is in use.
