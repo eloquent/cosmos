@@ -174,6 +174,8 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
 
 EOD;
         $expected = <<<'EOD'
+Context at position (5, 5):
+
 namespace NamespaceA\NamespaceB;
 
 use ClassF;
@@ -192,6 +194,8 @@ function \NamespaceA\NamespaceB\FunctionA;
 function \NamespaceA\NamespaceB\FunctionB;
 const \NamespaceA\NamespaceB\CONSTANT_A;
 const \NamespaceA\NamespaceB\CONSTANT_B;
+
+Context at position (75, 5):
 
 namespace NamespaceC;
 
@@ -327,6 +331,8 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
+Context at position (5, 5):
+
 namespace NamespaceA\NamespaceB;
 
 use ClassF;
@@ -346,6 +352,8 @@ function \NamespaceA\NamespaceB\FunctionB;
 const \NamespaceA\NamespaceB\CONSTANT_A;
 const \NamespaceA\NamespaceB\CONSTANT_B;
 
+Context at position (76, 5):
+
 namespace NamespaceC;
 
 use ClassM;
@@ -354,7 +362,7 @@ use ClassN;
 class \NamespaceC\ClassE;
 interface \NamespaceC\InterfaceD;
 
-namespace;
+Context at position (93, 5):
 
 use ClassO;
 use ClassP;
@@ -432,7 +440,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-namespace;
+Context at position (1, 1):
 
 use ClassF;
 use ClassG as ClassH;
@@ -507,6 +515,8 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
+Context at position (5, 5):
+
 namespace NamespaceA\NamespaceB;
 
 interface \NamespaceA\NamespaceB\InterfaceA;
@@ -574,7 +584,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-namespace;
+Context at position (1, 1):
 
 interface \InterfaceA;
 interface \InterfaceB;
@@ -627,6 +637,8 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
+Context at position (5, 5):
+
 namespace NamespaceA\NamespaceB;
 
 use ClassF;
@@ -635,12 +647,14 @@ use NamespaceD\ClassI;
 use NamespaceE\ClassJ as ClassK;
 use NamespaceF\NamespaceG\ClassL;
 
+Context at position (20, 5):
+
 namespace NamespaceC;
 
 use ClassM;
 use ClassN;
 
-namespace;
+Context at position (27, 5):
 
 use ClassO;
 use ClassP;
@@ -655,7 +669,7 @@ EOD;
     {
         $source = '';
         $expected = <<<'EOD'
-namespace;
+Context at position (1, 1):
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -747,6 +761,8 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
+Context at position (5, 5):
+
 namespace NamespaceA\NamespaceB;
 
 use ClassF;
@@ -785,6 +801,8 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
+Context at position (3, 5):
+
 namespace NamespaceA;
 
 trait \NamespaceA\TraitA;
@@ -809,6 +827,8 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
+Context at position (3, 5):
+
 namespace NamespaceA;
 
 function \NamespaceA\FunctionA;
@@ -831,6 +851,8 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
+Context at position (3, 5):
+
 namespace NamespaceA;
 
 const \NamespaceA\CONSTANT_A;
@@ -875,7 +897,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-namespace;
+Context at position (1, 1):
 
 use ClassF;
 use ClassG as ClassH;
@@ -924,13 +946,17 @@ EOD;
 
     protected function renderContext(ParsedResolutionContextInterface $context)
     {
-        $rendered = '';
-        if ($context->context()->primaryNamespace()->isRoot()) {
-            $rendered .= "namespace;\n";
+        $rendered = sprintf(
+            "Context at position (%d, %d):\n",
+            $context->lineNumber(),
+            $context->columnNumber()
+        );
 
-            if (count($context->context()->useStatements()) > 0) {
-                $rendered .= "\n";
-            }
+        if (
+            !$context->context()->primaryNamespace()->isRoot() ||
+            count($context->context()->useStatements()) > 0
+        ) {
+            $rendered .= "\n";
         }
 
         $rendered .= $this->contextRenderer->renderContext($context->context());

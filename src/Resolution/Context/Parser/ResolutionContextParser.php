@@ -37,13 +37,12 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     const STATE_START = 0;
     const STATE_POTENTIAL_NAMESPACE_NAME = 1;
     const STATE_NAMESPACE_NAME = 2;
-    const STATE_NAMESPACE_HEADER = 3;
-    const STATE_USE_STATEMENT = 4;
-    const STATE_USE_STATEMENT_CLASS_NAME = 5;
-    const STATE_USE_STATEMENT_ALIAS = 6;
-    const STATE_SYMBOL = 7;
-    const STATE_SYMBOL_HEADER = 8;
-    const STATE_SYMBOL_BODY = 9;
+    const STATE_USE_STATEMENT = 3;
+    const STATE_USE_STATEMENT_CLASS_NAME = 4;
+    const STATE_USE_STATEMENT_ALIAS = 5;
+    const STATE_SYMBOL = 6;
+    const STATE_SYMBOL_HEADER = 7;
+    const STATE_SYMBOL_BODY = 8;
 
     const TRANSITION_SYMBOL_END = 1;
     const TRANSITION_USE_STATEMENT_END = 2;
@@ -193,6 +192,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         $stateStack = $atoms = $useStatements = $symbols = array();
         $transition = $namespaceName = $useStatementAlias = $useStatementType =
             $symbolType = null;
+        $contextPositionStack = array(array(1, 1));
         $symbolBracketDepth = 0;
 
         foreach ($tokens as $index => $token) {
@@ -202,6 +202,10 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case T_NAMESPACE:
                             array_push($stateStack, $state);
                             $state = static::STATE_POTENTIAL_NAMESPACE_NAME;
+                            array_push(
+                                $contextPositionStack,
+                                array($token[2], $token[3])
+                            );
 
                             break;
 
@@ -230,20 +234,20 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         // @codeCoverageIgnoreEnd
 
                         case $this->traitTokenType:
-                            $symbolType = SymbolType::TRA1T();
                             $state = static::STATE_SYMBOL;
+                            $symbolType = SymbolType::TRA1T();
 
                             break;
 
                         case T_FUNCTION:
-                            $symbolType = SymbolType::FUNCT1ON();
                             $state = static::STATE_SYMBOL;
+                            $symbolType = SymbolType::FUNCT1ON();
 
                             break;
 
                         case T_CONST:
-                            $symbolType = SymbolType::CONSTANT();
                             $state = static::STATE_SYMBOL;
+                            $symbolType = SymbolType::CONSTANT();
 
                             break;
                     }
@@ -253,7 +257,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 case static::STATE_POTENTIAL_NAMESPACE_NAME:
                     switch ($token[0]) {
                         case T_NS_SEPARATOR:
-                            $state = array_pop($stateStack);
+                            list($state) = array_pop($stateStack);
+                            array_pop($contextPositionStack);
 
                             break;
 
@@ -266,7 +271,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case '{':
                             $transition = static::TRANSITION_CONTEXT_END;
-                            $state = static::STATE_NAMESPACE_HEADER;
+                            $state = static::STATE_START;
 
                             break;
                     }
@@ -285,60 +290,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $namespaceName = $this->symbolFactory()
                                 ->createFromAtoms($atoms, true);
                             $atoms = array();
-                            $state = static::STATE_NAMESPACE_HEADER;
-
-                            break;
-                    }
-
-                    break;
-
-                case static::STATE_NAMESPACE_HEADER:
-                    switch ($token[0]) {
-                        case T_USE:
-                            $state = static::STATE_USE_STATEMENT;
-
-                            break;
-
-                        case T_NAMESPACE:
-                            array_push($stateStack, $state);
-                            $state = static::STATE_POTENTIAL_NAMESPACE_NAME;
-
-                            break;
-
-                        case T_CLASS:
-                            $state = static::STATE_SYMBOL;
-                            $symbolType = SymbolType::CLA55();
-
-                            break;
-
-                        case T_INTERFACE:
-                            $state = static::STATE_SYMBOL;
-                            $symbolType = SymbolType::INTERF4CE();
-
-                            break;
-
-                        // @codeCoverageIgnoreStart
-                        case T_STRING:
-                            if ('trait' !== strtolower($token[1])) {
-                                break;
-                            }
-                        // @codeCoverageIgnoreEnd
-
-                        case $this->traitTokenType:
-                            $symbolType = SymbolType::TRA1T();
-                            $state = static::STATE_SYMBOL;
-
-                            break;
-
-                        case T_FUNCTION:
-                            $symbolType = SymbolType::FUNCT1ON();
-                            $state = static::STATE_SYMBOL;
-
-                            break;
-
-                        case T_CONST:
-                            $symbolType = SymbolType::CONSTANT();
-                            $state = static::STATE_SYMBOL;
+                            $state = static::STATE_START;
 
                             break;
                     }
@@ -380,7 +332,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case ';':
                             $transition = static::TRANSITION_USE_STATEMENT_END;
-                            $state = static::STATE_NAMESPACE_HEADER;
+                            $state = static::STATE_START;
 
                             break;
                     }
@@ -393,7 +345,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $useStatementAlias = $this->symbolFactory()
                                 ->create($token[1]);
                             $transition = static::TRANSITION_USE_STATEMENT_END;
-                            $state = static::STATE_NAMESPACE_HEADER;
+                            $state = static::STATE_START;
 
                             break;
                     }
@@ -511,8 +463,25 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         );
                     }
 
-                    $contexts[] =
-                        new ParsedResolutionContext($context, $symbols);
+                    $isContextPositionStacked =
+                        count($contextPositionStack) > 2;
+                    if ($isContextPositionStacked) {
+                        $nextContextPosition = array_pop($contextPositionStack);
+                    }
+
+                    list($contextLineNumber, $contextColumnNumber) =
+                        array_pop($contextPositionStack);
+
+                    if ($isContextPositionStacked) {
+                        array_push($contextPositionStack, $nextContextPosition);
+                    }
+
+                    $contexts[] = new ParsedResolutionContext(
+                        $context,
+                        $symbols,
+                        $contextLineNumber,
+                        $contextColumnNumber
+                    );
                     $symbols = array();
 
                     break;
