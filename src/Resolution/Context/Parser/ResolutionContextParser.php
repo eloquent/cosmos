@@ -71,6 +71,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
      * @param SymbolNormalizerInterface|null         $symbolNormalizer    The symbol normalizer to use.
      * @param UseStatementFactoryInterface|null      $useStatementFactory The use statement factory to use.
      * @param ResolutionContextFactoryInterface|null $contextFactory      The resolution context factory to use.
+     * @param TokenNormalizerInterface|null          $tokenNormalizer     The token normalizer to use.
      * @param Isolator|null                          $isolator            The isolator to use.
      */
     public function __construct(
@@ -79,6 +80,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         SymbolNormalizerInterface $symbolNormalizer = null,
         UseStatementFactoryInterface $useStatementFactory = null,
         ResolutionContextFactoryInterface $contextFactory = null,
+        TokenNormalizerInterface $tokenNormalizer = null,
         Isolator $isolator = null
     ) {
         if (null === $symbolFactory) {
@@ -96,12 +98,16 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         if (null === $contextFactory) {
             $contextFactory = ResolutionContextFactory::instance();
         }
+        if (null === $tokenNormalizer) {
+            $tokenNormalizer = TokenNormalizer::instance();
+        }
 
         $this->symbolFactory = $symbolFactory;
         $this->symbolResolver = $symbolResolver;
         $this->symbolNormalizer = $symbolNormalizer;
         $this->useStatementFactory = $useStatementFactory;
         $this->contextFactory = $contextFactory;
+        $this->tokenNormalizer = $tokenNormalizer;
         $isolator = Isolator::get($isolator);
 
         $this->traitTokenType = 'trait';
@@ -161,6 +167,16 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     }
 
     /**
+     * Get the token normalizer.
+     *
+     * @return TokenNormalizerInterface The token normalizer.
+     */
+    public function tokenNormalizer()
+    {
+        return $this->tokenNormalizer;
+    }
+
+    /**
      * Parse all resolution contexts from the supplied source code.
      *
      * @param string $source The source code to parse.
@@ -169,8 +185,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
      */
     public function parseSource($source)
     {
-        $tokens = $this->normalizeTokens(token_get_all($source));
-        $tokens[] = array('end');
+        $tokens = $this->tokenNormalizer()
+            ->normalizeTokens(token_get_all($source));
         $contexts = array();
 
         $state = static::STATE_START;
@@ -508,22 +524,12 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         return $contexts;
     }
 
-    private function normalizeTokens($tokens)
-    {
-        foreach ($tokens as $index => $token) {
-            if (is_string($token)) {
-                $tokens[$index] = array($token, $token, 0);
-            }
-        }
-
-        return $tokens;
-    }
-
     private static $instance;
     private $symbolFactory;
     private $symbolResolver;
     private $symbolNormalizer;
     private $useStatementFactory;
     private $contextFactory;
+    private $tokenNormalizer;
     private $traitTokenType;
 }

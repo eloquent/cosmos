@@ -72,6 +72,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
                 null,
                 null,
                 $this,
+                null,
                 $isolator
             );
         }

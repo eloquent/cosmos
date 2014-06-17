@@ -34,6 +34,7 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         $this->symbolNormalizer = new SymbolNormalizer;
         $this->useStatementFactory = new UseStatementFactory;
         $this->contextFactory = new ResolutionContextFactory;
+        $this->tokenNormalizer = new TokenNormalizer;
         $this->isolator = Phake::mock(Isolator::className());
         Phake::when($this->isolator)->defined('T_TRAIT')->thenReturn(false);
         $this->parser = new ResolutionContextParser(
@@ -42,6 +43,7 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
             $this->symbolNormalizer,
             $this->useStatementFactory,
             $this->contextFactory,
+            $this->tokenNormalizer,
             $this->isolator
         );
 
@@ -55,6 +57,7 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         $this->assertSame($this->symbolNormalizer, $this->parser->symbolNormalizer());
         $this->assertSame($this->useStatementFactory, $this->parser->useStatementFactory());
         $this->assertSame($this->contextFactory, $this->parser->contextFactory());
+        $this->assertSame($this->tokenNormalizer, $this->parser->tokenNormalizer());
     }
 
     public function testConstructorDefaults()
@@ -66,13 +69,14 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         $this->assertSame(SymbolNormalizer::instance(), $this->parser->symbolNormalizer());
         $this->assertSame(UseStatementFactory::instance(), $this->parser->useStatementFactory());
         $this->assertSame(ResolutionContextFactory::instance(), $this->parser->contextFactory());
+        $this->assertSame(TokenNormalizer::instance(), $this->parser->tokenNormalizer());
     }
 
     public function testConstructorTraitSupport()
     {
         Phake::when($this->isolator)->defined('T_TRAIT')->thenReturn(true);
         Phake::when($this->isolator)->constant('T_TRAIT')->thenReturn(111);
-        $this->parser = new ResolutionContextParser(null, null, null, null, null, $this->isolator);
+        $this->parser = new ResolutionContextParser(null, null, null, null, null, null, $this->isolator);
 
         $this->assertSame(111, Liberator::liberate($this->parser)->traitTokenType);
     }
