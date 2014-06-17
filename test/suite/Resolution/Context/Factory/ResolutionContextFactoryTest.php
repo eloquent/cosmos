@@ -50,7 +50,7 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
         SymbolFactory::instance()->globalNamespace();
         $this->symbolFactory->globalNamespace();
 
-        $this->fixturePath = __DIR__ . '/../../../../src/contexts.php';
+        $this->fixturePath = dirname(dirname(dirname(dirname(__DIR__)))) . '/src/contexts.php';
         require_once $this->fixturePath;
     }
 
@@ -368,13 +368,13 @@ EOD;
     {
         Phake::when($this->isolator)->stream_get_contents(Phake::anyParameters())->thenReturn(false);
         Phake::when($this->isolator)->error_get_last()
-            ->thenReturn(array('message' => 'stream_get_contents(): failed to read from stream'));
+            ->thenReturn(array('message' => 'stream_get_contents(): unable to read from stream'));
 
         $this->setExpectedException(
             'Eloquent\Cosmos\Exception\ReadException',
-            "Unable to read from '/path/to/foo' (stream_get_contents(): failed to read from stream)."
+            'stream_get_contents(): unable to read from stream'
         );
-        $this->factory->createFromFile('/path/to/foo');
+        $this->factory->createFromFile($this->fixturePath);
     }
 
     public function testCreateFromFileByIndexFailureUndefined()
