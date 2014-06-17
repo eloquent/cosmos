@@ -21,12 +21,20 @@ class UndefinedResolutionContextExceptionTest extends PHPUnit_Framework_TestCase
     {
         $path = FileSystemPath::fromString('/path/to/foo.php');
         $cause = new Exception;
-        $exception = new UndefinedResolutionContextException($path, 111, $cause);
+        $exception = new UndefinedResolutionContextException(111, $path, $cause);
 
-        $this->assertSame($path, $exception->path());
         $this->assertSame(111, $exception->index());
+        $this->assertSame($path, $exception->path());
         $this->assertSame("No resolution context defined at index 111 in file '/path/to/foo.php'.", $exception->getMessage());
         $this->assertSame(0, $exception->getCode());
         $this->assertSame($cause, $exception->getPrevious());
+    }
+
+    public function testExceptionDefaults()
+    {
+        $exception = new UndefinedResolutionContextException(111);
+
+        $this->assertNull($exception->path());
+        $this->assertSame("No resolution context defined at index 111.", $exception->getMessage());
     }
 }

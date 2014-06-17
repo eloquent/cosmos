@@ -22,27 +22,32 @@ final class UndefinedResolutionContextException extends Exception
     /**
      * Construct a new undefined resolution context exception.
      *
-     * @param FileSystemPathInterface $path  The path.
-     * @param integer                 $index The specified index.
-     * @param Exception|null          $cause The cause, if available.
+     * @param integer                      $index The specified index.
+     * @param FileSystemPathInterface|null $path  The path, if known.
+     * @param Exception|null               $cause The cause, if available.
      */
     public function __construct(
-        FileSystemPathInterface $path,
         $index,
+        FileSystemPathInterface $path = null,
         Exception $cause = null
     ) {
         $this->index = $index;
         $this->path = $path;
 
-        parent::__construct(
-            sprintf(
+        if (null === $path) {
+            $message = sprintf(
+                'No resolution context defined at index %s.',
+                var_export($index, true)
+            );
+        } else {
+            $message = sprintf(
                 'No resolution context defined at index %s in file %s.',
                 var_export($index, true),
                 var_export($path->string(), true)
-            ),
-            0,
-            $cause
-        );
+            );
+        }
+
+        parent::__construct($message, 0, $cause);
     }
 
     /**
@@ -58,7 +63,7 @@ final class UndefinedResolutionContextException extends Exception
     /**
      * Get the path.
      *
-     * @return FileSystemPathInterface The path.
+     * @return FileSystemPathInterface|null The path, if known.
      */
     public function path()
     {

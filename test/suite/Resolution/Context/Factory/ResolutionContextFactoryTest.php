@@ -51,7 +51,16 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
         $this->symbolFactory->globalNamespace();
 
         $this->fixturePath = dirname(dirname(dirname(dirname(__DIR__)))) . '/src/contexts.php';
+        $this->fixtureStream = fopen($this->fixturePath, 'rb');
+
         require_once $this->fixturePath;
+    }
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+
+        fclose($this->fixtureStream);
     }
 
     public function testConstructor()
@@ -352,18 +361,6 @@ EOD;
         $this->factory->createFromFile('/path/to/foo');
     }
 
-    public function testCreateFromFileByIndex()
-    {
-        $actual = $this->factory->createFromFileByIndex(FileSystemPath::fromString($this->fixturePath), 2);
-        $expected = <<<'EOD'
-use NamespaceH\NamespaceI\SymbolI as SymbolJ;
-use SymbolK as SymbolL;
-
-EOD;
-
-        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
-    }
-
     public function testCreateFromFileFailureFileSystemRead()
     {
         Phake::when($this->isolator)->stream_get_contents(Phake::anyParameters())->thenReturn(false);
@@ -375,6 +372,18 @@ EOD;
             'stream_get_contents(): unable to read from stream'
         );
         $this->factory->createFromFile($this->fixturePath);
+    }
+
+    public function testCreateFromFileByIndex()
+    {
+        $actual = $this->factory->createFromFileByIndex(FileSystemPath::fromString($this->fixturePath), 2);
+        $expected = <<<'EOD'
+use NamespaceH\NamespaceI\SymbolI as SymbolJ;
+use SymbolK as SymbolL;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
     public function testCreateFromFileByIndexFailureUndefined()
@@ -426,7 +435,7 @@ EOD;
 
     public function testCreateFromFileByPositionSecondaryNamespace()
     {
-        $position = new ParserPosition(44, 1);
+        $position = new ParserPosition(36, 1);
         $actual = $this->factory->createFromFileByPosition(FileSystemPath::fromString($this->fixturePath), $position);
         $expected = <<<'EOD'
 namespace NamespaceC;
@@ -468,6 +477,132 @@ EOD;
         $this->setExpectedException(
             'Eloquent\Cosmos\Exception\ReadException',
             "Unable to read from '/path/to/foo' (fopen(/path/to/foo): failed to open stream: No such file or directory)."
+        );
+        $this->factory->createFromFileByPosition('/path/to/foo', $position);
+    }
+
+    public function testCreateFromStream()
+    {
+        $actual = $this->factory->createFromStream($this->fixtureStream);
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromStreamFailureFileSystemRead()
+    {
+        Phake::when($this->isolator)->stream_get_contents(Phake::anyParameters())->thenReturn(false);
+        Phake::when($this->isolator)->error_get_last()
+            ->thenReturn(array('message' => 'stream_get_contents(): unable to read from stream'));
+
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Exception\ReadException',
+            'stream_get_contents(): unable to read from stream'
+        );
+        $this->factory->createFromStream($this->fixtureStream);
+    }
+
+    public function testCreateFromStreamByIndex()
+    {
+        $actual = $this->factory->createFromStreamByIndex($this->fixtureStream, 2);
+        $expected = <<<'EOD'
+use NamespaceH\NamespaceI\SymbolI as SymbolJ;
+use SymbolK as SymbolL;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromStreamByIndexFailureUndefined()
+    {
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Resolution\Context\Factory\Exception\UndefinedResolutionContextException'
+        );
+        $this->factory->createFromStreamByIndex($this->fixtureStream, 3);
+    }
+
+    public function testCreateFromStreamByIndexFailureFileSystemRead()
+    {
+        Phake::when($this->isolator)->stream_get_contents(Phake::anyParameters())->thenReturn(false);
+        Phake::when($this->isolator)->error_get_last()
+            ->thenReturn(array('message' => 'stream_get_contents(): unable to read from stream'));
+
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Exception\ReadException',
+            'stream_get_contents(): unable to read from stream'
+        );
+        $this->factory->createFromStreamByIndex($this->fixtureStream, 0);
+    }
+
+    public function testCreateFromStreamByPosition()
+    {
+        $position = new ParserPosition(24, 111);
+        $actual = $this->factory->createFromStreamByPosition($this->fixtureStream, $position);
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromStreamByPositionSecondaryNamespace()
+    {
+        $position = new ParserPosition(36, 1);
+        $actual = $this->factory->createFromStreamByPosition($this->fixtureStream, $position);
+        $expected = <<<'EOD'
+namespace NamespaceC;
+
+use NamespaceF\NamespaceG\SymbolE as SymbolF;
+use SymbolG as SymbolH;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromStreamByPositionBeforeFirst()
+    {
+        $position = new ParserPosition(1, 1);
+        $actual = $this->factory->createFromStreamByPosition($this->fixtureStream, $position);
+        $expected = '';
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromStreamByPositionAfterLast()
+    {
+        $position = new ParserPosition(1111, 2222);
+        $actual = $this->factory->createFromStreamByPosition($this->fixtureStream, $position);
+        $expected = <<<'EOD'
+use NamespaceH\NamespaceI\SymbolI as SymbolJ;
+use SymbolK as SymbolL;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromStreamByPositionFailureFileSystemRead()
+    {
+        $position = new ParserPosition(1111, 2222);
+        Phake::when($this->isolator)->stream_get_contents(Phake::anyParameters())->thenReturn(false);
+        Phake::when($this->isolator)->error_get_last()
+            ->thenReturn(array('message' => 'stream_get_contents(): unable to read from stream'));
+
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Exception\ReadException',
+            'stream_get_contents(): unable to read from stream'
         );
         $this->factory->createFromFileByPosition('/path/to/foo', $position);
     }

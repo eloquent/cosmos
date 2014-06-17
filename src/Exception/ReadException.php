@@ -23,7 +23,7 @@ final class ReadException extends Exception
      * Construct a new read exception.
      *
      * @param string                       $reason The reason message.
-     * @param FileSystemPathInterface|null $path   The path, if available.
+     * @param FileSystemPathInterface|null $path   The path, if known.
      * @param Exception|null               $cause  The cause, if available.
      */
     public function __construct(
@@ -63,7 +63,7 @@ final class ReadException extends Exception
     /**
      * Get the path.
      *
-     * @return FileSystemPathInterface|null The path, if available.
+     * @return FileSystemPathInterface|null The path, if known.
      */
     public function path()
     {

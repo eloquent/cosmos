@@ -387,7 +387,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
                 $path = FileSystemPath::fromString($path);
             }
 
-            throw new UndefinedResolutionContextException($path, $index);
+            throw new UndefinedResolutionContextException($index, $path);
         }
 
         return $contexts[$index]->context();
