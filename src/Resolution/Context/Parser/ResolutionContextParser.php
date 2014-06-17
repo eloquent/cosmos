@@ -44,9 +44,10 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     const STATE_SYMBOL_HEADER = 7;
     const STATE_SYMBOL_BODY = 8;
 
-    const TRANSITION_SYMBOL_END = 1;
-    const TRANSITION_USE_STATEMENT_END = 2;
-    const TRANSITION_CONTEXT_END = 3;
+    const TRANSITION_SYMBOL_START = 1;
+    const TRANSITION_SYMBOL_END = 2;
+    const TRANSITION_USE_STATEMENT_END = 3;
+    const TRANSITION_CONTEXT_END = 4;
 
     /**
      * Get a static instance of this parser.
@@ -191,7 +192,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         $state = static::STATE_START;
         $stateStack = $atoms = $useStatements = $symbols = array();
         $transition = $namespaceName = $useStatementAlias = $useStatementType =
-            $symbolType = null;
+            $symbolType = $symbolPosition = null;
         $contextPositionStack = array(new ParserPosition(1, 1));
         $symbolBracketDepth = 0;
 
@@ -216,12 +217,14 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case T_CLASS:
                             $state = static::STATE_SYMBOL;
+                            $transition = static::TRANSITION_SYMBOL_START;
                             $symbolType = SymbolType::CLA55();
 
                             break;
 
                         case T_INTERFACE:
                             $state = static::STATE_SYMBOL;
+                            $transition = static::TRANSITION_SYMBOL_START;
                             $symbolType = SymbolType::INTERF4CE();
 
                             break;
@@ -235,18 +238,21 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case $this->traitTokenType:
                             $state = static::STATE_SYMBOL;
+                            $transition = static::TRANSITION_SYMBOL_START;
                             $symbolType = SymbolType::TRA1T();
 
                             break;
 
                         case T_FUNCTION:
                             $state = static::STATE_SYMBOL;
+                            $transition = static::TRANSITION_SYMBOL_START;
                             $symbolType = SymbolType::FUNCT1ON();
 
                             break;
 
                         case T_CONST:
                             $state = static::STATE_SYMBOL;
+                            $transition = static::TRANSITION_SYMBOL_START;
                             $symbolType = SymbolType::CONSTANT();
 
                             break;
@@ -417,10 +423,16 @@ class ResolutionContextParser implements ResolutionContextParserInterface
             }
 
             switch ($transition) {
+                case static::TRANSITION_SYMBOL_START:
+                    $symbolPosition = new ParserPosition($token[2], $token[3]);
+
+                    break;
+
                 case static::TRANSITION_SYMBOL_END:
                     $symbols[] = array(
                         $this->symbolFactory()->createFromAtoms($atoms, false),
                         $symbolType,
+                        $symbolPosition,
                     );
                     $atoms = array();
                     $symbolType = null;
@@ -454,12 +466,13 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                     $useStatements = array();
 
                     foreach ($symbols as $index => $parsedSymbol) {
-                        list($symbol, $type) = $parsedSymbol;
+                        list($symbol, $type, $position) = $parsedSymbol;
 
                         $symbols[$index] = new ParsedSymbol(
                             $this->symbolResolver()
                                 ->resolveAgainstContext($context, $symbol),
-                            $type
+                            $type,
+                            $position
                         );
                     }
 

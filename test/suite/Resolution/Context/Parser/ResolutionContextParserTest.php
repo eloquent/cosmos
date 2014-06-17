@@ -145,11 +145,11 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function FunctionA(ClassA $a, ClassB $b = null, ClassC $C = null)
+    function FunctionA(ClassA $a, ClassB $b = null, ClassC $C = null)
     {
     }
 
-    public function FunctionB()
+    function FunctionB()
     {
     }
 
@@ -174,7 +174,7 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
 
 EOD;
         $expected = <<<'EOD'
-Context at position (5, 5):
+// Context at position (5, 5):
 
 namespace NamespaceA\NamespaceB;
 
@@ -184,26 +184,26 @@ use NamespaceD\ClassI;
 use NamespaceE\ClassJ as ClassK;
 use NamespaceF\NamespaceG\ClassL;
 
-interface \NamespaceA\NamespaceB\InterfaceA;
-interface \NamespaceA\NamespaceB\InterfaceB;
-interface \NamespaceA\NamespaceB\InterfaceC;
-class \NamespaceA\NamespaceB\ClassB;
-class \NamespaceA\NamespaceB\ClassC;
-class \NamespaceA\NamespaceB\ClassD;
-function \NamespaceA\NamespaceB\FunctionA;
-function \NamespaceA\NamespaceB\FunctionB;
-const \NamespaceA\NamespaceB\CONSTANT_A;
-const \NamespaceA\NamespaceB\CONSTANT_B;
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 5)
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 5)
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (30, 5)
+class \NamespaceA\NamespaceB\ClassB; // at position (36, 5)
+class \NamespaceA\NamespaceB\ClassC; // at position (40, 5)
+class \NamespaceA\NamespaceB\ClassD; // at position (47, 5)
+function \NamespaceA\NamespaceB\FunctionA; // at position (62, 5)
+function \NamespaceA\NamespaceB\FunctionB; // at position (66, 5)
+const \NamespaceA\NamespaceB\CONSTANT_A; // at position (70, 5)
+const \NamespaceA\NamespaceB\CONSTANT_B; // at position (71, 5)
 
-Context at position (75, 5):
+// Context at position (75, 5):
 
 namespace NamespaceC;
 
 use ClassM;
 use ClassN;
 
-class \NamespaceC\ClassE;
-interface \NamespaceC\InterfaceD;
+class \NamespaceC\ClassE; // at position (81, 5)
+interface \NamespaceC\InterfaceD; // at position (85, 5)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -331,7 +331,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-Context at position (5, 5):
+// Context at position (5, 5):
 
 namespace NamespaceA\NamespaceB;
 
@@ -341,36 +341,36 @@ use NamespaceD\ClassI;
 use NamespaceE\ClassJ as ClassK;
 use NamespaceF\NamespaceG\ClassL;
 
-interface \NamespaceA\NamespaceB\InterfaceA;
-interface \NamespaceA\NamespaceB\InterfaceB;
-interface \NamespaceA\NamespaceB\InterfaceC;
-class \NamespaceA\NamespaceB\ClassB;
-class \NamespaceA\NamespaceB\ClassC;
-class \NamespaceA\NamespaceB\ClassD;
-function \NamespaceA\NamespaceB\FunctionA;
-function \NamespaceA\NamespaceB\FunctionB;
-const \NamespaceA\NamespaceB\CONSTANT_A;
-const \NamespaceA\NamespaceB\CONSTANT_B;
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 9)
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 9)
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (30, 9)
+class \NamespaceA\NamespaceB\ClassB; // at position (36, 9)
+class \NamespaceA\NamespaceB\ClassC; // at position (40, 9)
+class \NamespaceA\NamespaceB\ClassD; // at position (47, 9)
+function \NamespaceA\NamespaceB\FunctionA; // at position (62, 9)
+function \NamespaceA\NamespaceB\FunctionB; // at position (66, 9)
+const \NamespaceA\NamespaceB\CONSTANT_A; // at position (70, 9)
+const \NamespaceA\NamespaceB\CONSTANT_B; // at position (71, 9)
 
-Context at position (76, 5):
+// Context at position (76, 5):
 
 namespace NamespaceC;
 
 use ClassM;
 use ClassN;
 
-class \NamespaceC\ClassE;
-interface \NamespaceC\InterfaceD;
+class \NamespaceC\ClassE; // at position (82, 9)
+interface \NamespaceC\InterfaceD; // at position (86, 9)
 
-Context at position (93, 5):
+// Context at position (93, 5):
 
 use ClassO;
 use ClassP;
 
-class \ClassQ;
-interface \InterfaceE;
-function \FunctionC;
-const \CONSTANT_D;
+class \ClassQ; // at position (101, 9)
+interface \InterfaceE; // at position (105, 9)
+function \FunctionC; // at position (109, 9)
+const \CONSTANT_D; // at position (113, 9)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -440,7 +440,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-Context at position (1, 1):
+// Context at position (1, 1):
 
 use ClassF;
 use ClassG as ClassH;
@@ -448,12 +448,12 @@ use NamespaceD\ClassI;
 use NamespaceE\ClassJ as ClassK;
 use NamespaceF\NamespaceG\ClassL;
 
-interface \InterfaceA;
-interface \InterfaceB;
-interface \InterfaceC;
-class \ClassB;
-class \ClassC;
-class \ClassD;
+interface \InterfaceA; // at position (17, 5)
+interface \InterfaceB; // at position (22, 5)
+interface \InterfaceC; // at position (28, 5)
+class \ClassB; // at position (32, 5)
+class \ClassC; // at position (36, 5)
+class \ClassD; // at position (43, 5)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -515,16 +515,16 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-Context at position (5, 5):
+// Context at position (5, 5):
 
 namespace NamespaceA\NamespaceB;
 
-interface \NamespaceA\NamespaceB\InterfaceA;
-interface \NamespaceA\NamespaceB\InterfaceB;
-interface \NamespaceA\NamespaceB\InterfaceC;
-class \NamespaceA\NamespaceB\ClassB;
-class \NamespaceA\NamespaceB\ClassC;
-class \NamespaceA\NamespaceB\ClassD;
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (9, 5)
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (14, 5)
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (20, 5)
+class \NamespaceA\NamespaceB\ClassB; // at position (24, 5)
+class \NamespaceA\NamespaceB\ClassC; // at position (28, 5)
+class \NamespaceA\NamespaceB\ClassD; // at position (35, 5)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -584,14 +584,14 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-Context at position (1, 1):
+// Context at position (1, 1):
 
-interface \InterfaceA;
-interface \InterfaceB;
-interface \InterfaceC;
-class \ClassB;
-class \ClassC;
-class \ClassD;
+interface \InterfaceA; // at position (7, 5)
+interface \InterfaceB; // at position (12, 5)
+interface \InterfaceC; // at position (18, 5)
+class \ClassB; // at position (22, 5)
+class \ClassC; // at position (26, 5)
+class \ClassD; // at position (33, 5)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -637,7 +637,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-Context at position (5, 5):
+// Context at position (5, 5):
 
 namespace NamespaceA\NamespaceB;
 
@@ -647,14 +647,14 @@ use NamespaceD\ClassI;
 use NamespaceE\ClassJ as ClassK;
 use NamespaceF\NamespaceG\ClassL;
 
-Context at position (20, 5):
+// Context at position (20, 5):
 
 namespace NamespaceC;
 
 use ClassM;
 use ClassN;
 
-Context at position (27, 5):
+// Context at position (27, 5):
 
 use ClassO;
 use ClassP;
@@ -669,7 +669,7 @@ EOD;
     {
         $source = '';
         $expected = <<<'EOD'
-Context at position (1, 1):
+// Context at position (1, 1):
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -761,7 +761,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-Context at position (5, 5):
+// Context at position (5, 5):
 
 namespace NamespaceA\NamespaceB;
 
@@ -771,15 +771,15 @@ use NamespaceD\ClassI;
 use NamespaceE\ClassJ as ClassK;
 use NamespaceF\NamespaceG\ClassL;
 
-interface \NamespaceA\NamespaceB\InterfaceA;
-interface \NamespaceA\NamespaceB\InterfaceB;
-interface \NamespaceA\NamespaceB\InterfaceC;
-trait \NamespaceA\NamespaceB\TraitA;
-trait \NamespaceA\NamespaceB\TraitB;
-trait \NamespaceA\NamespaceB\TraitC;
-class \NamespaceA\NamespaceB\ClassB;
-class \NamespaceA\NamespaceB\ClassC;
-class \NamespaceA\NamespaceB\ClassD;
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 5)
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 5)
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (30, 5)
+trait \NamespaceA\NamespaceB\TraitA; // at position (34, 5)
+trait \NamespaceA\NamespaceB\TraitB; // at position (38, 5)
+trait \NamespaceA\NamespaceB\TraitC; // at position (42, 5)
+class \NamespaceA\NamespaceB\ClassB; // at position (49, 5)
+class \NamespaceA\NamespaceB\ClassC; // at position (53, 5)
+class \NamespaceA\NamespaceB\ClassD; // at position (60, 5)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -801,11 +801,11 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-Context at position (3, 5):
+// Context at position (3, 5):
 
 namespace NamespaceA;
 
-trait \NamespaceA\TraitA;
+trait \NamespaceA\TraitA; // at position (5, 5)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -827,11 +827,11 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-Context at position (3, 5):
+// Context at position (3, 5):
 
 namespace NamespaceA;
 
-function \NamespaceA\FunctionA;
+function \NamespaceA\FunctionA; // at position (5, 5)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -851,11 +851,11 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-Context at position (3, 5):
+// Context at position (3, 5):
 
 namespace NamespaceA;
 
-const \NamespaceA\CONSTANT_A;
+const \NamespaceA\CONSTANT_A; // at position (5, 5)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -897,7 +897,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-Context at position (1, 1):
+// Context at position (1, 1):
 
 use ClassF;
 use ClassG as ClassH;
@@ -947,7 +947,7 @@ EOD;
     protected function renderContext(ParsedResolutionContextInterface $context)
     {
         $rendered = sprintf(
-            "Context at position (%d, %d):\n",
+            "// Context at position (%d, %d):\n",
             $context->position()->line(),
             $context->position()->column()
         );
@@ -966,7 +966,13 @@ EOD;
         }
 
         foreach ($context->symbols() as $symbol) {
-            $rendered .= $symbol->type()->value() . ' '. $symbol->symbol()->string() . ";\n";
+            $rendered .= sprintf(
+                "%s %s; // at position (%d, %d)\n",
+                $symbol->type()->value(),
+                $symbol->symbol()->string(),
+                $symbol->position()->line(),
+                $symbol->position()->column()
+            );
         }
 
         return $rendered;
