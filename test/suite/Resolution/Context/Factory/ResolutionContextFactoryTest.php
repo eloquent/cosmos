@@ -11,6 +11,7 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
+use Eloquent\Cosmos\Resolution\Context\Parser\ParserPosition;
 use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
@@ -18,6 +19,10 @@ use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
+use Eloquent\Pathogen\FileSystem\FileSystemPath;
+use Icecave\Isolator\Isolator;
+use NamespaceA\NamespaceB\ClassA;
+use NamespaceC\ClassC;
 use Phake;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
@@ -31,7 +36,8 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
 
         $this->symbolFactory = new SymbolFactory;
         $this->contextParser = new ResolutionContextParser;
-        $this->factory = new ResolutionContextFactory($this->symbolFactory, $this->contextParser);
+        $this->isolator = Phake::partialMock(Isolator::className());
+        $this->factory = new ResolutionContextFactory($this->symbolFactory, $this->contextParser, $this->isolator);
 
         $this->primaryNamespace = $this->symbolFactory->create('\VendorA\PackageA');
         $this->useStatements = array(
@@ -44,7 +50,8 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
         SymbolFactory::instance()->globalNamespace();
         $this->symbolFactory->globalNamespace();
 
-        require_once __DIR__ . '/../../../../src/functions.php';
+        $this->fixturePath = __DIR__ . '/../../../../src/contexts.php';
+        require_once $this->fixturePath;
     }
 
     public function testConstructor()
@@ -73,21 +80,26 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
 
     public function testCreateFromObject()
     {
-        $actual = $this->factory->createFromObject($this);
+        $actual = $this->factory->createFromObject(new ClassA);
         $expected = <<<'EOD'
-namespace Eloquent\Cosmos\Resolution\Context\Factory;
+namespace NamespaceA\NamespaceB;
 
-use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
-use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
-use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
-use Eloquent\Cosmos\Symbol\Symbol;
-use Eloquent\Cosmos\UseStatement\UseStatement;
-use Eloquent\Liberator\Liberator;
-use Phake;
-use PHPUnit_Framework_TestCase;
-use ReflectionClass;
-use ReflectionFunction;
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromObjectSecondaryNamespace()
+    {
+        $actual = $this->factory->createFromObject(new ClassC);
+        $expected = <<<'EOD'
+namespace NamespaceC;
+
+use NamespaceF\NamespaceG\SymbolE as SymbolF;
+use SymbolG as SymbolH;
 
 EOD;
 
@@ -96,21 +108,26 @@ EOD;
 
     public function testCreateFromSymbol()
     {
-        $actual = $this->factory->createFromSymbol(Symbol::fromRuntimeString(__CLASS__));
+        $actual = $this->factory->createFromSymbol(Symbol::fromString('\NamespaceA\NamespaceB\ClassA'));
         $expected = <<<'EOD'
-namespace Eloquent\Cosmos\Resolution\Context\Factory;
+namespace NamespaceA\NamespaceB;
 
-use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
-use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
-use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
-use Eloquent\Cosmos\Symbol\Symbol;
-use Eloquent\Cosmos\UseStatement\UseStatement;
-use Eloquent\Liberator\Liberator;
-use Phake;
-use PHPUnit_Framework_TestCase;
-use ReflectionClass;
-use ReflectionFunction;
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromSymbolSecondaryNamespace()
+    {
+        $actual = $this->factory->createFromSymbol(Symbol::fromString('\NamespaceC\ClassC'));
+        $expected = <<<'EOD'
+namespace NamespaceC;
+
+use NamespaceF\NamespaceG\SymbolE as SymbolF;
+use SymbolG as SymbolH;
 
 EOD;
 
@@ -119,21 +136,12 @@ EOD;
 
     public function testCreateFromSymbolWithString()
     {
-        $actual = $this->factory->createFromSymbol(__CLASS__);
+        $actual = $this->factory->createFromSymbol('NamespaceA\NamespaceB\ClassA');
         $expected = <<<'EOD'
-namespace Eloquent\Cosmos\Resolution\Context\Factory;
+namespace NamespaceA\NamespaceB;
 
-use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
-use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
-use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
-use Eloquent\Cosmos\Symbol\Symbol;
-use Eloquent\Cosmos\UseStatement\UseStatement;
-use Eloquent\Liberator\Liberator;
-use Phake;
-use PHPUnit_Framework_TestCase;
-use ReflectionClass;
-use ReflectionFunction;
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
 
 EOD;
 
@@ -143,15 +151,15 @@ EOD;
     public function testCreateFromSymbolFailureUndefined()
     {
         $this->setExpectedException('Eloquent\Cosmos\Exception\UndefinedSymbolException', "Undefined class '\\\\Foo'.");
-        $this->factory->createFromSymbol(Symbol::fromString('\Foo'));
+        $this->factory->createFromSymbol('\Foo');
     }
 
     public function testCreateFromFunctionSymbol()
     {
-        $actual = $this->factory->createFromFunctionSymbol(Symbol::fromString('\FunctionA'));
+        $actual = $this->factory->createFromFunctionSymbol(Symbol::fromString('\FunctionD'));
         $expected = <<<'EOD'
-use NamespaceA\ClassA;
-use NamespaceB\ClassB as ClassC;
+use NamespaceH\NamespaceI\SymbolI as SymbolJ;
+use SymbolK as SymbolL;
 
 EOD;
 
@@ -160,12 +168,12 @@ EOD;
 
     public function testCreateFromFunctionSymbolWithNamespacedFunction()
     {
-        $actual = $this->factory->createFromFunctionSymbol(Symbol::fromString('\NamespaceA\NamespaceB\FunctionB'));
+        $actual = $this->factory->createFromFunctionSymbol(Symbol::fromString('\NamespaceA\NamespaceB\FunctionA'));
         $expected = <<<'EOD'
 namespace NamespaceA\NamespaceB;
 
-use ClassD;
-use ClassE as ClassF;
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
 
 EOD;
 
@@ -174,10 +182,10 @@ EOD;
 
     public function testCreateFromFunctionSymbolWithString()
     {
-        $actual = $this->factory->createFromFunctionSymbol('FunctionA');
+        $actual = $this->factory->createFromFunctionSymbol('FunctionD');
         $expected = <<<'EOD'
-use NamespaceA\ClassA;
-use NamespaceB\ClassB as ClassC;
+use NamespaceH\NamespaceI\SymbolI as SymbolJ;
+use SymbolK as SymbolL;
 
 EOD;
 
@@ -190,26 +198,31 @@ EOD;
             'Eloquent\Cosmos\Exception\UndefinedSymbolException',
             "Undefined function '\\\\Foo'."
         );
-        $this->factory->createFromFunctionSymbol(Symbol::fromString('\Foo'));
+        $this->factory->createFromFunctionSymbol('\Foo');
     }
 
     public function testCreateFromClass()
     {
-        $actual = $this->factory->createFromClass(new ReflectionClass(__CLASS__));
+        $actual = $this->factory->createFromClass(new ReflectionClass('NamespaceA\NamespaceB\ClassA'));
         $expected = <<<'EOD'
-namespace Eloquent\Cosmos\Resolution\Context\Factory;
+namespace NamespaceA\NamespaceB;
 
-use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
-use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
-use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
-use Eloquent\Cosmos\Symbol\Symbol;
-use Eloquent\Cosmos\UseStatement\UseStatement;
-use Eloquent\Liberator\Liberator;
-use Phake;
-use PHPUnit_Framework_TestCase;
-use ReflectionClass;
-use ReflectionFunction;
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromClassSecondaryNamespace()
+    {
+        $actual = $this->factory->createFromClass(new ReflectionClass('NamespaceC\ClassC'));
+        $expected = <<<'EOD'
+namespace NamespaceC;
+
+use NamespaceF\NamespaceG\SymbolE as SymbolF;
+use SymbolG as SymbolH;
 
 EOD;
 
@@ -224,12 +237,15 @@ EOD;
         $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
-    public function testCreateFromClassFailureFileSystemRead()
+    public function testCreateFromClassFailureFileSystemOpen()
     {
         $class = Phake::mock('ReflectionClass');
         Phake::when($class)->getFileName()->thenReturn('/path/to/foo');
 
-        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Exception\ReadException',
+            "Unable to read from '/path/to/foo' (fopen(/path/to/foo): failed to open stream: No such file or directory)."
+        );
         $this->factory->createFromClass($class);
     }
 
@@ -237,7 +253,7 @@ EOD;
     {
         $class = Phake::mock('ReflectionClass');
         Phake::when($class)->getName()->thenReturn('Foo');
-        Phake::when($class)->getFileName()->thenReturn(__FILE__);
+        Phake::when($class)->getFileName()->thenReturn($this->fixturePath);
 
         $this->setExpectedException('Eloquent\Cosmos\Exception\UndefinedSymbolException');
         $this->factory->createFromClass($class);
@@ -245,10 +261,10 @@ EOD;
 
     public function testCreateFromFunction()
     {
-        $actual = $this->factory->createFromFunction(new ReflectionFunction('FunctionA'));
+        $actual = $this->factory->createFromFunction(new ReflectionFunction('FunctionD'));
         $expected = <<<'EOD'
-use NamespaceA\ClassA;
-use NamespaceB\ClassB as ClassC;
+use NamespaceH\NamespaceI\SymbolI as SymbolJ;
+use SymbolK as SymbolL;
 
 EOD;
 
@@ -261,8 +277,8 @@ EOD;
         $expected = <<<'EOD'
 namespace NamespaceA\NamespaceB;
 
-use ClassD;
-use ClassE as ClassF;
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
 
 EOD;
 
@@ -277,12 +293,15 @@ EOD;
         $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
-    public function testCreateFromFunctionFailureFileSystemRead()
+    public function testCreateFromFunctionFailureFileSystemOpen()
     {
         $function = Phake::mock('ReflectionFunction');
         Phake::when($function)->getFileName()->thenReturn('/path/to/foo');
 
-        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Exception\ReadException',
+            "Unable to read from '/path/to/foo' (fopen(/path/to/foo): failed to open stream: No such file or directory)."
+        );
         $this->factory->createFromFunction($function);
     }
 
@@ -290,10 +309,167 @@ EOD;
     {
         $function = Phake::mock('ReflectionFunction');
         Phake::when($function)->getName()->thenReturn('Foo');
-        Phake::when($function)->getFileName()->thenReturn(__FILE__);
+        Phake::when($function)->getFileName()->thenReturn($this->fixturePath);
 
         $this->setExpectedException('Eloquent\Cosmos\Exception\UndefinedSymbolException');
         $this->factory->createFromFunction($function);
+    }
+
+    public function testCreateFromFile()
+    {
+        $actual = $this->factory->createFromFile(FileSystemPath::fromString($this->fixturePath));
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFileWithString()
+    {
+        $actual = $this->factory->createFromFile($this->fixturePath);
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFileFailureFileSystemOpen()
+    {
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Exception\ReadException',
+            "Unable to read from '/path/to/foo' (fopen(/path/to/foo): failed to open stream: No such file or directory)."
+        );
+        $this->factory->createFromFile('/path/to/foo');
+    }
+
+    public function testCreateFromFileByIndex()
+    {
+        $actual = $this->factory->createFromFileByIndex(FileSystemPath::fromString($this->fixturePath), 2);
+        $expected = <<<'EOD'
+use NamespaceH\NamespaceI\SymbolI as SymbolJ;
+use SymbolK as SymbolL;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFileFailureFileSystemRead()
+    {
+        Phake::when($this->isolator)->stream_get_contents(Phake::anyParameters())->thenReturn(false);
+        Phake::when($this->isolator)->error_get_last()
+            ->thenReturn(array('message' => 'stream_get_contents(): failed to read from stream'));
+
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Exception\ReadException',
+            "Unable to read from '/path/to/foo' (stream_get_contents(): failed to read from stream)."
+        );
+        $this->factory->createFromFile('/path/to/foo');
+    }
+
+    public function testCreateFromFileByIndexFailureUndefined()
+    {
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Resolution\Context\Factory\Exception\UndefinedResolutionContextException'
+        );
+        $this->factory->createFromFileByIndex($this->fixturePath, 3);
+    }
+
+    public function testCreateFromFileByIndexFailureFileSystemOpen()
+    {
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Exception\ReadException',
+            "Unable to read from '/path/to/foo' (fopen(/path/to/foo): failed to open stream: No such file or directory)."
+        );
+        $this->factory->createFromFileByIndex('/path/to/foo', 0);
+    }
+
+    public function testCreateFromFileByPosition()
+    {
+        $position = new ParserPosition(24, 111);
+        $actual = $this->factory->createFromFileByPosition(FileSystemPath::fromString($this->fixturePath), $position);
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFileByPositionWithString()
+    {
+        $position = new ParserPosition(24, 111);
+        $actual = $this->factory->createFromFileByPosition($this->fixturePath, $position);
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFileByPositionSecondaryNamespace()
+    {
+        $position = new ParserPosition(44, 1);
+        $actual = $this->factory->createFromFileByPosition(FileSystemPath::fromString($this->fixturePath), $position);
+        $expected = <<<'EOD'
+namespace NamespaceC;
+
+use NamespaceF\NamespaceG\SymbolE as SymbolF;
+use SymbolG as SymbolH;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFileByPositionBeforeFirst()
+    {
+        $position = new ParserPosition(1, 1);
+        $actual = $this->factory->createFromFileByPosition(FileSystemPath::fromString($this->fixturePath), $position);
+        $expected = '';
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFileByPositionAfterLast()
+    {
+        $position = new ParserPosition(1111, 2222);
+        $actual = $this->factory->createFromFileByPosition(FileSystemPath::fromString($this->fixturePath), $position);
+        $expected = <<<'EOD'
+use NamespaceH\NamespaceI\SymbolI as SymbolJ;
+use SymbolK as SymbolL;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testCreateFromFileByPositionFailureFileSystemOpen()
+    {
+        $position = new ParserPosition(1111, 2222);
+
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Exception\ReadException',
+            "Unable to read from '/path/to/foo' (fopen(/path/to/foo): failed to open stream: No such file or directory)."
+        );
+        $this->factory->createFromFileByPosition('/path/to/foo', $position);
     }
 
     public function testInstance()

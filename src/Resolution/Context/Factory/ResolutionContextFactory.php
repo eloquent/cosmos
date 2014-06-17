@@ -13,6 +13,7 @@ namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
 use Eloquent\Cosmos\Exception\ReadException;
 use Eloquent\Cosmos\Exception\UndefinedSymbolException;
+use Eloquent\Cosmos\Resolution\Context\Factory\Exception\UndefinedResolutionContextException;
 use Eloquent\Cosmos\Resolution\Context\Parser\ParsedSymbolInterface;
 use Eloquent\Cosmos\Resolution\Context\Parser\ParserPositionInterface;
 use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
@@ -405,6 +406,10 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
             $context = $parsedContext->context();
         }
 
+        if (null === $context) {
+            $context = $this->create();
+        }
+
         return $context;
     }
 
@@ -427,7 +432,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
             // re-throw after cleanup
         }
 
-        $this->isolator()->fclose($stream);
+        @$this->isolator()->fclose($stream);
 
         if ($error) {
             throw $error;
@@ -438,7 +443,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
 
     private function readStream($stream, $path = null)
     {
-        $source = @stream_get_contents($stream);
+        $source = @$this->isolator()->stream_get_contents($stream);
         if (false === $source) {
             $lastError = $this->isolator()->error_get_last();
             if (is_string($path)) {
@@ -464,7 +469,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
             return false;
         }
 
-        return $left->column() >= $right->column();
+        return $left->column() > $right->column();
     }
 
     /**

@@ -18,8 +18,6 @@ use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Phake;
 use PHPUnit_Framework_TestCase;
-use ReflectionClass;
-use ReflectionFunction;
 
 class ResolutionContextTest extends PHPUnit_Framework_TestCase
 {
@@ -77,93 +75,6 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
         );
         $this->assertNull($this->context->symbolByFirstAtom($this->symbolFactory->create('Classname')));
         $this->assertNull($this->context->symbolByFirstAtom($this->symbolFactory->create('FooClass')));
-    }
-
-    public function testFromObject()
-    {
-        $actual = ResolutionContext::fromObject($this);
-        $expected = <<<'EOD'
-namespace Eloquent\Cosmos\Resolution\Context;
-
-use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
-use Eloquent\Cosmos\Symbol\QualifiedSymbol;
-use Eloquent\Cosmos\Symbol\Symbol;
-use Eloquent\Cosmos\UseStatement\UseStatement;
-use Phake;
-use PHPUnit_Framework_TestCase;
-use ReflectionClass;
-use ReflectionFunction;
-
-EOD;
-
-        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
-    }
-
-    public function testFromSymbol()
-    {
-        $actual = ResolutionContext::fromSymbol(Symbol::fromRuntimeString(__CLASS__));
-        $expected = <<<'EOD'
-namespace Eloquent\Cosmos\Resolution\Context;
-
-use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
-use Eloquent\Cosmos\Symbol\QualifiedSymbol;
-use Eloquent\Cosmos\Symbol\Symbol;
-use Eloquent\Cosmos\UseStatement\UseStatement;
-use Phake;
-use PHPUnit_Framework_TestCase;
-use ReflectionClass;
-use ReflectionFunction;
-
-EOD;
-
-        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
-    }
-
-    public function testFromFunctionSymbol()
-    {
-        $actual = ResolutionContext::fromFunctionSymbol(Symbol::fromString('\FunctionA'));
-        $expected = <<<'EOD'
-use NamespaceA\ClassA;
-use NamespaceB\ClassB as ClassC;
-
-EOD;
-
-        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
-    }
-
-    public function testFromClass()
-    {
-        $actual = ResolutionContext::fromClass(new ReflectionClass(__CLASS__));
-        $expected = <<<'EOD'
-namespace Eloquent\Cosmos\Resolution\Context;
-
-use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
-use Eloquent\Cosmos\Symbol\QualifiedSymbol;
-use Eloquent\Cosmos\Symbol\Symbol;
-use Eloquent\Cosmos\UseStatement\UseStatement;
-use Phake;
-use PHPUnit_Framework_TestCase;
-use ReflectionClass;
-use ReflectionFunction;
-
-EOD;
-
-        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
-    }
-
-    public function testFromFunction()
-    {
-        $actual = ResolutionContext::fromFunction(new ReflectionFunction('FunctionA'));
-        $expected = <<<'EOD'
-use NamespaceA\ClassA;
-use NamespaceB\ClassB as ClassC;
-
-EOD;
-
-        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
     public function testAccept()
