@@ -17,7 +17,7 @@ use Eloquent\Cosmos\Symbol\SymbolType;
 /**
  * The interface implemented by parsed symbols.
  */
-interface ParsedSymbolInterface
+interface ParsedSymbolInterface extends ParsedElementInterface
 {
     /**
      * Get the symbol.

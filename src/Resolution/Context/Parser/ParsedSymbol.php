@@ -17,21 +17,28 @@ use Eloquent\Cosmos\Symbol\SymbolType;
 /**
  * Represents a parsed symbol and its symbol type.
  */
-class ParsedSymbol implements ParsedSymbolInterface
+class ParsedSymbol extends AbstractParsedElement implements
+    ParsedSymbolInterface
 {
     /**
      * Construct a new parsed symbol.
      *
-     * @param QualifiedSymbolInterface $symbol The symbol.
-     * @param SymbolType|null          $type   The symbol type.
+     * @param QualifiedSymbolInterface $symbol       The symbol.
+     * @param SymbolType|null          $type         The symbol type.
+     * @param integer|null             $lineNumber   The line number.
+     * @param integer|null             $columnNumber The column number.
      */
     public function __construct(
         QualifiedSymbolInterface $symbol,
-        SymbolType $type = null
+        SymbolType $type = null,
+        $lineNumber = null,
+        $columnNumber = null
     ) {
         if (null === $type) {
             $type = SymbolType::CLA55();
         }
+
+        parent::__construct($lineNumber, $columnNumber);
 
         $this->symbol = $symbol;
         $this->type = $type;

@@ -15,6 +15,10 @@ use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\Symbol\SymbolType;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers \Eloquent\Cosmos\Resolution\Context\Parser\ParsedSymbol
+ * @covers \Eloquent\Cosmos\Resolution\Context\Parser\AbstractParsedElement
+ */
 class ParsedSymbolTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
@@ -22,13 +26,15 @@ class ParsedSymbolTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->symbol = Symbol::fromString('\Foo');
-        $this->parsedSymbol = new ParsedSymbol($this->symbol, SymbolType::CONSTANT());
+        $this->parsedSymbol = new ParsedSymbol($this->symbol, SymbolType::CONSTANT(), 111, 222);
     }
 
     public function testConstructor()
     {
         $this->assertSame($this->symbol, $this->parsedSymbol->symbol());
         $this->assertSame(SymbolType::CONSTANT(), $this->parsedSymbol->type());
+        $this->assertSame(111, $this->parsedSymbol->lineNumber());
+        $this->assertSame(222, $this->parsedSymbol->columnNumber());
     }
 
     public function testConstructorDefaults()
@@ -36,5 +42,7 @@ class ParsedSymbolTest extends PHPUnit_Framework_TestCase
         $this->parsedSymbol = new ParsedSymbol($this->symbol);
 
         $this->assertSame(SymbolType::CLA55(), $this->parsedSymbol->type());
+        $this->assertSame(0, $this->parsedSymbol->lineNumber());
+        $this->assertSame(0, $this->parsedSymbol->columnNumber());
     }
 }

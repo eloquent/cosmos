@@ -13,20 +13,26 @@ namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+
 /**
  * Represents a parsed resolution context and its related symbols.
  */
-class ParsedResolutionContext implements ParsedResolutionContextInterface
+class ParsedResolutionContext extends AbstractParsedElement implements
+    ParsedResolutionContextInterface
 {
     /**
      * Construct a new parsed resolution context.
      *
-     * @param ResolutionContextInterface|null   $context The resolution context.
-     * @param array<ParsedSymbolInterface>|null $symbols The symbols defined under the parsed resolution context.
+     * @param ResolutionContextInterface|null   $context      The resolution context.
+     * @param array<ParsedSymbolInterface>|null $symbols      The symbols defined under the parsed resolution context.
+     * @param integer|null                      $lineNumber   The line number.
+     * @param integer|null                      $columnNumber The column number.
      */
     public function __construct(
         ResolutionContextInterface $context = null,
-        array $symbols = null
+        array $symbols = null,
+        $lineNumber = null,
+        $columnNumber = null
     ) {
         if (null === $context) {
             $context = new ResolutionContext;
@@ -34,6 +40,8 @@ class ParsedResolutionContext implements ParsedResolutionContextInterface
         if (null === $symbols) {
             $symbols = array();
         }
+
+        parent::__construct($lineNumber, $columnNumber);
 
         $this->context = $context;
         $this->symbols = $symbols;
