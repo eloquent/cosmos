@@ -11,34 +11,33 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Factory\Exception;
 
-use Eloquent\Cosmos\Symbol\SymbolInterface;
 use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use Exception;
 
 /**
- * The source code could not be read from the file system.
+ * The requested resolution context is undefined.
  */
-final class SourceCodeReadException extends Exception
+final class UndefinedResolutionContextException extends Exception
 {
     /**
-     * Construct a new source code read exception.
+     * Construct a new undefined resolution context exception.
      *
-     * @param SymbolInterface         $symbol The symbol.
-     * @param FileSystemPathInterface $path   The path.
-     * @param Exception|null          $cause  The cause, if available.
+     * @param FileSystemPathInterface $path  The path.
+     * @param integer                 $index The specified index.
+     * @param Exception|null          $cause The cause, if available.
      */
     public function __construct(
-        SymbolInterface $symbol,
         FileSystemPathInterface $path,
+        $index,
         Exception $cause = null
     ) {
-        $this->symbol = $symbol;
+        $this->index = $index;
         $this->path = $path;
 
         parent::__construct(
             sprintf(
-                'Unable to read the source code for symbol %s from %s.',
-                var_export($symbol->string(), true),
+                'No resolution context defined at index %s in file %s.',
+                var_export($index, true),
                 var_export($path->string(), true)
             ),
             0,
@@ -47,13 +46,13 @@ final class SourceCodeReadException extends Exception
     }
 
     /**
-     * Get the symbol.
+     * Get the specified index.
      *
-     * @return SymbolInterface The symbol.
+     * @return interger The index.
      */
-    public function symbol()
+    public function index()
     {
-        return $this->symbol;
+        return $this->index;
     }
 
     /**
@@ -66,6 +65,6 @@ final class SourceCodeReadException extends Exception
         return $this->path;
     }
 
-    private $symbol;
+    private $index;
     private $path;
 }

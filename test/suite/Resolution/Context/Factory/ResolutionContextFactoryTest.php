@@ -229,7 +229,7 @@ EOD;
         $class = Phake::mock('ReflectionClass');
         Phake::when($class)->getFileName()->thenReturn('/path/to/foo');
 
-        $this->setExpectedException('Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException');
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
         $this->factory->createFromClass($class);
     }
 
@@ -239,7 +239,7 @@ EOD;
         Phake::when($class)->getName()->thenReturn('Foo');
         Phake::when($class)->getFileName()->thenReturn(__FILE__);
 
-        $this->setExpectedException('Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException');
+        $this->setExpectedException('Eloquent\Cosmos\Exception\UndefinedSymbolException');
         $this->factory->createFromClass($class);
     }
 
@@ -282,7 +282,7 @@ EOD;
         $function = Phake::mock('ReflectionFunction');
         Phake::when($function)->getFileName()->thenReturn('/path/to/foo');
 
-        $this->setExpectedException('Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException');
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
         $this->factory->createFromFunction($function);
     }
 
@@ -292,7 +292,7 @@ EOD;
         Phake::when($function)->getName()->thenReturn('Foo');
         Phake::when($function)->getFileName()->thenReturn(__FILE__);
 
-        $this->setExpectedException('Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException');
+        $this->setExpectedException('Eloquent\Cosmos\Exception\UndefinedSymbolException');
         $this->factory->createFromFunction($function);
     }
 

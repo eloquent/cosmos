@@ -11,8 +11,10 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Factory;
 
+use Eloquent\Cosmos\Exception\ReadException;
 use Eloquent\Cosmos\Exception\UndefinedSymbolException;
-use Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException;
+use Eloquent\Cosmos\Resolution\Context\Parser\ParsedSymbolInterface;
+use Eloquent\Cosmos\Resolution\Context\Parser\ParserPositionInterface;
 use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParserInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
@@ -103,7 +105,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
     }
 
     /**
-     * Construct a new symbol resolution context.
+     * Create a new symbol resolution context.
      *
      * @param QualifiedSymbolInterface|null     $primaryNamespace The namespace.
      * @param array<UseStatementInterface>|null $useStatements    The use statements.
@@ -122,13 +124,12 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
     }
 
     /**
-     * Construct a new symbol resolution context by inspecting the source code
-     * of the supplied object's class.
+     * Create a new symbol resolution context for the supplied object.
      *
      * @param object $object The object.
      *
      * @return ResolutionContextInterface The newly created resolution context.
-     * @throws SourceCodeReadException    If the source code cannot be read.
+     * @throws ReadException              If the source code cannot be read.
      */
     public function createFromObject($object)
     {
@@ -136,14 +137,14 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
     }
 
     /**
-     * Construct a new symbol resolution context by inspecting the source code
-     * of the supplied class, interface, or trait symbol.
+     * Create a new symbol resolution context for the supplied class, interface,
+     * or trait symbol.
      *
      * @param SymbolInterface|string $symbol The symbol.
      *
      * @return ResolutionContextInterface The newly created resolution context.
-     * @throws UndefinedSymbolException   If the symbol does not exist.
-     * @throws SourceCodeReadException    If the source code cannot be read.
+     * @throws ReadException              If the source code cannot be read.
+     * @throws UndefinedSymbolException   If the symbol does not exist, or cannot be found in the source code.
      */
     public function createFromSymbol($symbol)
     {
@@ -165,14 +166,13 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
     }
 
     /**
-     * Construct a new symbol resolution context by inspecting the source code
-     * of the supplied function symbol.
+     * Create a new symbol resolution context for the supplied function symbol.
      *
      * @param SymbolInterface|string $symbol The symbol.
      *
      * @return ResolutionContextInterface The newly created resolution context.
-     * @throws UndefinedSymbolException   If the symbol does not exist.
-     * @throws SourceCodeReadException    If the source code cannot be read.
+     * @throws ReadException              If the source code cannot be read.
+     * @throws UndefinedSymbolException   If the symbol does not exist, or cannot be found in the source code.
      */
     public function createFromFunctionSymbol($symbol)
     {
@@ -194,61 +194,179 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
     }
 
     /**
-     * Construct a new symbol resolution context by inspecting the source code
-     * of the supplied class or object reflector.
+     * Create a new symbol resolution context for the supplied class or object
+     * reflector.
      *
      * @param ReflectionClass $class The class or object reflector.
      *
      * @return ResolutionContextInterface The newly created resolution context.
-     * @throws SourceCodeReadException    If the source code cannot be read.
+     * @throws ReadException              If the source code cannot be read.
+     * @throws UndefinedSymbolException   If the symbol cannot be found in the source code.
      */
     public function createFromClass(ReflectionClass $class)
     {
-        return $this->findContext(
-            $class->getFileName(),
-            $class->getName(),
-            function (SymbolType $type) {
-                return $type->isType();
+        if (false === $class->getFileName()) {
+            return $this->create();
+        }
+
+        $symbol = '\\' . $class->getName();
+
+        $context = $this->findBySymbolPredicate(
+            $this->readFile($class->getFileName()),
+            function (ParsedSymbolInterface $parsedSymbol) use ($symbol) {
+                return $parsedSymbol->symbol()->string() === $symbol &&
+                    $parsedSymbol->type()->isType();
             }
         );
+
+        if (null === $context) {
+            throw new UndefinedSymbolException(
+                $this->symbolFactory()->create($symbol),
+                SymbolType::CLA55()
+            );
+        }
+
+        return $context;
     }
 
     /**
-     * Construct a new symbol resolution context by inspecting the source code
-     * of the supplied function reflector.
+     * Create a new symbol resolution context for the supplied function
+     * reflector.
      *
      * @param ReflectionFunction $function The function reflector.
      *
      * @return ResolutionContextInterface The newly created resolution context.
-     * @throws SourceCodeReadException    If the source code cannot be read.
+     * @throws ReadException              If the source code cannot be read.
+     * @throws UndefinedSymbolException   If the symbol cannot be found in the source code.
      */
     public function createFromFunction(ReflectionFunction $function)
     {
-        return $this->findContext(
-            $function->getFileName(),
-            $function->getName(),
-            function (SymbolType $type) {
-                return SymbolType::FUNCT1ON() === $type;
-            }
-        );
-    }
-
-    private function findContext($path, $symbol, $typeTest)
-    {
-        if (false === $path) {
+        if (false === $function->getFileName()) {
             return $this->create();
         }
 
-        $symbol = '\\' . $symbol;
-        $parsedContexts = $this->parseContexts($path, $symbol);
+        $symbol = '\\' . $function->getName();
+
+        $context = $this->findBySymbolPredicate(
+            $this->readFile($function->getFileName()),
+            function (ParsedSymbolInterface $parsedSymbol) use ($symbol) {
+                return $parsedSymbol->symbol()->string() === $symbol &&
+                    SymbolType::FUNCT1ON() === $parsedSymbol->type();
+            }
+        );
+
+        if (null === $context) {
+            throw new UndefinedSymbolException(
+                $this->symbolFactory()->create($symbol),
+                SymbolType::FUNCT1ON()
+            );
+        }
+
+        return $context;
+    }
+
+    /**
+     * Create the first context found in a file.
+     *
+     * @param FileSystemPathInterface|string $path The path.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws ReadException              If the source code cannot be read.
+     */
+    public function createFromFile($path)
+    {
+        return $this->createFromFileByIndex($path, 0, $path);
+    }
+
+    /**
+     * Create the context found at the specified index in a file.
+     *
+     * @param FileSystemPathInterface|string $path  The path.
+     * @param integer                        $index The index.
+     *
+     * @return ResolutionContextInterface          The newly created resolution context.
+     * @throws ReadException                       If the source code cannot be read.
+     * @throws UndefinedResolutionContextException If there is no resolution context at the specified index.
+     */
+    public function createFromFileByIndex($path, $index)
+    {
+        return $this->findByIndex($this->readFile($path), $index, $path);
+    }
+
+    /**
+     * Create the context found at the specified position in a file.
+     *
+     * @param FileSystemPathInterface|string $path     The path.
+     * @param ParserPositionInterface        $position The position.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws ReadException              If the source code cannot be read.
+     */
+    public function createFromFileByPosition(
+        $path,
+        ParserPositionInterface $position
+    ) {
+        return $this->findByPosition($this->readFile($path), $position);
+    }
+
+    /**
+     * Create the first context found in a stream.
+     *
+     * @param stream                              $stream The stream.
+     * @param FileSystemPathInterface|string|null $path   The path, if known.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws ReadException              If the source code cannot be read.
+     */
+    public function createFromStream($stream, $path = null)
+    {
+        return $this->createFromStreamByIndex($stream, 0, $path);
+    }
+
+    /**
+     * Create the context found at the specified index in a stream.
+     *
+     * @param stream                              $stream The stream.
+     * @param integer                             $index  The index.
+     * @param FileSystemPathInterface|string|null $path   The path, if known.
+     *
+     * @return ResolutionContextInterface          The newly created resolution context.
+     * @throws ReadException                       If the source code cannot be read.
+     * @throws UndefinedResolutionContextException If there is no resolution context at the specified index.
+     */
+    public function createFromStreamByIndex($stream, $index, $path = null)
+    {
+        return $this
+            ->findByIndex($this->readStream($stream, $path), $index, $path);
+    }
+
+    /**
+     * Create the context found at the specified position in a stream.
+     *
+     * @param stream                              $stream   The stream.
+     * @param ParserPositionInterface             $position The position.
+     * @param FileSystemPathInterface|string|null $path     The path, if known.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws ReadException              If the source code cannot be read.
+     */
+    public function createFromStreamByPosition(
+        $stream,
+        ParserPositionInterface $position,
+        $path = null
+    ) {
+        return $this
+            ->findByPosition($this->readStream($stream, $path), $position);
+    }
+
+    private function findBySymbolPredicate($source, $predicate)
+    {
+        $contexts = $this->contextParser()->parseSource($source);
 
         $context = null;
-        foreach ($parsedContexts as $parsedContext) {
+        foreach ($contexts as $parsedContext) {
             foreach ($parsedContext->symbols() as $parsedSymbol) {
-                if (
-                    $typeTest($parsedSymbol->type()) &&
-                    $parsedSymbol->symbol()->string() === $symbol
-                ) {
+                if ($predicate($parsedSymbol)) {
                     $context = $parsedContext->context();
 
                     break 2;
@@ -256,27 +374,97 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
             }
         }
 
-        if (null === $context) {
-            throw new SourceCodeReadException(
-                $this->symbolFactory()->create($symbol),
-                FileSystemPath::fromString($path)
-            );
+        return $context;
+    }
+
+    private function findByIndex($source, $index, $path = null)
+    {
+        $contexts = $this->contextParser()->parseSource($source);
+
+        if (!array_key_exists($index, $contexts)) {
+            if (is_string($path)) {
+                $path = FileSystemPath::fromString($path);
+            }
+
+            throw new UndefinedResolutionContextException($path, $index);
+        }
+
+        return $contexts[$index]->context();
+    }
+
+    private function findByPosition($source, ParserPositionInterface $position)
+    {
+        $contexts = $this->contextParser()->parseSource($source);
+
+        $context = null;
+        foreach ($contexts as $parsedContext) {
+            if ($this->positionIsAfter($parsedContext->position(), $position)) {
+                break;
+            }
+
+            $context = $parsedContext->context();
         }
 
         return $context;
     }
 
-    private function parseContexts($path, $symbol)
+    private function readFile($path)
     {
-        $source = @$this->isolator()->file_get_contents($path);
-        if (false === $source) {
-            throw new SourceCodeReadException(
-                $this->symbolFactory()->create($symbol),
-                FileSystemPath::fromString($path)
-            );
+        $stream = @$this->isolator()->fopen($path, 'rb');
+        if (false === $stream) {
+            $lastError = $this->isolator()->error_get_last();
+            if (is_string($path)) {
+                $path = FileSystemPath::fromString($path);
+            }
+
+            throw new ReadException($lastError['message'], $path);
         }
 
-        return $this->contextParser()->parseSource($source);
+        $error = null;
+        try {
+            $source = $this->readStream($stream, $path);
+        } catch (ReadException $error) {
+            // re-throw after cleanup
+        }
+
+        $this->isolator()->fclose($stream);
+
+        if ($error) {
+            throw $error;
+        }
+
+        return $source;
+    }
+
+    private function readStream($stream, $path = null)
+    {
+        $source = @stream_get_contents($stream);
+        if (false === $source) {
+            $lastError = $this->isolator()->error_get_last();
+            if (is_string($path)) {
+                $path = FileSystemPath::fromString($path);
+            }
+
+            throw new ReadException($lastError['message'], $path);
+        }
+
+        return $source;
+    }
+
+    private function positionIsAfter(
+        ParserPositionInterface $left,
+        ParserPositionInterface $right
+    ) {
+        $lineCompare = $left->line() - $right->line();
+
+        if ($lineCompare > 0) {
+            return true;
+        }
+        if ($lineCompare < 0) {
+            return false;
+        }
+
+        return $left->column() >= $right->column();
     }
 
     /**
