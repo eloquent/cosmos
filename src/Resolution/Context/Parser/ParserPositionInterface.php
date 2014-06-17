@@ -12,14 +12,21 @@
 namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 /**
- * The interface implemented by parsed elements.
+ * The interface implemented by parser positions.
  */
-interface ParsedElementInterface
+interface ParserPositionInterface
 {
     /**
-     * Get the position.
+     * Get the line number.
      *
-     * @return ParserPositionInterface The position.
+     * @return integer the line number.
      */
-    public function position();
+    public function line();
+
+    /**
+     * Get the column number.
+     *
+     * @return integer the column number.
+     */
+    public function column();
 }

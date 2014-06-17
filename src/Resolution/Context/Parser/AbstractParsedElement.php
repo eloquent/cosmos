@@ -19,42 +19,26 @@ abstract class AbstractParsedElement implements ParsedElementInterface
     /**
      * Construct a new parsed element.
      *
-     * @param integer|null $lineNumber   The line number.
-     * @param integer|null $columnNumber The column number.
+     * @param ParserPositionInterface|null $position The position.
      */
-    public function __construct($lineNumber = null, $columnNumber = null)
+    public function __construct($position = null)
     {
-        if (null === $lineNumber) {
-            $lineNumber = 0;
-        }
-        if (null === $columnNumber) {
-            $columnNumber = 0;
+        if (null === $position) {
+            $position = new ParserPosition(0, 0);
         }
 
-        $this->lineNumber = $lineNumber;
-        $this->columnNumber = $columnNumber;
+        $this->position = $position;
     }
 
     /**
-     * Get the line number.
+     * Get the position.
      *
-     * @return integer The line number.
+     * @return ParserPositionInterface The position.
      */
-    public function lineNumber()
+    public function position()
     {
-        return $this->lineNumber;
+        return $this->position;
     }
 
-    /**
-     * Get the column number.
-     *
-     * @return integer The column number.
-     */
-    public function columnNumber()
-    {
-        return $this->columnNumber;
-    }
-
-    private $lineNumber;
-    private $columnNumber;
+    private $position;
 }

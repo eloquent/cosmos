@@ -948,8 +948,8 @@ EOD;
     {
         $rendered = sprintf(
             "Context at position (%d, %d):\n",
-            $context->lineNumber(),
-            $context->columnNumber()
+            $context->position()->line(),
+            $context->position()->column()
         );
 
         if (

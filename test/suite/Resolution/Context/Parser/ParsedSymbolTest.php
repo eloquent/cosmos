@@ -26,15 +26,15 @@ class ParsedSymbolTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->symbol = Symbol::fromString('\Foo');
-        $this->parsedSymbol = new ParsedSymbol($this->symbol, SymbolType::CONSTANT(), 111, 222);
+        $this->position = new ParserPosition(111, 222);
+        $this->parsedSymbol = new ParsedSymbol($this->symbol, SymbolType::CONSTANT(), $this->position);
     }
 
     public function testConstructor()
     {
         $this->assertSame($this->symbol, $this->parsedSymbol->symbol());
         $this->assertSame(SymbolType::CONSTANT(), $this->parsedSymbol->type());
-        $this->assertSame(111, $this->parsedSymbol->lineNumber());
-        $this->assertSame(222, $this->parsedSymbol->columnNumber());
+        $this->assertSame($this->position, $this->parsedSymbol->position());
     }
 
     public function testConstructorDefaults()
@@ -42,7 +42,6 @@ class ParsedSymbolTest extends PHPUnit_Framework_TestCase
         $this->parsedSymbol = new ParsedSymbol($this->symbol);
 
         $this->assertSame(SymbolType::CLA55(), $this->parsedSymbol->type());
-        $this->assertSame(0, $this->parsedSymbol->lineNumber());
-        $this->assertSame(0, $this->parsedSymbol->columnNumber());
+        $this->assertEquals(new ParserPosition(0, 0), $this->parsedSymbol->position());
     }
 }

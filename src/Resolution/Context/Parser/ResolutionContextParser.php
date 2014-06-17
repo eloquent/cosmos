@@ -192,7 +192,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         $stateStack = $atoms = $useStatements = $symbols = array();
         $transition = $namespaceName = $useStatementAlias = $useStatementType =
             $symbolType = null;
-        $contextPositionStack = array(array(1, 1));
+        $contextPositionStack = array(new ParserPosition(1, 1));
         $symbolBracketDepth = 0;
 
         foreach ($tokens as $index => $token) {
@@ -204,7 +204,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $state = static::STATE_POTENTIAL_NAMESPACE_NAME;
                             array_push(
                                 $contextPositionStack,
-                                array($token[2], $token[3])
+                                new ParserPosition($token[2], $token[3])
                             );
 
                             break;
@@ -469,8 +469,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         $nextContextPosition = array_pop($contextPositionStack);
                     }
 
-                    list($contextLineNumber, $contextColumnNumber) =
-                        array_pop($contextPositionStack);
+                    $contextPosition = array_pop($contextPositionStack);
 
                     if ($isContextPositionStacked) {
                         array_push($contextPositionStack, $nextContextPosition);
@@ -479,8 +478,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                     $contexts[] = new ParsedResolutionContext(
                         $context,
                         $symbols,
-                        $contextLineNumber,
-                        $contextColumnNumber
+                        $contextPosition
                     );
                     $symbols = array();
 
