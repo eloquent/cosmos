@@ -21,14 +21,6 @@ namespace NamespaceA\NamespaceB
     {
     }
 
-    trait TraitA
-    {
-    }
-
-    trait TraitB
-    {
-    }
-
     function FunctionA()
     {
     }
@@ -54,10 +46,6 @@ namespace NamespaceC
     {
     }
 
-    trait TraitC
-    {
-    }
-
     function FunctionC()
     {
     }
@@ -75,10 +63,6 @@ namespace
     }
 
     class ClassD
-    {
-    }
-
-    trait TraitD
     {
     }
 
