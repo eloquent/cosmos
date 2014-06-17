@@ -36,12 +36,12 @@ final class ReadException extends Exception
 
         if (null === $path) {
             $message = sprintf(
-                'Unable to read from stream (%s).',
+                'Unable to read from stream: %s.',
                 $reason
             );
         } else {
             $message = sprintf(
-                'Unable to read from %s (%s).',
+                'Unable to read from %s: %s.',
                 var_export($path->string(), true),
                 $reason
             );

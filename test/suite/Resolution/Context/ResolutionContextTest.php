@@ -11,13 +11,18 @@
 
 namespace Eloquent\Cosmos\Resolution\Context;
 
+use Eloquent\Cosmos\Resolution\Context\Parser\ParserPosition;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\QualifiedSymbol;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Pathogen\FileSystem\FileSystemPath;
+use NamespaceA\NamespaceB\ClassA;
 use Phake;
 use PHPUnit_Framework_TestCase;
+use ReflectionClass;
+use ReflectionFunction;
 
 class ResolutionContextTest extends PHPUnit_Framework_TestCase
 {
@@ -34,6 +39,18 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->symbolFactory);
 
         $this->contextRenderer = ResolutionContextRenderer::instance();
+
+        $this->fixturePath = dirname(dirname(dirname(__DIR__))) . '/src/contexts.php';
+        $this->fixtureStream = fopen($this->fixturePath, 'rb');
+
+        require_once $this->fixturePath;
+    }
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+
+        fclose($this->fixtureStream);
     }
 
     public function testConstructor()
@@ -48,6 +65,154 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(new QualifiedSymbol(array()), $this->context->primaryNamespace());
         $this->assertSame(array(), $this->context->useStatements());
+    }
+
+    public function testFromObject()
+    {
+        $actual = ResolutionContext::fromObject(new ClassA);
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromSymbol()
+    {
+        $actual = ResolutionContext::fromSymbol(Symbol::fromString('\NamespaceA\NamespaceB\ClassA'));
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromFunctionSymbol()
+    {
+        $actual = ResolutionContext::fromFunctionSymbol(Symbol::fromString('\FunctionD'));
+        $expected = <<<'EOD'
+use NamespaceH\NamespaceI\SymbolI as SymbolJ;
+use SymbolK as SymbolL;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromClass()
+    {
+        $actual = ResolutionContext::fromClass(new ReflectionClass('NamespaceA\NamespaceB\ClassA'));
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromFunction()
+    {
+        $actual = ResolutionContext::fromFunction(new ReflectionFunction('FunctionD'));
+        $expected = <<<'EOD'
+use NamespaceH\NamespaceI\SymbolI as SymbolJ;
+use SymbolK as SymbolL;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromFile()
+    {
+        $actual = ResolutionContext::fromFile(FileSystemPath::fromString($this->fixturePath));
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromFileByIndex()
+    {
+        $actual = ResolutionContext::fromFileByIndex(FileSystemPath::fromString($this->fixturePath), 2);
+        $expected = <<<'EOD'
+use NamespaceH\NamespaceI\SymbolI as SymbolJ;
+use SymbolK as SymbolL;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromFileByPosition()
+    {
+        $position = new ParserPosition(24, 111);
+        $actual = ResolutionContext::fromFileByPosition(FileSystemPath::fromString($this->fixturePath), $position);
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromStream()
+    {
+        $actual = ResolutionContext::fromStream($this->fixtureStream);
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromStreamByIndex()
+    {
+        $actual = ResolutionContext::fromStreamByIndex($this->fixtureStream, 2);
+        $expected = <<<'EOD'
+use NamespaceH\NamespaceI\SymbolI as SymbolJ;
+use SymbolK as SymbolL;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
+    }
+
+    public function testFromStreamByPosition()
+    {
+        $position = new ParserPosition(24, 111);
+        $actual = ResolutionContext::fromStreamByPosition($this->fixtureStream, $position);
+        $expected = <<<'EOD'
+namespace NamespaceA\NamespaceB;
+
+use NamespaceD\NamespaceE\SymbolA as SymbolB;
+use SymbolC as SymbolD;
+
+EOD;
+
+        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
     }
 
     public function testSymbolByFirstAtom()

@@ -253,7 +253,7 @@ EOD;
 
         $this->setExpectedException(
             'Eloquent\Cosmos\Exception\ReadException',
-            "Unable to read from '/path/to/foo' (fopen(/path/to/foo): failed to open stream: No such file or directory)."
+            "Unable to read from '/path/to/foo': fopen(/path/to/foo): failed to open stream: No such file or directory."
         );
         $this->factory->createFromClass($class);
     }
@@ -309,7 +309,7 @@ EOD;
 
         $this->setExpectedException(
             'Eloquent\Cosmos\Exception\ReadException',
-            "Unable to read from '/path/to/foo' (fopen(/path/to/foo): failed to open stream: No such file or directory)."
+            "Unable to read from '/path/to/foo': fopen(/path/to/foo): failed to open stream: No such file or directory."
         );
         $this->factory->createFromFunction($function);
     }
@@ -356,7 +356,7 @@ EOD;
     {
         $this->setExpectedException(
             'Eloquent\Cosmos\Exception\ReadException',
-            "Unable to read from '/path/to/foo' (fopen(/path/to/foo): failed to open stream: No such file or directory)."
+            "Unable to read from '/path/to/foo': fopen(/path/to/foo): failed to open stream: No such file or directory."
         );
         $this->factory->createFromFile('/path/to/foo');
     }
@@ -398,7 +398,7 @@ EOD;
     {
         $this->setExpectedException(
             'Eloquent\Cosmos\Exception\ReadException',
-            "Unable to read from '/path/to/foo' (fopen(/path/to/foo): failed to open stream: No such file or directory)."
+            "Unable to read from '/path/to/foo': fopen(/path/to/foo): failed to open stream: No such file or directory."
         );
         $this->factory->createFromFileByIndex('/path/to/foo', 0);
     }
@@ -476,7 +476,7 @@ EOD;
 
         $this->setExpectedException(
             'Eloquent\Cosmos\Exception\ReadException',
-            "Unable to read from '/path/to/foo' (fopen(/path/to/foo): failed to open stream: No such file or directory)."
+            "Unable to read from '/path/to/foo': fopen(/path/to/foo): failed to open stream: No such file or directory."
         );
         $this->factory->createFromFileByPosition('/path/to/foo', $position);
     }
