@@ -12,7 +12,6 @@
 namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
-use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\SymbolResolver;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\Normalizer\SymbolNormalizer;
@@ -46,8 +45,6 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
             $this->tokenNormalizer,
             $this->isolator
         );
-
-        $this->contextRenderer = ResolutionContextRenderer::instance();
     }
 
     public function testConstructor()
@@ -178,11 +175,11 @@ EOD;
 
 namespace NamespaceA\NamespaceB;
 
-use ClassF;
-use ClassG as ClassH;
-use NamespaceD\ClassI;
-use NamespaceE\ClassJ as ClassK;
-use NamespaceF\NamespaceG\ClassL;
+use ClassF; // at position (7, 5)
+use ClassG as ClassH; // at position (9, 5)
+use NamespaceD\ClassI; // at position (11, 5)
+use NamespaceE\ClassJ as ClassK; // at position (13, 5)
+use NamespaceF\NamespaceG\ClassL; // at position (15, 5)
 
 interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 5)
 interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 5)
@@ -199,8 +196,8 @@ const \NamespaceA\NamespaceB\CONSTANT_B; // at position (71, 5)
 
 namespace NamespaceC;
 
-use ClassM;
-use ClassN;
+use ClassM; // at position (77, 5)
+use ClassN; // at position (79, 5)
 
 class \NamespaceC\ClassE; // at position (81, 5)
 interface \NamespaceC\InterfaceD; // at position (85, 5)
@@ -335,11 +332,11 @@ EOD;
 
 namespace NamespaceA\NamespaceB;
 
-use ClassF;
-use ClassG as ClassH;
-use NamespaceD\ClassI;
-use NamespaceE\ClassJ as ClassK;
-use NamespaceF\NamespaceG\ClassL;
+use ClassF; // at position (7, 9)
+use ClassG as ClassH; // at position (9, 9)
+use NamespaceD\ClassI; // at position (11, 9)
+use NamespaceE\ClassJ as ClassK; // at position (13, 9)
+use NamespaceF\NamespaceG\ClassL; // at position (15, 9)
 
 interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 9)
 interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 9)
@@ -356,16 +353,16 @@ const \NamespaceA\NamespaceB\CONSTANT_B; // at position (71, 9)
 
 namespace NamespaceC;
 
-use ClassM;
-use ClassN;
+use ClassM; // at position (78, 9)
+use ClassN; // at position (80, 9)
 
 class \NamespaceC\ClassE; // at position (82, 9)
 interface \NamespaceC\InterfaceD; // at position (86, 9)
 
 // Context at position (93, 5):
 
-use ClassO;
-use ClassP;
+use ClassO; // at position (95, 9)
+use ClassP; // at position (97, 9)
 
 class \ClassQ; // at position (101, 9)
 interface \InterfaceE; // at position (105, 9)
@@ -442,11 +439,11 @@ EOD;
         $expected = <<<'EOD'
 // Context at position (1, 1):
 
-use ClassF;
-use ClassG as ClassH;
-use NamespaceD\ClassI;
-use NamespaceE\ClassJ as ClassK;
-use NamespaceF\NamespaceG\ClassL;
+use ClassF; // at position (5, 5)
+use ClassG as ClassH; // at position (7, 5)
+use NamespaceD\ClassI; // at position (9, 5)
+use NamespaceE\ClassJ as ClassK; // at position (11, 5)
+use NamespaceF\NamespaceG\ClassL; // at position (13, 5)
 
 interface \InterfaceA; // at position (17, 5)
 interface \InterfaceB; // at position (22, 5)
@@ -641,23 +638,23 @@ EOD;
 
 namespace NamespaceA\NamespaceB;
 
-use ClassF;
-use ClassG as ClassH;
-use NamespaceD\ClassI;
-use NamespaceE\ClassJ as ClassK;
-use NamespaceF\NamespaceG\ClassL;
+use ClassF; // at position (7, 9)
+use ClassG as ClassH; // at position (9, 9)
+use NamespaceD\ClassI; // at position (11, 9)
+use NamespaceE\ClassJ as ClassK; // at position (13, 9)
+use NamespaceF\NamespaceG\ClassL; // at position (15, 9)
 
 // Context at position (20, 5):
 
 namespace NamespaceC;
 
-use ClassM;
-use ClassN;
+use ClassM; // at position (22, 9)
+use ClassN; // at position (24, 9)
 
 // Context at position (27, 5):
 
-use ClassO;
-use ClassP;
+use ClassO; // at position (29, 9)
+use ClassP; // at position (31, 9)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -765,11 +762,11 @@ EOD;
 
 namespace NamespaceA\NamespaceB;
 
-use ClassF;
-use ClassG as ClassH;
-use NamespaceD\ClassI;
-use NamespaceE\ClassJ as ClassK;
-use NamespaceF\NamespaceG\ClassL;
+use ClassF; // at position (7, 5)
+use ClassG as ClassH; // at position (9, 5)
+use NamespaceD\ClassI; // at position (11, 5)
+use NamespaceE\ClassJ as ClassK; // at position (13, 5)
+use NamespaceF\NamespaceG\ClassL; // at position (15, 5)
 
 interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 5)
 interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 5)
@@ -899,19 +896,19 @@ EOD;
         $expected = <<<'EOD'
 // Context at position (1, 1):
 
-use ClassF;
-use ClassG as ClassH;
-use NamespaceD\ClassI;
-use NamespaceE\ClassJ as ClassK;
-use NamespaceF\NamespaceG\ClassL;
-use function FunctionA;
-use function FunctionB as FunctionC;
-use function NamespaceG\FunctionD;
-use function NamespaceH\FunctionE as FunctionF;
-use const CONSTANT_A;
-use const CONSTANT_B as CONSTANT_C;
-use const NamespaceI\CONSTANT_D;
-use const NamespaceJ\CONSTANT_E as CONSTANT_F;
+use ClassF; // at position (3, 5)
+use ClassG as ClassH; // at position (5, 5)
+use NamespaceD\ClassI; // at position (7, 5)
+use NamespaceE\ClassJ as ClassK; // at position (9, 5)
+use NamespaceF\NamespaceG\ClassL; // at position (11, 5)
+use FunctionA; // at position (13, 5)
+use FunctionB as FunctionC; // at position (15, 5)
+use NamespaceG\FunctionD; // at position (17, 5)
+use NamespaceH\FunctionE as FunctionF; // at position (19, 5)
+use CONSTANT_A; // at position (21, 5)
+use CONSTANT_B as CONSTANT_C; // at position (23, 5)
+use NamespaceI\CONSTANT_D; // at position (25, 5)
+use NamespaceJ\CONSTANT_E as CONSTANT_F; // at position (27, 5)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -952,14 +949,32 @@ EOD;
             $context->position()->column()
         );
 
-        if (
-            !$context->primaryNamespace()->isRoot() ||
-            count($context->useStatements()) > 0
-        ) {
+        if (!$context->primaryNamespace()->isRoot()) {
+            $rendered .= sprintf("\nnamespace %s;\n", $context->primaryNamespace()->toRelative()->string());
+        }
+
+        if (count($context->useStatements()) > 0) {
             $rendered .= "\n";
         }
 
-        $rendered .= $this->contextRenderer->renderContext($context);
+        foreach ($context->useStatements() as $useStatement) {
+            if (null === $useStatement->alias()) {
+                $rendered .= sprintf(
+                    "use %s; // at position (%d, %d)\n",
+                    $useStatement->symbol()->toRelative()->string(),
+                    $useStatement->position()->line(),
+                    $useStatement->position()->column()
+                );
+            } else {
+                $rendered .= sprintf(
+                    "use %s as %s; // at position (%d, %d)\n",
+                    $useStatement->symbol()->toRelative()->string(),
+                    $useStatement->alias()->string(),
+                    $useStatement->position()->line(),
+                    $useStatement->position()->column()
+                );
+            }
+        }
 
         if (count($context->symbols()) > 0) {
             $rendered .= "\n";

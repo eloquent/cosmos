@@ -192,7 +192,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         $state = static::STATE_START;
         $stateStack = $atoms = $useStatements = $symbols = array();
         $transition = $namespaceName = $useStatementAlias = $useStatementType =
-            $symbolType = $symbolPosition = null;
+            $useStatementPosition = $symbolType = $symbolPosition = null;
         $contextPositionStack = array(new ParserPosition(1, 1));
         $symbolBracketDepth = 0;
 
@@ -212,6 +212,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case T_USE:
                             $state = static::STATE_USE_STATEMENT;
+                            $useStatementPosition =
+                                new ParserPosition($token[2], $token[3]);
 
                             break;
 
@@ -440,10 +442,14 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                     break;
 
                 case static::TRANSITION_USE_STATEMENT_END:
-                    $useStatements[] = $this->useStatementFactory()->create(
-                        $this->symbolFactory()->createFromAtoms($atoms, true),
-                        $useStatementAlias,
-                        $useStatementType
+                    $useStatements[] = new ParsedUseStatement(
+                        $this->useStatementFactory()->create(
+                            $this->symbolFactory()
+                                ->createFromAtoms($atoms, true),
+                            $useStatementAlias,
+                            $useStatementType
+                        ),
+                        $useStatementPosition
                     );
                     $atoms = array();
                     $useStatementAlias = $useStatementType = null;
