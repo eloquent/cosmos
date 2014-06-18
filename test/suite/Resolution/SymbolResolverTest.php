@@ -47,6 +47,30 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testResolveNamespaceAtom()
+    {
+        $qualified = $this->symbolFactory->create('\VendorB\PackageB');
+        $reference = $this->symbolFactory->create('namespace\Symbol');
+
+        $this->assertSame($qualified, $this->resolver->resolve($this->primaryNamespace, $qualified));
+        $this->assertSame(
+            '\VendorA\PackageA\Symbol',
+            $this->resolver->resolve($this->primaryNamespace, $reference)->string()
+        );
+    }
+
+    public function testResolveEmpty()
+    {
+        $qualified = $this->symbolFactory->create('\VendorB\PackageB');
+        $reference = $this->symbolFactory->create('');
+
+        $this->assertSame($qualified, $this->resolver->resolve($this->primaryNamespace, $qualified));
+        $this->assertSame(
+            '\VendorA\PackageA\.',
+            $this->resolver->resolve($this->primaryNamespace, $reference)->string()
+        );
+    }
+
     public function testResolveAgainstContext()
     {
         $qualified = $this->symbolFactory->create('\VendorB\PackageB');

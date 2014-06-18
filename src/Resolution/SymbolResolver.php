@@ -51,8 +51,12 @@ class SymbolResolver implements SymbolResolverInterface
         AbsolutePathInterface $primaryNamespace,
         PathInterface $symbol
     ) {
-        if ($symbol instanceof QualifiedSymbolInterface) {
+        if ($symbol instanceof AbsolutePathInterface) {
             return $symbol;
+        }
+
+        if (SymbolReference::NAMESPACE_ATOM === $symbol->atomAt(0)) {
+            $symbol = $symbol->replace(0, array(), 1);
         }
 
         return $primaryNamespace->join($symbol);
@@ -72,24 +76,23 @@ class SymbolResolver implements SymbolResolverInterface
         ResolutionContextInterface $context,
         SymbolInterface $symbol
     ) {
-        if ($symbol instanceof QualifiedSymbolInterface) {
+        if ($symbol instanceof AbsolutePathInterface) {
             return $symbol;
         }
 
-        if ($firstAtom = $symbol->firstAtomAsReference()) {
-            if (SymbolReference::NAMESPACE_ATOM === $firstAtom->atomAt(0)) {
-                $parent = $context->primaryNamespace();
-            } else {
-                $parent = $context->symbolByFirstAtom($firstAtom);
+        if (SymbolReference::NAMESPACE_ATOM === $symbol->atomAt(0)) {
+            $parent = $context->primaryNamespace();
+        } else {
+            $parent = $context
+                ->symbolByFirstAtom($symbol->firstAtomAsReference());
+        }
+
+        if ($parent) {
+            if (count($symbol->atoms()) < 2) {
+                return $parent;
             }
 
-            if ($parent) {
-                if (count($symbol->atoms()) < 2) {
-                    return $parent;
-                }
-
-                return $parent->joinAtomSequence($symbol->sliceAtoms(1));
-            }
+            return $parent->joinAtomSequence($symbol->sliceAtoms(1));
         }
 
         return $context->primaryNamespace()->join($symbol);
