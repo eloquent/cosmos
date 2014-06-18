@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\Resolution\Context\Generator;
 
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
+use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
@@ -32,6 +33,8 @@ class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
             $this->useStatementFactory,
             $this->symbolFactory
         );
+
+        $this->contextRenderer = ResolutionContextRenderer::instance();
     }
 
     public function testConstructor()
@@ -68,23 +71,36 @@ class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
             $this->symbolFactory->create('\Bar\Baz\Qux'),
             $this->symbolFactory->create('\Foo'),
         );
-        $context = $this->generator->generate($symbols, $primaryNamespace);
-        $actual = array();
-        foreach ($context->useStatements() as $useStatement) {
-            $actual[] = $useStatement->string();
-        }
-        $expected = array(
-            'use Bar\Baz\Qux as BarBazQux',
-            'use Doom\Bar\Baz\Qux as DoomBarBazQux',
-            'use Foo',
-            'use Foo\Bar\Baz\Qux as FooBarBazQux',
-            'use VendorA\PackageA\Foo\Bar\Baz\Doom',
-            'use VendorB\PackageB',
-            'use VendorC\PackageC',
-        );
+        $context = $this->generator->generate($primaryNamespace, $symbols, $symbols, $symbols);
+        $actual = $this->contextRenderer->renderContext($context);
+        $expected = <<<'EOD'
+namespace VendorA\PackageA;
+
+use Bar\Baz\Qux as BarBazQux;
+use Doom\Bar\Baz\Qux as DoomBarBazQux;
+use Foo;
+use Foo\Bar\Baz\Qux as FooBarBazQux;
+use VendorA\PackageA\Foo\Bar\Baz\Doom;
+use VendorB\PackageB;
+use VendorC\PackageC;
+use function Bar\Baz\Qux as BarBazQux;
+use function Doom\Bar\Baz\Qux as DoomBarBazQux;
+use function Foo;
+use function Foo\Bar\Baz\Qux as FooBarBazQux;
+use function VendorA\PackageA\Foo\Bar\Baz\Doom;
+use function VendorB\PackageB;
+use function VendorC\PackageC;
+use const Bar\Baz\Qux as BarBazQux;
+use const Doom\Bar\Baz\Qux as DoomBarBazQux;
+use const Foo;
+use const Foo\Bar\Baz\Qux as FooBarBazQux;
+use const VendorA\PackageA\Foo\Bar\Baz\Doom;
+use const VendorB\PackageB;
+use const VendorC\PackageC;
+
+EOD;
 
         $this->assertSame($expected, $actual);
-        $this->assertEquals($primaryNamespace, $context->primaryNamespace());
     }
 
     public function testGenerateDefaultNamespace()
@@ -102,19 +118,24 @@ class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
             $this->symbolFactory->create('\Bar\Baz\Qux'),
             $this->symbolFactory->create('\Foo'),
         );
-        $context = $this->generator->generate($symbols);
-        $actual = array();
-        foreach ($context->useStatements() as $useStatement) {
-            $actual[] = $useStatement->string();
-        }
-        $expected = array(
-            'use Doom\Bar\Baz\Qux as DoomBarBazQux',
-            'use Foo\Bar\Baz\Qux as FooBarBazQux',
-            'use VendorA\PackageA\Foo\Bar\Baz',
-            'use VendorA\PackageA\Foo\Bar\Baz\Doom',
-        );
+        $context = $this->generator->generate(null, $symbols, $symbols, $symbols);
+        $actual = $this->contextRenderer->renderContext($context);
+        $expected = <<<'EOD'
+use Doom\Bar\Baz\Qux as DoomBarBazQux;
+use Foo\Bar\Baz\Qux as FooBarBazQux;
+use VendorA\PackageA\Foo\Bar\Baz;
+use VendorA\PackageA\Foo\Bar\Baz\Doom;
+use function Doom\Bar\Baz\Qux as DoomBarBazQux;
+use function Foo\Bar\Baz\Qux as FooBarBazQux;
+use function VendorA\PackageA\Foo\Bar\Baz;
+use function VendorA\PackageA\Foo\Bar\Baz\Doom;
+use const Doom\Bar\Baz\Qux as DoomBarBazQux;
+use const Foo\Bar\Baz\Qux as FooBarBazQux;
+use const VendorA\PackageA\Foo\Bar\Baz;
+use const VendorA\PackageA\Foo\Bar\Baz\Doom;
+
+EOD;
 
         $this->assertSame($expected, $actual);
-        $this->assertEquals(Symbol::globalNamespace(), $context->primaryNamespace());
     }
 }

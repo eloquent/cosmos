@@ -1,6 +1,6 @@
 # Cosmos
 
-*A library for representing and manipulating PHP class names.*
+*A library for representing and manipulating PHP symbols.*
 
 [![The most recent stable version is 2.3.1][version-image]][Semantic versioning]
 [![Current build status image][build-image]][Current build status]
@@ -13,19 +13,21 @@
 
 ## What is *Cosmos*?
 
-*Cosmos* is a library for representing and manipulating PHP class names. It
-features a comprehensive API for performing many tasks, including:
+*Cosmos* is a library for representing and manipulating PHP symbols. Supported
+symbol types include class, interface, trait, namespace, function, and constant
+names. *Cosmos* features a comprehensive API for performing many tasks,
+including:
 
 - Parsing *resolution contexts* (sets of `namespace` and/or `use` statements)
-  for classes, interfaces, and traits
-- Resolving class name references relative to a resolution context
-- Finding the shortest reference to a qualified class name relative to a
-  resolution context
-- Generating an optimal resolution context for a set of class names
+  from source code
+- Resolving symbols relative to a resolution context
+- Finding the shortest reference to a qualified symbol relative to a resolution
+  context
+- Generating an optimal resolution context for a set of symbols
 
 *Cosmos* is primarily designed to aid in code generation, and resolution of
-class names contained in comment annotations, but should be useful in any
-circumstance where run-time class name resolution is involved.
+symbols contained in comment annotations, but should be useful in any
+circumstance where run-time symbol resolution is involved.
 
 <!-- References -->
 

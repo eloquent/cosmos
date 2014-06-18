@@ -21,6 +21,7 @@ use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
+use Eloquent\Cosmos\UseStatement\UseStatementType;
 
 /**
  * Generates resolution contexts for importing sets of symbols.
@@ -104,19 +105,63 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
     /**
      * Generate a resolution context for importing the specified symbols.
      *
-     * @param array<QualifiedSymbolInterface> $symbols          The symbols to generate use statements for.
-     * @param QualifiedSymbolInterface|null   $primaryNamespace The namespace, or null to use the global namespace.
+     * @param QualifiedSymbolInterface|null        $primaryNamespace The namespace, or null to use the global namespace.
+     * @param array<QualifiedSymbolInterface>|null $typeSymbols      The type symbols to generate use statements for.
+     * @param array<QualifiedSymbolInterface>|null $functionSymbols  The function symbols to generate use statements for.
+     * @param array<QualifiedSymbolInterface>|null $constantSymbols  The constant symbols to generate use statements for.
      *
      * @return ResolutionContextInterface The generated resolution context.
      */
     public function generate(
-        array $symbols,
-        QualifiedSymbolInterface $primaryNamespace = null
+        QualifiedSymbolInterface $primaryNamespace = null,
+        array $typeSymbols = null,
+        array $functionSymbols = null,
+        array $constantSymbols = null
     ) {
         if (null === $primaryNamespace) {
             $primaryNamespace = $this->symbolFactory()->globalNamespace();
         } else {
             $primaryNamespace = $primaryNamespace->normalize();
+        }
+
+        return $this->contextFactory()->create(
+            $primaryNamespace,
+            array_merge(
+                $this->useStatementsForSymbols(
+                    UseStatementType::TYPE(),
+                    $primaryNamespace,
+                    $typeSymbols
+                ),
+                $this->useStatementsForSymbols(
+                    UseStatementType::FUNCT1ON(),
+                    $primaryNamespace,
+                    $functionSymbols
+                ),
+                $this->useStatementsForSymbols(
+                    UseStatementType::CONSTANT(),
+                    $primaryNamespace,
+                    $constantSymbols
+                )
+            )
+        );
+    }
+
+    /**
+     * Generate a set of use statements for a set of symbols.
+     *
+     * @param UseStatementType                     $type             The use statement type.
+     * @param QualifiedSymbolInterface             $primaryNamespace The namespace.
+     * @param array<QualifiedSymbolInterface>|null $symbols          The symbols to generate use statements for.
+     *
+     * @return array<UseStatementInterface> The generated use statements.
+     */
+    private function useStatementsForSymbols(
+        UseStatementType $type,
+        QualifiedSymbolInterface $primaryNamespace,
+        array $symbols = null
+    ) {
+        if (null === $symbols) {
+            return array();
         }
 
         $useStatements = array();
@@ -126,18 +171,18 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
             if ($primaryNamespace->isAncestorOf($symbol)) {
                 $numReferenceAtoms = count($symbol->atoms()) -
                     count($primaryNamespace->atoms());
+
                 if ($numReferenceAtoms > $this->maxReferenceAtoms()) {
                     $useStatements[] = $this->useStatementFactory()
-                        ->create($symbol);
+                        ->create($symbol, null, $type);
                 }
             } else {
                 $useStatements[] = $this->useStatementFactory()
-                    ->create($symbol);
+                    ->create($symbol, null, $type);
             }
         }
 
-        return $this->contextFactory()
-            ->create($primaryNamespace, $this->normalize($useStatements));
+        return $this->normalizeUseStatements($useStatements);
     }
 
     /**
@@ -148,7 +193,7 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
      *
      * @return array<UseStatementInterface> The normalized use statements.
      */
-    protected function normalize(array $useStatements)
+    private function normalizeUseStatements(array $useStatements)
     {
         $seen = array();
         $byAlias = array();
@@ -167,29 +212,36 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
             $byAlias[$aliasString][] = $useStatement;
         }
 
-        $byAlias = $this->applyAliases($byAlias);
-
-        $normalized = array();
-        foreach ($byAlias as $useStatements) {
-            list($useStatement) = $useStatements;
-            $key = $useStatement->string();
-
-            $normalized[$key] = $useStatement;
+        $byAlias = $this->applyUseAliases($byAlias);
+        foreach ($byAlias as $alias => $useStatements) {
+            $byAlias[$alias] = array_pop($useStatements);
         }
-        ksort($normalized);
 
-        return $normalized;
+        usort(
+            $byAlias,
+            function (
+                UseStatementInterface $left,
+                UseStatementInterface $right
+            ) {
+                return strcmp(
+                    $left->symbol()->string(),
+                    $right->symbol()->string()
+                );
+            }
+        );
+
+        return array_values($byAlias);
     }
 
     /**
      * Recursively find and resolve alias collisions.
      *
-     * @param array<string,UseStatementInterface> $byAlias An index of effective alias to use statements.
-     * @param integer|null                        $level   The recursion level.
+     * @param array<string,array<UseStatementInterface>> $byAlias An index of effective alias to use statements.
+     * @param integer|null                               $level   The recursion level.
      *
-     * @return array<string,UseStatementInterface> The index with aliases applied.
+     * @return array<string,array<UseStatementInterface>> The index with aliases applied.
      */
-    protected function applyAliases(array $byAlias, $level = null)
+    private function applyUseAliases(array $byAlias, $level = null)
     {
         if (null === $level) {
             $level = 0;
@@ -243,7 +295,7 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
         }
 
         if ($changes) {
-            return $this->applyAliases($byAlias, $level + 1);
+            return $this->applyUseAliases($byAlias, $level + 1);
         }
 
         return $byAlias;

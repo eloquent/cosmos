@@ -1,7 +1,19 @@
 {
     "name": "eloquent/cosmos",
-    "description": "A library for representing and manipulating PHP class names.",
-    "keywords": ["php", "namespace", "class", "name", "classname", "resolver", "solver"],
+    "description": "A library for representing and manipulating PHP symbols.",
+    "keywords": [
+        "php",
+        "symbol",
+        "namespace",
+        "class",
+        "function",
+        "name",
+        "classname",
+        "use",
+        "statement",
+        "resolver",
+        "solver"
+    ],
     "homepage": "https://github.com/eloquent/cosmos",
     "license": "MIT",
     "authors": [

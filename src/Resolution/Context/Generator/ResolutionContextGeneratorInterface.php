@@ -22,13 +22,17 @@ interface ResolutionContextGeneratorInterface
     /**
      * Generate a resolution context for importing the specified symbols.
      *
-     * @param array<QualifiedSymbolInterface> $symbols          The symbols to generate use statements for.
-     * @param QualifiedSymbolInterface|null   $primaryNamespace The namespace, or null to use the global namespace.
+     * @param QualifiedSymbolInterface|null        $primaryNamespace The namespace, or null to use the global namespace.
+     * @param array<QualifiedSymbolInterface>|null $typeSymbols      The type symbols to generate use statements for.
+     * @param array<QualifiedSymbolInterface>|null $functionSymbols  The function symbols to generate use statements for.
+     * @param array<QualifiedSymbolInterface>|null $constantSymbols  The constant symbols to generate use statements for.
      *
      * @return ResolutionContextInterface The generated resolution context.
      */
     public function generate(
-        array $symbols,
-        QualifiedSymbolInterface $primaryNamespace = null
+        QualifiedSymbolInterface $primaryNamespace = null,
+        array $typeSymbols = null,
+        array $functionSymbols = null,
+        array $constantSymbols = null
     );
 }
