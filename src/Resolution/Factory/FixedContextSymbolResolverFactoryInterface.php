@@ -11,10 +11,13 @@
 
 namespace Eloquent\Cosmos\Resolution\Factory;
 
+use Eloquent\Cosmos\Exception\ReadException;
 use Eloquent\Cosmos\Exception\UndefinedSymbolException;
-use Eloquent\Cosmos\Resolution\Context\Factory\Exception\SourceCodeReadException;
+use Eloquent\Cosmos\Resolution\Context\Factory\Exception\UndefinedResolutionContextException;
+use Eloquent\Cosmos\Resolution\Context\Parser\ParserPositionInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
+use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use Eloquent\Pathogen\Resolver\PathResolverInterface;
 use ReflectionClass;
 use ReflectionFunction;
@@ -34,59 +37,142 @@ interface FixedContextSymbolResolverFactoryInterface
     public function create(ResolutionContextInterface $context = null);
 
     /**
-     * Construct a new fixed context symbol resolver by inspecting the source
-     * code of the supplied object's class.
+     * Create a new fixed context symbol resolver for the supplied object.
      *
      * @param object $object The object.
      *
-     * @return PathResolverInterface   The newly created resolver.
-     * @throws SourceCodeReadException If the source code cannot be read.
+     * @return PathResolverInterface The newly created resolver.
+     * @throws ReadException         If the source code cannot be read.
      */
     public function createFromObject($object);
 
     /**
-     * Construct a new fixed context symbol resolver by inspecting the source
-     * code of the supplied class, interface, or trait symbol.
+     * Create a new fixed context symbol resolver for the supplied class,
+     * interface, or trait symbol.
      *
      * @param SymbolInterface|string $symbol The symbol.
      *
      * @return PathResolverInterface    The newly created resolver.
-     * @throws UndefinedSymbolException If the symbol does not exist.
-     * @throws SourceCodeReadException  If the source code cannot be read.
+     * @throws ReadException            If the source code cannot be read.
+     * @throws UndefinedSymbolException If the symbol does not exist, or cannot be found in the source code.
      */
     public function createFromSymbol($symbol);
 
     /**
-     * Construct a new fixed context symbol resolver by inspecting the source
-     * code of the supplied function symbol.
+     * Create a new fixed context symbol resolver for the supplied function
+     * symbol.
      *
      * @param SymbolInterface|string $symbol The symbol.
      *
      * @return PathResolverInterface    The newly created resolver.
-     * @throws UndefinedSymbolException If the symbol does not exist.
-     * @throws SourceCodeReadException  If the source code cannot be read.
+     * @throws ReadException            If the source code cannot be read.
+     * @throws UndefinedSymbolException If the symbol does not exist, or cannot be found in the source code.
      */
     public function createFromFunctionSymbol($symbol);
 
     /**
-     * Construct a new fixed context symbol resolver by inspecting the source
-     * code of the supplied class or object reflector.
+     * Create a new fixed context symbol resolver for the supplied class or
+     * object reflector.
      *
      * @param ReflectionClass $class The class or object reflector.
      *
-     * @return PathResolverInterface   The newly created resolver.
-     * @throws SourceCodeReadException If the source code cannot be read.
+     * @return PathResolverInterface    The newly created resolver.
+     * @throws ReadException            If the source code cannot be read.
+     * @throws UndefinedSymbolException If the symbol cannot be found in the source code.
      */
     public function createFromClass(ReflectionClass $class);
 
     /**
-     * Construct a new fixed context symbol resolver by inspecting the source
-     * code of the supplied function reflector.
+     * Create a new fixed context symbol resolver for the supplied function
+     * reflector.
      *
      * @param ReflectionFunction $function The function reflector.
      *
-     * @return PathResolverInterface   The newly created resolver.
-     * @throws SourceCodeReadException If the source code cannot be read.
+     * @return PathResolverInterface    The newly created resolver.
+     * @throws ReadException            If the source code cannot be read.
+     * @throws UndefinedSymbolException If the symbol cannot be found in the source code.
      */
     public function createFromFunction(ReflectionFunction $function);
+
+    /**
+     * Create a new fixed context symbol resolver for the first context found in
+     * a file.
+     *
+     * @param FileSystemPathInterface|string $path The path.
+     *
+     * @return PathResolverInterface The newly created resolver.
+     * @throws ReadException         If the source code cannot be read.
+     */
+    public function createFromFile($path);
+
+    /**
+     * Create a new fixed context symbol resolver for the context found at the
+     * specified index in a file.
+     *
+     * @param FileSystemPathInterface|string $path  The path.
+     * @param integer                        $index The index.
+     *
+     * @return ResolutionContextInterface          The newly created resolution context.
+     * @throws ReadException                       If the source code cannot be read.
+     * @throws UndefinedResolutionContextException If there is no resolution context at the specified index.
+     */
+    public function createFromFileByIndex($path, $index);
+
+    /**
+     * Create a new fixed context symbol resolver for the context found at the
+     * specified position in a file.
+     *
+     * @param FileSystemPathInterface|string $path     The path.
+     * @param ParserPositionInterface        $position The position.
+     *
+     * @return PathResolverInterface The newly created resolver.
+     * @throws ReadException         If the source code cannot be read.
+     */
+    public function createFromFileByPosition(
+        $path,
+        ParserPositionInterface $position
+    );
+
+    /**
+     * Create a new fixed context symbol resolver for the first context found in
+     * a stream.
+     *
+     * @param stream                              $stream The stream.
+     * @param FileSystemPathInterface|string|null $path   The path, if known.
+     *
+     * @return PathResolverInterface The newly created resolver.
+     * @throws ReadException         If the source code cannot be read.
+     */
+    public function createFromStream($stream, $path = null);
+
+    /**
+     * Create a new fixed context symbol resolver for the context found at the
+     * specified index in a stream.
+     *
+     * @param stream                              $stream The stream.
+     * @param integer                             $index  The index.
+     * @param FileSystemPathInterface|string|null $path   The path, if known.
+     *
+     * @return ResolutionContextInterface          The newly created resolution context.
+     * @throws ReadException                       If the source code cannot be read.
+     * @throws UndefinedResolutionContextException If there is no resolution context at the specified index.
+     */
+    public function createFromStreamByIndex($stream, $index, $path = null);
+
+    /**
+     * Create a new fixed context symbol resolver for the context found at the
+     * specified position in a stream.
+     *
+     * @param stream                              $stream   The stream.
+     * @param ParserPositionInterface             $position The position.
+     * @param FileSystemPathInterface|string|null $path     The path, if known.
+     *
+     * @return PathResolverInterface The newly created resolver.
+     * @throws ReadException         If the source code cannot be read.
+     */
+    public function createFromStreamByPosition(
+        $stream,
+        ParserPositionInterface $position,
+        $path = null
+    );
 }

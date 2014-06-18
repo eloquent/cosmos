@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\Resolution\Factory;
 
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
+use Eloquent\Cosmos\Resolution\Context\Parser\ParserPosition;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Resolution\FixedContextSymbolResolver;
 use Eloquent\Cosmos\Resolution\SymbolResolver;
@@ -30,6 +31,15 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
         $this->resolver = new SymbolResolver;
         $this->contextFactory = new ResolutionContextFactory;
         $this->factory = new FixedContextSymbolResolverFactory($this->resolver, $this->contextFactory);
+
+        $this->stream = fopen(__FILE__, 'rb');
+    }
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+
+        fclose($this->stream);
     }
 
     public function testConstructor()
@@ -99,6 +109,63 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
         $actual = $this->factory->createFromFunction($function);
         $expected = new FixedContextSymbolResolver(
             $this->contextFactory->createFromFunction($function),
+            $this->resolver
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testCreateFromFile()
+    {
+        $actual = $this->factory->createFromFile(__FILE__);
+        $expected = new FixedContextSymbolResolver($this->contextFactory->createFromFile(__FILE__), $this->resolver);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testCreateFromFileByIndex()
+    {
+        $actual = $this->factory->createFromFileByIndex(__FILE__, 0);
+        $expected =
+            new FixedContextSymbolResolver($this->contextFactory->createFromFileByIndex(__FILE__, 0), $this->resolver);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testCreateFromFileByPosition()
+    {
+        $actual = $this->factory->createFromFileByPosition(__FILE__, new ParserPosition(111, 222));
+        $expected = new FixedContextSymbolResolver(
+            $this->contextFactory->createFromFileByPosition(__FILE__, new ParserPosition(111, 222)),
+            $this->resolver
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testCreateFromStream()
+    {
+        $actual = $this->factory->createFromStream($this->stream, __FILE__);
+        $expected = new FixedContextSymbolResolver($this->contextFactory->createFromFile(__FILE__), $this->resolver);
+
+        $this->assertSame($this->resolver, $actual->resolver());
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testCreateFromStreamByIndex()
+    {
+        $actual = $this->factory->createFromStreamByIndex($this->stream, 0, __FILE__);
+        $expected =
+            new FixedContextSymbolResolver($this->contextFactory->createFromFileByIndex(__FILE__, 0), $this->resolver);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testCreateFromStreamByPosition()
+    {
+        $actual = $this->factory->createFromStreamByPosition($this->stream, new ParserPosition(111, 222), __FILE__);
+        $expected = new FixedContextSymbolResolver(
+            $this->contextFactory->createFromFileByPosition(__FILE__, new ParserPosition(111, 222)),
             $this->resolver
         );
 
