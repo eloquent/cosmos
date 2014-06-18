@@ -16,7 +16,9 @@ use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 /**
  * The interface implemented by parsed resolution contexts.
  */
-interface ParsedResolutionContextInterface extends ParsedElementInterface
+interface ParsedResolutionContextInterface extends
+    ResolutionContextInterface,
+    ParsedElementInterface
 {
     /**
      * Get the resolution context.

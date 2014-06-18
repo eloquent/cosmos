@@ -381,7 +381,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
         foreach ($contexts as $parsedContext) {
             foreach ($parsedContext->symbols() as $parsedSymbol) {
                 if ($predicate($parsedSymbol)) {
-                    $context = $parsedContext->context();
+                    $context = $parsedContext;
 
                     break 2;
                 }
@@ -401,7 +401,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
             throw new UndefinedResolutionContextException($index, $path);
         }
 
-        return $contexts[$index]->context();
+        return $contexts[$index];
     }
 
     private function findByPosition(
@@ -414,7 +414,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
                 break;
             }
 
-            $context = $parsedContext->context();
+            $context = $parsedContext;
         }
 
         if (null === $context) {

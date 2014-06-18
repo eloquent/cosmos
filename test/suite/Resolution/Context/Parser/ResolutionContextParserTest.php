@@ -953,13 +953,13 @@ EOD;
         );
 
         if (
-            !$context->context()->primaryNamespace()->isRoot() ||
-            count($context->context()->useStatements()) > 0
+            !$context->primaryNamespace()->isRoot() ||
+            count($context->useStatements()) > 0
         ) {
             $rendered .= "\n";
         }
 
-        $rendered .= $this->contextRenderer->renderContext($context->context());
+        $rendered .= $this->contextRenderer->renderContext($context);
 
         if (count($context->symbols()) > 0) {
             $rendered .= "\n";
