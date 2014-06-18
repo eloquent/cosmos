@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
+use Eloquent\Cosmos\Resolution\Context\Parser\ParserPosition;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\Symbol;
@@ -31,6 +32,14 @@ class FixedContextSymbolResolverTest extends PHPUnit_Framework_TestCase
         $this->resolver = new FixedContextSymbolResolver($this->context, $this->innerResolver);
 
         $this->contextFactory = ResolutionContextFactory::instance();
+        $this->stream = fopen(__FILE__, 'rb');
+    }
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+
+        fclose($this->stream);
     }
 
     public function testConstructor()
@@ -105,6 +114,72 @@ class FixedContextSymbolResolverTest extends PHPUnit_Framework_TestCase
         $actual = FixedContextSymbolResolver::fromFunction($function);
         $expected = new FixedContextSymbolResolver(
             $this->contextFactory->createFromFunction($function),
+            $this->innerResolver
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFromFile()
+    {
+        $actual = FixedContextSymbolResolver::fromFile(__FILE__);
+        $expected = new FixedContextSymbolResolver(
+            $this->contextFactory->createFromFile(__FILE__),
+            $this->innerResolver
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFromFileByIndex()
+    {
+        $actual = FixedContextSymbolResolver::fromFileByIndex(__FILE__, 0);
+        $expected = new FixedContextSymbolResolver(
+            $this->contextFactory->createFromFileByIndex(__FILE__, 0),
+            $this->innerResolver
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFromFileByPosition()
+    {
+        $actual = FixedContextSymbolResolver::fromFileByPosition(__FILE__, new ParserPosition(111, 222));
+        $expected = new FixedContextSymbolResolver(
+            $this->contextFactory->createFromFileByPosition(__FILE__, new ParserPosition(111, 222)),
+            $this->innerResolver
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFromStream()
+    {
+        $actual = FixedContextSymbolResolver::fromStream($this->stream);
+        $expected = new FixedContextSymbolResolver(
+            $this->contextFactory->createFromFile(__FILE__),
+            $this->innerResolver
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFromStreamByIndex()
+    {
+        $actual = FixedContextSymbolResolver::fromStreamByIndex($this->stream, 0);
+        $expected = new FixedContextSymbolResolver(
+            $this->contextFactory->createFromFileByIndex(__FILE__, 0),
+            $this->innerResolver
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFromStreamByPosition()
+    {
+        $actual = FixedContextSymbolResolver::fromStreamByPosition($this->stream, new ParserPosition(111, 222));
+        $expected = new FixedContextSymbolResolver(
+            $this->contextFactory->createFromFileByPosition(__FILE__, new ParserPosition(111, 222)),
             $this->innerResolver
         );
 
