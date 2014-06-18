@@ -138,4 +138,13 @@ EOD;
 
         $this->assertSame($expected, $actual);
     }
+
+    public function testGenerateNoSymbols()
+    {
+        $context = $this->generator->generate();
+        $actual = $this->contextRenderer->renderContext($context);
+        $expected = '';
+
+        $this->assertSame($expected, $actual);
+    }
 }
