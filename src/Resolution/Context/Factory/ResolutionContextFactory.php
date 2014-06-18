@@ -27,6 +27,7 @@ use Eloquent\Cosmos\Symbol\SymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 use Eloquent\Pathogen\FileSystem\FileSystemPath;
+use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use Icecave\Isolator\Isolator;
 use ReflectionClass;
 use ReflectionException;
@@ -83,6 +84,8 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
         $this->symbolFactory = $symbolFactory;
         $this->contextParser = $contextParser;
         $this->isolator = $isolator;
+        $this->fileCache = $this->sourceCache = $this->classCache =
+            $this->functionCache = array();
     }
 
     /**
@@ -206,28 +209,34 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
      */
     public function createFromClass(ReflectionClass $class)
     {
-        if (false === $class->getFileName()) {
-            return $this->create();
-        }
-
         $symbol = '\\' . $class->getName();
 
-        $context = $this->findBySymbolPredicate(
-            $this->readFile($class->getFileName()),
-            function (ParsedSymbolInterface $parsedSymbol) use ($symbol) {
-                return $parsedSymbol->symbol()->string() === $symbol &&
-                    $parsedSymbol->type()->isType();
-            }
-        );
+        if (!array_key_exists($symbol, $this->classCache)) {
+            if (false === $class->getFileName()) {
+                $this->classCache[$symbol] = $this->create();
+            } else {
+                $context = $this->findBySymbolPredicate(
+                    $this->parseFile($class->getFileName()),
+                    function (ParsedSymbolInterface $parsedSymbol) use (
+                        $symbol
+                    ) {
+                        return $parsedSymbol->symbol()->string() === $symbol &&
+                            $parsedSymbol->type()->isType();
+                    }
+                );
 
-        if (null === $context) {
-            throw new UndefinedSymbolException(
-                $this->symbolFactory()->create($symbol),
-                SymbolType::CLA55()
-            );
+                if (null === $context) {
+                    throw new UndefinedSymbolException(
+                        $this->symbolFactory()->create($symbol),
+                        SymbolType::CLA55()
+                    );
+                }
+
+                $this->classCache[$symbol] = $context;
+            }
         }
 
-        return $context;
+        return $this->classCache[$symbol];
     }
 
     /**
@@ -242,28 +251,34 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
      */
     public function createFromFunction(ReflectionFunction $function)
     {
-        if (false === $function->getFileName()) {
-            return $this->create();
-        }
-
         $symbol = '\\' . $function->getName();
 
-        $context = $this->findBySymbolPredicate(
-            $this->readFile($function->getFileName()),
-            function (ParsedSymbolInterface $parsedSymbol) use ($symbol) {
-                return $parsedSymbol->symbol()->string() === $symbol &&
-                    SymbolType::FUNCT1ON() === $parsedSymbol->type();
-            }
-        );
+        if (!array_key_exists($symbol, $this->functionCache)) {
+            if (false === $function->getFileName()) {
+                $this->functionCache[$symbol] = $this->create();
+            } else {
+                $context = $this->findBySymbolPredicate(
+                    $this->parseFile($function->getFileName()),
+                    function (ParsedSymbolInterface $parsedSymbol) use (
+                        $symbol
+                    ) {
+                        return $parsedSymbol->symbol()->string() === $symbol &&
+                            SymbolType::FUNCT1ON() === $parsedSymbol->type();
+                    }
+                );
 
-        if (null === $context) {
-            throw new UndefinedSymbolException(
-                $this->symbolFactory()->create($symbol),
-                SymbolType::FUNCT1ON()
-            );
+                if (null === $context) {
+                    throw new UndefinedSymbolException(
+                        $this->symbolFactory()->create($symbol),
+                        SymbolType::FUNCT1ON()
+                    );
+                }
+
+                $this->functionCache[$symbol] = $context;
+            }
         }
 
-        return $context;
+        return $this->functionCache[$symbol];
     }
 
     /**
@@ -291,7 +306,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
      */
     public function createFromFileByIndex($path, $index)
     {
-        return $this->findByIndex($this->readFile($path), $index, $path);
+        return $this->findByIndex($this->parseFile($path), $index, $path);
     }
 
     /**
@@ -307,7 +322,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
         $path,
         ParserPositionInterface $position
     ) {
-        return $this->findByPosition($this->readFile($path), $position);
+        return $this->findByPosition($this->parseFile($path), $position);
     }
 
     /**
@@ -338,7 +353,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
     public function createFromStreamByIndex($stream, $index, $path = null)
     {
         return $this
-            ->findByIndex($this->readStream($stream, $path), $index, $path);
+            ->findByIndex($this->parseStream($stream, $path), $index, $path);
     }
 
     /**
@@ -357,13 +372,11 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
         $path = null
     ) {
         return $this
-            ->findByPosition($this->readStream($stream, $path), $position);
+            ->findByPosition($this->parseStream($stream, $path), $position);
     }
 
-    private function findBySymbolPredicate($source, $predicate)
+    private function findBySymbolPredicate(array $contexts, $predicate)
     {
-        $contexts = $this->contextParser()->parseSource($source);
-
         $context = null;
         foreach ($contexts as $parsedContext) {
             foreach ($parsedContext->symbols() as $parsedSymbol) {
@@ -378,10 +391,8 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
         return $context;
     }
 
-    private function findByIndex($source, $index, $path = null)
+    private function findByIndex(array $contexts, $index, $path = null)
     {
-        $contexts = $this->contextParser()->parseSource($source);
-
         if (!array_key_exists($index, $contexts)) {
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
@@ -393,10 +404,10 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
         return $contexts[$index]->context();
     }
 
-    private function findByPosition($source, ParserPositionInterface $position)
-    {
-        $contexts = $this->contextParser()->parseSource($source);
-
+    private function findByPosition(
+        array $contexts,
+        ParserPositionInterface $position
+    ) {
         $context = null;
         foreach ($contexts as $parsedContext) {
             if ($this->positionIsAfter($parsedContext->position(), $position)) {
@@ -413,16 +424,46 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
         return $context;
     }
 
+    private function parseFile($path)
+    {
+        if ($path instanceof FileSystemPathInterface) {
+            $path = $path->string();
+        }
+
+        if (!array_key_exists($path, $this->fileCache)) {
+            $this->fileCache[$path] = $this->contextParser()
+                ->parseSource($this->readFile($path));
+        }
+
+        return $this->fileCache[$path];
+    }
+
+    private function parseStream($stream, $path = null)
+    {
+        return $this->parseSource($this->readStream($stream, $path));
+    }
+
+    private function parseSource($source)
+    {
+        $hash = md5($source);
+        if (!array_key_exists($hash, $this->sourceCache)) {
+            $this->sourceCache[$hash] = $this->contextParser()
+                ->parseSource($source);
+        }
+
+        return $this->sourceCache[$hash];
+    }
+
     private function readFile($path)
     {
         $stream = @$this->isolator()->fopen($path, 'rb');
         if (false === $stream) {
             $lastError = $this->isolator()->error_get_last();
-            if (is_string($path)) {
-                $path = FileSystemPath::fromString($path);
-            }
 
-            throw new ReadException($lastError['message'], $path);
+            throw new ReadException(
+                $lastError['message'],
+                FileSystemPath::fromString($path)
+            );
         }
 
         $error = null;
@@ -486,4 +527,8 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
     private $symbolFactory;
     private $contextParser;
     private $isolator;
+    private $fileCache;
+    private $sourceCache;
+    private $classCache;
+    private $functionCache;
 }
