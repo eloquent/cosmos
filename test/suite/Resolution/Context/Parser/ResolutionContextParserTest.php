@@ -93,9 +93,7 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
 
     use NamespaceD \ ClassI ;
 
-    use NamespaceE \ ClassJ as ClassK ;
-
-    use NamespaceF \ NamespaceG \ ClassL ;
+    use NamespaceE \ ClassJ as ClassK , NamespaceF \ NamespaceG \ ClassL ;
 
     $object = new namespace \ ClassA ;
 
@@ -178,29 +176,28 @@ namespace NamespaceA\NamespaceB;
 use ClassF; // at position (7, 5)
 use ClassG as ClassH; // at position (9, 5)
 use NamespaceD\ClassI; // at position (11, 5)
-use NamespaceE\ClassJ as ClassK; // at position (13, 5)
-use NamespaceF\NamespaceG\ClassL; // at position (15, 5)
+use NamespaceE\ClassJ as ClassK, NamespaceF\NamespaceG\ClassL; // at position (13, 5)
 
-interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 5)
-interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 5)
-interface \NamespaceA\NamespaceB\InterfaceC; // at position (30, 5)
-class \NamespaceA\NamespaceB\ClassB; // at position (36, 5)
-class \NamespaceA\NamespaceB\ClassC; // at position (40, 5)
-class \NamespaceA\NamespaceB\ClassD; // at position (47, 5)
-function \NamespaceA\NamespaceB\FunctionA; // at position (62, 5)
-function \NamespaceA\NamespaceB\FunctionB; // at position (66, 5)
-const \NamespaceA\NamespaceB\CONSTANT_A; // at position (70, 5)
-const \NamespaceA\NamespaceB\CONSTANT_B; // at position (71, 5)
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (17, 5)
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (22, 5)
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (28, 5)
+class \NamespaceA\NamespaceB\ClassB; // at position (34, 5)
+class \NamespaceA\NamespaceB\ClassC; // at position (38, 5)
+class \NamespaceA\NamespaceB\ClassD; // at position (45, 5)
+function \NamespaceA\NamespaceB\FunctionA; // at position (60, 5)
+function \NamespaceA\NamespaceB\FunctionB; // at position (64, 5)
+const \NamespaceA\NamespaceB\CONSTANT_A; // at position (68, 5)
+const \NamespaceA\NamespaceB\CONSTANT_B; // at position (69, 5)
 
-// Context at position (75, 5):
+// Context at position (73, 5):
 
 namespace NamespaceC;
 
-use ClassM; // at position (77, 5)
-use ClassN; // at position (79, 5)
+use ClassM; // at position (75, 5)
+use ClassN; // at position (77, 5)
 
-class \NamespaceC\ClassE; // at position (81, 5)
-interface \NamespaceC\InterfaceD; // at position (85, 5)
+class \NamespaceC\ClassE; // at position (79, 5)
+interface \NamespaceC\InterfaceD; // at position (83, 5)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -223,9 +220,7 @@ EOD;
 
         use NamespaceD \ ClassI ;
 
-        use NamespaceE \ ClassJ as ClassK ;
-
-        use NamespaceF \ NamespaceG \ ClassL ;
+        use NamespaceE \ ClassJ as ClassK , NamespaceF \ NamespaceG \ ClassL ;
 
         $object = new namespace \ ClassA ;
 
@@ -335,39 +330,38 @@ namespace NamespaceA\NamespaceB;
 use ClassF; // at position (7, 9)
 use ClassG as ClassH; // at position (9, 9)
 use NamespaceD\ClassI; // at position (11, 9)
-use NamespaceE\ClassJ as ClassK; // at position (13, 9)
-use NamespaceF\NamespaceG\ClassL; // at position (15, 9)
+use NamespaceE\ClassJ as ClassK, NamespaceF\NamespaceG\ClassL; // at position (13, 9)
 
-interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 9)
-interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 9)
-interface \NamespaceA\NamespaceB\InterfaceC; // at position (30, 9)
-class \NamespaceA\NamespaceB\ClassB; // at position (36, 9)
-class \NamespaceA\NamespaceB\ClassC; // at position (40, 9)
-class \NamespaceA\NamespaceB\ClassD; // at position (47, 9)
-function \NamespaceA\NamespaceB\FunctionA; // at position (62, 9)
-function \NamespaceA\NamespaceB\FunctionB; // at position (66, 9)
-const \NamespaceA\NamespaceB\CONSTANT_A; // at position (70, 9)
-const \NamespaceA\NamespaceB\CONSTANT_B; // at position (71, 9)
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (17, 9)
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (22, 9)
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (28, 9)
+class \NamespaceA\NamespaceB\ClassB; // at position (34, 9)
+class \NamespaceA\NamespaceB\ClassC; // at position (38, 9)
+class \NamespaceA\NamespaceB\ClassD; // at position (45, 9)
+function \NamespaceA\NamespaceB\FunctionA; // at position (60, 9)
+function \NamespaceA\NamespaceB\FunctionB; // at position (64, 9)
+const \NamespaceA\NamespaceB\CONSTANT_A; // at position (68, 9)
+const \NamespaceA\NamespaceB\CONSTANT_B; // at position (69, 9)
 
-// Context at position (76, 5):
+// Context at position (74, 5):
 
 namespace NamespaceC;
 
-use ClassM; // at position (78, 9)
-use ClassN; // at position (80, 9)
+use ClassM; // at position (76, 9)
+use ClassN; // at position (78, 9)
 
-class \NamespaceC\ClassE; // at position (82, 9)
-interface \NamespaceC\InterfaceD; // at position (86, 9)
+class \NamespaceC\ClassE; // at position (80, 9)
+interface \NamespaceC\InterfaceD; // at position (84, 9)
 
-// Context at position (93, 5):
+// Context at position (91, 5):
 
-use ClassO; // at position (95, 9)
-use ClassP; // at position (97, 9)
+use ClassO; // at position (93, 9)
+use ClassP; // at position (95, 9)
 
-class \ClassQ; // at position (101, 9)
-interface \InterfaceE; // at position (105, 9)
-function \FunctionC; // at position (109, 9)
-const \CONSTANT_D; // at position (113, 9)
+class \ClassQ; // at position (99, 9)
+interface \InterfaceE; // at position (103, 9)
+function \FunctionC; // at position (107, 9)
+const \CONSTANT_D; // at position (111, 9)
 
 EOD;
         $actual = $this->parser->parseSource($source);
