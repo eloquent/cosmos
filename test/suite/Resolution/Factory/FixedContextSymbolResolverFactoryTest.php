@@ -11,8 +11,8 @@
 
 namespace Eloquent\Cosmos\Resolution\Factory;
 
-use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\Parser\ParserPosition;
+use Eloquent\Cosmos\Resolution\Context\Reader\ResolutionContextReader;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Resolution\FixedContextSymbolResolver;
 use Eloquent\Cosmos\Resolution\SymbolResolver;
@@ -29,8 +29,8 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->resolver = new SymbolResolver;
-        $this->contextFactory = new ResolutionContextFactory;
-        $this->factory = new FixedContextSymbolResolverFactory($this->resolver, $this->contextFactory);
+        $this->contextReader = new ResolutionContextReader;
+        $this->factory = new FixedContextSymbolResolverFactory($this->resolver, $this->contextReader);
 
         $this->stream = fopen(__FILE__, 'rb');
     }
@@ -45,7 +45,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     public function testConstructor()
     {
         $this->assertSame($this->resolver, $this->factory->resolver());
-        $this->assertSame($this->contextFactory, $this->factory->contextFactory());
+        $this->assertSame($this->contextReader, $this->factory->contextReader());
     }
 
     public function testConstructorDefaults()
@@ -53,7 +53,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
         $this->factory = new FixedContextSymbolResolverFactory;
 
         $this->assertSame(SymbolResolver::instance(), $this->factory->resolver());
-        $this->assertSame(ResolutionContextFactory::instance(), $this->factory->contextFactory());
+        $this->assertSame(ResolutionContextReader::instance(), $this->factory->contextReader());
     }
 
     public function testCreate()
@@ -68,7 +68,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     public function testCreateFromObject()
     {
         $actual = $this->factory->createFromObject($this);
-        $expected = new FixedContextSymbolResolver($this->contextFactory->createFromObject($this), $this->resolver);
+        $expected = new FixedContextSymbolResolver($this->contextReader->readFromObject($this), $this->resolver);
 
         $this->assertEquals($expected, $actual);
     }
@@ -77,7 +77,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     {
         $symbol = Symbol::fromRuntimeString(__CLASS__);
         $actual = $this->factory->createFromSymbol($symbol);
-        $expected = new FixedContextSymbolResolver($this->contextFactory->createFromSymbol($symbol), $this->resolver);
+        $expected = new FixedContextSymbolResolver($this->contextReader->readFromSymbol($symbol), $this->resolver);
 
         $this->assertEquals($expected, $actual);
     }
@@ -86,10 +86,8 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     {
         $symbol = Symbol::fromRuntimeString('\printf');
         $actual = $this->factory->createFromFunctionSymbol($symbol);
-        $expected = new FixedContextSymbolResolver(
-            $this->contextFactory->createFromFunctionSymbol($symbol),
-            $this->resolver
-        );
+        $expected =
+            new FixedContextSymbolResolver($this->contextReader->readFromFunctionSymbol($symbol), $this->resolver);
 
         $this->assertEquals($expected, $actual);
     }
@@ -98,7 +96,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     {
         $class = new ReflectionClass(__CLASS__);
         $actual = $this->factory->createFromClass($class);
-        $expected = new FixedContextSymbolResolver($this->contextFactory->createFromClass($class), $this->resolver);
+        $expected = new FixedContextSymbolResolver($this->contextReader->readFromClass($class), $this->resolver);
 
         $this->assertEquals($expected, $actual);
     }
@@ -107,10 +105,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     {
         $function = new ReflectionFunction('\printf');
         $actual = $this->factory->createFromFunction($function);
-        $expected = new FixedContextSymbolResolver(
-            $this->contextFactory->createFromFunction($function),
-            $this->resolver
-        );
+        $expected = new FixedContextSymbolResolver($this->contextReader->readFromFunction($function), $this->resolver);
 
         $this->assertEquals($expected, $actual);
     }
@@ -118,7 +113,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     public function testCreateFromFile()
     {
         $actual = $this->factory->createFromFile(__FILE__);
-        $expected = new FixedContextSymbolResolver($this->contextFactory->createFromFile(__FILE__), $this->resolver);
+        $expected = new FixedContextSymbolResolver($this->contextReader->readFromFile(__FILE__), $this->resolver);
 
         $this->assertEquals($expected, $actual);
     }
@@ -127,7 +122,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     {
         $actual = $this->factory->createFromFileByIndex(__FILE__, 0);
         $expected =
-            new FixedContextSymbolResolver($this->contextFactory->createFromFileByIndex(__FILE__, 0), $this->resolver);
+            new FixedContextSymbolResolver($this->contextReader->readFromFileByIndex(__FILE__, 0), $this->resolver);
 
         $this->assertEquals($expected, $actual);
     }
@@ -136,7 +131,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     {
         $actual = $this->factory->createFromFileByPosition(__FILE__, new ParserPosition(111, 222));
         $expected = new FixedContextSymbolResolver(
-            $this->contextFactory->createFromFileByPosition(__FILE__, new ParserPosition(111, 222)),
+            $this->contextReader->readFromFileByPosition(__FILE__, new ParserPosition(111, 222)),
             $this->resolver
         );
 
@@ -146,7 +141,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     public function testCreateFromStream()
     {
         $actual = $this->factory->createFromStream($this->stream, __FILE__);
-        $expected = new FixedContextSymbolResolver($this->contextFactory->createFromFile(__FILE__), $this->resolver);
+        $expected = new FixedContextSymbolResolver($this->contextReader->readFromFile(__FILE__), $this->resolver);
 
         $this->assertSame($this->resolver, $actual->resolver());
         $this->assertEquals($expected, $actual);
@@ -156,7 +151,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     {
         $actual = $this->factory->createFromStreamByIndex($this->stream, 0, __FILE__);
         $expected =
-            new FixedContextSymbolResolver($this->contextFactory->createFromFileByIndex(__FILE__, 0), $this->resolver);
+            new FixedContextSymbolResolver($this->contextReader->readFromFileByIndex(__FILE__, 0), $this->resolver);
 
         $this->assertEquals($expected, $actual);
     }
@@ -165,7 +160,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     {
         $actual = $this->factory->createFromStreamByPosition($this->stream, new ParserPosition(111, 222), __FILE__);
         $expected = new FixedContextSymbolResolver(
-            $this->contextFactory->createFromFileByPosition(__FILE__, new ParserPosition(111, 222)),
+            $this->contextReader->readFromFileByPosition(__FILE__, new ParserPosition(111, 222)),
             $this->resolver
         );
 

@@ -14,9 +14,9 @@ namespace Eloquent\Cosmos\Resolution\Factory;
 use Eloquent\Cosmos\Exception\ReadException;
 use Eloquent\Cosmos\Exception\UndefinedSymbolException;
 use Eloquent\Cosmos\Resolution\Context\Factory\Exception\UndefinedResolutionContextException;
-use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
-use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactoryInterface;
 use Eloquent\Cosmos\Resolution\Context\Parser\ParserPositionInterface;
+use Eloquent\Cosmos\Resolution\Context\Reader\ResolutionContextReader;
+use Eloquent\Cosmos\Resolution\Context\Reader\ResolutionContextReaderInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Resolution\FixedContextSymbolResolver;
 use Eloquent\Cosmos\Resolution\SymbolResolver;
@@ -50,22 +50,22 @@ class FixedContextSymbolResolverFactory implements
     /**
      * Construct a new fixed context symbol resolver factory.
      *
-     * @param SymbolResolverInterface|null           $resolver       The internal symbol resolver to use.
-     * @param ResolutionContextFactoryInterface|null $contextFactory The resolution context factory to use.
+     * @param SymbolResolverInterface|null          $resolver      The internal symbol resolver to use.
+     * @param ResolutionContextReaderInterface|null $contextReader The resolution context factory to use.
      */
     public function __construct(
         SymbolResolverInterface $resolver = null,
-        ResolutionContextFactoryInterface $contextFactory = null
+        ResolutionContextReaderInterface $contextReader = null
     ) {
         if (null === $resolver) {
             $resolver = SymbolResolver::instance();
         }
-        if (null === $contextFactory) {
-            $contextFactory = ResolutionContextFactory::instance();
+        if (null === $contextReader) {
+            $contextReader = ResolutionContextReader::instance();
         }
 
         $this->resolver = $resolver;
-        $this->contextFactory = $contextFactory;
+        $this->contextReader = $contextReader;
     }
 
     /**
@@ -81,11 +81,11 @@ class FixedContextSymbolResolverFactory implements
     /**
      * Get the resolution context factory.
      *
-     * @return ResolutionContextFactoryInterface The resolution context factory.
+     * @return ResolutionContextReaderInterface The resolution context factory.
      */
-    public function contextFactory()
+    public function contextReader()
     {
-        return $this->contextFactory;
+        return $this->contextReader;
     }
 
     /**
@@ -111,7 +111,7 @@ class FixedContextSymbolResolverFactory implements
     public function createFromObject($object)
     {
         return $this
-            ->create($this->contextFactory()->createFromObject($object));
+            ->create($this->contextReader()->readFromObject($object));
     }
 
     /**
@@ -127,7 +127,7 @@ class FixedContextSymbolResolverFactory implements
     public function createFromSymbol($symbol)
     {
         return $this
-            ->create($this->contextFactory()->createFromSymbol($symbol));
+            ->create($this->contextReader()->readFromSymbol($symbol));
     }
 
     /**
@@ -143,7 +143,7 @@ class FixedContextSymbolResolverFactory implements
     public function createFromFunctionSymbol($symbol)
     {
         return $this->create(
-            $this->contextFactory()->createFromFunctionSymbol($symbol)
+            $this->contextReader()->readFromFunctionSymbol($symbol)
         );
     }
 
@@ -159,7 +159,7 @@ class FixedContextSymbolResolverFactory implements
      */
     public function createFromClass(ReflectionClass $class)
     {
-        return $this->create($this->contextFactory()->createFromClass($class));
+        return $this->create($this->contextReader()->readFromClass($class));
     }
 
     /**
@@ -175,7 +175,7 @@ class FixedContextSymbolResolverFactory implements
     public function createFromFunction(ReflectionFunction $function)
     {
         return $this
-            ->create($this->contextFactory()->createFromFunction($function));
+            ->create($this->contextReader()->readFromFunction($function));
     }
 
     /**
@@ -189,7 +189,7 @@ class FixedContextSymbolResolverFactory implements
      */
     public function createFromFile($path)
     {
-        return $this->create($this->contextFactory()->createFromFile($path));
+        return $this->create($this->contextReader()->readFromFile($path));
     }
 
     /**
@@ -206,7 +206,7 @@ class FixedContextSymbolResolverFactory implements
     public function createFromFileByIndex($path, $index)
     {
         return $this->create(
-            $this->contextFactory()->createFromFileByIndex($path, $index)
+            $this->contextReader()->readFromFileByIndex($path, $index)
         );
     }
 
@@ -225,7 +225,7 @@ class FixedContextSymbolResolverFactory implements
         ParserPositionInterface $position
     ) {
         return $this->create(
-            $this->contextFactory()->createFromFileByPosition($path, $position)
+            $this->contextReader()->readFromFileByPosition($path, $position)
         );
     }
 
@@ -242,7 +242,7 @@ class FixedContextSymbolResolverFactory implements
     public function createFromStream($stream, $path = null)
     {
         return $this
-            ->create($this->contextFactory()->createFromStream($stream, $path));
+            ->create($this->contextReader()->readFromStream($stream, $path));
     }
 
     /**
@@ -260,8 +260,8 @@ class FixedContextSymbolResolverFactory implements
     public function createFromStreamByIndex($stream, $index, $path = null)
     {
         return $this->create(
-            $this->contextFactory()
-                ->createFromStreamByIndex($stream, $index, $path)
+            $this->contextReader()
+                ->readFromStreamByIndex($stream, $index, $path)
         );
     }
 
@@ -282,12 +282,12 @@ class FixedContextSymbolResolverFactory implements
         $path = null
     ) {
         return $this->create(
-            $this->contextFactory()
-                ->createFromStreamByPosition($stream, $position, $path)
+            $this->contextReader()
+                ->readFromStreamByPosition($stream, $position, $path)
         );
     }
 
     private static $instance;
     private $resolver;
-    private $contextFactory;
+    private $contextReader;
 }
