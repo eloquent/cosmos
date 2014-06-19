@@ -153,13 +153,15 @@ class SymbolResolver implements SymbolResolverInterface
 
         if ($parent) {
             if ($numAtoms < 2) {
-                return $parent;
+                $symbol = $parent;
+            } else {
+                $symbol = $parent->joinAtomSequence($symbol->sliceAtoms(1));
             }
-
-            return $parent->joinAtomSequence($symbol->sliceAtoms(1));
+        } else {
+            $symbol = $context->primaryNamespace()->join($symbol);
         }
 
-        return $context->primaryNamespace()->join($symbol);
+        return $this->handleFallback($symbol, $type);
     }
 
     /**
@@ -221,6 +223,35 @@ class SymbolResolver implements SymbolResolverInterface
         }
 
         return $match;
+    }
+
+    private function handleFallback(
+        QualifiedSymbolInterface $symbol,
+        SymbolType $type
+    ) {
+        if ($type->isType()) {
+            return $symbol;
+        }
+
+        $numAtoms = count($symbol->atoms());
+
+        if ($numAtoms < 2) {
+            return $symbol;
+        }
+
+        if (SymbolType::CONSTANT() === $type) {
+            $callback = $this->constantResolver();
+        } else {
+            $callback = $this->functionResolver();
+        }
+
+        if (!$callback($symbol->string())) {
+            $numAtoms = count($symbol->atoms());
+
+            return $symbol->replace(0, array(), $numAtoms - 1);
+        }
+
+        return $symbol;
     }
 
     private static $instance;

@@ -16,6 +16,7 @@ use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Cosmos\UseStatement\UseStatementClause;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
@@ -27,10 +28,10 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->functionResolver = function ($functionName) {
-            return function_exists($functionName);
+            return true;
         };
         $this->constantResolver = function ($constantName) {
-            return defined($constantName);
+            return true;
         };
         $this->contextFactory = new ResolutionContextFactory;
         $this->resolver = new SymbolResolver($this->functionResolver, $this->constantResolver, $this->contextFactory);
@@ -126,10 +127,262 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testResolveAgainstContextSpecialAtoms()
+    {
+        $this->assertSame(
+            '\VendorA\PackageA\.\PackageB\Symbol',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('.\PackageB\Symbol'))->string()
+        );
+        $this->assertSame(
+            '\VendorA\PackageA\..\PackageD\Symbol',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('..\PackageD\Symbol'))->string()
+        );
+        $this->assertSame(
+            '\VendorB\PackageB\..\PackageD\Symbol',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('PackageB\..\PackageD\Symbol'))
+                ->string()
+        );
+    }
+
     /**
-     * @link http://php.net/manual/en/language.namespaces.importing.php
+     * Tests for PHP manual entry "Namespaces overview"
+     *
+     * Example "Example #1 Namespace syntax example"
+     *
+     * @link http://php.net/manual/en/language.namespaces.rationale.php#example-251
      */
-    public function testResolveAgainstContextDocumentationExamples()
+    public function testResolveAgainstContextDocumentationOverviewExample1()
+    {
+        $this->context = new ResolutionContext(Symbol::fromString('\my\name'));
+
+        $this->assertSame(
+            '\my\name\MyClass',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('MyClass'))->string()
+        );
+        $this->assertSame(
+            '\my\name\MyClass',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\my\name\MyClass'))->string()
+        );
+    }
+
+    /**
+     * Tests for PHP manual entry "Using namespaces: Basics"
+     *
+     * Examples "file1.php" / "file2.php"
+     *
+     * @link http://php.net/manual/en/language.namespaces.basics.php
+     */
+    public function testResolveAgainstContextDocumentationBasicsExample0()
+    {
+        $this->functionResolver = function ($functionName) {
+            return '\Foo\Bar\foo' === $functionName;
+        };
+        $this->constantResolver = function ($constantName) {
+            return '\Foo\Bar\FOO' === $constantName;
+        };
+        $this->resolver = new SymbolResolver($this->functionResolver, $this->constantResolver, $this->contextFactory);
+        $this->context = new ResolutionContext(Symbol::fromString('\Foo\Bar'));
+
+        $this->assertSame(
+            '\Foo\Bar\foo',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('foo'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+        $this->assertSame(
+            '\Foo\Bar\foo',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('foo'))->string()
+        );
+        $this->assertSame(
+            '\Foo\Bar\FOO',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('FOO'), SymbolType::CONSTANT())
+                ->string()
+        );
+        $this->assertSame(
+            '\Foo\Bar\subnamespace\foo',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('subnamespace\foo'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+        $this->assertSame(
+            '\Foo\Bar\subnamespace\foo',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('subnamespace\foo'))->string()
+        );
+        $this->assertSame(
+            '\Foo\Bar\subnamespace\FOO',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('subnamespace\FOO'), SymbolType::CONSTANT())
+                ->string()
+        );
+        $this->assertSame(
+            '\Foo\Bar\foo',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('\Foo\Bar\foo'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+        $this->assertSame(
+            '\Foo\Bar\foo',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\Foo\Bar\foo'))->string()
+        );
+        $this->assertSame(
+            '\Foo\Bar\FOO',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('\Foo\Bar\FOO'), SymbolType::CONSTANT())
+                ->string()
+        );
+    }
+
+    /**
+     * Tests for PHP manual entry "Using namespaces: Basics"
+     *
+     * Example "Example #1 Accessing global classes, functions and constants from within a namespace"
+     *
+     * @link http://php.net/manual/en/language.namespaces.basics.php#example-259
+     */
+    public function testResolveAgainstContextDocumentationBasicsExample1()
+    {
+        $this->context = new ResolutionContext(Symbol::fromString('\Foo'));
+
+        $this->assertSame(
+            '\strlen',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('\strlen'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+        $this->assertSame(
+            '\INI_ALL',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('\INI_ALL'), SymbolType::CONSTANT())
+                ->string()
+        );
+        $this->assertSame(
+            '\Exception',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\Exception'))->string()
+        );
+    }
+
+    /**
+     * Tests for PHP manual entry "namespace keyword and __NAMESPACE__ constant"
+     *
+     * Example "Example #4 the namespace operator, inside a namespace"
+     *
+     * @link http://php.net/manual/en/language.namespaces.nsconstants.php#example-265
+     */
+    public function testResolveAgainstContextDocumentationNamespaceKeywordExample4()
+    {
+        $this->context = new ResolutionContext(
+            Symbol::fromString('\MyProject'),
+            array(
+                UseStatement::create(Symbol::fromString('\blah\blah'), Symbol::fromString('mine')),
+            )
+        );
+
+        $this->assertSame(
+            '\MyProject\blah\mine',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('blah\mine'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+        $this->assertSame(
+            '\MyProject\blah\mine',
+            $this->resolver
+                ->resolveAgainstContext(
+                    $this->context,
+                    Symbol::fromString('namespace\blah\mine'),
+                    SymbolType::FUNCT1ON()
+                )
+                ->string()
+        );
+        $this->assertSame(
+            '\MyProject\func',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('namespace\func'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+        $this->assertSame(
+            '\MyProject\sub\func',
+            $this->resolver
+                ->resolveAgainstContext(
+                    $this->context,
+                    Symbol::fromString('namespace\sub\func'),
+                    SymbolType::FUNCT1ON()
+                )
+                ->string()
+        );
+        $this->assertSame(
+            '\MyProject\cname',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('namespace\cname'))->string()
+        );
+        $this->assertSame(
+            '\MyProject\sub\cname',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('namespace\sub\cname'))->string()
+        );
+        $this->assertSame(
+            '\MyProject\CONSTANT',
+            $this->resolver
+                ->resolveAgainstContext(
+                    $this->context,
+                    Symbol::fromString('namespace\CONSTANT'),
+                    SymbolType::CONSTANT()
+                )
+                ->string()
+        );
+    }
+
+    /**
+     * Tests for PHP manual entry "namespace keyword and __NAMESPACE__ constant"
+     *
+     * Example "Example #5 the namespace operator, in global code"
+     *
+     * @link http://php.net/manual/en/language.namespaces.nsconstants.php#example-266
+     */
+    public function testResolveAgainstContextDocumentationNamespaceKeywordExample5()
+    {
+        $this->context = new ResolutionContext;
+
+        $this->assertSame(
+            '\func',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('namespace\func'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+        $this->assertSame(
+            '\sub\func',
+            $this->resolver
+                ->resolveAgainstContext(
+                    $this->context,
+                    Symbol::fromString('namespace\sub\func'),
+                    SymbolType::FUNCT1ON()
+                )
+                ->string()
+        );
+        $this->assertSame(
+            '\cname',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('namespace\cname'))->string()
+        );
+        $this->assertSame(
+            '\sub\cname',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('namespace\sub\cname'))->string()
+        );
+        $this->assertSame(
+            '\CONSTANT',
+            $this->resolver
+                ->resolveAgainstContext(
+                    $this->context,
+                    Symbol::fromString('namespace\CONSTANT'),
+                    SymbolType::CONSTANT()
+                )
+                ->string()
+        );
+    }
+
+    /**
+     * Tests for PHP manual entry "Using namespaces: Aliasing/Importing"
+     *
+     * Example "Example #1 importing/aliasing with the use operator"
+     *
+     * @link http://php.net/manual/en/language.namespaces.importing.php#example-267
+     */
+    public function testResolveAgainstContextDocumentationImportingExample1()
     {
         $this->context = new ResolutionContext(
             Symbol::fromString('\foo'),
@@ -176,6 +429,66 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
                 ->resolveAgainstContext($this->context, Symbol::fromString('CONSTANT'), SymbolType::CONSTANT())
                 ->string()
         );
+    }
+
+    /**
+     * Tests for PHP manual entry "Using namespaces: Aliasing/Importing"
+     *
+     * Example "Example #2 importing/aliasing with the use operator, multiple use statements combined"
+     *
+     * @link http://php.net/manual/en/language.namespaces.importing.php#example-268
+     */
+    public function testResolveAgainstContextDocumentationImportingExample2()
+    {
+        $this->context = new ResolutionContext(
+            Symbol::fromString('\foo'),
+            array(
+                new UseStatement(
+                    array(
+                        new UseStatementClause(Symbol::fromString('\My\Full\Classname'), Symbol::fromString('Another')),
+                        new UseStatementClause(Symbol::fromString('\My\Full\NSname')),
+                    )
+                ),
+            )
+        );
+
+        $this->assertSame(
+            '\My\Full\Classname',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('Another'))->string()
+        );
+        $this->assertSame(
+            '\My\Full\NSname\subns\func',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('NSname\subns\func'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+    }
+
+    /**
+     * Tests for PHP manual entry "Using namespaces: Aliasing/Importing"
+     *
+     * Example "Example #4 Importing and fully qualified names"
+     *
+     * @link http://php.net/manual/en/language.namespaces.importing.php#example-270
+     */
+    public function testResolveAgainstContextDocumentationImportingExample4()
+    {
+        $this->context = new ResolutionContext(
+            Symbol::fromString('\foo'),
+            array(
+                new UseStatement(
+                    array(
+                        new UseStatementClause(Symbol::fromString('\My\Full\Classname'), Symbol::fromString('Another')),
+                        new UseStatementClause(Symbol::fromString('\My\Full\NSname')),
+                    )
+                ),
+            )
+        );
+
+        $this->assertSame(
+            '\My\Full\Classname',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('Another'))->string()
+        );
         $this->assertSame(
             '\Another',
             $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\Another'))->string()
@@ -190,20 +503,182 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    public function testResolveAgainstContextSpecialAtoms()
+    /**
+     * Tests for PHP manual entry "Global space"
+     *
+     * Example "Example #1 Using global space specification"
+     *
+     * @link http://php.net/manual/en/language.namespaces.global.php#example-272
+     */
+    public function testResolveAgainstContextDocumentationGlobalSpaceExample1()
     {
+        $this->context = new ResolutionContext(Symbol::fromString('\A\B\C'));
+
         $this->assertSame(
-            '\VendorA\PackageA\.\PackageB\Symbol',
-            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('.\PackageB\Symbol'))->string()
+            '\fopen',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('\fopen'), SymbolType::FUNCT1ON())->string()
+        );
+    }
+
+    /**
+     * Tests for PHP manual entry "Using namespaces: fallback to global function/constant"
+     *
+     * Example "Example #1 Accessing global classes inside a namespace"
+     *
+     * @link http://php.net/manual/en/language.namespaces.fallback.php#example-273
+     */
+    public function testResolveAgainstContextDocumentationFallbackExample1()
+    {
+        $this->context = new ResolutionContext(Symbol::fromString('\A\B\C'));
+
+        $this->assertSame(
+            '\A\B\C\Exception',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('Exception'))->string()
         );
         $this->assertSame(
-            '\VendorA\PackageA\..\PackageD\Symbol',
-            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('..\PackageD\Symbol'))->string()
+            '\Exception',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\Exception'))->string()
         );
         $this->assertSame(
-            '\VendorB\PackageB\..\PackageD\Symbol',
-            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('PackageB\..\PackageD\Symbol'))
+            '\A\B\C\ArrayObject',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('ArrayObject'))->string()
+        );
+    }
+
+    /**
+     * Tests for PHP manual entry "Using namespaces: fallback to global function/constant"
+     *
+     * Example "Example #2 global functions/constants fallback inside a namespace"
+     *
+     * @link http://php.net/manual/en/language.namespaces.fallback.php#example-274
+     */
+    public function testResolveAgainstContextDocumentationFallbackExample2()
+    {
+        $this->functionResolver = function ($functionName) {
+            return '\A\B\C\strlen' === $functionName;
+        };
+        $this->constantResolver = function ($constantName) {
+            return '\A\B\C\E_ERROR' === $constantName;
+        };
+        $this->resolver = new SymbolResolver($this->functionResolver, $this->constantResolver, $this->contextFactory);
+        $this->context = new ResolutionContext(Symbol::fromString('\A\B\C'));
+
+        $this->assertSame(
+            '\A\B\C\E_ERROR',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('E_ERROR'), SymbolType::CONSTANT())
                 ->string()
+        );
+        $this->assertSame(
+            '\INI_ALL',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('INI_ALL'), SymbolType::CONSTANT())
+                ->string()
+        );
+    }
+
+    /**
+     * Tests for PHP manual entry "Name resolution rules"
+     *
+     * Example "Example #1 Name resolutions illustrated"
+     *
+     * @link http://php.net/manual/en/language.namespaces.rules.php#example-275
+     */
+    public function testResolveAgainstContextDocumentationResolutionExample1()
+    {
+        $this->context = new ResolutionContext(
+            Symbol::fromString('\A'),
+            array(
+                new UseStatement(
+                    array(
+                        new UseStatementClause(Symbol::fromString('\B\D')),
+                        new UseStatementClause(Symbol::fromString('\C\E'), Symbol::fromString('F')),
+                    )
+                ),
+            )
+        );
+
+        // function calls
+        $this->assertSame(
+            '\A\foo',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('foo'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+        $this->assertSame(
+            '\foo',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\foo'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+        $this->assertSame(
+            '\A\my\foo',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('my\foo'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+        $this->assertSame(
+            '\A\F',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('F'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+
+        // class references
+        $this->assertSame(
+            '\A\B',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('B'))->string()
+        );
+        $this->assertSame(
+            '\B\D',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('D'))->string()
+        );
+        $this->assertSame(
+            '\C\E',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('F'))->string()
+        );
+        $this->assertSame(
+            '\B',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\B'))->string()
+        );
+        $this->assertSame(
+            '\D',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\D'))->string()
+        );
+        $this->assertSame(
+            '\F',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\F'))->string()
+        );
+
+        // static methods/namespace functions from another namespace
+        $this->assertSame(
+            '\A\B\foo',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('B\foo'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+        $this->assertSame(
+            '\A\B',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('B'))->string()
+        );
+        $this->assertSame(
+            '\B\D',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('D'))->string()
+        );
+        $this->assertSame(
+            '\B\foo',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\B\foo'), SymbolType::FUNCT1ON())
+                ->string()
+        );
+        $this->assertSame(
+            '\B',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\B'))->string()
+        );
+
+        // static methods/namespace functions of current namespace
+        $this->assertSame(
+            '\A\A\B',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('A\B'))->string()
+        );
+        $this->assertSame(
+            '\A\B',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\A\B'))->string()
         );
     }
 
