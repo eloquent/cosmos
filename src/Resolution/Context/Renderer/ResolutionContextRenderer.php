@@ -15,6 +15,7 @@ use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
+use Eloquent\Cosmos\UseStatement\UseStatementClauseInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
 
@@ -96,10 +97,29 @@ class ResolutionContextRenderer implements ResolutionContextRendererInterface,
             $rendered .= $useStatement->type()->value() . ' ';
         }
 
-        $rendered .= $useStatement->symbol()->accept($this);
+        $clauses = array();
+        foreach ($useStatement->clauses() as $useStatementClause) {
+            $clauses[] = $useStatementClause->accept($this);
+        }
 
-        if (null !== $useStatement->alias()) {
-            $rendered .= ' as ' . $useStatement->alias()->accept($this);
+        $rendered .= implode(', ', $clauses);
+
+        return $rendered;
+    }
+
+    /**
+     * Visit a use statement clause.
+     *
+     * @param UseStatementClauseInterface $useStatementClause The use statement clause to visit.
+     *
+     * @return mixed The result of visitation.
+     */
+    public function visitUseStatementClause(
+        UseStatementClauseInterface $useStatementClause
+    ) {
+        $rendered = $useStatementClause->symbol()->accept($this);
+        if (null !== $useStatementClause->alias()) {
+            $rendered .= ' as ' . $useStatementClause->alias()->accept($this);
         }
 
         return $rendered;

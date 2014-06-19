@@ -13,6 +13,7 @@ namespace Eloquent\Cosmos\Resolution\Context;
 
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
+use Eloquent\Cosmos\UseStatement\UseStatementClauseInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 
 /**
@@ -37,6 +38,17 @@ interface ResolutionContextVisitorInterface
      * @return mixed The result of visitation.
      */
     public function visitUseStatement(UseStatementInterface $useStatement);
+
+    /**
+     * Visit a use statement clause.
+     *
+     * @param UseStatementClauseInterface $useStatementClause The use statement clause to visit.
+     *
+     * @return mixed The result of visitation.
+     */
+    public function visitUseStatementClause(
+        UseStatementClauseInterface $useStatementClause
+    );
 
     /**
      * Visit a qualified symbol.

@@ -12,25 +12,34 @@
 namespace Eloquent\Cosmos\UseStatement;
 
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextElementInterface;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 
 /**
- * The interface implemented by use statements.
+ * The interface implemented by use statement clauses.
  */
-interface UseStatementInterface extends ResolutionContextElementInterface
+interface UseStatementClauseInterface extends ResolutionContextElementInterface
 {
     /**
-     * Get the use statement type.
+     * Get the symbol.
      *
-     * @return UseStatementType The type.
+     * @return QualifiedSymbolInterface The symbol.
      */
-    public function type();
+    public function symbol();
 
     /**
-     * Get the clauses.
+     * Get the alias for the symbol.
      *
-     * @return array<UseStatementClauseInterface> The clauses.
+     * @return SymbolReferenceInterface|null The alias, or null if no alias is in use.
      */
-    public function clauses();
+    public function alias();
+
+    /**
+     * Get the effective alias for the symbol.
+     *
+     * @return SymbolReferenceInterface The alias, or the last atom of the symbol.
+     */
+    public function effectiveAlias();
 
     /**
      * Generate a string representation of this use statement.
