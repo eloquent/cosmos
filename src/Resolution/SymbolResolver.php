@@ -11,6 +11,8 @@
 
 namespace Eloquent\Cosmos\Resolution;
 
+use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
+use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactoryInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
@@ -38,6 +40,31 @@ class SymbolResolver implements SymbolResolverInterface
     }
 
     /**
+     * Construct a new symbol resolver.
+     *
+     * @param ResolutionContextFactoryInterface|null $contextFactory The resolution context factory to use.
+     */
+    public function __construct(
+        ResolutionContextFactoryInterface $contextFactory = null
+    ) {
+        if (null === $contextFactory) {
+            $contextFactory = ResolutionContextFactory::instance();
+        }
+
+        $this->contextFactory = $contextFactory;
+    }
+
+    /**
+     * Get the resolution context factory.
+     *
+     * @return ResolutionContextFactoryInterface The resolution context factory.
+     */
+    public function contextFactory()
+    {
+        return $this->contextFactory;
+    }
+
+    /**
      * Resolve a symbol against the supplied namespace.
      *
      * This method assumes no use statements are defined.
@@ -51,15 +78,10 @@ class SymbolResolver implements SymbolResolverInterface
         AbsolutePathInterface $primaryNamespace,
         PathInterface $symbol
     ) {
-        if ($symbol instanceof AbsolutePathInterface) {
-            return $symbol;
-        }
-
-        if (SymbolReference::NAMESPACE_ATOM === $symbol->atomAt(0)) {
-            $symbol = $symbol->replace(0, array(), 1);
-        }
-
-        return $primaryNamespace->join($symbol);
+        return $this->resolveAgainstContext(
+            $this->contextFactory()->create($primaryNamespace),
+            $symbol
+        );
     }
 
     /**
@@ -150,4 +172,5 @@ class SymbolResolver implements SymbolResolverInterface
     }
 
     private static $instance;
+    private $contextFactory;
 }

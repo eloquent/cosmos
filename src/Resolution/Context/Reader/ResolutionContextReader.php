@@ -200,7 +200,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
 
         if (!array_key_exists($symbol, $this->classCache)) {
             if (false === $class->getFileName()) {
-                $this->classCache[$symbol] = $this->contextFactory()->create();
+                $this->classCache[$symbol] = $this->contextFactory()
+                    ->createEmpty();
             } else {
                 $context = $this->findBySymbolPredicate(
                     $this->parseFile($class->getFileName()),
@@ -243,7 +244,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         if (!array_key_exists($symbol, $this->functionCache)) {
             if (false === $function->getFileName()) {
                 $this->functionCache[$symbol] = $this->contextFactory()
-                    ->create();
+                    ->createEmpty();
             } else {
                 $context = $this->findBySymbolPredicate(
                     $this->parseFile($function->getFileName()),
@@ -406,7 +407,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         }
 
         if (null === $context) {
-            $context = $this->contextFactory()->create();
+            $context = $this->contextFactory()->createEmpty();
         }
 
         return $context;

@@ -32,4 +32,14 @@ interface ResolutionContextFactoryInterface
         QualifiedSymbolInterface $primaryNamespace = null,
         array $useStatements = null
     );
+
+    /**
+     * Create a new empty sumbol resolution context.
+     *
+     * The created context will use the global namespace, and have no use
+     * statements.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     */
+    public function createEmpty();
 }

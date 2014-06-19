@@ -80,6 +80,24 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
         );
     }
 
+    /**
+     * Create a new empty sumbol resolution context.
+     *
+     * The created context will use the global namespace, and have no use
+     * statements.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     */
+    public function createEmpty()
+    {
+        if (null === $this->empty) {
+            $this->empty = $this->create();
+        }
+
+        return $this->empty;
+    }
+
     private static $instance;
     private $symbolFactory;
+    private $empty;
 }

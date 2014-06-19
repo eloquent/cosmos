@@ -11,6 +11,7 @@
 
 namespace Eloquent\Cosmos\Resolution;
 
+use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\UseStatement\UseStatement;
@@ -23,7 +24,8 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->resolver = new SymbolResolver;
+        $this->contextFactory = new ResolutionContextFactory;
+        $this->resolver = new SymbolResolver($this->contextFactory);
 
         $this->symbolFactory = new SymbolFactory;
 
@@ -33,6 +35,18 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
             new UseStatement($this->symbolFactory->create('\VendorC\PackageC')),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->symbolFactory);
+    }
+
+    public function testConstructor()
+    {
+        $this->assertSame($this->contextFactory, $this->resolver->contextFactory());
+    }
+
+    public function testConstructorDefaults()
+    {
+        $this->resolver = new SymbolResolver;
+
+        $this->assertSame(ResolutionContextFactory::instance(), $this->resolver->contextFactory());
     }
 
     public function testResolve()
