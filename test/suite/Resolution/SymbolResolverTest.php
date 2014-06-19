@@ -144,6 +144,17 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testResolveSingleAtomFunctionAgainstGlobal()
+    {
+        $symbol = Symbol::fromString('Symbol');
+        $context = new ResolutionContext;
+
+        $this->assertSame(
+            '\Symbol',
+            $this->resolver->resolveAgainstContext($context, $symbol, SymbolType::FUNCT1ON())->string()
+        );
+    }
+
     /**
      * Tests for PHP manual entry "Namespaces overview"
      *
