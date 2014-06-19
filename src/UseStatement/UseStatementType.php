@@ -1,4 +1,4 @@
-<?php // @codeCoverageIgnoreStart
+<?php
 
 /*
  * This file is part of the Cosmos package.
@@ -11,6 +11,7 @@
 
 namespace Eloquent\Cosmos\UseStatement;
 
+use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Enumeration\AbstractEnumeration;
 
 /**
@@ -32,4 +33,20 @@ final class UseStatementType extends AbstractEnumeration
      * A constant use statement.
      */
     const CONSTANT = 'const';
+
+    /**
+     * Get the relevant use statement type for a symbol type.
+     *
+     * @param SymbolType $symbolType The symbol type.
+     *
+     * @return UseStatementType The relevant use statement type.
+     */
+    public static function memberBySymbolType(SymbolType $symbolType)
+    {
+        if ($symbolType->isType()) {
+            return self::TYPE();
+        }
+
+        return self::memberByValue($symbolType->value());
+    }
 }
