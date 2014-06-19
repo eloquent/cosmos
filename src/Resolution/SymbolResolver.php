@@ -17,6 +17,8 @@ use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolReference;
+use Eloquent\Cosmos\Symbol\SymbolType;
+use Eloquent\Cosmos\UseStatement\UseStatementType;
 use Eloquent\Pathogen\AbsolutePathInterface;
 use Eloquent\Pathogen\PathInterface;
 
@@ -42,16 +44,48 @@ class SymbolResolver implements SymbolResolverInterface
     /**
      * Construct a new symbol resolver.
      *
-     * @param ResolutionContextFactoryInterface|null $contextFactory The resolution context factory to use.
+     * @param callable|null                          $functionResolver The callback to use when determining if a function exists.
+     * @param callable|null                          $constantResolver The callback to use when determining if a constant exists.
+     * @param ResolutionContextFactoryInterface|null $contextFactory   The resolution context factory to use.
      */
     public function __construct(
+        $functionResolver = null,
+        $constantResolver = null,
         ResolutionContextFactoryInterface $contextFactory = null
     ) {
+        if (null === $functionResolver) {
+            $functionResolver = 'function_exists';
+        }
+        if (null === $constantResolver) {
+            $constantResolver = 'defined';
+        }
         if (null === $contextFactory) {
             $contextFactory = ResolutionContextFactory::instance();
         }
 
+        $this->functionResolver = $functionResolver;
+        $this->constantResolver = $constantResolver;
         $this->contextFactory = $contextFactory;
+    }
+
+    /**
+     * Get the function resolver.
+     *
+     * @return callable The function resolver.
+     */
+    public function functionResolver()
+    {
+        return $this->functionResolver;
+    }
+
+    /**
+     * Get the constant resolver.
+     *
+     * @return callable The constant resolver.
+     */
+    public function constantResolver()
+    {
+        return $this->constantResolver;
     }
 
     /**
@@ -130,13 +164,19 @@ class SymbolResolver implements SymbolResolverInterface
      *
      * @param ResolutionContextInterface $context The resolution context.
      * @param QualifiedSymbolInterface   $symbol  The symbol to resolve.
+     * @param SymbolType|null            $type    The symbol type.
      *
      * @return SymbolInterface The shortest symbol.
      */
     public function relativeToContext(
         ResolutionContextInterface $context,
-        QualifiedSymbolInterface $symbol
+        QualifiedSymbolInterface $symbol,
+        SymbolType $type = null
     ) {
+        if (null === $type) {
+            $type = SymbolType::CLA55();
+        }
+
         $symbol = $symbol->normalize();
 
         if ($context->primaryNamespace()->isAncestorOf($symbol)) {
@@ -151,8 +191,10 @@ class SymbolResolver implements SymbolResolverInterface
         }
 
         $matchSize = count($match->atoms());
+        $useStatements = $context
+            ->useStatementsByType(UseStatementType::memberBySymbolType($type));
 
-        foreach ($context->useStatements() as $useStatement) {
+        foreach ($useStatements as $useStatement) {
             if ($useStatement->symbol()->atoms() === $symbol->atoms()) {
                 $match = $useStatement->effectiveAlias();
                 $matchSize = 1;
@@ -172,5 +214,7 @@ class SymbolResolver implements SymbolResolverInterface
     }
 
     private static $instance;
+    private $functionResolver;
+    private $constantResolver;
     private $contextFactory;
 }

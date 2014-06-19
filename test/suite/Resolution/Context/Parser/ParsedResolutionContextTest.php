@@ -13,9 +13,11 @@ namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Symbol\Symbol;
+use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Cosmos\UseStatement\UseStatement;
-use Phake;
+use Eloquent\Cosmos\UseStatement\UseStatementType;
 use PHPUnit_Framework_TestCase;
+use Phake;
 
 /**
  * @covers \Eloquent\Cosmos\Resolution\Context\Parser\ParsedResolutionContext
@@ -31,64 +33,122 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
         $this->useStatements = array(
             new UseStatement(Symbol::fromString('\VendorB\PackageB')),
             new UseStatement(Symbol::fromString('\VendorC\PackageC')),
+            new UseStatement(Symbol::fromString('\VendorD\PackageD'), null, UseStatementType::FUNCT1ON()),
+            new UseStatement(Symbol::fromString('\VendorE\PackageE'), null, UseStatementType::FUNCT1ON()),
+            new UseStatement(Symbol::fromString('\VendorF\PackageF'), null, UseStatementType::CONSTANT()),
+            new UseStatement(Symbol::fromString('\VendorG\PackageG'), null, UseStatementType::CONSTANT()),
         );
-        $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements);
+        $this->innerContext = new ResolutionContext($this->primaryNamespace, $this->useStatements);
         $this->symbols = array(Symbol::fromString('\SymbolA'), Symbol::fromString('\SymbolB'));
         $this->position = new ParserPosition(111, 222);
-        $this->parsedContext = new ParsedResolutionContext($this->context, $this->symbols, $this->position);
+        $this->context = new ParsedResolutionContext($this->innerContext, $this->symbols, $this->position);
     }
 
     public function testConstructor()
     {
-        $this->assertSame($this->context, $this->parsedContext->context());
-        $this->assertSame($this->symbols, $this->parsedContext->symbols());
-        $this->assertSame($this->position, $this->parsedContext->position());
-        $this->assertSame($this->context->primaryNamespace(), $this->parsedContext->primaryNamespace());
-        $this->assertSame($this->context->useStatements(), $this->parsedContext->useStatements());
+        $this->assertSame($this->innerContext, $this->context->context());
+        $this->assertSame($this->symbols, $this->context->symbols());
+        $this->assertSame($this->position, $this->context->position());
+        $this->assertSame($this->innerContext->primaryNamespace(), $this->context->primaryNamespace());
+        $this->assertSame($this->innerContext->useStatements(), $this->context->useStatements());
     }
 
     public function testConstructorDefaults()
     {
-        $this->parsedContext = new ParsedResolutionContext;
+        $this->context = new ParsedResolutionContext;
 
-        $this->assertEquals(new ResolutionContext, $this->parsedContext->context());
-        $this->assertSame(array(), $this->parsedContext->symbols());
-        $this->assertEquals(new ParserPosition(0, 0), $this->parsedContext->position());
+        $this->assertEquals(new ResolutionContext, $this->context->context());
+        $this->assertSame(array(), $this->context->symbols());
+        $this->assertEquals(new ParserPosition(0, 0), $this->context->position());
+    }
+
+    public function testUseStatementsByType()
+    {
+        $typeUseStatements = array($this->useStatements[0], $this->useStatements[1]);
+        $functionUseStatements = array($this->useStatements[2], $this->useStatements[3]);
+        $constantUseStatements = array($this->useStatements[4], $this->useStatements[5]);
+
+        $this->assertSame($typeUseStatements, $this->context->useStatementsByType(UseStatementType::TYPE()));
+        $this->assertSame($functionUseStatements, $this->context->useStatementsByType(UseStatementType::FUNCT1ON()));
+        $this->assertSame($constantUseStatements, $this->context->useStatementsByType(UseStatementType::CONSTANT()));
     }
 
     public function testSymbolByFirstAtom()
     {
-        $this->context = new ResolutionContext(
+        $this->innerContext = new ResolutionContext(
             Symbol::fromString('\foo'),
             array(
-                new UseStatement(Symbol::fromString('\My\Full\Classname'), Symbol::fromString('Another')),
-                new UseStatement(Symbol::fromString('\My\Full\NSname')),
-                new UseStatement(Symbol::fromString('\ArrayObject')),
+                new UseStatement(Symbol::fromString('\NamespaceA\NamespaceB\SymbolA'), Symbol::fromString('SymbolB')),
+                new UseStatement(Symbol::fromString('\NamespaceC\NamespaceD')),
+                new UseStatement(Symbol::fromString('\SymbolC')),
+
+                new UseStatement(Symbol::fromString(
+                    '\NamespaceE\NamespaceF\SymbolD'),
+                    Symbol::fromString('SymbolE'),
+                    UseStatementType::FUNCT1ON()
+                ),
+                new UseStatement(Symbol::fromString('\NamespaceG\SymbolF'), null, UseStatementType::FUNCT1ON()),
+                new UseStatement(Symbol::fromString('\SymbolC'), null, UseStatementType::FUNCT1ON()),
+
+                new UseStatement(Symbol::fromString(
+                    '\NamespaceH\NamespaceI\SymbolG'),
+                    Symbol::fromString('SymbolH'),
+                    UseStatementType::CONSTANT()
+                ),
+                new UseStatement(Symbol::fromString('\NamespaceJ\SymbolI'), null, UseStatementType::CONSTANT()),
+                new UseStatement(Symbol::fromString('\SymbolC'), null, UseStatementType::CONSTANT()),
             )
         );
-        $this->parsedContext = new ParsedResolutionContext($this->context, $this->symbols, $this->position);
+        $this->context = new ParsedResolutionContext($this->innerContext, $this->symbols, $this->position);
 
         $this->assertSame(
-            '\My\Full\Classname',
-            $this->parsedContext->symbolByFirstAtom(Symbol::fromString('Another'))->string()
+            '\NamespaceA\NamespaceB\SymbolA',
+            $this->context->symbolByFirstAtom(Symbol::fromString('SymbolB'))->string()
         );
         $this->assertSame(
-            '\My\Full\NSname',
-            $this->parsedContext->symbolByFirstAtom(Symbol::fromString('NSname'))->string()
+            '\NamespaceC\NamespaceD',
+            $this->context->symbolByFirstAtom(Symbol::fromString('NamespaceD'))->string()
+        );
+        $this->assertSame('\SymbolC', $this->context->symbolByFirstAtom(Symbol::fromString('SymbolC'))->string());
+        $this->assertNull($this->context->symbolByFirstAtom(Symbol::fromString('SymbolA')));
+        $this->assertNull($this->context->symbolByFirstAtom(Symbol::fromString('SymbolF')));
+
+        $this->assertSame(
+            '\NamespaceE\NamespaceF\SymbolD',
+            $this->context->symbolByFirstAtom(Symbol::fromString('SymbolE'), SymbolType::FUNCT1ON())->string()
         );
         $this->assertSame(
-            '\ArrayObject',
-            $this->parsedContext->symbolByFirstAtom(Symbol::fromString('ArrayObject'))->string()
+            '\NamespaceG\SymbolF',
+            $this->context->symbolByFirstAtom(Symbol::fromString('SymbolF'), SymbolType::FUNCT1ON())->string()
         );
-        $this->assertNull($this->parsedContext->symbolByFirstAtom(Symbol::fromString('Classname')));
-        $this->assertNull($this->parsedContext->symbolByFirstAtom(Symbol::fromString('FooClass')));
+        $this->assertSame(
+            '\SymbolC',
+            $this->context->symbolByFirstAtom(Symbol::fromString('SymbolC'), SymbolType::FUNCT1ON())->string()
+        );
+        $this->assertNull($this->context->symbolByFirstAtom(Symbol::fromString('SymbolA'), SymbolType::FUNCT1ON()));
+        $this->assertNull($this->context->symbolByFirstAtom(Symbol::fromString('SymbolB'), SymbolType::FUNCT1ON()));
+
+        $this->assertSame(
+            '\NamespaceH\NamespaceI\SymbolG',
+            $this->context->symbolByFirstAtom(Symbol::fromString('SymbolH'), SymbolType::CONSTANT())->string()
+        );
+        $this->assertSame(
+            '\NamespaceJ\SymbolI',
+            $this->context->symbolByFirstAtom(Symbol::fromString('SymbolI'), SymbolType::CONSTANT())->string()
+        );
+        $this->assertSame(
+            '\SymbolC',
+            $this->context->symbolByFirstAtom(Symbol::fromString('SymbolC'), SymbolType::CONSTANT())->string()
+        );
+        $this->assertNull($this->context->symbolByFirstAtom(Symbol::fromString('SymbolA'), SymbolType::CONSTANT()));
+        $this->assertNull($this->context->symbolByFirstAtom(Symbol::fromString('SymbolB'), SymbolType::CONSTANT()));
     }
 
     public function testAccept()
     {
         $visitor = Phake::mock('Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface');
-        $this->parsedContext->accept($visitor);
+        $this->context->accept($visitor);
 
-        Phake::verify($visitor)->visitResolutionContext($this->identicalTo($this->parsedContext));
+        Phake::verify($visitor)->visitResolutionContext($this->identicalTo($this->context));
     }
 }

@@ -24,8 +24,14 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
+        $this->functionResolver = function ($functionName) {
+            return function_exists($functionName);
+        };
+        $this->constantResolver = function ($constantName) {
+            return defined($constantName);
+        };
         $this->contextFactory = new ResolutionContextFactory;
-        $this->resolver = new SymbolResolver($this->contextFactory);
+        $this->resolver = new SymbolResolver($this->functionResolver, $this->constantResolver, $this->contextFactory);
 
         $this->symbolFactory = new SymbolFactory;
 
@@ -39,6 +45,8 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
 
     public function testConstructor()
     {
+        $this->assertSame($this->functionResolver, $this->resolver->functionResolver());
+        $this->assertSame($this->constantResolver, $this->resolver->constantResolver());
         $this->assertSame($this->contextFactory, $this->resolver->contextFactory());
     }
 
@@ -46,6 +54,8 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     {
         $this->resolver = new SymbolResolver;
 
+        $this->assertSame('function_exists', $this->resolver->functionResolver());
+        $this->assertSame('defined', $this->resolver->constantResolver());
         $this->assertSame(ResolutionContextFactory::instance(), $this->resolver->contextFactory());
     }
 

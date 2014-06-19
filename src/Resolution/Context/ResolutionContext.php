@@ -22,7 +22,9 @@ use Eloquent\Cosmos\Symbol\Factory\SymbolFactoryInterface;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
+use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
+use Eloquent\Cosmos\UseStatement\UseStatementType;
 use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use ReflectionClass;
 use ReflectionFunction;
@@ -246,19 +248,42 @@ class ResolutionContext implements ResolutionContextInterface
     }
 
     /**
+     * Get the use statements by type.
+     *
+     * @param UseStatementType $type The type.
+     *
+     * @return array<UseStatementInterface> The use statements.
+     */
+    public function useStatementsByType(UseStatementType $type)
+    {
+        $index = $this->index($type);
+
+        return array_values($index);
+    }
+
+    /**
      * Get the symbol associated with the supplied symbol reference's first
      * atom.
      *
      * @param SymbolReferenceInterface $symbol The symbol reference.
+     * @param SymbolType|null          $type   The symbol type.
      *
      * @return QualifiedSymbolInterface|null The symbol, or null if no associated symbol exists.
      */
-    public function symbolByFirstAtom(SymbolReferenceInterface $symbol)
-    {
-        $index = $this->index();
+    public function symbolByFirstAtom(
+        SymbolReferenceInterface $symbol,
+        SymbolType $type = null
+    ) {
+        if (null === $type) {
+            $useStatementType = UseStatementType::TYPE();
+        } else {
+            $useStatementType = UseStatementType::memberBySymbolType($type);
+        }
+
+        $index = $this->index($useStatementType);
         $firstAtom = $symbol->atomAt(0);
         if (array_key_exists($firstAtom, $index)) {
-            return $index[$firstAtom];
+            return $index[$firstAtom]->symbol();
         }
 
         return null;
@@ -291,11 +316,13 @@ class ResolutionContext implements ResolutionContextInterface
      *
      * The first time this method is called, the index will be built.
      *
+     * @param UseStatementType $type The use statement type.
+     *
      * @return array The index.
      */
-    protected function index()
+    protected function index(UseStatementType $type)
     {
-        return $this->index;
+        return $this->index[$type->value()];
     }
 
     /**
@@ -305,10 +332,16 @@ class ResolutionContext implements ResolutionContextInterface
      */
     protected function buildIndex()
     {
-        $index = array();
+        $index = array(
+            UseStatementType::TYPE()->value() => array(),
+            UseStatementType::FUNCT1ON()->value() => array(),
+            UseStatementType::CONSTANT()->value() => array(),
+        );
+
         foreach ($this->useStatements() as $useStatement) {
-            $index[$useStatement->effectiveAlias()->string()] =
-                $useStatement->symbol();
+            $type = $useStatement->type()->value();
+            $alias = $useStatement->effectiveAlias()->string();
+            $index[$type][$alias] = $useStatement;
         }
 
         return $index;

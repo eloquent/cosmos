@@ -13,6 +13,8 @@ namespace Eloquent\Cosmos\Resolution\Context;
 
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
+use Eloquent\Cosmos\Symbol\SymbolType;
+use Eloquent\Cosmos\UseStatement\UseStatementType;
 
 /**
  * The interface implemented by symbol resolution contexts.
@@ -34,12 +36,25 @@ interface ResolutionContextInterface extends ResolutionContextElementInterface
     public function useStatements();
 
     /**
+     * Get the use statements by type.
+     *
+     * @param UseStatementType $type The type.
+     *
+     * @return array<UseStatementInterface> The use statements.
+     */
+    public function useStatementsByType(UseStatementType $type);
+
+    /**
      * Get the symbol associated with the supplied symbol reference's first
      * atom.
      *
      * @param SymbolReferenceInterface $symbol The symbol reference.
+     * @param SymbolType|null          $type   The symbol type.
      *
      * @return QualifiedSymbolInterface|null The symbol, or null if no associated symbol exists.
      */
-    public function symbolByFirstAtom(SymbolReferenceInterface $symbol);
+    public function symbolByFirstAtom(
+        SymbolReferenceInterface $symbol,
+        SymbolType $type = null
+    );
 }
