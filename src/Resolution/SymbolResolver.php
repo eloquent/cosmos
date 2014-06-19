@@ -125,26 +125,34 @@ class SymbolResolver implements SymbolResolverInterface
      *
      * @param ResolutionContextInterface $context The resolution context.
      * @param SymbolInterface            $symbol  The symbol to resolve.
+     * @param SymbolType|null            $type    The symbol type.
      *
      * @return QualifiedSymbolInterface The resolved, qualified symbol.
      */
     public function resolveAgainstContext(
         ResolutionContextInterface $context,
-        SymbolInterface $symbol
+        SymbolInterface $symbol,
+        SymbolType $type = null
     ) {
         if ($symbol instanceof AbsolutePathInterface) {
             return $symbol;
+        }
+
+        $numAtoms = count($symbol->atoms());
+
+        if ($numAtoms > 1 || null === $type) {
+            $type = SymbolType::CLA55();
         }
 
         if (SymbolReference::NAMESPACE_ATOM === $symbol->atomAt(0)) {
             $parent = $context->primaryNamespace();
         } else {
             $parent = $context
-                ->symbolByFirstAtom($symbol->firstAtomAsReference());
+                ->symbolByFirstAtom($symbol->firstAtomAsReference(), $type);
         }
 
         if ($parent) {
-            if (count($symbol->atoms()) < 2) {
+            if ($numAtoms < 2) {
                 return $parent;
             }
 

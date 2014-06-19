@@ -14,6 +14,7 @@ namespace Eloquent\Cosmos\Resolution;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Pathogen\Resolver\BasePathResolverInterface;
 
 /**
@@ -28,12 +29,14 @@ interface SymbolResolverInterface extends BasePathResolverInterface
      *
      * @param ResolutionContextInterface $context The resolution context.
      * @param SymbolInterface            $symbol  The symbol to resolve.
+     * @param SymbolType|null            $type    The symbol type.
      *
      * @return QualifiedSymbolInterface The resolved, qualified symbol.
      */
     public function resolveAgainstContext(
         ResolutionContextInterface $context,
-        SymbolInterface $symbol
+        SymbolInterface $symbol,
+        SymbolType $type = null
     );
 
     /**
@@ -46,11 +49,13 @@ interface SymbolResolverInterface extends BasePathResolverInterface
      *
      * @param ResolutionContextInterface $context The resolution context.
      * @param QualifiedSymbolInterface   $symbol  The symbol to resolve.
+     * @param SymbolType|null            $type    The symbol type.
      *
      * @return SymbolInterface The shortest symbol.
      */
     public function relativeToContext(
         ResolutionContextInterface $context,
-        QualifiedSymbolInterface $symbol
+        QualifiedSymbolInterface $symbol,
+        SymbolType $type = null
     );
 }

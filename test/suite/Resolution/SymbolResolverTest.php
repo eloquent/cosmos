@@ -13,8 +13,10 @@ namespace Eloquent\Cosmos\Resolution;
 
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\Symbol;
+use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Cosmos\UseStatement\UseStatementType;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
@@ -33,14 +35,16 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         $this->contextFactory = new ResolutionContextFactory;
         $this->resolver = new SymbolResolver($this->functionResolver, $this->constantResolver, $this->contextFactory);
 
-        $this->symbolFactory = new SymbolFactory;
-
-        $this->primaryNamespace = $this->symbolFactory->create('\VendorA\PackageA');
+        $this->primaryNamespace = Symbol::fromString('\VendorA\PackageA');
         $this->useStatements = array(
-            new UseStatement($this->symbolFactory->create('\VendorB\PackageB')),
-            new UseStatement($this->symbolFactory->create('\VendorC\PackageC')),
+            new UseStatement(Symbol::fromString('\VendorB\PackageB')),
+            new UseStatement(Symbol::fromString('\VendorC\PackageC')),
+            new UseStatement(Symbol::fromString('\VendorD\PackageD'), null, UseStatementType::FUNCT1ON()),
+            new UseStatement(Symbol::fromString('\VendorE\PackageE'), null, UseStatementType::FUNCT1ON()),
+            new UseStatement(Symbol::fromString('\VendorF\PackageF'), null, UseStatementType::CONSTANT()),
+            new UseStatement(Symbol::fromString('\VendorG\PackageG'), null, UseStatementType::CONSTANT()),
         );
-        $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->symbolFactory);
+        $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements);
     }
 
     public function testConstructor()
@@ -61,8 +65,8 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
 
     public function testResolve()
     {
-        $qualified = $this->symbolFactory->create('\VendorB\PackageB');
-        $reference = $this->symbolFactory->create('Symbol');
+        $qualified = Symbol::fromString('\VendorB\PackageB');
+        $reference = Symbol::fromString('Symbol');
 
         $this->assertSame($qualified, $this->resolver->resolve($this->primaryNamespace, $qualified));
         $this->assertSame(
@@ -73,8 +77,8 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
 
     public function testResolveNamespaceAtom()
     {
-        $qualified = $this->symbolFactory->create('\VendorB\PackageB');
-        $reference = $this->symbolFactory->create('namespace\Symbol');
+        $qualified = Symbol::fromString('\VendorB\PackageB');
+        $reference = Symbol::fromString('namespace\Symbol');
 
         $this->assertSame($qualified, $this->resolver->resolve($this->primaryNamespace, $qualified));
         $this->assertSame(
@@ -85,8 +89,8 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
 
     public function testResolveEmpty()
     {
-        $qualified = $this->symbolFactory->create('\VendorB\PackageB');
-        $reference = $this->symbolFactory->create('');
+        $qualified = Symbol::fromString('\VendorB\PackageB');
+        $reference = Symbol::fromString('');
 
         $this->assertSame($qualified, $this->resolver->resolve($this->primaryNamespace, $qualified));
         $this->assertSame(
@@ -97,8 +101,8 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
 
     public function testResolveAgainstContext()
     {
-        $qualified = $this->symbolFactory->create('\VendorB\PackageB');
-        $reference = $this->symbolFactory->create('Symbol');
+        $qualified = Symbol::fromString('\VendorB\PackageB');
+        $reference = Symbol::fromString('Symbol');
 
         $this->assertSame($qualified, $this->resolver->resolveAgainstContext($this->context, $qualified));
         $this->assertSame(
@@ -113,11 +117,11 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(
             '\Symbol',
-            $this->resolver->resolveAgainstContext($this->context, $this->symbolFactory->create('Symbol'))->string()
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('Symbol'))->string()
         );
         $this->assertSame(
             '\Vendor\Package',
-            $this->resolver->resolveAgainstContext($this->context, $this->symbolFactory->create('Vendor\Package'))
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('Vendor\Package'))
                 ->string()
         );
     }
@@ -128,40 +132,61 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     public function testResolveAgainstContextDocumentationExamples()
     {
         $this->context = new ResolutionContext(
-            $this->symbolFactory->create('\foo'),
+            Symbol::fromString('\foo'),
             array(
+                new UseStatement(Symbol::fromString('\My\Full\Classname'), Symbol::fromString('Another')),
+                new UseStatement(Symbol::fromString('\My\Full\NSname')),
+                new UseStatement(Symbol::fromString('\ArrayObject')),
+                new UseStatement(Symbol::fromString('\My\Full\functionName'), null, UseStatementType::FUNCT1ON()),
                 new UseStatement(
-                    $this->symbolFactory->create('\My\Full\Classname'),
-                    $this->symbolFactory->create('Another')
+                    Symbol::fromString('\My\Full\functionName'),
+                    Symbol::fromString('func'),
+                    UseStatementType::FUNCT1ON()
                 ),
-                new UseStatement($this->symbolFactory->create('\My\Full\NSname')),
-                new UseStatement($this->symbolFactory->create('\ArrayObject')),
+                new UseStatement(Symbol::fromString('\My\Full\CONSTANT'), null, UseStatementType::CONSTANT()),
             )
         );
 
         $this->assertSame(
             '\foo\Another',
-            $this->resolver->resolveAgainstContext($this->context, $this->symbolFactory->create('namespace\Another'))
-                ->string()
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('namespace\Another'))->string()
         );
         $this->assertSame(
             '\My\Full\Classname',
-            $this->resolver->resolveAgainstContext($this->context, $this->symbolFactory->create('Another'))->string()
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('Another'))->string()
         );
         $this->assertSame(
-            '\My\Full\Classname\thing',
-            $this->resolver->resolveAgainstContext($this->context, $this->symbolFactory->create('Another\thing'))
-                ->string()
-        );
-        $this->assertSame(
-            '\My\Full\NSname\subns',
-            $this->resolver->resolveAgainstContext($this->context, $this->symbolFactory->create('NSname\subns'))
+            '\My\Full\NSname\subns\func',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('NSname\subns\func'), SymbolType::FUNCT1ON())
                 ->string()
         );
         $this->assertSame(
             '\ArrayObject',
-            $this->resolver->resolveAgainstContext($this->context, $this->symbolFactory->create('ArrayObject'))
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('ArrayObject'))->string()
+        );
+        $this->assertSame(
+            '\My\Full\functionName',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('func'), SymbolType::FUNCT1ON())
                 ->string()
+        );
+        $this->assertSame(
+            '\My\Full\CONSTANT',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('CONSTANT'), SymbolType::CONSTANT())
+                ->string()
+        );
+        $this->assertSame(
+            '\Another',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\Another'))->string()
+        );
+        $this->assertSame(
+            '\My\Full\Classname\thing',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('Another\thing'))->string()
+        );
+        $this->assertSame(
+            '\Another\thing',
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('\Another\thing'))->string()
         );
     }
 
@@ -169,18 +194,15 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     {
         $this->assertSame(
             '\VendorA\PackageA\.\PackageB\Symbol',
-            $this->resolver->resolveAgainstContext($this->context, $this->symbolFactory->create('.\PackageB\Symbol'))
-                ->string()
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('.\PackageB\Symbol'))->string()
         );
         $this->assertSame(
             '\VendorA\PackageA\..\PackageD\Symbol',
-            $this->resolver->resolveAgainstContext($this->context, $this->symbolFactory->create('..\PackageD\Symbol'))
-                ->string()
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('..\PackageD\Symbol'))->string()
         );
         $this->assertSame(
             '\VendorB\PackageB\..\PackageD\Symbol',
-            $this->resolver
-                ->resolveAgainstContext($this->context, $this->symbolFactory->create('PackageB\..\PackageD\Symbol'))
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('PackageB\..\PackageD\Symbol'))
                 ->string()
         );
     }
@@ -213,18 +235,18 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
      */
     public function testRelativeToContext($symbolString, $expected)
     {
-        $this->primaryNamespace = $this->symbolFactory->create('\Foo\Bar');
+        $this->primaryNamespace = Symbol::fromString('\Foo\Bar');
         $this->useStatements = array(
-            new UseStatement($this->symbolFactory->create('\Baz\Qux')),
-            new UseStatement($this->symbolFactory->create('\Doom\Splat'), $this->symbolFactory->create('Ping')),
-            new UseStatement($this->symbolFactory->create('\Pong\Pang')),
-            new UseStatement($this->symbolFactory->create('\Pong\Pang\Peng')),
+            new UseStatement(Symbol::fromString('\Baz\Qux')),
+            new UseStatement(Symbol::fromString('\Doom\Splat'), Symbol::fromString('Ping')),
+            new UseStatement(Symbol::fromString('\Pong\Pang')),
+            new UseStatement(Symbol::fromString('\Pong\Pang\Peng')),
         );
-        $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->symbolFactory);
+        $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements);
 
         $this->assertSame(
             $expected,
-            $this->resolver->relativeToContext($this->context, $this->symbolFactory->create($symbolString))->string()
+            $this->resolver->relativeToContext($this->context, Symbol::fromString($symbolString))->string()
         );
     }
 
