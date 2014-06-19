@@ -41,6 +41,40 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
         $this->assertSame(UseStatementType::TYPE(), $this->useStatement->type());
     }
 
+    public function testCreate()
+    {
+        $actual = UseStatement::create(
+            Symbol::fromString('\Symbol'),
+            Symbol::fromString('Alias'),
+            UseStatementType::CONSTANT()
+        );
+        $expected = new UseStatement(
+            array(new UseStatementClause(Symbol::fromString('\Symbol'), Symbol::fromString('Alias'))),
+            UseStatementType::CONSTANT()
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFromClause()
+    {
+        $actual = UseStatement::fromClause($this->clauses[0], UseStatementType::CONSTANT());
+        $expected = new UseStatement(array($this->clauses[0]), UseStatementType::CONSTANT());
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testFromClauses()
+    {
+        $actual = UseStatement::fromClauses($this->clauses, UseStatementType::CONSTANT());
+        $expected = array(
+            new UseStatement(array($this->clauses[0]), UseStatementType::CONSTANT()),
+            new UseStatement(array($this->clauses[1]), UseStatementType::CONSTANT()),
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
+
     public function testConstructorFailureEmpty()
     {
         $this->setExpectedException('Eloquent\Cosmos\UseStatement\Exception\EmptyUseStatementException');

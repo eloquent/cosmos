@@ -34,6 +34,17 @@ class UseStatementFactoryTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testCreate()
+    {
+        $actual = $this->factory->create($this->symbol, $this->alias, UseStatementType::CONSTANT());
+        $expected = new UseStatement(
+            array(new UseStatementClause($this->symbol, $this->alias)),
+            UseStatementType::CONSTANT()
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
+
     public function testCreateClause()
     {
         $actual = $this->factory->createClause($this->symbol, $this->alias);
@@ -46,6 +57,36 @@ class UseStatementFactoryTest extends PHPUnit_Framework_TestCase
     {
         $actual = $this->factory->createStatement($this->clauses, UseStatementType::CONSTANT());
         $expected = new UseStatement($this->clauses, UseStatementType::CONSTANT());
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testCreateStatementFromClause()
+    {
+        $actual = $this->factory->createStatementFromClause($this->clauses[0], UseStatementType::CONSTANT());
+        $expected = new UseStatement(array($this->clauses[0]), UseStatementType::CONSTANT());
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testCreateStatementsFromClauses()
+    {
+        $actual = $this->factory->createStatementsFromClauses($this->clauses, UseStatementType::CONSTANT());
+        $expected = array(
+            new UseStatement(array($this->clauses[0]), UseStatementType::CONSTANT()),
+            new UseStatement(array($this->clauses[1]), UseStatementType::CONSTANT()),
+        );
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testCreateStatementsFromClausesDefaults()
+    {
+        $actual = $this->factory->createStatementsFromClauses($this->clauses);
+        $expected = array(
+            new UseStatement(array($this->clauses[0])),
+            new UseStatement(array($this->clauses[1])),
+        );
 
         $this->assertEquals($expected, $actual);
     }

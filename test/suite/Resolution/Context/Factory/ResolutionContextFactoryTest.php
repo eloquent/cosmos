@@ -54,6 +54,14 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->context, $actual);
     }
 
+    public function testCreateEmpty()
+    {
+        $actual = $this->factory->createEmpty();
+
+        $this->assertEquals(new ResolutionContext, $actual);
+        $this->assertSame($actual, $this->factory->createEmpty());
+    }
+
     public function testInstance()
     {
         $class = get_class($this->factory);

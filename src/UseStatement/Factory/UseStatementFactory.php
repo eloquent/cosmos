@@ -84,8 +84,10 @@ class UseStatementFactory implements UseStatementFactoryInterface
      * @return UseStatementInterface The newly created use statement.
      */
     public function createStatement(
+        // @codeCoverageIgnoreStart
         array $clauses,
         UseStatementType $type = null
+        // @codeCoverageIgnoreEnd
     ) {
         return new UseStatement($clauses, $type);
     }
