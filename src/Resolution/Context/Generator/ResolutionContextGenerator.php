@@ -19,6 +19,8 @@ use Eloquent\Cosmos\Symbol\Factory\SymbolFactoryInterface;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
+use Eloquent\Cosmos\UseStatement\Normalizer\UseStatementNormalizer;
+use Eloquent\Cosmos\UseStatement\Normalizer\UseStatementNormalizerInterface;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
@@ -31,15 +33,17 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
     /**
      * Construct a new resolution context generator.
      *
-     * @param integer|null                           $maxReferenceAtoms   The maximum acceptable number of atoms for symbol references relative to the namespace.
-     * @param ResolutionContextFactoryInterface|null $contextFactory      The resolution context factory to use.
-     * @param UseStatementFactoryInterface|null      $useStatementFactory The use statement factory to use.
-     * @param SymbolFactoryInterface|null            $symbolFactory       The symbol factory to use.
+     * @param integer|null                           $maxReferenceAtoms      The maximum acceptable number of atoms for symbol references relative to the namespace.
+     * @param ResolutionContextFactoryInterface|null $contextFactory         The resolution context factory to use.
+     * @param UseStatementFactoryInterface|null      $useStatementFactory    The use statement factory to use.
+     * @param UseStatementNormalizerInterface|null   $useStatementNormalizer The use statement normalizer to use.
+     * @param SymbolFactoryInterface|null            $symbolFactory          The symbol factory to use.
      */
     public function __construct(
         $maxReferenceAtoms = null,
         ResolutionContextFactoryInterface $contextFactory = null,
         UseStatementFactoryInterface $useStatementFactory = null,
+        UseStatementNormalizerInterface $useStatementNormalizer = null,
         SymbolFactoryInterface $symbolFactory = null
     ) {
         if (null === $maxReferenceAtoms) {
@@ -51,6 +55,9 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
         if (null === $useStatementFactory) {
             $useStatementFactory = UseStatementFactory::instance();
         }
+        if (null === $useStatementNormalizer) {
+            $useStatementNormalizer = UseStatementNormalizer::instance();
+        }
         if (null === $symbolFactory) {
             $symbolFactory = SymbolFactory::instance();
         }
@@ -58,6 +65,7 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
         $this->maxReferenceAtoms = $maxReferenceAtoms;
         $this->contextFactory = $contextFactory;
         $this->useStatementFactory = $useStatementFactory;
+        $this->useStatementNormalizer = $useStatementNormalizer;
         $this->symbolFactory = $symbolFactory;
     }
 
@@ -85,11 +93,21 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
     /**
      * Get the use statement factory.
      *
-     * @return UseStatementFactoryInterface The use statement factory to use.
+     * @return UseStatementFactoryInterface The use statement factory.
      */
     public function useStatementFactory()
     {
         return $this->useStatementFactory;
+    }
+
+    /**
+     * Get the use statement normalizer.
+     *
+     * @return UseStatementNormalizerInterface The use statement normalizer.
+     */
+    public function useStatementNormalizer()
+    {
+        return $this->useStatementNormalizer;
     }
 
     /**
@@ -164,138 +182,109 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
             return array();
         }
 
-        $useStatements = array();
+        $clauses = array();
+        $seen = array();
         foreach ($symbols as $symbol) {
             $symbol = $symbol->normalize();
+
+            $key = $symbol->string();
+            if (array_key_exists($key, $seen)) {
+                continue;
+            }
+            $seen[$key] = true;
 
             if ($primaryNamespace->isAncestorOf($symbol)) {
                 $numReferenceAtoms = count($symbol->atoms()) -
                     count($primaryNamespace->atoms());
 
                 if ($numReferenceAtoms > $this->maxReferenceAtoms()) {
-                    $useStatements[] = $this->useStatementFactory()
-                        ->create($symbol, null, $type);
+                    $clauses[] = $this->useStatementFactory()
+                        ->createClause($symbol);
                 }
             } else {
-                $useStatements[] = $this->useStatementFactory()
-                    ->create($symbol, null, $type);
+                $clauses[] = $this->useStatementFactory()
+                    ->createClause($symbol);
             }
         }
 
-        return $this->normalizeUseStatements($useStatements);
-    }
-
-    /**
-     * Normalize a set of use statements by removing duplicates, sorting, and
-     * generating aliases where necessary.
-     *
-     * @param array<UseStatementInterface> $useStatements The use statements to normalize.
-     *
-     * @return array<UseStatementInterface> The normalized use statements.
-     */
-    private function normalizeUseStatements(array $useStatements)
-    {
-        $seen = array();
-        $byAlias = array();
-        foreach ($useStatements as $index => $useStatement) {
-            $key = $useStatement->string();
-            if (array_key_exists($key, $seen)) {
-                continue;
-            }
-
-            $seen[$key] = true;
-
-            $aliasString = $useStatement->effectiveAlias()->string();
-            if (!array_key_exists($aliasString, $byAlias)) {
-                $byAlias[$aliasString] = array();
-            }
-            $byAlias[$aliasString][] = $useStatement;
-        }
-
-        $byAlias = $this->applyUseAliases($byAlias);
-        foreach ($byAlias as $alias => $useStatements) {
-            $byAlias[$alias] = array_pop($useStatements);
-        }
-
-        usort(
-            $byAlias,
-            function (
-                UseStatementInterface $left,
-                UseStatementInterface $right
-            ) {
-                return strcmp(
-                    $left->symbol()->string(),
-                    $right->symbol()->string()
-                );
-            }
+        return $this->useStatementFactory()->createStatementsFromClauses(
+            $this->useStatementNormalizer()->normalizeClauses(
+                $this->applyAliases($this->groupByAlias($clauses))
+            ),
+            $type
         );
-
-        return array_values($byAlias);
     }
 
-    /**
-     * Recursively find and resolve alias collisions.
-     *
-     * @param array<string,array<UseStatementInterface>> $byAlias An index of effective alias to use statements.
-     * @param integer|null                               $level   The recursion level.
-     *
-     * @return array<string,array<UseStatementInterface>> The index with aliases applied.
-     */
-    private function applyUseAliases(array $byAlias, $level = null)
+    private function groupByAlias(array $clauses)
+    {
+        $byAlias = array();
+        foreach ($clauses as $clause) {
+            $alias = $clause->effectiveAlias()->string();
+
+            if (!array_key_exists($alias, $byAlias)) {
+                $byAlias[$alias] = array();
+            }
+
+            $byAlias[$alias][] = $clause;
+        }
+
+        return $byAlias;
+    }
+
+    private function applyAliases(array $byAlias, $level = null)
     {
         if (null === $level) {
             $level = 0;
         }
 
         $changes = false;
-        foreach ($byAlias as $alias => $useStatements) {
-            $numUseStatements = count($useStatements);
-            if ($numUseStatements < 2) {
+        foreach ($byAlias as $alias => $clauses) {
+            $numClauses = count($clauses);
+            if ($numClauses < 2) {
                 continue;
             }
 
-            foreach ($useStatements as $index => $useStatement) {
-                $startIndex = count($useStatement->symbol()->atoms()) -
-                    ($level + 2);
+            foreach ($clauses as $index => $clause) {
+                $startIndex = count($clause->symbol()->atoms()) - ($level + 2);
                 if ($startIndex < 0) {
                     continue;
                 }
 
                 $changes = true;
 
-                $currentAlias = $useStatement->effectiveAlias()->name();
+                $currentAlias = $clause->effectiveAlias()->name();
                 $newAlias = $this->symbolFactory()->createFromAtoms(
                     array(
-                        $useStatement->symbol()->atomAt($startIndex) .
-                        $currentAlias
+                        $clause->symbol()->atomAt($startIndex) . $currentAlias
                     ),
                     false
                 );
-                $useStatement = $this->useStatementFactory()->create(
-                    $useStatement->symbol(),
-                    $newAlias,
-                    $useStatement->type()
-                );
+                $clause = $this->useStatementFactory()
+                    ->createClause($clause->symbol(), $newAlias);
 
-                unset($useStatements[$index]);
-                $numUseStatements--;
+                unset($clauses[$index]);
+                $numClauses--;
 
                 $aliasString = $newAlias->string();
                 if (!array_key_exists($aliasString, $byAlias)) {
                     $byAlias[$aliasString] = array();
                 }
-                $byAlias[$aliasString][] = $useStatement;
+                $byAlias[$aliasString][] = $clause;
             }
 
-            if ($numUseStatements > 0) {
-                $byAlias[$alias] = array_values($useStatements);
+            if ($numClauses > 0) {
+                $byAlias[$alias] = array_values($clauses);
             } else {
                 unset($byAlias[$alias]);
             }
         }
 
         if ($changes) {
-            return $this->applyUseAliases($byAlias, $level + 1);
+            return $this->applyAliases($byAlias, $level + 1);
+        }
+
+        foreach ($byAlias as $alias => $clauses) {
+            $byAlias[$alias] = array_pop($clauses);
         }
 
         return $byAlias;

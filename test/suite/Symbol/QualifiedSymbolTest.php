@@ -360,10 +360,10 @@ class QualifiedSymbolTest extends PHPUnit_Framework_TestCase
     {
         $this->primaryNamespace = $this->factory->create('\Foo\Bar');
         $this->useStatements = array(
-            new UseStatement($this->factory->create('\Baz\Qux')),
-            new UseStatement($this->factory->create('\Doom\Splat'), $this->factory->create('Ping')),
-            new UseStatement($this->factory->create('\Pong\Pang')),
-            new UseStatement($this->factory->create('\Pong\Pang\Peng')),
+            UseStatement::create($this->factory->create('\Baz\Qux')),
+            UseStatement::create($this->factory->create('\Doom\Splat'), $this->factory->create('Ping')),
+            UseStatement::create($this->factory->create('\Pong\Pang')),
+            UseStatement::create($this->factory->create('\Pong\Pang\Peng')),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->factory);
 

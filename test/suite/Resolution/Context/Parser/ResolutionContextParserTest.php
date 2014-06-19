@@ -901,14 +901,14 @@ use ClassG as ClassH; // at position (5, 5)
 use NamespaceD\ClassI; // at position (7, 5)
 use NamespaceE\ClassJ as ClassK; // at position (9, 5)
 use NamespaceF\NamespaceG\ClassL; // at position (11, 5)
-use FunctionA; // at position (13, 5)
-use FunctionB as FunctionC; // at position (15, 5)
-use NamespaceG\FunctionD; // at position (17, 5)
-use NamespaceH\FunctionE as FunctionF; // at position (19, 5)
-use CONSTANT_A; // at position (21, 5)
-use CONSTANT_B as CONSTANT_C; // at position (23, 5)
-use NamespaceI\CONSTANT_D; // at position (25, 5)
-use NamespaceJ\CONSTANT_E as CONSTANT_F; // at position (27, 5)
+use function FunctionA; // at position (13, 5)
+use function FunctionB as FunctionC; // at position (15, 5)
+use function NamespaceG\FunctionD; // at position (17, 5)
+use function NamespaceH\FunctionE as FunctionF; // at position (19, 5)
+use const CONSTANT_A; // at position (21, 5)
+use const CONSTANT_B as CONSTANT_C; // at position (23, 5)
+use const NamespaceI\CONSTANT_D; // at position (25, 5)
+use const NamespaceJ\CONSTANT_E as CONSTANT_F; // at position (27, 5)
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -958,22 +958,12 @@ EOD;
         }
 
         foreach ($context->useStatements() as $useStatement) {
-            if (null === $useStatement->alias()) {
-                $rendered .= sprintf(
-                    "use %s; // at position (%d, %d)\n",
-                    $useStatement->symbol()->toRelative()->string(),
-                    $useStatement->position()->line(),
-                    $useStatement->position()->column()
-                );
-            } else {
-                $rendered .= sprintf(
-                    "use %s as %s; // at position (%d, %d)\n",
-                    $useStatement->symbol()->toRelative()->string(),
-                    $useStatement->alias()->string(),
-                    $useStatement->position()->line(),
-                    $useStatement->position()->column()
-                );
-            }
+            $rendered .= sprintf(
+                "%s; // at position (%d, %d)\n",
+                $useStatement,
+                $useStatement->position()->line(),
+                $useStatement->position()->column()
+            );
         }
 
         if (count($context->symbols()) > 0) {

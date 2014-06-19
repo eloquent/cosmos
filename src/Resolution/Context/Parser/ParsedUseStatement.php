@@ -12,8 +12,7 @@
 namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface;
-use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
-use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
+use Eloquent\Cosmos\UseStatement\UseStatementClauseInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
 
@@ -49,33 +48,13 @@ class ParsedUseStatement extends AbstractParsedElement implements
     }
 
     /**
-     * Get the symbol.
+     * Get the clauses.
      *
-     * @return QualifiedSymbolInterface The symbol.
+     * @return array<UseStatementClauseInterface> The clauses.
      */
-    public function symbol()
+    public function clauses()
     {
-        return $this->useStatement()->symbol();
-    }
-
-    /**
-     * Get the alias for the symbol.
-     *
-     * @return SymbolReferenceInterface|null The alias, or null if no alias is in use.
-     */
-    public function alias()
-    {
-        return $this->useStatement()->alias();
-    }
-
-    /**
-     * Get the effective alias for the symbol.
-     *
-     * @return SymbolReferenceInterface The alias, or the last atom of the symbol.
-     */
-    public function effectiveAlias()
-    {
-        return $this->useStatement()->effectiveAlias();
+        return $this->useStatement()->clauses();
     }
 
     /**

@@ -46,10 +46,10 @@ class ResolutionContextReaderTest extends PHPUnit_Framework_TestCase
             $this->isolator
         );
 
-        $this->primaryNamespace = $this->symbolFactory->create('\VendorA\PackageA');
+        $this->primaryNamespace = Symbol::fromString('\VendorA\PackageA');
         $this->useStatements = array(
-            new UseStatement($this->symbolFactory->create('\VendorB\PackageB')),
-            new UseStatement($this->symbolFactory->create('\VendorC\PackageC')),
+            UseStatement::create(Symbol::fromString('\VendorB\PackageB')),
+            UseStatement::create(Symbol::fromString('\VendorC\PackageC')),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->symbolFactory);
         $this->contextRenderer = ResolutionContextRenderer::instance();

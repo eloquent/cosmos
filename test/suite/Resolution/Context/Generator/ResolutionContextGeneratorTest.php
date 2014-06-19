@@ -16,6 +16,7 @@ use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
+use Eloquent\Cosmos\UseStatement\Normalizer\UseStatementNormalizer;
 use PHPUnit_Framework_TestCase;
 
 class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
@@ -26,11 +27,13 @@ class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
 
         $this->contextFactory = new ResolutionContextFactory;
         $this->useStatementFactory = new UseStatementFactory;
+        $this->useStatementNormalizer = new UseStatementNormalizer;
         $this->symbolFactory = new SymbolFactory;
         $this->generator = new ResolutionContextGenerator(
             3,
             $this->contextFactory,
             $this->useStatementFactory,
+            $this->useStatementNormalizer,
             $this->symbolFactory
         );
 

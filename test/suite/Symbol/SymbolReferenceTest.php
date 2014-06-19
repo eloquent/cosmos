@@ -27,8 +27,8 @@ class SymbolReferenceTest extends PHPUnit_Framework_TestCase
 
         $this->primaryNamespace = $this->factory->create('\VendorA\PackageA');
         $this->useStatements = array(
-            new UseStatement($this->factory->create('\VendorB\PackageB')),
-            new UseStatement($this->factory->create('\VendorC\PackageC')),
+            UseStatement::create($this->factory->create('\VendorB\PackageB')),
+            UseStatement::create($this->factory->create('\VendorC\PackageC')),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements, $this->factory);
     }
@@ -265,12 +265,9 @@ class SymbolReferenceTest extends PHPUnit_Framework_TestCase
         $this->context = new ResolutionContext(
             $this->factory->create('\foo'),
             array(
-                new UseStatement(
-                    $this->factory->create('\My\Full\Classname'),
-                    $this->factory->create('Another')
-                ),
-                new UseStatement($this->factory->create('\My\Full\NSname')),
-                new UseStatement($this->factory->create('\ArrayObject')),
+                UseStatement::create($this->factory->create('\My\Full\Classname'), $this->factory->create('Another')),
+                UseStatement::create($this->factory->create('\My\Full\NSname')),
+                UseStatement::create($this->factory->create('\ArrayObject')),
             )
         );
 

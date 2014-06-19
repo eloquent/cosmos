@@ -12,13 +12,67 @@
 namespace Eloquent\Cosmos\UseStatement;
 
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface;
+use Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException;
+use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 use Eloquent\Cosmos\UseStatement\Exception\EmptyUseStatementException;
+use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
+use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
 
 /**
  * Represents a use statement.
  */
 class UseStatement implements UseStatementInterface
 {
+    /**
+     * Create a new use statement with a single clause.
+     *
+     * @param QualifiedSymbolInterface      $symbol The symbol.
+     * @param SymbolReferenceInterface|null $alias  The alias for the symbol.
+     * @param UseStatementType|null         $type   The use statement type.
+     *
+     * @return UseStatementInterface      The newly created use statement.
+     * @throws InvalidSymbolAtomException If an invalid alias is supplied.
+     */
+    public static function create(
+        QualifiedSymbolInterface $symbol,
+        SymbolReferenceInterface $alias = null,
+        UseStatementType $type = null
+    ) {
+        return static::factory()->create($symbol, $alias, $type);
+    }
+
+    /**
+     * Create a use statement from the supplied use statement clause.
+     *
+     * @param UseStatementClauseInterface $clause The clause.
+     * @param UseStatementType|null       $type   The use statement type.
+     *
+     * @return UseStatementInterface The newly created use statement.
+     */
+    public static function fromClause(
+        UseStatementClauseInterface $clause,
+        UseStatementType $type = null
+    ) {
+        return static::factory()->createStatementFromClause($clause, $type);
+    }
+
+    /**
+     * Create a list of use statements from the supplied use statement clauses,
+     * producing one statement per clause.
+     *
+     * @param array<UseStatementClauseInterface> $clauses The clauses.
+     * @param UseStatementType|null              $type    The use statement type.
+     *
+     * @return array<UseStatementInterface> The newly created use statements.
+     */
+    public static function fromClauses(
+        array $clauses,
+        UseStatementType $type = null
+    ) {
+        return static::factory()->createStatementsFromClauses($clauses, $type);
+    }
+
     /**
      * Construct a new use statement.
      *
@@ -101,6 +155,16 @@ class UseStatement implements UseStatementInterface
     public function accept(ResolutionContextVisitorInterface $visitor)
     {
         return $visitor->visitUseStatement($this);
+    }
+
+    /**
+     * Get the use statement factory.
+     *
+     * @return UseStatementFactoryInterface The use statement factory.
+     */
+    protected static function factory()
+    {
+        return UseStatementFactory::instance();
     }
 
     private $clauses;

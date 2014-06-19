@@ -32,18 +32,21 @@ class ResolutionContextRendererTest extends PHPUnit_Framework_TestCase
         $context = new ResolutionContext(
             Symbol::fromString('\NamespaceA\NamespaceB'),
             array(
-                new UseStatement(Symbol::fromString('\NamespaceC\NamespaceD\SymbolA')),
-                new UseStatement(Symbol::fromString('\NamespaceE\NamespaceF\SymbolB'), Symbol::fromString('SymbolC')),
-                new UseStatement(Symbol::fromString('\SymbolD')),
-                new UseStatement(Symbol::fromString('\SymbolE'), Symbol::fromString('SymbolF')),
-                new UseStatement(Symbol::fromString('\SymbolG'), null, UseStatementType::FUNCT1ON()),
-                new UseStatement(
+                UseStatement::create(Symbol::fromString('\NamespaceC\NamespaceD\SymbolA')),
+                UseStatement::create(
+                    Symbol::fromString('\NamespaceE\NamespaceF\SymbolB'),
+                    Symbol::fromString('SymbolC')
+                ),
+                UseStatement::create(Symbol::fromString('\SymbolD')),
+                UseStatement::create(Symbol::fromString('\SymbolE'), Symbol::fromString('SymbolF')),
+                UseStatement::create(Symbol::fromString('\SymbolG'), null, UseStatementType::FUNCT1ON()),
+                UseStatement::create(
                     Symbol::fromString('\SymbolH'),
                     Symbol::fromString('SymbolI'),
                     UseStatementType::FUNCT1ON()
                 ),
-                new UseStatement(Symbol::fromString('\SymbolJ'), null, UseStatementType::CONSTANT()),
-                new UseStatement(
+                UseStatement::create(Symbol::fromString('\SymbolJ'), null, UseStatementType::CONSTANT()),
+                UseStatement::create(
                     Symbol::fromString('\SymbolK'),
                     Symbol::fromString('SymbolL'),
                     UseStatementType::CONSTANT()
@@ -72,18 +75,21 @@ EOD;
         $context = new ResolutionContext(
             null,
             array(
-                new UseStatement(Symbol::fromString('\NamespaceC\NamespaceD\SymbolA')),
-                new UseStatement(Symbol::fromString('\NamespaceE\NamespaceF\SymbolB'), Symbol::fromString('SymbolC')),
-                new UseStatement(Symbol::fromString('\SymbolD')),
-                new UseStatement(Symbol::fromString('\SymbolE'), Symbol::fromString('SymbolF')),
-                new UseStatement(Symbol::fromString('\SymbolG'), null, UseStatementType::FUNCT1ON()),
-                new UseStatement(
+                UseStatement::create(Symbol::fromString('\NamespaceC\NamespaceD\SymbolA')),
+                UseStatement::create(
+                    Symbol::fromString('\NamespaceE\NamespaceF\SymbolB'),
+                    Symbol::fromString('SymbolC')
+                ),
+                UseStatement::create(Symbol::fromString('\SymbolD')),
+                UseStatement::create(Symbol::fromString('\SymbolE'), Symbol::fromString('SymbolF')),
+                UseStatement::create(Symbol::fromString('\SymbolG'), null, UseStatementType::FUNCT1ON()),
+                UseStatement::create(
                     Symbol::fromString('\SymbolH'),
                     Symbol::fromString('SymbolI'),
                     UseStatementType::FUNCT1ON()
                 ),
-                new UseStatement(Symbol::fromString('\SymbolJ'), null, UseStatementType::CONSTANT()),
-                new UseStatement(
+                UseStatement::create(Symbol::fromString('\SymbolJ'), null, UseStatementType::CONSTANT()),
+                UseStatement::create(
                     Symbol::fromString('\SymbolK'),
                     Symbol::fromString('SymbolL'),
                     UseStatementType::CONSTANT()

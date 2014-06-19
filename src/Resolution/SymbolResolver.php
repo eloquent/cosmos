@@ -203,17 +203,19 @@ class SymbolResolver implements SymbolResolverInterface
             ->useStatementsByType(UseStatementType::memberBySymbolType($type));
 
         foreach ($useStatements as $useStatement) {
-            if ($useStatement->symbol()->atoms() === $symbol->atoms()) {
-                $match = $useStatement->effectiveAlias();
-                $matchSize = 1;
-            } elseif ($useStatement->symbol()->isAncestorOf($symbol)) {
-                $thisMatch = $useStatement->effectiveAlias()
-                    ->join($symbol->relativeTo($useStatement->symbol()));
-                $thisMatchSize = count($thisMatch->atoms());
+            foreach ($useStatement->clauses() as $clause) {
+                if ($clause->symbol()->atoms() === $symbol->atoms()) {
+                    $match = $clause->effectiveAlias();
+                    $matchSize = 1;
+                } elseif ($clause->symbol()->isAncestorOf($symbol)) {
+                    $thisMatch = $clause->effectiveAlias()
+                        ->join($symbol->relativeTo($clause->symbol()));
+                    $thisMatchSize = count($thisMatch->atoms());
 
-                if ($thisMatchSize < $matchSize) {
-                    $match = $thisMatch;
-                    $matchSize = $thisMatchSize;
+                    if ($thisMatchSize < $matchSize) {
+                        $match = $thisMatch;
+                        $matchSize = $thisMatchSize;
+                    }
                 }
             }
         }

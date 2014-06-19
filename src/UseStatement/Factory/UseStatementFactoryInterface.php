@@ -23,12 +23,29 @@ use Eloquent\Cosmos\UseStatement\UseStatementType;
 interface UseStatementFactoryInterface
 {
     /**
+     * Create a new use statement with a single clause.
+     *
+     * @param QualifiedSymbolInterface      $symbol The symbol.
+     * @param SymbolReferenceInterface|null $alias  The alias for the symbol.
+     * @param UseStatementType|null         $type   The use statement type.
+     *
+     * @return UseStatementInterface      The newly created use statement.
+     * @throws InvalidSymbolAtomException If an invalid alias is supplied.
+     */
+    public function create(
+        QualifiedSymbolInterface $symbol,
+        SymbolReferenceInterface $alias = null,
+        UseStatementType $type = null
+    );
+
+    /**
      * Create a new use statement clause.
      *
      * @param QualifiedSymbolInterface      $symbol The symbol.
      * @param SymbolReferenceInterface|null $alias  The alias for the symbol.
      *
-     * @throws InvalidSymbolAtomException If an invalid alias is supplied.
+     * @return UseStatementClauseInterface The newly created use statement clause.
+     * @throws InvalidSymbolAtomException  If an invalid alias is supplied.
      */
     public function createClause(
         QualifiedSymbolInterface $symbol,
@@ -40,8 +57,37 @@ interface UseStatementFactoryInterface
      *
      * @param array<UseStatementClauseInterface> The clauses.
      * @param UseStatementType|null $type The use statement type.
+     *
+     * @return UseStatementInterface The newly created use statement.
      */
     public function createStatement(
+        array $clauses,
+        UseStatementType $type = null
+    );
+
+    /**
+     * Create a use statement from the supplied use statement clause.
+     *
+     * @param UseStatementClauseInterface $clause The clause.
+     * @param UseStatementType|null       $type   The use statement type.
+     *
+     * @return UseStatementInterface The newly created use statement.
+     */
+    public function createStatementFromClause(
+        UseStatementClauseInterface $clause,
+        UseStatementType $type = null
+    );
+
+    /**
+     * Create a list of use statements from the supplied use statement clauses,
+     * producing one statement per clause.
+     *
+     * @param array<UseStatementClauseInterface> $clauses The clauses.
+     * @param UseStatementType|null              $type    The use statement type.
+     *
+     * @return array<UseStatementInterface> The newly created use statements.
+     */
+    public function createStatementsFromClauses(
         array $clauses,
         UseStatementType $type = null
     );

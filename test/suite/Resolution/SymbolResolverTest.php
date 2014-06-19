@@ -37,12 +37,12 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
 
         $this->primaryNamespace = Symbol::fromString('\VendorA\PackageA');
         $this->useStatements = array(
-            new UseStatement(Symbol::fromString('\VendorB\PackageB')),
-            new UseStatement(Symbol::fromString('\VendorC\PackageC')),
-            new UseStatement(Symbol::fromString('\VendorD\PackageD'), null, UseStatementType::FUNCT1ON()),
-            new UseStatement(Symbol::fromString('\VendorE\PackageE'), null, UseStatementType::FUNCT1ON()),
-            new UseStatement(Symbol::fromString('\VendorF\PackageF'), null, UseStatementType::CONSTANT()),
-            new UseStatement(Symbol::fromString('\VendorG\PackageG'), null, UseStatementType::CONSTANT()),
+            UseStatement::create(Symbol::fromString('\VendorB\PackageB')),
+            UseStatement::create(Symbol::fromString('\VendorC\PackageC')),
+            UseStatement::create(Symbol::fromString('\VendorD\PackageD'), null, UseStatementType::FUNCT1ON()),
+            UseStatement::create(Symbol::fromString('\VendorE\PackageE'), null, UseStatementType::FUNCT1ON()),
+            UseStatement::create(Symbol::fromString('\VendorF\PackageF'), null, UseStatementType::CONSTANT()),
+            UseStatement::create(Symbol::fromString('\VendorG\PackageG'), null, UseStatementType::CONSTANT()),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements);
     }
@@ -134,16 +134,16 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         $this->context = new ResolutionContext(
             Symbol::fromString('\foo'),
             array(
-                new UseStatement(Symbol::fromString('\My\Full\Classname'), Symbol::fromString('Another')),
-                new UseStatement(Symbol::fromString('\My\Full\NSname')),
-                new UseStatement(Symbol::fromString('\ArrayObject')),
-                new UseStatement(Symbol::fromString('\My\Full\functionName'), null, UseStatementType::FUNCT1ON()),
-                new UseStatement(
+                UseStatement::create(Symbol::fromString('\My\Full\Classname'), Symbol::fromString('Another')),
+                UseStatement::create(Symbol::fromString('\My\Full\NSname')),
+                UseStatement::create(Symbol::fromString('\ArrayObject')),
+                UseStatement::create(Symbol::fromString('\My\Full\functionName'), null, UseStatementType::FUNCT1ON()),
+                UseStatement::create(
                     Symbol::fromString('\My\Full\functionName'),
                     Symbol::fromString('func'),
                     UseStatementType::FUNCT1ON()
                 ),
-                new UseStatement(Symbol::fromString('\My\Full\CONSTANT'), null, UseStatementType::CONSTANT()),
+                UseStatement::create(Symbol::fromString('\My\Full\CONSTANT'), null, UseStatementType::CONSTANT()),
             )
         );
 
@@ -237,10 +237,10 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     {
         $this->primaryNamespace = Symbol::fromString('\Foo\Bar');
         $this->useStatements = array(
-            new UseStatement(Symbol::fromString('\Baz\Qux')),
-            new UseStatement(Symbol::fromString('\Doom\Splat'), Symbol::fromString('Ping')),
-            new UseStatement(Symbol::fromString('\Pong\Pang')),
-            new UseStatement(Symbol::fromString('\Pong\Pang\Peng')),
+            UseStatement::create(Symbol::fromString('\Baz\Qux')),
+            UseStatement::create(Symbol::fromString('\Doom\Splat'), Symbol::fromString('Ping')),
+            UseStatement::create(Symbol::fromString('\Pong\Pang')),
+            UseStatement::create(Symbol::fromString('\Pong\Pang\Peng')),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements);
 

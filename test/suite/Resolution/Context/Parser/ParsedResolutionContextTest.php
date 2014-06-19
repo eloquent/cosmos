@@ -31,12 +31,12 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
 
         $this->primaryNamespace = Symbol::fromString('\VendorA\PackageA');
         $this->useStatements = array(
-            new UseStatement(Symbol::fromString('\VendorB\PackageB')),
-            new UseStatement(Symbol::fromString('\VendorC\PackageC')),
-            new UseStatement(Symbol::fromString('\VendorD\PackageD'), null, UseStatementType::FUNCT1ON()),
-            new UseStatement(Symbol::fromString('\VendorE\PackageE'), null, UseStatementType::FUNCT1ON()),
-            new UseStatement(Symbol::fromString('\VendorF\PackageF'), null, UseStatementType::CONSTANT()),
-            new UseStatement(Symbol::fromString('\VendorG\PackageG'), null, UseStatementType::CONSTANT()),
+            UseStatement::create(Symbol::fromString('\VendorB\PackageB')),
+            UseStatement::create(Symbol::fromString('\VendorC\PackageC')),
+            UseStatement::create(Symbol::fromString('\VendorD\PackageD'), null, UseStatementType::FUNCT1ON()),
+            UseStatement::create(Symbol::fromString('\VendorE\PackageE'), null, UseStatementType::FUNCT1ON()),
+            UseStatement::create(Symbol::fromString('\VendorF\PackageF'), null, UseStatementType::CONSTANT()),
+            UseStatement::create(Symbol::fromString('\VendorG\PackageG'), null, UseStatementType::CONSTANT()),
         );
         $this->innerContext = new ResolutionContext($this->primaryNamespace, $this->useStatements);
         $this->symbols = array(Symbol::fromString('\SymbolA'), Symbol::fromString('\SymbolB'));
@@ -78,25 +78,28 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
         $this->innerContext = new ResolutionContext(
             Symbol::fromString('\foo'),
             array(
-                new UseStatement(Symbol::fromString('\NamespaceA\NamespaceB\SymbolA'), Symbol::fromString('SymbolB')),
-                new UseStatement(Symbol::fromString('\NamespaceC\NamespaceD')),
-                new UseStatement(Symbol::fromString('\SymbolC')),
+                UseStatement::create(
+                    Symbol::fromString('\NamespaceA\NamespaceB\SymbolA'),
+                    Symbol::fromString('SymbolB')
+                ),
+                UseStatement::create(Symbol::fromString('\NamespaceC\NamespaceD')),
+                UseStatement::create(Symbol::fromString('\SymbolC')),
 
-                new UseStatement(Symbol::fromString(
+                UseStatement::create(Symbol::fromString(
                     '\NamespaceE\NamespaceF\SymbolD'),
                     Symbol::fromString('SymbolE'),
                     UseStatementType::FUNCT1ON()
                 ),
-                new UseStatement(Symbol::fromString('\NamespaceG\SymbolF'), null, UseStatementType::FUNCT1ON()),
-                new UseStatement(Symbol::fromString('\SymbolC'), null, UseStatementType::FUNCT1ON()),
+                UseStatement::create(Symbol::fromString('\NamespaceG\SymbolF'), null, UseStatementType::FUNCT1ON()),
+                UseStatement::create(Symbol::fromString('\SymbolC'), null, UseStatementType::FUNCT1ON()),
 
-                new UseStatement(Symbol::fromString(
+                UseStatement::create(Symbol::fromString(
                     '\NamespaceH\NamespaceI\SymbolG'),
                     Symbol::fromString('SymbolH'),
                     UseStatementType::CONSTANT()
                 ),
-                new UseStatement(Symbol::fromString('\NamespaceJ\SymbolI'), null, UseStatementType::CONSTANT()),
-                new UseStatement(Symbol::fromString('\SymbolC'), null, UseStatementType::CONSTANT()),
+                UseStatement::create(Symbol::fromString('\NamespaceJ\SymbolI'), null, UseStatementType::CONSTANT()),
+                UseStatement::create(Symbol::fromString('\SymbolC'), null, UseStatementType::CONSTANT()),
             )
         );
         $this->context = new ParsedResolutionContext($this->innerContext, $this->symbols, $this->position);

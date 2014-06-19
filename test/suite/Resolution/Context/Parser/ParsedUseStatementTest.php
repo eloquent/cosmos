@@ -13,6 +13,7 @@ namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Cosmos\UseStatement\UseStatementClause;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
 use PHPUnit_Framework_TestCase;
 use Phake;
@@ -27,9 +28,11 @@ class ParsedUseStatementTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->symbol = Symbol::fromString('\Namespace\Symbol');
-        $this->alias = Symbol::fromString('Alias');
-        $this->useStatement = new UseStatement($this->symbol, $this->alias, UseStatementType::CONSTANT());
+        $this->clauses = array(
+            new UseStatementClause(Symbol::fromString('\NamespaceA\SymbolA'), Symbol::fromString('SymbolB')),
+            new UseStatementClause(Symbol::fromString('\NamespaceB\SymbolC')),
+        );
+        $this->useStatement = new UseStatement($this->clauses, UseStatementType::CONSTANT());
         $this->position = new ParserPosition(111, 222);
         $this->parsedUseStatement = new ParsedUseStatement($this->useStatement, $this->position);
     }
@@ -38,9 +41,7 @@ class ParsedUseStatementTest extends PHPUnit_Framework_TestCase
     {
         $this->assertSame($this->useStatement, $this->parsedUseStatement->useStatement());
         $this->assertSame($this->position, $this->parsedUseStatement->position());
-        $this->assertSame($this->useStatement->symbol(), $this->parsedUseStatement->symbol());
-        $this->assertSame($this->useStatement->alias(), $this->parsedUseStatement->alias());
-        $this->assertSame($this->useStatement->effectiveAlias(), $this->parsedUseStatement->effectiveAlias());
+        $this->assertSame($this->useStatement->clauses(), $this->parsedUseStatement->clauses());
         $this->assertSame($this->useStatement->type(), $this->parsedUseStatement->type());
         $this->assertSame($this->useStatement->string(), $this->parsedUseStatement->string());
         $this->assertSame(strval($this->useStatement), strval($this->parsedUseStatement));

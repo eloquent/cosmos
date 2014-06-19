@@ -224,7 +224,7 @@ class ResolutionContext implements ResolutionContextInterface
         $this->primaryNamespace = $primaryNamespace;
         $this->useStatements = $useStatements;
 
-        $this->index = $this->buildIndex();
+        $this->index = $this->buildIndices();
     }
 
     /**
@@ -256,9 +256,7 @@ class ResolutionContext implements ResolutionContextInterface
      */
     public function useStatementsByType(UseStatementType $type)
     {
-        $index = $this->index($type);
-
-        return array_values($index);
+        return $this->typeIndex[$type->value()];
     }
 
     /**
@@ -280,10 +278,10 @@ class ResolutionContext implements ResolutionContextInterface
             $useStatementType = UseStatementType::memberBySymbolType($type);
         }
 
-        $index = $this->index($useStatementType);
+        $index = $this->aliasIndex[$useStatementType->value()];
         $firstAtom = $symbol->atomAt(0);
         if (array_key_exists($firstAtom, $index)) {
-            return $index[$firstAtom]->symbol();
+            return $index[$firstAtom];
         }
 
         return null;
@@ -311,43 +309,31 @@ class ResolutionContext implements ResolutionContextInterface
         return ResolutionContextReader::instance();
     }
 
-    /**
-     * Get an index for resolving symbol references.
-     *
-     * The first time this method is called, the index will be built.
-     *
-     * @param UseStatementType $type The use statement type.
-     *
-     * @return array The index.
-     */
-    protected function index(UseStatementType $type)
+    private function buildIndices()
     {
-        return $this->index[$type->value()];
-    }
+        $typeType = UseStatementType::TYPE()->value();
+        $functionType = UseStatementType::FUNCT1ON()->value();
+        $constantType = UseStatementType::CONSTANT()->value();
 
-    /**
-     * Builds the internal index used to resolve symbol references.
-     *
-     * @return array The index.
-     */
-    protected function buildIndex()
-    {
-        $index = array(
-            UseStatementType::TYPE()->value() => array(),
-            UseStatementType::FUNCT1ON()->value() => array(),
-            UseStatementType::CONSTANT()->value() => array(),
+        $this->typeIndex = $this->aliasIndex = array(
+            $typeType => array(),
+            $functionType => array(),
+            $constantType => array(),
         );
 
         foreach ($this->useStatements() as $useStatement) {
             $type = $useStatement->type()->value();
-            $alias = $useStatement->effectiveAlias()->string();
-            $index[$type][$alias] = $useStatement;
-        }
+            $this->typeIndex[$type][] = $useStatement;
 
-        return $index;
+            foreach ($useStatement->clauses() as $clause) {
+                $alias = $clause->effectiveAlias()->string();
+                $this->aliasIndex[$type][$alias] = $clause->symbol();
+            }
+        }
     }
 
     private $primaryNamespace;
     private $useStatements;
-    private $index;
+    private $typeIndex;
+    private $aliasIndex;
 }

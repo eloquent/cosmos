@@ -109,10 +109,17 @@ class UseStatementNormalizer implements UseStatementNormalizerInterface
         return $useStatements;
     }
 
-    private function normalizeClauses(array $clauses)
+    /**
+     * Normalize the supplied use statement clauses.
+     *
+     * @param array<UseStatementClauseInterface> $useStatementClauses The use statement clauses to normalize.
+     *
+     * @return array<UseStatementClauseInterface> The normalized use statement clauses.
+     */
+    public function normalizeClauses(array $useStatementClauses)
     {
         $normalized = $seen = array();
-        foreach ($clauses as $clause) {
+        foreach ($useStatementClauses as $clause) {
             $key = $clause->string();
             if (array_key_exists($key, $seen)) {
                 continue;
