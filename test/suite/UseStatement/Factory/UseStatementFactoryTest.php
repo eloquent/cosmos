@@ -11,8 +11,10 @@
 
 namespace Eloquent\Cosmos\UseStatement\Factory;
 
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Cosmos\UseStatement\UseStatementClause;
+use Eloquent\Cosmos\UseStatement\UseStatementType;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
@@ -24,15 +26,26 @@ class UseStatementFactoryTest extends PHPUnit_Framework_TestCase
 
         $this->factory = new UseStatementFactory;
 
-        $this->symbolFactory = new SymbolFactory;
-        $this->symbol = $this->symbolFactory->create('\Vendor\Package\Class');
-        $this->alias = $this->symbolFactory->create('Alias');
+        $this->symbol = Symbol::fromString('\Vendor\Package\Class');
+        $this->alias = Symbol::fromString('Alias');
+        $this->clauses = array(
+            new UseStatementClause(Symbol::fromString('\NamespaceA\SymbolA'), Symbol::fromString('SymbolB')),
+            new UseStatementClause(Symbol::fromString('\NamespaceB\SymbolC')),
+        );
     }
 
-    public function testCreate()
+    public function testCreateClause()
     {
-        $actual = $this->factory->create($this->symbol, $this->alias);
-        $expected = new UseStatement($this->symbol, $this->alias);
+        $actual = $this->factory->createClause($this->symbol, $this->alias);
+        $expected = new UseStatementClause($this->symbol, $this->alias);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testCreateStatement()
+    {
+        $actual = $this->factory->createStatement($this->clauses, UseStatementType::CONSTANT());
+        $expected = new UseStatement($this->clauses, UseStatementType::CONSTANT());
 
         $this->assertEquals($expected, $actual);
     }

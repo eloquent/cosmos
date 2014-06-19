@@ -12,10 +12,7 @@
 namespace Eloquent\Cosmos\UseStatement;
 
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface;
-use Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException;
-use Eloquent\Cosmos\Symbol\QualifiedSymbol;
-use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
-use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
+use Eloquent\Cosmos\UseStatement\Exception\EmptyUseStatementException;
 
 /**
  * Represents a use statement.
@@ -25,73 +22,33 @@ class UseStatement implements UseStatementInterface
     /**
      * Construct a new use statement.
      *
-     * @param QualifiedSymbolInterface      $symbol The symbol.
-     * @param SymbolReferenceInterface|null $alias  The alias for the symbol.
-     * @param UseStatementType|null         $type   The use statement type.
+     * @param array<UseStatementClauseInterface> The clauses.
+     * @param UseStatementType|null $type The use statement type.
      *
-     * @throws InvalidSymbolAtomException If an invalid alias is supplied.
+     * @throws EmptyUseStatementException If no clauses are supplied.
      */
-    public function __construct(
-        QualifiedSymbolInterface $symbol,
-        SymbolReferenceInterface $alias = null,
-        UseStatementType $type = null
-    ) {
+    public function __construct(array $clauses, UseStatementType $type = null)
+    {
         if (null === $type) {
             $type = UseStatementType::TYPE();
         }
 
-        $this->symbol = $symbol->normalize();
-        if (null === $alias) {
-            $this->alias = null;
-        } else {
-            $normalizedAlias = $alias->normalize();
-            $aliasAtoms = $normalizedAlias->atoms();
-
-            if (
-                count($aliasAtoms) > 1 ||
-                QualifiedSymbol::SELF_ATOM === $aliasAtoms[0] ||
-                QualifiedSymbol::PARENT_ATOM === $aliasAtoms[0]
-            ) {
-                throw new InvalidSymbolAtomException($alias->string());
-            }
-
-            $this->alias = $normalizedAlias;
+        if (count($clauses) < 1) {
+            throw new EmptyUseStatementException;
         }
+
+        $this->clauses = $clauses;
         $this->type = $type;
     }
 
     /**
-     * Get the symbol.
+     * Get the clauses.
      *
-     * @return QualifiedSymbolInterface The symbol.
+     * @return array<UseStatementClauseInterface> The clauses.
      */
-    public function symbol()
+    public function clauses()
     {
-        return $this->symbol;
-    }
-
-    /**
-     * Get the alias for the symbol.
-     *
-     * @return SymbolReferenceInterface|null The alias, or null if no alias is in use.
-     */
-    public function alias()
-    {
-        return $this->alias;
-    }
-
-    /**
-     * Get the effective alias for the symbol.
-     *
-     * @return SymbolReferenceInterface The alias, or the last atom of the symbol.
-     */
-    public function effectiveAlias()
-    {
-        if (null === $this->alias()) {
-            return $this->symbol()->lastAtomAsReference();
-        }
-
-        return $this->alias();
+        return $this->clauses;
     }
 
     /**
@@ -111,15 +68,17 @@ class UseStatement implements UseStatementInterface
      */
     public function string()
     {
-        if (null === $this->alias()) {
-            return sprintf('use %s', $this->symbol()->toRelative()->string());
+        $string = 'use ';
+        if (UseStatementType::TYPE() !== $this->type()) {
+            $string .= $this->type()->value() . ' ';
         }
 
-        return sprintf(
-            'use %s as %s',
-            $this->symbol()->toRelative()->string(),
-            $this->alias()->string()
-        );
+        $clauses = array();
+        foreach ($this->clauses() as $clause) {
+            $clauses[] = $clause->string();
+        }
+
+        return $string . implode(', ', $clauses);
     }
 
     /**
@@ -144,7 +103,6 @@ class UseStatement implements UseStatementInterface
         return $visitor->visitUseStatement($this);
     }
 
-    private $symbol;
-    private $alias;
+    private $clauses;
     private $type;
 }

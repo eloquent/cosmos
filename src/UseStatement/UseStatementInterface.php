@@ -19,18 +19,18 @@ use Eloquent\Cosmos\Resolution\Context\ResolutionContextElementInterface;
 interface UseStatementInterface extends ResolutionContextElementInterface
 {
     /**
-     * Get the use statement type.
-     *
-     * @return UseStatementType The type.
-     */
-    public function type();
-
-    /**
      * Get the clauses.
      *
      * @return array<UseStatementClauseInterface> The clauses.
      */
     public function clauses();
+
+    /**
+     * Get the use statement type.
+     *
+     * @return UseStatementType The type.
+     */
+    public function type();
 
     /**
      * Generate a string representation of this use statement.

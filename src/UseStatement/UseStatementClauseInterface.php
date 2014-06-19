@@ -42,16 +42,16 @@ interface UseStatementClauseInterface extends ResolutionContextElementInterface
     public function effectiveAlias();
 
     /**
-     * Generate a string representation of this use statement.
+     * Generate a string representation of this use statement clause.
      *
-     * @return string A string representation of this use statement.
+     * @return string A string representation of this use statement clause.
      */
     public function string();
 
     /**
-     * Generate a string representation of this use statement.
+     * Generate a string representation of this use statement clause.
      *
-     * @return string A string representation of this use statement.
+     * @return string A string representation of this use statement clause.
      */
     public function __toString();
 }

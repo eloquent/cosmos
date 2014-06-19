@@ -11,7 +11,7 @@
 
 namespace Eloquent\Cosmos\UseStatement;
 
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
+use Eloquent\Cosmos\Symbol\Symbol;
 use PHPUnit_Framework_TestCase;
 use Phake;
 
@@ -21,75 +21,44 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->factory = new SymbolFactory;
-        $this->symbol = $this->factory->create('\Namespace\Symbol');
-        $this->alias = $this->factory->create('Alias');
-        $this->useStatement = new UseStatement($this->symbol, $this->alias, UseStatementType::CONSTANT());
+        $this->clauses = array(
+            new UseStatementClause(Symbol::fromString('\NamespaceA\SymbolA'), Symbol::fromString('SymbolB')),
+            new UseStatementClause(Symbol::fromString('\NamespaceB\SymbolC')),
+        );
+        $this->useStatement = new UseStatement($this->clauses, UseStatementType::CONSTANT());
     }
 
     public function testConstructor()
     {
-        $this->assertEquals($this->symbol, $this->useStatement->symbol());
-        $this->assertEquals($this->alias, $this->useStatement->alias());
+        $this->assertEquals($this->clauses, $this->useStatement->clauses());
         $this->assertSame(UseStatementType::CONSTANT(), $this->useStatement->type());
     }
 
     public function testConstructorDefaults()
     {
-        $this->useStatement = new UseStatement($this->symbol);
+        $this->useStatement = new UseStatement($this->clauses);
 
-        $this->assertNull($this->useStatement->alias());
         $this->assertSame(UseStatementType::TYPE(), $this->useStatement->type());
     }
 
-    public function testConstructorFailureInvalidAliasMultipleAtoms()
+    public function testConstructorFailureEmpty()
     {
-        $this->alias = $this->factory->create('Namespace\Alias');
-
-        $this->setExpectedException('Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException');
-        new UseStatement($this->symbol, $this->alias);
-    }
-
-    public function testConstructorFailureInvalidAliasSelfAtom()
-    {
-        $this->alias = $this->factory->create('.');
-
-        $this->setExpectedException('Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException');
-        new UseStatement($this->symbol, $this->alias);
-    }
-
-    public function testConstructorFailureInvalidAliasParentAtom()
-    {
-        $this->alias = $this->factory->create('..');
-
-        $this->setExpectedException('Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException');
-        new UseStatement($this->symbol, $this->alias);
-    }
-
-    public function testEffectiveAlias()
-    {
-        $this->assertSame('Alias', $this->useStatement->effectiveAlias()->string());
-    }
-
-    public function testEffectiveAliasNoAlias()
-    {
-        $this->useStatement = new UseStatement($this->symbol);
-
-        $this->assertSame('Symbol', $this->useStatement->effectiveAlias()->string());
+        $this->setExpectedException('Eloquent\Cosmos\UseStatement\Exception\EmptyUseStatementException');
+        new UseStatement(array());
     }
 
     public function testString()
     {
-        $this->assertSame('use Namespace\Symbol as Alias', $this->useStatement->string());
-        $this->assertSame('use Namespace\Symbol as Alias', strval($this->useStatement));
+        $this->assertSame('use const NamespaceA\SymbolA as SymbolB, NamespaceB\SymbolC', $this->useStatement->string());
+        $this->assertSame('use const NamespaceA\SymbolA as SymbolB, NamespaceB\SymbolC', strval($this->useStatement));
     }
 
-    public function testStringNoAlias()
+    public function testStringSingleNoType()
     {
-        $this->useStatement = new UseStatement($this->symbol);
-
-        $this->assertSame('use Namespace\Symbol', $this->useStatement->string());
-        $this->assertSame('use Namespace\Symbol', strval($this->useStatement));
+        $this->clauses = array(new UseStatementClause(Symbol::fromString('\SymbolA')),);
+        $this->useStatement = new UseStatement($this->clauses);
+        $this->assertSame('use SymbolA', $this->useStatement->string());
+        $this->assertSame('use SymbolA', strval($this->useStatement));
     }
 
     public function testAccept()
