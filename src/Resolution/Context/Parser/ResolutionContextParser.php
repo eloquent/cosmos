@@ -200,7 +200,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         $namespaceName = $useStatementAlias = $useStatementType =
             $useStatementPosition = $symbolType = $symbolPosition = null;
         $contextMetaStack = array(
-            array(new ParserPosition(1, 1), 0, false, null, null),
+            array(new ParserPosition(1, 1), 0, false, null, null, 0),
         );
         $contextMetaStackSize = 1;
         $startOffset = $endOffset = $contextEndOffset =
@@ -224,7 +224,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                     $startOffset,
                                     true,
                                     null,
-                                    null
+                                    null,
+                                    0
                                 )
                             );
                             $contextMetaStackSize++;
@@ -300,6 +301,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case '{':
                             $state = static::STATE_START;
                             $transitions[] = static::TRANSITION_CONTEXT_END;
+                            $contextMetaStack[$contextMetaStackSize - 1][5] =
+                                $endOffset + 1;
 
                             break;
                     }
@@ -322,6 +325,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                 ->createFromAtoms($atoms, true);
                             $atoms = array();
                             $contextEndOffset = $endOffset;
+                            $contextMetaStack[$contextMetaStackSize - 1][5] =
+                                $endOffset + 1;
 
                             break;
                     }
@@ -543,7 +548,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $contextStartOffset,
                             $isExplicitNamespace,
                             $namespaceSymbolStartOffset,
-                            $namespaceSymbolEndOffset
+                            $namespaceSymbolEndOffset,
+                            $namespaceBodyOffset,
                         ) = array_pop($contextMetaStack);
                         $contextMetaStackSize--;
 
@@ -577,7 +583,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $contextSize,
                             $namespaceSymbolStartOffset,
                             $namespaceSymbolEndOffset -
-                                $namespaceSymbolStartOffset + 1
+                                $namespaceSymbolStartOffset + 1,
+                            $namespaceBodyOffset
                         );
                         $symbols = array();
 

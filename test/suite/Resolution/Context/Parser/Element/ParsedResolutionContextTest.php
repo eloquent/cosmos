@@ -49,7 +49,8 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
             333,
             444,
             555,
-            666
+            666,
+            777
         );
     }
 
@@ -62,6 +63,7 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
         $this->assertSame(444, $this->context->size());
         $this->assertSame(555, $this->context->namespaceSymbolOffset());
         $this->assertSame(666, $this->context->namespaceSymbolSize());
+        $this->assertSame(777, $this->context->namespaceBodyOffset());
         $this->assertSame($this->innerContext->primaryNamespace(), $this->context->primaryNamespace());
         $this->assertSame($this->innerContext->useStatements(), $this->context->useStatements());
     }
@@ -77,6 +79,7 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
         $this->assertSame(0, $this->context->size());
         $this->assertNull($this->context->namespaceSymbolOffset());
         $this->assertNull($this->context->namespaceSymbolSize());
+        $this->assertSame(0, $this->context->namespaceBodyOffset());
     }
 
     public function testUseStatementsByType()
