@@ -22,4 +22,18 @@ interface ParsedElementInterface
      * @return ParserPositionInterface The position.
      */
     public function position();
+
+    /**
+     * Get the character offset for the start of the element.
+     *
+     * @return integer The start offset.
+     */
+    public function startOffset();
+
+    /**
+     * Get the size of the parsed element.
+     *
+     * @return integer The element size in bytes.
+     */
+    public function size();
 }

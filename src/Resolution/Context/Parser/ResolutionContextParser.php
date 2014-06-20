@@ -196,9 +196,13 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         $namespaceName = $useStatementAlias = $useStatementType =
             $useStatementPosition = $symbolType = $symbolPosition = null;
         $contextPositionStack = array(new ParserPosition(1, 1));
-        $symbolBracketDepth = 0;
+        $startOffset = $endOffset = $symbolStartOffset = $symbolBracketDepth =
+            0;
 
         foreach ($tokens as $index => $token) {
+            $startOffset = $endOffset + 1;
+            $endOffset = $startOffset + strlen($token[1]) - 1;
+
             switch ($state) {
                 case static::STATE_START:
                     switch ($token[0]) {
@@ -251,13 +255,6 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $state = static::STATE_SYMBOL;
                             $transitions[] = static::TRANSITION_SYMBOL_START;
                             $symbolType = SymbolType::FUNCT1ON();
-
-                            break;
-
-                        case T_CONST:
-                            $state = static::STATE_SYMBOL;
-                            $transitions[] = static::TRANSITION_SYMBOL_START;
-                            $symbolType = SymbolType::CONSTANT();
 
                             break;
                     }
@@ -380,14 +377,11 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case T_EXTENDS:
                         case T_IMPLEMENTS:
                         case '(':
-                        case '=':
-                            $transitions[] = static::TRANSITION_SYMBOL_END;
                             $state = static::STATE_SYMBOL_HEADER;
 
                             break;
 
                         case '{':
-                            $transitions[] = static::TRANSITION_SYMBOL_END;
                             $state = static::STATE_SYMBOL_BODY;
                             $symbolBracketDepth++;
 
@@ -403,11 +397,6 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $symbolBracketDepth++;
 
                             break;
-
-                        case ';':
-                            $state = static::STATE_START;
-
-                            break;
                     }
 
                     break;
@@ -421,6 +410,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case '}':
                             if (0 === --$symbolBracketDepth) {
+                                $transitions[] = static::TRANSITION_SYMBOL_END;
                                 $state = static::STATE_START;
                             }
 
@@ -439,6 +429,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                     case static::TRANSITION_SYMBOL_START:
                         $symbolPosition =
                             new ParserPosition($token[2], $token[3]);
+                        $symbolStartOffset = $startOffset;
 
                         break;
 
@@ -448,6 +439,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                 ->createFromAtoms($atoms, false),
                             $symbolType,
                             $symbolPosition,
+                            $symbolStartOffset,
+                            $endOffset,
                         );
                         $atoms = array();
                         $symbolType = null;
@@ -495,13 +488,21 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         $useStatements = array();
 
                         foreach ($symbols as $index => $parsedSymbol) {
-                            list($symbol, $type, $position) = $parsedSymbol;
+                            list(
+                                $symbol,
+                                $type,
+                                $position,
+                                $symbolStartOffset,
+                                $symbolEndOffset,
+                            ) = $parsedSymbol;
 
                             $symbols[$index] = new ParsedSymbol(
                                 $this->symbolResolver()
                                     ->resolveAgainstContext($context, $symbol),
                                 $type,
-                                $position
+                                $position,
+                                $symbolStartOffset,
+                                $symbolEndOffset - $symbolStartOffset + 1
                             );
                         }
 

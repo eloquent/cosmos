@@ -23,20 +23,24 @@ class ParsedSymbol extends AbstractParsedElement implements
     /**
      * Construct a new parsed symbol.
      *
-     * @param QualifiedSymbolInterface     $symbol   The symbol.
-     * @param SymbolType|null              $type     The symbol type.
-     * @param ParserPositionInterface|null $position The position.
+     * @param QualifiedSymbolInterface     $symbol      The symbol.
+     * @param SymbolType|null              $type        The symbol type.
+     * @param ParserPositionInterface|null $position    The position.
+     * @param integer|null                 $startOffset The start offset.
+     * @param integer|null                 $size        The element size in bytes.
      */
     public function __construct(
         QualifiedSymbolInterface $symbol,
         SymbolType $type = null,
-        ParserPositionInterface $position = null
+        ParserPositionInterface $position = null,
+        $startOffset = null,
+        $size = null
     ) {
         if (null === $type) {
             $type = SymbolType::CLA55();
         }
 
-        parent::__construct($position);
+        parent::__construct($position, $startOffset, $size);
 
         $this->symbol = $symbol;
         $this->type = $type;

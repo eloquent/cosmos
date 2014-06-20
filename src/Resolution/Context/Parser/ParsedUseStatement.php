@@ -27,12 +27,16 @@ class ParsedUseStatement extends AbstractParsedElement implements
      *
      * @param UseStatementInterface        $useStatement The use statement.
      * @param ParserPositionInterface|null $position     The position.
+     * @param integer|null                 $startOffset  The start offset.
+     * @param integer|null                 $size         The element size in bytes.
      */
     public function __construct(
         UseStatementInterface $useStatement,
-        ParserPositionInterface $position = null
+        ParserPositionInterface $position = null,
+        $startOffset = null,
+        $size = null
     ) {
-        parent::__construct($position);
+        parent::__construct($position, $startOffset, $size);
 
         $this->useStatement = $useStatement;
     }

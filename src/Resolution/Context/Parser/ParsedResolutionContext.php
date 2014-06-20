@@ -29,14 +29,18 @@ class ParsedResolutionContext extends AbstractParsedElement implements
     /**
      * Construct a new parsed resolution context.
      *
-     * @param ResolutionContextInterface|null   $context  The resolution context.
-     * @param array<ParsedSymbolInterface>|null $symbols  The symbols defined under the parsed resolution context.
-     * @param ParserPositionInterface|null      $position The position.
+     * @param ResolutionContextInterface|null   $context     The resolution context.
+     * @param array<ParsedSymbolInterface>|null $symbols     The symbols defined under the parsed resolution context.
+     * @param ParserPositionInterface|null      $position    The position.
+     * @param integer|null                      $startOffset The start offset.
+     * @param integer|null                      $size        The element size in bytes.
      */
     public function __construct(
         ResolutionContextInterface $context = null,
         array $symbols = null,
-        ParserPositionInterface $position = null
+        ParserPositionInterface $position = null,
+        $startOffset = null,
+        $size = null
     ) {
         if (null === $context) {
             $context = new ResolutionContext;
@@ -45,7 +49,7 @@ class ParsedResolutionContext extends AbstractParsedElement implements
             $symbols = array();
         }
 
-        parent::__construct($position);
+        parent::__construct($position, $startOffset, $size);
 
         $this->context = $context;
         $this->symbols = $symbols;

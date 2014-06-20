@@ -178,16 +178,14 @@ use ClassG as ClassH; // at position (9, 5)
 use NamespaceD\ClassI; // at position (11, 5)
 use NamespaceE\ClassJ as ClassK, NamespaceF\NamespaceG\ClassL; // at position (13, 5)
 
-interface \NamespaceA\NamespaceB\InterfaceA; // at position (17, 5)
-interface \NamespaceA\NamespaceB\InterfaceB; // at position (22, 5)
-interface \NamespaceA\NamespaceB\InterfaceC; // at position (28, 5)
-class \NamespaceA\NamespaceB\ClassB; // at position (34, 5)
-class \NamespaceA\NamespaceB\ClassC; // at position (38, 5)
-class \NamespaceA\NamespaceB\ClassD; // at position (45, 5)
-function \NamespaceA\NamespaceB\FunctionA; // at position (60, 5)
-function \NamespaceA\NamespaceB\FunctionB; // at position (64, 5)
-const \NamespaceA\NamespaceB\CONSTANT_A; // at position (68, 5)
-const \NamespaceA\NamespaceB\CONSTANT_B; // at position (69, 5)
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (17, 5), offset 275, size 72
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (22, 5), offset 353, size 112
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (28, 5), offset 471, size 64
+class \NamespaceA\NamespaceB\ClassB; // at position (34, 5), offset 581, size 24
+class \NamespaceA\NamespaceB\ClassC; // at position (38, 5), offset 611, size 102
+class \NamespaceA\NamespaceB\ClassD; // at position (45, 5), offset 719, size 229
+function \NamespaceA\NamespaceB\FunctionA; // at position (60, 5), offset 954, size 77
+function \NamespaceA\NamespaceB\FunctionB; // at position (64, 5), offset 1037, size 32
 
 // Context at position (73, 5):
 
@@ -196,8 +194,8 @@ namespace NamespaceC;
 use ClassM; // at position (75, 5)
 use ClassN; // at position (77, 5)
 
-class \NamespaceC\ClassE; // at position (79, 5)
-interface \NamespaceC\InterfaceD; // at position (83, 5)
+class \NamespaceC\ClassE; // at position (79, 5), offset 1258, size 24
+interface \NamespaceC\InterfaceD; // at position (83, 5), offset 1288, size 32
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -332,16 +330,14 @@ use ClassG as ClassH; // at position (9, 9)
 use NamespaceD\ClassI; // at position (11, 9)
 use NamespaceE\ClassJ as ClassK, NamespaceF\NamespaceG\ClassL; // at position (13, 9)
 
-interface \NamespaceA\NamespaceB\InterfaceA; // at position (17, 9)
-interface \NamespaceA\NamespaceB\InterfaceB; // at position (22, 9)
-interface \NamespaceA\NamespaceB\InterfaceC; // at position (28, 9)
-class \NamespaceA\NamespaceB\ClassB; // at position (34, 9)
-class \NamespaceA\NamespaceB\ClassC; // at position (38, 9)
-class \NamespaceA\NamespaceB\ClassD; // at position (45, 9)
-function \NamespaceA\NamespaceB\FunctionA; // at position (60, 9)
-function \NamespaceA\NamespaceB\FunctionB; // at position (64, 9)
-const \NamespaceA\NamespaceB\CONSTANT_A; // at position (68, 9)
-const \NamespaceA\NamespaceB\CONSTANT_B; // at position (69, 9)
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (17, 9), offset 302, size 84
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (22, 9), offset 396, size 128
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (28, 9), offset 534, size 72
+class \NamespaceA\NamespaceB\ClassB; // at position (34, 9), offset 660, size 32
+class \NamespaceA\NamespaceB\ClassC; // at position (38, 9), offset 702, size 122
+class \NamespaceA\NamespaceB\ClassD; // at position (45, 9), offset 834, size 273
+function \NamespaceA\NamespaceB\FunctionA; // at position (60, 9), offset 1117, size 85
+function \NamespaceA\NamespaceB\FunctionB; // at position (64, 9), offset 1212, size 40
 
 // Context at position (74, 5):
 
@@ -350,18 +346,17 @@ namespace NamespaceC;
 use ClassM; // at position (76, 9)
 use ClassN; // at position (78, 9)
 
-class \NamespaceC\ClassE; // at position (80, 9)
-interface \NamespaceC\InterfaceD; // at position (84, 9)
+class \NamespaceC\ClassE; // at position (80, 9), offset 1474, size 32
+interface \NamespaceC\InterfaceD; // at position (84, 9), offset 1516, size 40
 
 // Context at position (91, 5):
 
 use ClassO; // at position (93, 9)
 use ClassP; // at position (95, 9)
 
-class \ClassQ; // at position (99, 9)
-interface \InterfaceE; // at position (103, 9)
-function \FunctionC; // at position (107, 9)
-const \CONSTANT_D; // at position (111, 9)
+class \ClassQ; // at position (99, 9), offset 1724, size 32
+interface \InterfaceE; // at position (103, 9), offset 1766, size 40
+function \FunctionC; // at position (107, 9), offset 1816, size 40
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -439,12 +434,12 @@ use NamespaceD\ClassI; // at position (9, 5)
 use NamespaceE\ClassJ as ClassK; // at position (11, 5)
 use NamespaceF\NamespaceG\ClassL; // at position (13, 5)
 
-interface \InterfaceA; // at position (17, 5)
-interface \InterfaceB; // at position (22, 5)
-interface \InterfaceC; // at position (28, 5)
-class \ClassB; // at position (32, 5)
-class \ClassC; // at position (36, 5)
-class \ClassD; // at position (43, 5)
+interface \InterfaceA; // at position (17, 5), offset 243, size 72
+interface \InterfaceB; // at position (22, 5), offset 321, size 112
+interface \InterfaceC; // at position (28, 5), offset 439, size 64
+class \ClassB; // at position (32, 5), offset 509, size 24
+class \ClassC; // at position (36, 5), offset 539, size 102
+class \ClassD; // at position (43, 5), offset 647, size 229
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -510,12 +505,12 @@ EOD;
 
 namespace NamespaceA\NamespaceB;
 
-interface \NamespaceA\NamespaceB\InterfaceA; // at position (9, 5)
-interface \NamespaceA\NamespaceB\InterfaceB; // at position (14, 5)
-interface \NamespaceA\NamespaceB\InterfaceC; // at position (20, 5)
-class \NamespaceA\NamespaceB\ClassB; // at position (24, 5)
-class \NamespaceA\NamespaceB\ClassC; // at position (28, 5)
-class \NamespaceA\NamespaceB\ClassD; // at position (35, 5)
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (9, 5), offset 122, size 72
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (14, 5), offset 200, size 112
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (20, 5), offset 318, size 64
+class \NamespaceA\NamespaceB\ClassB; // at position (24, 5), offset 388, size 24
+class \NamespaceA\NamespaceB\ClassC; // at position (28, 5), offset 418, size 102
+class \NamespaceA\NamespaceB\ClassD; // at position (35, 5), offset 526, size 229
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -577,12 +572,12 @@ EOD;
         $expected = <<<'EOD'
 // Context at position (1, 1):
 
-interface \InterfaceA; // at position (7, 5)
-interface \InterfaceB; // at position (12, 5)
-interface \InterfaceC; // at position (18, 5)
-class \ClassB; // at position (22, 5)
-class \ClassC; // at position (26, 5)
-class \ClassD; // at position (33, 5)
+interface \InterfaceA; // at position (7, 5), offset 81, size 72
+interface \InterfaceB; // at position (12, 5), offset 159, size 112
+interface \InterfaceC; // at position (18, 5), offset 277, size 64
+class \ClassB; // at position (22, 5), offset 347, size 24
+class \ClassC; // at position (26, 5), offset 377, size 102
+class \ClassD; // at position (33, 5), offset 485, size 229
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -762,15 +757,15 @@ use NamespaceD\ClassI; // at position (11, 5)
 use NamespaceE\ClassJ as ClassK; // at position (13, 5)
 use NamespaceF\NamespaceG\ClassL; // at position (15, 5)
 
-interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 5)
-interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 5)
-interface \NamespaceA\NamespaceB\InterfaceC; // at position (30, 5)
-trait \NamespaceA\NamespaceB\TraitA; // at position (34, 5)
-trait \NamespaceA\NamespaceB\TraitB; // at position (38, 5)
-trait \NamespaceA\NamespaceB\TraitC; // at position (42, 5)
-class \NamespaceA\NamespaceB\ClassB; // at position (49, 5)
-class \NamespaceA\NamespaceB\ClassC; // at position (53, 5)
-class \NamespaceA\NamespaceB\ClassD; // at position (60, 5)
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 5), offset 284, size 72
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 5), offset 362, size 112
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (30, 5), offset 480, size 64
+trait \NamespaceA\NamespaceB\TraitA; // at position (34, 5), offset 550, size 24
+trait \NamespaceA\NamespaceB\TraitB; // at position (38, 5), offset 580, size 24
+trait \NamespaceA\NamespaceB\TraitC; // at position (42, 5), offset 610, size 67
+class \NamespaceA\NamespaceB\ClassB; // at position (49, 5), offset 683, size 24
+class \NamespaceA\NamespaceB\ClassC; // at position (53, 5), offset 713, size 102
+class \NamespaceA\NamespaceB\ClassD; // at position (60, 5), offset 821, size 273
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -796,7 +791,7 @@ EOD;
 
 namespace NamespaceA;
 
-trait \NamespaceA\TraitA; // at position (5, 5)
+trait \NamespaceA\TraitA; // at position (5, 5), offset 39, size 24
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -822,31 +817,7 @@ EOD;
 
 namespace NamespaceA;
 
-function \NamespaceA\FunctionA; // at position (5, 5)
-
-EOD;
-        $actual = $this->parser->parseSource($source);
-
-        $this->assertSame($expected, $this->renderContexts($actual));
-    }
-
-    public function testNamespaceAndConstantOnly()
-    {
-        $this->parser = new ResolutionContextParser;
-        $source = <<<'EOD'
-<?php
-
-    namespace NamespaceA;
-
-    const CONSTANT_A = 'CONSTANT_A_VALUE';
-
-EOD;
-        $expected = <<<'EOD'
-// Context at position (3, 5):
-
-namespace NamespaceA;
-
-const \NamespaceA\CONSTANT_A; // at position (5, 5)
+function \NamespaceA\FunctionA; // at position (5, 5), offset 39, size 30
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -966,11 +937,13 @@ EOD;
 
         foreach ($context->symbols() as $symbol) {
             $rendered .= sprintf(
-                "%s %s; // at position (%d, %d)\n",
+                "%s %s; // at position (%d, %d), offset %d, size %d\n",
                 $symbol->type()->value(),
                 $symbol->symbol()->string(),
                 $symbol->position()->line(),
-                $symbol->position()->column()
+                $symbol->position()->column(),
+                $symbol->startOffset(),
+                $symbol->size()
             );
         }
 
