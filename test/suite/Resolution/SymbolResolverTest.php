@@ -1004,6 +1004,35 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * Tests for PHP manual entry "Migrating from PHP 5.5.x to PHP 5.6.x: New features"
+     *
+     * Example "use function and use const"
+     *
+     * @link http://php.net//manual/en/migration56.new-features.php#migration56.new-features.use
+     */
+    public function testResolveAgainstContextDocumentationNewIn56UseFunctionConst()
+    {
+        $this->context = new ResolutionContext(
+            null,
+            array(
+                UseStatement::create(Symbol::fromString('\Name\Space\FOO'), null, UseStatementType::CONSTANT()),
+                UseStatement::create(Symbol::fromString('\Name\Space\f'), null, UseStatementType::FUNCT1ON()),
+            )
+        );
+
+        $this->assertSame(
+            '\Name\Space\FOO',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('FOO'), SymbolType::CONSTANT())->string()
+        );
+        $this->assertSame(
+            '\Name\Space\f',
+            $this->resolver
+                ->resolveAgainstContext($this->context, Symbol::fromString('f'), SymbolType::FUNCT1ON())->string()
+        );
+    }
+
     public function relativeToContextData()
     {
         //                                           symbol                      expected
