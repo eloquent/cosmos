@@ -246,8 +246,6 @@ class SymbolResolver implements SymbolResolverInterface
         }
 
         if (!$callback($symbol->string())) {
-            $numAtoms = count($symbol->atoms());
-
             return $symbol->replace(0, array(), $numAtoms - 1);
         }
 
