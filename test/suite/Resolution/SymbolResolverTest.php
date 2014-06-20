@@ -64,52 +64,74 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         $this->assertSame(ResolutionContextFactory::instance(), $this->resolver->contextFactory());
     }
 
-    public function testResolve()
+    public function resolveData()
     {
-        $qualified = Symbol::fromString('\VendorB\PackageB');
-        $reference = Symbol::fromString('Symbol');
+        //                                              symbol               type        expected
+        return array(
+            'Qualified'                        => array('\VendorB\PackageB', 'class',    '\VendorB\PackageB'),
+            'Single atom reference'            => array('Symbol',            'class',    '\VendorA\PackageA\Symbol'),
+            'Namespace atom'                   => array('namespace\Symbol',  'class',    '\VendorA\PackageA\Symbol'),
+            'Self atom'                        => array('.',                 'class',    '\VendorA\PackageA\.'),
 
-        $this->assertSame($qualified, $this->resolver->resolve($this->primaryNamespace, $qualified));
-        $this->assertSame(
-            '\VendorA\PackageA\Symbol',
-            $this->resolver->resolve($this->primaryNamespace, $reference)->string()
+            'Qualified (function)'             => array('\VendorD\PackageD', 'function', '\VendorD\PackageD'),
+            'Single atom reference (function)' => array('Symbol',            'function', '\VendorA\PackageA\Symbol'),
+            'Namespace atom (function)'        => array('namespace\Symbol',  'function', '\VendorA\PackageA\Symbol'),
+            'Self atom (function)'             => array('.',                 'function', '\VendorA\PackageA\.'),
+
+            'Qualified (constant)'             => array('\VendorF\PackageF', 'const',    '\VendorF\PackageF'),
+            'Single atom reference (constant)' => array('Symbol',            'const',    '\VendorA\PackageA\Symbol'),
+            'Namespace atom (constant)'        => array('namespace\Symbol',  'const',    '\VendorA\PackageA\Symbol'),
+            'Self atom (constant)'             => array('.',                 'const',    '\VendorA\PackageA\.'),
         );
     }
 
-    public function testResolveNamespaceAtom()
+    /**
+     * @dataProvider resolveData
+     */
+    public function testResolve($symbol, $type, $expected)
     {
-        $qualified = Symbol::fromString('\VendorB\PackageB');
-        $reference = Symbol::fromString('namespace\Symbol');
+        $symbol = Symbol::fromString($symbol);
+        $type = SymbolType::memberByValue($type);
 
-        $this->assertSame($qualified, $this->resolver->resolve($this->primaryNamespace, $qualified));
-        $this->assertSame(
-            '\VendorA\PackageA\Symbol',
-            $this->resolver->resolve($this->primaryNamespace, $reference)->string()
+        $this->assertSame($expected, $this->resolver->resolveAsType($this->primaryNamespace, $symbol, $type)->string());
+        if ($type->isType()) {
+            $this->assertSame($expected, $this->resolver->resolve($this->primaryNamespace, $symbol)->string());
+        }
+    }
+
+    public function resolverAgainstContextData()
+    {
+        //                                              symbol                         type        expected
+        return array(
+            'Qualified'                        => array('\VendorB\PackageB',           'class',    '\VendorB\PackageB'),
+            'Single atom reference'            => array('Symbol',                      'class',    '\VendorA\PackageA\Symbol'),
+            'Namespace atom'                   => array('namespace\Symbol',            'class',    '\VendorA\PackageA\Symbol'),
+            'Self atom'                        => array('.',                           'class',    '\VendorA\PackageA\.'),
+            'Self atom + others'               => array('.\PackageB\Symbol',           'class',    '\VendorA\PackageA\.\PackageB\Symbol'),
+            'Parent atom + others'             => array('..\PackageD\Symbol',          'class',    '\VendorA\PackageA\..\PackageD\Symbol'),
+            'Parent atom mid-symbol'           => array('PackageB\..\PackageD\Symbol', 'class',    '\VendorB\PackageB\..\PackageD\Symbol'),
+
+            'Qualified (function)'             => array('\VendorD\PackageD',           'function', '\VendorD\PackageD'),
+            'Single atom reference (function)' => array('Symbol',                      'function', '\VendorA\PackageA\Symbol'),
+            'Namespace atom (function)'        => array('namespace\Symbol',            'function', '\VendorA\PackageA\Symbol'),
+            'Self atom (function)'             => array('.',                           'function', '\VendorA\PackageA\.'),
+
+            'Qualified (constant)'             => array('\VendorF\PackageF',           'const',    '\VendorF\PackageF'),
+            'Single atom reference (constant)' => array('Symbol',                      'const',    '\VendorA\PackageA\Symbol'),
+            'Namespace atom (constant)'        => array('namespace\Symbol',            'const',    '\VendorA\PackageA\Symbol'),
+            'Self atom (constant)'             => array('.',                           'const',    '\VendorA\PackageA\.'),
         );
     }
 
-    public function testResolveEmpty()
+    /**
+     * @dataProvider resolverAgainstContextData
+     */
+    public function testResolveAgainstContext($symbol, $type, $expected)
     {
-        $qualified = Symbol::fromString('\VendorB\PackageB');
-        $reference = Symbol::fromString('');
+        $symbol = Symbol::fromString($symbol);
+        $type = SymbolType::memberByValue($type);
 
-        $this->assertSame($qualified, $this->resolver->resolve($this->primaryNamespace, $qualified));
-        $this->assertSame(
-            '\VendorA\PackageA\.',
-            $this->resolver->resolve($this->primaryNamespace, $reference)->string()
-        );
-    }
-
-    public function testResolveAgainstContext()
-    {
-        $qualified = Symbol::fromString('\VendorB\PackageB');
-        $reference = Symbol::fromString('Symbol');
-
-        $this->assertSame($qualified, $this->resolver->resolveAgainstContext($this->context, $qualified));
-        $this->assertSame(
-            '\VendorA\PackageA\Symbol',
-            $this->resolver->resolveAgainstContext($this->context, $reference)->string()
-        );
+        $this->assertSame($expected, $this->resolver->resolveAgainstContext($this->context, $symbol, $type)->string());
     }
 
     public function testResolveAgainstContextGlobalNsNoUseStatements()
@@ -122,25 +144,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\Vendor\Package',
-            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('Vendor\Package'))
-                ->string()
-        );
-    }
-
-    public function testResolveAgainstContextSpecialAtoms()
-    {
-        $this->assertSame(
-            '\VendorA\PackageA\.\PackageB\Symbol',
-            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('.\PackageB\Symbol'))->string()
-        );
-        $this->assertSame(
-            '\VendorA\PackageA\..\PackageD\Symbol',
-            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('..\PackageD\Symbol'))->string()
-        );
-        $this->assertSame(
-            '\VendorB\PackageB\..\PackageD\Symbol',
-            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('PackageB\..\PackageD\Symbol'))
-                ->string()
+            $this->resolver->resolveAgainstContext($this->context, Symbol::fromString('Vendor\Package'))->string()
         );
     }
 
@@ -1096,13 +1100,11 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     public function testRelativeToContext($symbolString, $type, $expected)
     {
         $this->primaryNamespace = Symbol::fromString('\SymbolA\SymbolB');
-
         $this->useStatements = array(
             UseStatement::create(Symbol::fromString('\SymbolC\SymbolD')),
             UseStatement::create(Symbol::fromString('\SymbolE\SymbolF'), Symbol::fromString('SymbolG')),
             UseStatement::create(Symbol::fromString('\SymbolH\SymbolI')),
             UseStatement::create(Symbol::fromString('\SymbolH\SymbolI\SymbolJ')),
-
             UseStatement::create(Symbol::fromString('\SymbolM\SymbolN'), null, UseStatementType::FUNCT1ON()),
             UseStatement::create(
                 Symbol::fromString('\SymbolO\SymbolP'),
@@ -1111,7 +1113,6 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
             ),
             UseStatement::create(Symbol::fromString('\SymbolR\SymbolS'), null, UseStatementType::FUNCT1ON()),
             UseStatement::create(Symbol::fromString('\SymbolR\SymbolS\SymbolT'), null, UseStatementType::FUNCT1ON()),
-
             UseStatement::create(Symbol::fromString('\SymbolU\SymbolV'), null, UseStatementType::CONSTANT()),
             UseStatement::create(
                 Symbol::fromString('\SymbolW\SymbolX'),

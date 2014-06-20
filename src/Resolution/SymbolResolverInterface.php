@@ -23,6 +23,23 @@ use Eloquent\Pathogen\Resolver\BasePathResolverInterface;
 interface SymbolResolverInterface extends BasePathResolverInterface
 {
     /**
+     * Resolve a symbol of a specified type against the supplied namespace.
+     *
+     * This method assumes no use statements are defined.
+     *
+     * @param QualifiedSymbolInterface $primaryNamespace The namespace.
+     * @param SymbolInterface          $symbol           The symbol to resolve.
+     * @param SymbolType               $type             The symbol type.
+     *
+     * @return QualifiedSymbolInterface The resolved, qualified symbol.
+     */
+    public function resolveAsType(
+        QualifiedSymbolInterface $primaryNamespace,
+        SymbolInterface $symbol,
+        SymbolType $type
+    );
+
+    /**
      * Resolve a symbol against the supplied resolution context.
      *
      * Symbols that are already qualified will be returned unaltered.

@@ -112,9 +112,32 @@ class SymbolResolver implements SymbolResolverInterface
         AbsolutePathInterface $primaryNamespace,
         PathInterface $symbol
     ) {
-        return $this->resolveAgainstContext(
-            $this->contextFactory()->create($primaryNamespace),
-            $symbol
+        return $this
+            ->resolveAsType($primaryNamespace, $symbol, SymbolType::CLA55());
+    }
+
+    /**
+     * Resolve a symbol of a specified type against the supplied namespace.
+     *
+     * This method assumes no use statements are defined.
+     *
+     * @param QualifiedSymbolInterface $primaryNamespace The namespace.
+     * @param SymbolInterface          $symbol           The symbol to resolve.
+     * @param SymbolType               $type             The symbol type.
+     *
+     * @return QualifiedSymbolInterface The resolved, qualified symbol.
+     */
+    public function resolveAsType(
+        QualifiedSymbolInterface $primaryNamespace,
+        SymbolInterface $symbol,
+        SymbolType $type
+    ) {
+        return $this->handleFallback(
+            $this->resolveAgainstContext(
+                $this->contextFactory()->create($primaryNamespace),
+                $symbol
+            ),
+            $type
         );
     }
 
