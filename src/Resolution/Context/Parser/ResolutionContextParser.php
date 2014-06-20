@@ -13,6 +13,10 @@ namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactoryInterface;
+use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedResolutionContext;
+use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedResolutionContextInterface;
+use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedSymbol;
+use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedUseStatement;
 use Eloquent\Cosmos\Resolution\SymbolResolver;
 use Eloquent\Cosmos\Resolution\SymbolResolverInterface;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;

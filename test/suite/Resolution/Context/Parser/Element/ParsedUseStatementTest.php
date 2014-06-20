@@ -9,8 +9,9 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Context\Parser;
+namespace Eloquent\Cosmos\Resolution\Context\Parser\Element;
 
+use Eloquent\Cosmos\Resolution\Context\Parser\ParserPosition;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Cosmos\UseStatement\UseStatementClause;
@@ -19,8 +20,8 @@ use PHPUnit_Framework_TestCase;
 use Phake;
 
 /**
- * @covers \Eloquent\Cosmos\Resolution\Context\Parser\ParsedUseStatement
- * @covers \Eloquent\Cosmos\Resolution\Context\Parser\AbstractParsedElement
+ * @covers \Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedUseStatement
+ * @covers \Eloquent\Cosmos\Resolution\Context\Parser\Element\AbstractParsedElement
  */
 class ParsedUseStatementTest extends PHPUnit_Framework_TestCase
 {

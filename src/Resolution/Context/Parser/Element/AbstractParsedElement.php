@@ -9,7 +9,10 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Context\Parser;
+namespace Eloquent\Cosmos\Resolution\Context\Parser\Element;
+
+use Eloquent\Cosmos\Resolution\Context\Parser\ParserPosition;
+use Eloquent\Cosmos\Resolution\Context\Parser\ParserPositionInterface;
 
 /**
  * An abstract base class for implementing parsed elements.

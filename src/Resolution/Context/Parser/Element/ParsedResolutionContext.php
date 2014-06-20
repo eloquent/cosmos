@@ -9,8 +9,9 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Context\Parser;
+namespace Eloquent\Cosmos\Resolution\Context\Parser\Element;
 
+use Eloquent\Cosmos\Resolution\Context\Parser\ParserPositionInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface;

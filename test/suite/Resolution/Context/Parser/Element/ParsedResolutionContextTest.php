@@ -9,8 +9,9 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Context\Parser;
+namespace Eloquent\Cosmos\Resolution\Context\Parser\Element;
 
+use Eloquent\Cosmos\Resolution\Context\Parser\ParserPosition;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\Symbol\SymbolType;
@@ -20,8 +21,8 @@ use PHPUnit_Framework_TestCase;
 use Phake;
 
 /**
- * @covers \Eloquent\Cosmos\Resolution\Context\Parser\ParsedResolutionContext
- * @covers \Eloquent\Cosmos\Resolution\Context\Parser\AbstractParsedElement
+ * @covers \Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedResolutionContext
+ * @covers \Eloquent\Cosmos\Resolution\Context\Parser\Element\AbstractParsedElement
  */
 class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
 {

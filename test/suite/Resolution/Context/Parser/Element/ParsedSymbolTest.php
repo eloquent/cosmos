@@ -9,15 +9,16 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Context\Parser;
+namespace Eloquent\Cosmos\Resolution\Context\Parser\Element;
 
+use Eloquent\Cosmos\Resolution\Context\Parser\ParserPosition;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\Symbol\SymbolType;
 use PHPUnit_Framework_TestCase;
 
 /**
- * @covers \Eloquent\Cosmos\Resolution\Context\Parser\ParsedSymbol
- * @covers \Eloquent\Cosmos\Resolution\Context\Parser\AbstractParsedElement
+ * @covers \Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedSymbol
+ * @covers \Eloquent\Cosmos\Resolution\Context\Parser\Element\AbstractParsedElement
  */
 class ParsedSymbolTest extends PHPUnit_Framework_TestCase
 {

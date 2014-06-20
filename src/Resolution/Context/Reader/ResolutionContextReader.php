@@ -15,7 +15,6 @@ use Eloquent\Cosmos\Exception\ReadException;
 use Eloquent\Cosmos\Exception\UndefinedSymbolException;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactoryInterface;
-use Eloquent\Cosmos\Resolution\Context\Parser\ParsedSymbolInterface;
 use Eloquent\Cosmos\Resolution\Context\Parser\ParserPositionInterface;
 use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParserInterface;
@@ -205,9 +204,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
             } else {
                 $context = $this->findBySymbolPredicate(
                     $this->parseFile($class->getFileName()),
-                    function (ParsedSymbolInterface $parsedSymbol) use (
-                        $symbol
-                    ) {
+                    function ($parsedSymbol) use ($symbol) {
                         return $parsedSymbol->symbol()->string() === $symbol &&
                             $parsedSymbol->type()->isType();
                     }
@@ -248,9 +245,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
             } else {
                 $context = $this->findBySymbolPredicate(
                     $this->parseFile($function->getFileName()),
-                    function (ParsedSymbolInterface $parsedSymbol) use (
-                        $symbol
-                    ) {
+                    function ($parsedSymbol) use ($symbol) {
                         return $parsedSymbol->symbol()->string() === $symbol &&
                             SymbolType::FUNCT1ON() === $parsedSymbol->type();
                     }
