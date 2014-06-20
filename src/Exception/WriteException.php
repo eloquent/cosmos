@@ -15,12 +15,12 @@ use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use Exception;
 
 /**
- * Unable to read from a file or stream.
+ * Unable to write to a file or stream.
  */
-final class ReadException extends Exception implements IoExceptionInterface
+final class WriteException extends Exception implements IoExceptionInterface
 {
     /**
-     * Construct a new read exception.
+     * Construct a new write exception.
      *
      * @param string                       $reason The reason message.
      * @param FileSystemPathInterface|null $path   The path, if known.
@@ -36,12 +36,12 @@ final class ReadException extends Exception implements IoExceptionInterface
 
         if (null === $path) {
             $message = sprintf(
-                'Unable to read from stream: %s.',
+                'Unable to write to stream: %s.',
                 $reason
             );
         } else {
             $message = sprintf(
-                'Unable to read from %s: %s.',
+                'Unable to write to %s: %s.',
                 var_export($path->string(), true),
                 $reason
             );
