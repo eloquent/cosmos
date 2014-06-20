@@ -192,7 +192,10 @@ class SymbolResolver implements SymbolResolverInterface
         if ($context->primaryNamespace()->isAncestorOf($symbol)) {
             $match = $symbol->relativeTo($context->primaryNamespace());
 
-            if ($context->symbolByFirstAtom($match->firstAtomAsReference())) {
+            if (
+                $context
+                    ->symbolByFirstAtom($match->firstAtomAsReference(), $type)
+            ) {
                 $match = $match
                     ->replace(0, array(SymbolReference::NAMESPACE_ATOM), 0);
             }

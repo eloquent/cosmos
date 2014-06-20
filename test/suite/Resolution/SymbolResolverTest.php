@@ -1035,44 +1035,99 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
 
     public function relativeToContextData()
     {
-        //                                           symbol                      expected
+        //                                                      symbol                                      type        expected
         return array(
-            'Primary namespace +1'          => array('\Foo\Bar\Baz',             'Baz'),
-            'Primary namespace +2'          => array('\Foo\Bar\Baz\Qux',         'Baz\Qux'),
-            'Primary namespace +3'          => array('\Foo\Bar\Baz\Qux\Doom',    'Baz\Qux\Doom'),
-            'Use statement'                 => array('\Baz\Qux',                 'Qux'),
-            'Use statement +1'              => array('\Baz\Qux\Doom',            'Qux\Doom'),
-            'Use statement +2'              => array('\Baz\Qux\Doom\Splat',      'Qux\Doom\Splat'),
-            'Alias'                         => array('\Doom\Splat',              'Ping'),
-            'Alias +1'                      => array('\Doom\Splat\Pong',         'Ping\Pong'),
-            'Alias +2'                      => array('\Doom\Splat\Pong\Pang',    'Ping\Pong\Pang'),
-            'Shortest use statement'        => array('\Pong\Pang\Peng',          'Peng'),
-            'Use statement not too short'   => array('\Pong\Pang\Ping',          'Pang\Ping'),
-            'No relevant statements'        => array('\Zing\Zang\Zong',          '\Zing\Zang\Zong'),
-            'Avoid use statement clash'     => array('\Foo\Bar\Qux',             'namespace\Qux'),
-            'Avoid use statement clash + N' => array('\Foo\Bar\Qux\Doom\Splat',  'namespace\Qux\Doom\Splat'),
-            'Avoid use alias clash'         => array('\Foo\Bar\Ping',            'namespace\Ping'),
-            'Avoid use alias clash + N'     => array('\Foo\Bar\Ping\Doom\Splat', 'namespace\Ping\Doom\Splat'),
+            'Primary namespace +1'                     => array('\SymbolA\SymbolB\SymbolC',                 'class',    'SymbolC'),
+            'Primary namespace +2'                     => array('\SymbolA\SymbolB\SymbolC\SymbolD',         'class',    'SymbolC\SymbolD'),
+            'Primary namespace +3'                     => array('\SymbolA\SymbolB\SymbolC\SymbolD\SymbolE', 'class',    'SymbolC\SymbolD\SymbolE'),
+            'Use statement'                            => array('\SymbolC\SymbolD',                         'class',    'SymbolD'),
+            'Use statement +1'                         => array('\SymbolC\SymbolD\SymbolE',                 'class',    'SymbolD\SymbolE'),
+            'Use statement +2'                         => array('\SymbolC\SymbolD\SymbolE\SymbolF',         'class',    'SymbolD\SymbolE\SymbolF'),
+            'Alias'                                    => array('\SymbolE\SymbolF',                         'class',    'SymbolG'),
+            'Alias +1'                                 => array('\SymbolE\SymbolF\SymbolH',                 'class',    'SymbolG\SymbolH'),
+            'Alias +2'                                 => array('\SymbolE\SymbolF\SymbolH\SymbolI',         'class',    'SymbolG\SymbolH\SymbolI'),
+            'Shortest use statement'                   => array('\SymbolH\SymbolI\SymbolJ',                 'class',    'SymbolJ'),
+            'Use statement not too short'              => array('\SymbolH\SymbolI\SymbolG',                 'class',    'SymbolI\SymbolG'),
+            'No relevant statements'                   => array('\Foo\Bar\Baz',                             'class',    '\Foo\Bar\Baz'),
+            'Avoid use statement clash'                => array('\SymbolA\SymbolB\SymbolD',                 'class',    'namespace\SymbolD'),
+            'Avoid use statement clash + N'            => array('\SymbolA\SymbolB\SymbolD\SymbolE\SymbolF', 'class',    'namespace\SymbolD\SymbolE\SymbolF'),
+            'Avoid use alias clash'                    => array('\SymbolA\SymbolB\SymbolG',                 'class',    'namespace\SymbolG'),
+            'Avoid use alias clash + N'                => array('\SymbolA\SymbolB\SymbolG\SymbolE\SymbolF', 'class',    'namespace\SymbolG\SymbolE\SymbolF'),
+
+            'Primary namespace +1 (function)'          => array('\SymbolA\SymbolB\SymbolM',                 'function', 'SymbolM'),
+            'Primary namespace +2 (function)'          => array('\SymbolA\SymbolB\SymbolM\SymbolN',         'function', 'SymbolM\SymbolN'),
+            'Primary namespace +3 (function)'          => array('\SymbolA\SymbolB\SymbolM\SymbolN\SymbolO', 'function', 'SymbolM\SymbolN\SymbolO'),
+            'Use statement (function)'                 => array('\SymbolM\SymbolN',                         'function', 'SymbolN'),
+            'Use statement +1 (function)'              => array('\SymbolM\SymbolN\SymbolO',                 'function', 'SymbolN\SymbolO'),
+            'Use statement +2 (function)'              => array('\SymbolM\SymbolN\SymbolO\SymbolP',         'function', 'SymbolN\SymbolO\SymbolP'),
+            'Alias (function)'                         => array('\SymbolO\SymbolP',                         'function', 'SymbolQ'),
+            'Alias +1 (function)'                      => array('\SymbolO\SymbolP\SymbolR',                 'function', 'SymbolQ\SymbolR'),
+            'Alias +2 (function)'                      => array('\SymbolO\SymbolP\SymbolR\SymbolS',         'function', 'SymbolQ\SymbolR\SymbolS'),
+            'Shortest use statement (function)'        => array('\SymbolR\SymbolS\SymbolT',                 'function', 'SymbolT'),
+            'Use statement not too short (function)'   => array('\SymbolR\SymbolS\SymbolQ',                 'function', 'SymbolS\SymbolQ'),
+            'No relevant statements (function)'        => array('\Foo\Bar\Baz',                             'function', '\Foo\Bar\Baz'),
+            'Avoid use statement clash (function)'     => array('\SymbolA\SymbolB\SymbolN',                 'function', 'namespace\SymbolN'),
+            'Avoid use statement clash + N (function)' => array('\SymbolA\SymbolB\SymbolN\SymbolO\SymbolP', 'function', 'namespace\SymbolN\SymbolO\SymbolP'),
+            'Avoid use alias clash (function)'         => array('\SymbolA\SymbolB\SymbolQ',                 'function', 'namespace\SymbolQ'),
+            'Avoid use alias clash + N (function)'     => array('\SymbolA\SymbolB\SymbolQ\SymbolO\SymbolP', 'function', 'namespace\SymbolQ\SymbolO\SymbolP'),
+
+            'Primary namespace +1 (constant)'          => array('\SymbolA\SymbolB\SymbolU',                 'const',    'SymbolU'),
+            'Primary namespace +2 (constant)'          => array('\SymbolA\SymbolB\SymbolU\SymbolV',         'const',    'SymbolU\SymbolV'),
+            'Primary namespace +3 (constant)'          => array('\SymbolA\SymbolB\SymbolU\SymbolV\SymbolW', 'const',    'SymbolU\SymbolV\SymbolW'),
+            'Use statement (constant)'                 => array('\SymbolU\SymbolV',                         'const',    'SymbolV'),
+            'Use statement +1 (constant)'              => array('\SymbolU\SymbolV\SymbolW',                 'const',    'SymbolV\SymbolW'),
+            'Use statement +2 (constant)'              => array('\SymbolU\SymbolV\SymbolW\SymbolX',         'const',    'SymbolV\SymbolW\SymbolX'),
+            'Alias (constant)'                         => array('\SymbolW\SymbolX',                         'const',    'SymbolY'),
+            'Alias +1 (constant)'                      => array('\SymbolW\SymbolX\SymbolZ',                 'const',    'SymbolY\SymbolZ'),
+            'Alias +2 (constant)'                      => array('\SymbolW\SymbolX\SymbolZ\SymbolAA',        'const',    'SymbolY\SymbolZ\SymbolAA'),
+            'Shortest use statement (constant)'        => array('\SymbolZ\SymbolAA\SymbolAB',               'const',    'SymbolAB'),
+            'Use statement not too short (constant)'   => array('\SymbolZ\SymbolAA\SymbolY',                'const',    'SymbolAA\SymbolY'),
+            'No relevant statements (constant)'        => array('\Foo\Bar\Baz',                             'const',    '\Foo\Bar\Baz'),
+            'Avoid use statement clash (constant)'     => array('\SymbolA\SymbolB\SymbolV',                 'const',    'namespace\SymbolV'),
+            'Avoid use statement clash + N (constant)' => array('\SymbolA\SymbolB\SymbolV\SymbolW\SymbolX', 'const',    'namespace\SymbolV\SymbolW\SymbolX'),
+            'Avoid use alias clash (constant)'         => array('\SymbolA\SymbolB\SymbolY',                 'const',    'namespace\SymbolY'),
+            'Avoid use alias clash + N (constant)'     => array('\SymbolA\SymbolB\SymbolY\SymbolW\SymbolX', 'const',    'namespace\SymbolY\SymbolW\SymbolX'),
         );
     }
 
     /**
      * @dataProvider relativeToContextData
      */
-    public function testRelativeToContext($symbolString, $expected)
+    public function testRelativeToContext($symbolString, $type, $expected)
     {
-        $this->primaryNamespace = Symbol::fromString('\Foo\Bar');
+        $this->primaryNamespace = Symbol::fromString('\SymbolA\SymbolB');
+
         $this->useStatements = array(
-            UseStatement::create(Symbol::fromString('\Baz\Qux')),
-            UseStatement::create(Symbol::fromString('\Doom\Splat'), Symbol::fromString('Ping')),
-            UseStatement::create(Symbol::fromString('\Pong\Pang')),
-            UseStatement::create(Symbol::fromString('\Pong\Pang\Peng')),
+            UseStatement::create(Symbol::fromString('\SymbolC\SymbolD')),
+            UseStatement::create(Symbol::fromString('\SymbolE\SymbolF'), Symbol::fromString('SymbolG')),
+            UseStatement::create(Symbol::fromString('\SymbolH\SymbolI')),
+            UseStatement::create(Symbol::fromString('\SymbolH\SymbolI\SymbolJ')),
+
+            UseStatement::create(Symbol::fromString('\SymbolM\SymbolN'), null, UseStatementType::FUNCT1ON()),
+            UseStatement::create(
+                Symbol::fromString('\SymbolO\SymbolP'),
+                Symbol::fromString('SymbolQ'),
+                UseStatementType::FUNCT1ON()
+            ),
+            UseStatement::create(Symbol::fromString('\SymbolR\SymbolS'), null, UseStatementType::FUNCT1ON()),
+            UseStatement::create(Symbol::fromString('\SymbolR\SymbolS\SymbolT'), null, UseStatementType::FUNCT1ON()),
+
+            UseStatement::create(Symbol::fromString('\SymbolU\SymbolV'), null, UseStatementType::CONSTANT()),
+            UseStatement::create(
+                Symbol::fromString('\SymbolW\SymbolX'),
+                Symbol::fromString('SymbolY'),
+                UseStatementType::CONSTANT()
+            ),
+            UseStatement::create(Symbol::fromString('\SymbolZ\SymbolAA'), null, UseStatementType::CONSTANT()),
+            UseStatement::create(Symbol::fromString('\SymbolZ\SymbolAA\SymbolAB'), null, UseStatementType::CONSTANT()),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements);
 
         $this->assertSame(
             $expected,
-            $this->resolver->relativeToContext($this->context, Symbol::fromString($symbolString))->string()
+            $this->resolver
+                ->relativeToContext($this->context, Symbol::fromString($symbolString), SymbolType::memberByValue($type))
+                ->string()
         );
     }
 
