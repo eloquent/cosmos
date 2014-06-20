@@ -200,8 +200,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         $namespaceName = $useStatementAlias = $useStatementType =
             $useStatementPosition = $symbolType = $symbolPosition = null;
         $contextPositionStack = array(new ParserPosition(1, 1));
-        $startOffset = $endOffset = $symbolStartOffset = $symbolBracketDepth =
-            0;
+        $startOffset = $endOffset = $symbolStartOffset =
+            $useStatementStartOffset = $symbolBracketDepth = 0;
 
         foreach ($tokens as $index => $token) {
             $startOffset = $endOffset + 1;
@@ -224,6 +224,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $state = static::STATE_USE_STATEMENT;
                             $useStatementPosition =
                                 new ParserPosition($token[2], $token[3]);
+                            $useStatementStartOffset = $startOffset;
 
                             break;
 
@@ -469,7 +470,9 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                 $useStatementClauses,
                                 $useStatementType
                             ),
-                            $useStatementPosition
+                            $useStatementPosition,
+                            $useStatementStartOffset,
+                            $endOffset - $useStatementStartOffset + 1
                         );
                         $useStatementClauses = $atoms = array();
                         $useStatementType = null;

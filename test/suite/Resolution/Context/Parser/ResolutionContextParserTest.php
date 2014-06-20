@@ -174,10 +174,10 @@ EOD;
 
 namespace NamespaceA\NamespaceB;
 
-use ClassF; // at position (7, 5)
-use ClassG as ClassH; // at position (9, 5)
-use NamespaceD\ClassI; // at position (11, 5)
-use NamespaceE\ClassJ as ClassK, NamespaceF\NamespaceG\ClassL; // at position (13, 5)
+use ClassF; // at position (7, 5), offset 82, size 12
+use ClassG as ClassH; // at position (9, 5), offset 100, size 22
+use NamespaceD\ClassI; // at position (11, 5), offset 128, size 25
+use NamespaceE\ClassJ as ClassK, NamespaceF\NamespaceG\ClassL; // at position (13, 5), offset 159, size 70
 
 interface \NamespaceA\NamespaceB\InterfaceA; // at position (17, 5), offset 275, size 72
 interface \NamespaceA\NamespaceB\InterfaceB; // at position (22, 5), offset 353, size 112
@@ -192,8 +192,8 @@ function \NamespaceA\NamespaceB\FunctionB; // at position (64, 5), offset 1037, 
 
 namespace NamespaceC;
 
-use ClassM; // at position (75, 5)
-use ClassN; // at position (77, 5)
+use ClassM; // at position (75, 5), offset 1222, size 12
+use ClassN; // at position (77, 5), offset 1240, size 12
 
 class \NamespaceC\ClassE; // at position (79, 5), offset 1258, size 24
 interface \NamespaceC\InterfaceD; // at position (83, 5), offset 1288, size 32
@@ -326,10 +326,10 @@ EOD;
 
 namespace NamespaceA\NamespaceB;
 
-use ClassF; // at position (7, 9)
-use ClassG as ClassH; // at position (9, 9)
-use NamespaceD\ClassI; // at position (11, 9)
-use NamespaceE\ClassJ as ClassK, NamespaceF\NamespaceG\ClassL; // at position (13, 9)
+use ClassF; // at position (7, 9), offset 89, size 12
+use ClassG as ClassH; // at position (9, 9), offset 111, size 22
+use NamespaceD\ClassI; // at position (11, 9), offset 143, size 25
+use NamespaceE\ClassJ as ClassK, NamespaceF\NamespaceG\ClassL; // at position (13, 9), offset 178, size 70
 
 interface \NamespaceA\NamespaceB\InterfaceA; // at position (17, 9), offset 302, size 84
 interface \NamespaceA\NamespaceB\InterfaceB; // at position (22, 9), offset 396, size 128
@@ -344,16 +344,16 @@ function \NamespaceA\NamespaceB\FunctionB; // at position (64, 9), offset 1212, 
 
 namespace NamespaceC;
 
-use ClassM; // at position (76, 9)
-use ClassN; // at position (78, 9)
+use ClassM; // at position (76, 9), offset 1430, size 12
+use ClassN; // at position (78, 9), offset 1452, size 12
 
 class \NamespaceC\ClassE; // at position (80, 9), offset 1474, size 32
 interface \NamespaceC\InterfaceD; // at position (84, 9), offset 1516, size 40
 
 // Context at position (91, 5):
 
-use ClassO; // at position (93, 9)
-use ClassP; // at position (95, 9)
+use ClassO; // at position (93, 9), offset 1636, size 12
+use ClassP; // at position (95, 9), offset 1658, size 12
 
 class \ClassQ; // at position (99, 9), offset 1724, size 32
 interface \InterfaceE; // at position (103, 9), offset 1766, size 40
@@ -429,11 +429,11 @@ EOD;
         $expected = <<<'EOD'
 // Context at position (1, 1):
 
-use ClassF; // at position (5, 5)
-use ClassG as ClassH; // at position (7, 5)
-use NamespaceD\ClassI; // at position (9, 5)
-use NamespaceE\ClassJ as ClassK; // at position (11, 5)
-use NamespaceF\NamespaceG\ClassL; // at position (13, 5)
+use ClassF; // at position (5, 5), offset 41, size 12
+use ClassG as ClassH; // at position (7, 5), offset 59, size 22
+use NamespaceD\ClassI; // at position (9, 5), offset 87, size 25
+use NamespaceE\ClassJ as ClassK; // at position (11, 5), offset 118, size 35
+use NamespaceF\NamespaceG\ClassL; // at position (13, 5), offset 159, size 38
 
 interface \InterfaceA; // at position (17, 5), offset 243, size 72
 interface \InterfaceB; // at position (22, 5), offset 321, size 112
@@ -628,23 +628,23 @@ EOD;
 
 namespace NamespaceA\NamespaceB;
 
-use ClassF; // at position (7, 9)
-use ClassG as ClassH; // at position (9, 9)
-use NamespaceD\ClassI; // at position (11, 9)
-use NamespaceE\ClassJ as ClassK; // at position (13, 9)
-use NamespaceF\NamespaceG\ClassL; // at position (15, 9)
+use ClassF; // at position (7, 9), offset 89, size 12
+use ClassG as ClassH; // at position (9, 9), offset 111, size 22
+use NamespaceD\ClassI; // at position (11, 9), offset 143, size 25
+use NamespaceE\ClassJ as ClassK; // at position (13, 9), offset 178, size 35
+use NamespaceF\NamespaceG\ClassL; // at position (15, 9), offset 223, size 38
 
 // Context at position (20, 5):
 
 namespace NamespaceC;
 
-use ClassM; // at position (22, 9)
-use ClassN; // at position (24, 9)
+use ClassM; // at position (22, 9), offset 352, size 12
+use ClassN; // at position (24, 9), offset 374, size 12
 
 // Context at position (27, 5):
 
-use ClassO; // at position (29, 9)
-use ClassP; // at position (31, 9)
+use ClassO; // at position (29, 9), offset 422, size 12
+use ClassP; // at position (31, 9), offset 444, size 12
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -752,11 +752,11 @@ EOD;
 
 namespace NamespaceA\NamespaceB;
 
-use ClassF; // at position (7, 5)
-use ClassG as ClassH; // at position (9, 5)
-use NamespaceD\ClassI; // at position (11, 5)
-use NamespaceE\ClassJ as ClassK; // at position (13, 5)
-use NamespaceF\NamespaceG\ClassL; // at position (15, 5)
+use ClassF; // at position (7, 5), offset 82, size 12
+use ClassG as ClassH; // at position (9, 5), offset 100, size 22
+use NamespaceD\ClassI; // at position (11, 5), offset 128, size 25
+use NamespaceE\ClassJ as ClassK; // at position (13, 5), offset 159, size 35
+use NamespaceF\NamespaceG\ClassL; // at position (15, 5), offset 200, size 38
 
 interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 5), offset 284, size 72
 interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 5), offset 362, size 112
@@ -862,19 +862,19 @@ EOD;
         $expected = <<<'EOD'
 // Context at position (1, 1):
 
-use ClassF; // at position (3, 5)
-use ClassG as ClassH; // at position (5, 5)
-use NamespaceD\ClassI; // at position (7, 5)
-use NamespaceE\ClassJ as ClassK; // at position (9, 5)
-use NamespaceF\NamespaceG\ClassL; // at position (11, 5)
-use function FunctionA; // at position (13, 5)
-use function FunctionB as FunctionC; // at position (15, 5)
-use function NamespaceG\FunctionD; // at position (17, 5)
-use function NamespaceH\FunctionE as FunctionF; // at position (19, 5)
-use const CONSTANT_A; // at position (21, 5)
-use const CONSTANT_B as CONSTANT_C; // at position (23, 5)
-use const NamespaceI\CONSTANT_D; // at position (25, 5)
-use const NamespaceJ\CONSTANT_E as CONSTANT_F; // at position (27, 5)
+use ClassF; // at position (3, 5), offset 12, size 12
+use ClassG as ClassH; // at position (5, 5), offset 30, size 22
+use NamespaceD\ClassI; // at position (7, 5), offset 58, size 25
+use NamespaceE\ClassJ as ClassK; // at position (9, 5), offset 89, size 35
+use NamespaceF\NamespaceG\ClassL; // at position (11, 5), offset 130, size 38
+use function FunctionA; // at position (13, 5), offset 174, size 24
+use function FunctionB as FunctionC; // at position (15, 5), offset 204, size 37
+use function NamespaceG\FunctionD; // at position (17, 5), offset 247, size 37
+use function NamespaceH\FunctionE as FunctionF; // at position (19, 5), offset 290, size 50
+use const CONSTANT_A; // at position (21, 5), offset 346, size 22
+use const CONSTANT_B as CONSTANT_C; // at position (23, 5), offset 374, size 36
+use const NamespaceI\CONSTANT_D; // at position (25, 5), offset 416, size 35
+use const NamespaceJ\CONSTANT_E as CONSTANT_F; // at position (27, 5), offset 457, size 49
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -925,10 +925,12 @@ EOD;
 
         foreach ($context->useStatements() as $useStatement) {
             $rendered .= sprintf(
-                "%s; // at position (%d, %d)\n",
+                "%s; // at position (%d, %d), offset %d, size %d\n",
                 $useStatement,
                 $useStatement->position()->line(),
-                $useStatement->position()->column()
+                $useStatement->position()->column(),
+                $useStatement->startOffset(),
+                $useStatement->size()
             );
         }
 
