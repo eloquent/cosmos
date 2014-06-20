@@ -30,18 +30,22 @@ class ParsedResolutionContext extends AbstractParsedElement implements
     /**
      * Construct a new parsed resolution context.
      *
-     * @param ResolutionContextInterface|null   $context     The resolution context.
-     * @param array<ParsedSymbolInterface>|null $symbols     The symbols defined under the parsed resolution context.
-     * @param ParserPositionInterface|null      $position    The position.
-     * @param integer|null                      $startOffset The start offset.
-     * @param integer|null                      $size        The element size in bytes.
+     * @param ResolutionContextInterface|null   $context               The resolution context.
+     * @param array<ParsedSymbolInterface>|null $symbols               The symbols defined under the parsed resolution context.
+     * @param ParserPositionInterface|null      $position              The position.
+     * @param integer|null                      $startOffset           The offset.
+     * @param integer|null                      $size                  The element size in bytes.
+     * @param integer|null                      $namespaceSymbolOffset The offset of the namespace symbol.
+     * @param integer|null                      $namespaceSymbolSize   The namespace symbol size in bytes.
      */
     public function __construct(
         ResolutionContextInterface $context = null,
         array $symbols = null,
         ParserPositionInterface $position = null,
         $startOffset = null,
-        $size = null
+        $size = null,
+        $namespaceSymbolOffset = null,
+        $namespaceSymbolSize = null
     ) {
         if (null === $context) {
             $context = new ResolutionContext;
@@ -54,6 +58,8 @@ class ParsedResolutionContext extends AbstractParsedElement implements
 
         $this->context = $context;
         $this->symbols = $symbols;
+        $this->namespaceSymbolOffset = $namespaceSymbolOffset;
+        $this->namespaceSymbolSize = $namespaceSymbolSize;
     }
 
     /**
@@ -74,6 +80,26 @@ class ParsedResolutionContext extends AbstractParsedElement implements
     public function symbols()
     {
         return $this->symbols;
+    }
+
+    /**
+     * Get the character offset for the start of the namespace symbol.
+     *
+     * @return integer|null The offset, or null if there is no namespace symbol.
+     */
+    public function namespaceSymbolOffset()
+    {
+        return $this->namespaceSymbolOffset;
+    }
+
+    /**
+     * Get the size of the parsed namespace symbol.
+     *
+     * @return integer|null The namespace symbol size in bytes, or null if there is no namespace symbol.
+     */
+    public function namespaceSymbolSize()
+    {
+        return $this->namespaceSymbolSize;
     }
 
     /**
@@ -138,4 +164,6 @@ class ParsedResolutionContext extends AbstractParsedElement implements
 
     private $context;
     private $symbols;
+    private $namespaceSymbolOffset;
+    private $namespaceSymbolSize;
 }

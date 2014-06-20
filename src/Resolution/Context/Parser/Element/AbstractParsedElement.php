@@ -22,27 +22,24 @@ abstract class AbstractParsedElement implements ParsedElementInterface
     /**
      * Construct a new parsed element.
      *
-     * @param ParserPositionInterface|null $position    The position.
-     * @param integer|null                 $startOffset The start offset.
-     * @param integer|null                 $size        The element size in bytes.
+     * @param ParserPositionInterface|null $position The position.
+     * @param integer|null                 $offset   The offset.
+     * @param integer|null                 $size     The element size in bytes.
      */
-    public function __construct(
-        $position = null,
-        $startOffset = null,
-        $size = null
-    ) {
+    public function __construct($position = null, $offset = null, $size = null)
+    {
         if (null === $position) {
             $position = new ParserPosition(0, 0);
         }
-        if (null === $startOffset) {
-            $startOffset = 0;
+        if (null === $offset) {
+            $offset = 0;
         }
         if (null === $size) {
             $size = 0;
         }
 
         $this->position = $position;
-        $this->startOffset = $startOffset;
+        $this->offset = $offset;
         $this->size = $size;
     }
 
@@ -59,11 +56,11 @@ abstract class AbstractParsedElement implements ParsedElementInterface
     /**
      * Get the character offset for the start of the element.
      *
-     * @return integer The start offset.
+     * @return integer The offset.
      */
-    public function startOffset()
+    public function offset()
     {
-        return $this->startOffset;
+        return $this->offset;
     }
 
     /**
@@ -77,6 +74,6 @@ abstract class AbstractParsedElement implements ParsedElementInterface
     }
 
     private $position;
-    private $startOffset;
+    private $offset;
     private $size;
 }

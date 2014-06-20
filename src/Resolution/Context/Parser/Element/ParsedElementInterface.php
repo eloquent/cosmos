@@ -26,9 +26,9 @@ interface ParsedElementInterface
     /**
      * Get the character offset for the start of the element.
      *
-     * @return integer The start offset.
+     * @return integer The offset.
      */
-    public function startOffset();
+    public function offset();
 
     /**
      * Get the size of the parsed element.

@@ -199,7 +199,10 @@ class ResolutionContextParser implements ResolutionContextParserInterface
             $useStatements = $symbols = array();
         $namespaceName = $useStatementAlias = $useStatementType =
             $useStatementPosition = $symbolType = $symbolPosition = null;
-        $contextMetaStack = array(array(new ParserPosition(1, 1), 0, false));
+        $contextMetaStack = array(
+            array(new ParserPosition(1, 1), 0, false, null, null),
+        );
+        $contextMetaStackSize = 1;
         $startOffset = $endOffset = $contextEndOffset =
             $useStatementStartOffset = $symbolStartOffset =
             $symbolBracketDepth = 0;
@@ -220,8 +223,11 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                     new ParserPosition($token[2], $token[3]),
                                     $startOffset,
                                     true,
+                                    null,
+                                    null
                                 )
                             );
+                            $contextMetaStackSize++;
 
                             break;
 
@@ -276,6 +282,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case T_NS_SEPARATOR:
                             list($state) = array_pop($stateStack);
                             array_pop($contextMetaStack);
+                            $contextMetaStackSize--;
 
                             break;
 
@@ -283,6 +290,10 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $state = static::STATE_NAMESPACE_NAME;
                             $transitions[] = static::TRANSITION_CONTEXT_END;
                             $atoms[] = $token[1];
+                            $contextMetaStack[$contextMetaStackSize - 1][3] =
+                                $startOffset;
+                            $contextMetaStack[$contextMetaStackSize - 1][4] =
+                                $endOffset;
 
                             break;
 
@@ -299,6 +310,8 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                     switch ($token[0]) {
                         case T_STRING:
                             $atoms[] = $token[1];
+                            $contextMetaStack[$contextMetaStackSize - 1][4] =
+                                $endOffset;
 
                             break;
 
@@ -520,7 +533,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             );
                         }
 
-                        $isContextMetaStacked = count($contextMetaStack) > 2;
+                        $isContextMetaStacked = $contextMetaStackSize > 2;
                         if ($isContextMetaStacked) {
                             $nextContextMeta = array_pop($contextMetaStack);
                         }
@@ -528,8 +541,11 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         list(
                             $contextPosition,
                             $contextStartOffset,
-                            $isExplicitNamespace
+                            $isExplicitNamespace,
+                            $namespaceSymbolStartOffset,
+                            $namespaceSymbolEndOffset
                         ) = array_pop($contextMetaStack);
+                        $contextMetaStackSize--;
 
                         if ($isContextMetaStacked) {
                             array_push($contextMetaStack, $nextContextMeta);
@@ -540,7 +556,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                             if (count($useStatements) > 0) {
                                 $contextStartOffset = $useStatements[0]
-                                    ->startOffset();
+                                    ->offset();
                             }
 
                             $useStatements = array();
@@ -558,7 +574,10 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $symbols,
                             $contextPosition,
                             $contextStartOffset,
-                            $contextSize
+                            $contextSize,
+                            $namespaceSymbolStartOffset,
+                            $namespaceSymbolEndOffset -
+                                $namespaceSymbolStartOffset + 1
                         );
                         $symbols = array();
 

@@ -172,7 +172,7 @@ EOD;
         $expected = <<<'EOD'
 // Context at position (5, 5), offset 41, size 188:
 
-namespace NamespaceA\NamespaceB;
+namespace NamespaceA\NamespaceB; // symbol offset 51, size 23
 
 use ClassF; // at position (7, 5), offset 82, size 12
 use ClassG as ClassH; // at position (9, 5), offset 100, size 22
@@ -190,7 +190,7 @@ function \NamespaceA\NamespaceB\FunctionB; // at position (64, 5), offset 1037, 
 
 // Context at position (73, 5), offset 1194, size 58:
 
-namespace NamespaceC;
+namespace NamespaceC; // symbol offset 1204, size 10
 
 use ClassM; // at position (75, 5), offset 1222, size 12
 use ClassN; // at position (77, 5), offset 1240, size 12
@@ -324,7 +324,7 @@ EOD;
         $expected = <<<'EOD'
 // Context at position (5, 5), offset 41, size 207:
 
-namespace NamespaceA\NamespaceB;
+namespace NamespaceA\NamespaceB; // symbol offset 51, size 23
 
 use ClassF; // at position (7, 9), offset 89, size 12
 use ClassG as ClassH; // at position (9, 9), offset 111, size 22
@@ -342,7 +342,7 @@ function \NamespaceA\NamespaceB\FunctionB; // at position (64, 9), offset 1212, 
 
 // Context at position (74, 5), offset 1395, size 69:
 
-namespace NamespaceC;
+namespace NamespaceC; // symbol offset 1405, size 10
 
 use ClassM; // at position (76, 9), offset 1430, size 12
 use ClassN; // at position (78, 9), offset 1452, size 12
@@ -504,7 +504,7 @@ EOD;
         $expected = <<<'EOD'
 // Context at position (5, 5), offset 41, size 35:
 
-namespace NamespaceA\NamespaceB;
+namespace NamespaceA\NamespaceB; // symbol offset 51, size 23
 
 interface \NamespaceA\NamespaceB\InterfaceA; // at position (9, 5), offset 122, size 72
 interface \NamespaceA\NamespaceB\InterfaceB; // at position (14, 5), offset 200, size 112
@@ -626,7 +626,7 @@ EOD;
         $expected = <<<'EOD'
 // Context at position (5, 5), offset 41, size 220:
 
-namespace NamespaceA\NamespaceB;
+namespace NamespaceA\NamespaceB; // symbol offset 51, size 23
 
 use ClassF; // at position (7, 9), offset 89, size 12
 use ClassG as ClassH; // at position (9, 9), offset 111, size 22
@@ -636,7 +636,7 @@ use NamespaceF\NamespaceG\ClassL; // at position (15, 9), offset 223, size 38
 
 // Context at position (20, 5), offset 317, size 69:
 
-namespace NamespaceC;
+namespace NamespaceC; // symbol offset 327, size 10
 
 use ClassM; // at position (22, 9), offset 352, size 12
 use ClassN; // at position (24, 9), offset 374, size 12
@@ -750,7 +750,7 @@ EOD;
         $expected = <<<'EOD'
 // Context at position (5, 5), offset 41, size 197:
 
-namespace NamespaceA\NamespaceB;
+namespace NamespaceA\NamespaceB; // symbol offset 51, size 23
 
 use ClassF; // at position (7, 5), offset 82, size 12
 use ClassG as ClassH; // at position (9, 5), offset 100, size 22
@@ -790,7 +790,7 @@ EOD;
         $expected = <<<'EOD'
 // Context at position (3, 5), offset 12, size 21:
 
-namespace NamespaceA;
+namespace NamespaceA; // symbol offset 22, size 10
 
 trait \NamespaceA\TraitA; // at position (5, 5), offset 39, size 24
 
@@ -816,7 +816,7 @@ EOD;
         $expected = <<<'EOD'
 // Context at position (3, 5), offset 12, size 21:
 
-namespace NamespaceA;
+namespace NamespaceA; // symbol offset 22, size 10
 
 function \NamespaceA\FunctionA; // at position (5, 5), offset 39, size 30
 
@@ -913,12 +913,22 @@ EOD;
             "// Context at position (%d, %d), offset %d, size %d:\n",
             $context->position()->line(),
             $context->position()->column(),
-            $context->startOffset(),
+            $context->offset(),
             $context->size()
         );
 
         if (!$context->primaryNamespace()->isRoot()) {
-            $rendered .= sprintf("\nnamespace %s;\n", $context->primaryNamespace()->toRelative()->string());
+            $rendered .= sprintf("\nnamespace %s;", $context->primaryNamespace()->toRelative()->string());
+
+            if (null !== $context->namespaceSymbolOffset()) {
+                $rendered .= sprintf(
+                    ' // symbol offset %d, size %d',
+                    $context->namespaceSymbolOffset(),
+                    $context->namespaceSymbolSize()
+                );
+            }
+
+            $rendered .= "\n";
         }
 
         if (count($context->useStatements()) > 0) {
@@ -931,7 +941,7 @@ EOD;
                 $useStatement,
                 $useStatement->position()->line(),
                 $useStatement->position()->column(),
-                $useStatement->startOffset(),
+                $useStatement->offset(),
                 $useStatement->size()
             );
         }
@@ -947,7 +957,7 @@ EOD;
                 $symbol->symbol()->string(),
                 $symbol->position()->line(),
                 $symbol->position()->column(),
-                $symbol->startOffset(),
+                $symbol->offset(),
                 $symbol->size()
             );
         }

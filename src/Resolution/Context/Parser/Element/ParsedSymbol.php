@@ -27,7 +27,7 @@ class ParsedSymbol extends AbstractParsedElement implements
      * @param QualifiedSymbolInterface     $symbol      The symbol.
      * @param SymbolType|null              $type        The symbol type.
      * @param ParserPositionInterface|null $position    The position.
-     * @param integer|null                 $startOffset The start offset.
+     * @param integer|null                 $startOffset The offset.
      * @param integer|null                 $size        The element size in bytes.
      */
     public function __construct(
