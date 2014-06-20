@@ -9,7 +9,7 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Context\Reader;
+namespace Eloquent\Cosmos\Resolution\Context\Persistence;
 
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\Parser\ParserPosition;
@@ -388,7 +388,7 @@ EOD;
     public function testReadFromFileByIndexFailureUndefined()
     {
         $this->setExpectedException(
-            'Eloquent\Cosmos\Resolution\Context\Reader\Exception\UndefinedResolutionContextException'
+            'Eloquent\Cosmos\Resolution\Context\Persistence\Exception\UndefinedResolutionContextException'
         );
         $this->reader->readFromFileByIndex($this->fixturePath, 3);
     }
@@ -522,7 +522,7 @@ EOD;
     public function testReadFromStreamByIndexFailureUndefined()
     {
         $this->setExpectedException(
-            'Eloquent\Cosmos\Resolution\Context\Reader\Exception\UndefinedResolutionContextException'
+            'Eloquent\Cosmos\Resolution\Context\Persistence\Exception\UndefinedResolutionContextException'
         );
         $this->reader->readFromStreamByIndex($this->fixtureStream, 3);
     }

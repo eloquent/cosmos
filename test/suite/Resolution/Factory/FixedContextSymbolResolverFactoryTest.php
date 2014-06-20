@@ -12,7 +12,7 @@
 namespace Eloquent\Cosmos\Resolution\Factory;
 
 use Eloquent\Cosmos\Resolution\Context\Parser\ParserPosition;
-use Eloquent\Cosmos\Resolution\Context\Reader\ResolutionContextReader;
+use Eloquent\Cosmos\Resolution\Context\Persistence\ResolutionContextReader;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Resolution\FixedContextSymbolResolver;
 use Eloquent\Cosmos\Resolution\SymbolResolver;

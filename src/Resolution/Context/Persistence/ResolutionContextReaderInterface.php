@@ -9,12 +9,12 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Context\Reader;
+namespace Eloquent\Cosmos\Resolution\Context\Persistence;
 
 use Eloquent\Cosmos\Exception\ReadException;
 use Eloquent\Cosmos\Exception\UndefinedSymbolException;
 use Eloquent\Cosmos\Resolution\Context\Parser\ParserPositionInterface;
-use Eloquent\Cosmos\Resolution\Context\Reader\Exception\UndefinedResolutionContextException;
+use Eloquent\Cosmos\Resolution\Context\Persistence\Exception\UndefinedResolutionContextException;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
 use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
