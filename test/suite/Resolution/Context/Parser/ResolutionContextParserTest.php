@@ -170,7 +170,7 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (5, 5):
+// Context at position (5, 5), offset 41, size 188:
 
 namespace NamespaceA\NamespaceB;
 
@@ -188,7 +188,7 @@ class \NamespaceA\NamespaceB\ClassD; // at position (45, 5), offset 719, size 22
 function \NamespaceA\NamespaceB\FunctionA; // at position (60, 5), offset 954, size 77
 function \NamespaceA\NamespaceB\FunctionB; // at position (64, 5), offset 1037, size 32
 
-// Context at position (73, 5):
+// Context at position (73, 5), offset 1194, size 58:
 
 namespace NamespaceC;
 
@@ -322,7 +322,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (5, 5):
+// Context at position (5, 5), offset 41, size 207:
 
 namespace NamespaceA\NamespaceB;
 
@@ -340,7 +340,7 @@ class \NamespaceA\NamespaceB\ClassD; // at position (45, 9), offset 834, size 27
 function \NamespaceA\NamespaceB\FunctionA; // at position (60, 9), offset 1117, size 85
 function \NamespaceA\NamespaceB\FunctionB; // at position (64, 9), offset 1212, size 40
 
-// Context at position (74, 5):
+// Context at position (74, 5), offset 1395, size 69:
 
 namespace NamespaceC;
 
@@ -350,7 +350,7 @@ use ClassN; // at position (78, 9), offset 1452, size 12
 class \NamespaceC\ClassE; // at position (80, 9), offset 1474, size 32
 interface \NamespaceC\InterfaceD; // at position (84, 9), offset 1516, size 40
 
-// Context at position (91, 5):
+// Context at position (91, 5), offset 1612, size 58:
 
 use ClassO; // at position (93, 9), offset 1636, size 12
 use ClassP; // at position (95, 9), offset 1658, size 12
@@ -427,7 +427,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (1, 1):
+// Context at position (1, 1), offset 41, size 156:
 
 use ClassF; // at position (5, 5), offset 41, size 12
 use ClassG as ClassH; // at position (7, 5), offset 59, size 22
@@ -502,7 +502,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (5, 5):
+// Context at position (5, 5), offset 41, size 35:
 
 namespace NamespaceA\NamespaceB;
 
@@ -571,7 +571,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (1, 1):
+// Context at position (1, 1), offset 0, size 0:
 
 interface \InterfaceA; // at position (7, 5), offset 81, size 72
 interface \InterfaceB; // at position (12, 5), offset 159, size 112
@@ -624,7 +624,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (5, 5):
+// Context at position (5, 5), offset 41, size 220:
 
 namespace NamespaceA\NamespaceB;
 
@@ -634,14 +634,14 @@ use NamespaceD\ClassI; // at position (11, 9), offset 143, size 25
 use NamespaceE\ClassJ as ClassK; // at position (13, 9), offset 178, size 35
 use NamespaceF\NamespaceG\ClassL; // at position (15, 9), offset 223, size 38
 
-// Context at position (20, 5):
+// Context at position (20, 5), offset 317, size 69:
 
 namespace NamespaceC;
 
 use ClassM; // at position (22, 9), offset 352, size 12
 use ClassN; // at position (24, 9), offset 374, size 12
 
-// Context at position (27, 5):
+// Context at position (27, 5), offset 398, size 58:
 
 use ClassO; // at position (29, 9), offset 422, size 12
 use ClassP; // at position (31, 9), offset 444, size 12
@@ -656,7 +656,7 @@ EOD;
     {
         $source = '';
         $expected = <<<'EOD'
-// Context at position (1, 1):
+// Context at position (1, 1), offset 0, size 0:
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -748,7 +748,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (5, 5):
+// Context at position (5, 5), offset 41, size 197:
 
 namespace NamespaceA\NamespaceB;
 
@@ -788,7 +788,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (3, 5):
+// Context at position (3, 5), offset 12, size 21:
 
 namespace NamespaceA;
 
@@ -814,7 +814,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (3, 5):
+// Context at position (3, 5), offset 12, size 21:
 
 namespace NamespaceA;
 
@@ -860,7 +860,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (1, 1):
+// Context at position (1, 1), offset 12, size 494:
 
 use ClassF; // at position (3, 5), offset 12, size 12
 use ClassG as ClassH; // at position (5, 5), offset 30, size 22
@@ -910,9 +910,11 @@ EOD;
     protected function renderContext(ParsedResolutionContextInterface $context)
     {
         $rendered = sprintf(
-            "// Context at position (%d, %d):\n",
+            "// Context at position (%d, %d), offset %d, size %d:\n",
             $context->position()->line(),
-            $context->position()->column()
+            $context->position()->column(),
+            $context->startOffset(),
+            $context->size()
         );
 
         if (!$context->primaryNamespace()->isRoot()) {
