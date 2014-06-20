@@ -33,33 +33,37 @@ class ParsedUseStatementTest extends PHPUnit_Framework_TestCase
             new UseStatementClause(Symbol::fromString('\NamespaceA\SymbolA'), Symbol::fromString('SymbolB')),
             new UseStatementClause(Symbol::fromString('\NamespaceB\SymbolC')),
         );
-        $this->useStatement = new UseStatement($this->clauses, UseStatementType::CONSTANT());
+        $this->innerUseStatement = new UseStatement($this->clauses, UseStatementType::CONSTANT());
         $this->position = new ParserPosition(111, 222);
-        $this->parsedUseStatement = new ParsedUseStatement($this->useStatement, $this->position);
+        $this->useStatement = new ParsedUseStatement($this->innerUseStatement, $this->position, 333, 444);
     }
 
     public function testConstructor()
     {
-        $this->assertSame($this->useStatement, $this->parsedUseStatement->useStatement());
-        $this->assertSame($this->position, $this->parsedUseStatement->position());
-        $this->assertSame($this->useStatement->clauses(), $this->parsedUseStatement->clauses());
-        $this->assertSame($this->useStatement->type(), $this->parsedUseStatement->type());
-        $this->assertSame($this->useStatement->string(), $this->parsedUseStatement->string());
-        $this->assertSame(strval($this->useStatement), strval($this->parsedUseStatement));
+        $this->assertSame($this->innerUseStatement, $this->useStatement->useStatement());
+        $this->assertSame($this->position, $this->useStatement->position());
+        $this->assertSame(333, $this->useStatement->offset());
+        $this->assertSame(444, $this->useStatement->size());
+        $this->assertSame($this->innerUseStatement->clauses(), $this->useStatement->clauses());
+        $this->assertSame($this->innerUseStatement->type(), $this->useStatement->type());
+        $this->assertSame($this->innerUseStatement->string(), $this->useStatement->string());
+        $this->assertSame(strval($this->innerUseStatement), strval($this->useStatement));
     }
 
     public function testConstructorDefaults()
     {
-        $this->parsedUseStatement = new ParsedUseStatement($this->useStatement);
+        $this->useStatement = new ParsedUseStatement($this->innerUseStatement);
 
-        $this->assertEquals(new ParserPosition(0, 0), $this->parsedUseStatement->position());
+        $this->assertEquals(new ParserPosition(0, 0), $this->useStatement->position());
+        $this->assertSame(0, $this->useStatement->offset());
+        $this->assertSame(0, $this->useStatement->size());
     }
 
     public function testAccept()
     {
         $visitor = Phake::mock('Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface');
-        $this->parsedUseStatement->accept($visitor);
+        $this->useStatement->accept($visitor);
 
-        Phake::verify($visitor)->visitUseStatement($this->identicalTo($this->parsedUseStatement));
+        Phake::verify($visitor)->visitUseStatement($this->identicalTo($this->useStatement));
     }
 }

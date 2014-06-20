@@ -26,23 +26,27 @@ class ParsedSymbolTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->symbol = Symbol::fromString('\Foo');
+        $this->innerSymbol = Symbol::fromString('\Foo');
         $this->position = new ParserPosition(111, 222);
-        $this->parsedSymbol = new ParsedSymbol($this->symbol, SymbolType::CONSTANT(), $this->position);
+        $this->symbol = new ParsedSymbol($this->innerSymbol, SymbolType::CONSTANT(), $this->position, 333, 444);
     }
 
     public function testConstructor()
     {
-        $this->assertSame($this->symbol, $this->parsedSymbol->symbol());
-        $this->assertSame(SymbolType::CONSTANT(), $this->parsedSymbol->type());
-        $this->assertSame($this->position, $this->parsedSymbol->position());
+        $this->assertSame($this->innerSymbol, $this->symbol->symbol());
+        $this->assertSame(SymbolType::CONSTANT(), $this->symbol->type());
+        $this->assertSame($this->position, $this->symbol->position());
+        $this->assertSame(333, $this->symbol->offset());
+        $this->assertSame(444, $this->symbol->size());
     }
 
     public function testConstructorDefaults()
     {
-        $this->parsedSymbol = new ParsedSymbol($this->symbol);
+        $this->symbol = new ParsedSymbol($this->innerSymbol);
 
-        $this->assertSame(SymbolType::CLA55(), $this->parsedSymbol->type());
-        $this->assertEquals(new ParserPosition(0, 0), $this->parsedSymbol->position());
+        $this->assertSame(SymbolType::CLA55(), $this->symbol->type());
+        $this->assertEquals(new ParserPosition(0, 0), $this->symbol->position());
+        $this->assertSame(0, $this->symbol->offset());
+        $this->assertSame(0, $this->symbol->size());
     }
 }

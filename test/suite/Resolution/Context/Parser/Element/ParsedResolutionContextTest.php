@@ -42,7 +42,15 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
         $this->innerContext = new ResolutionContext($this->primaryNamespace, $this->useStatements);
         $this->symbols = array(Symbol::fromString('\SymbolA'), Symbol::fromString('\SymbolB'));
         $this->position = new ParserPosition(111, 222);
-        $this->context = new ParsedResolutionContext($this->innerContext, $this->symbols, $this->position);
+        $this->context = new ParsedResolutionContext(
+            $this->innerContext,
+            $this->symbols,
+            $this->position,
+            333,
+            444,
+            555,
+            666
+        );
     }
 
     public function testConstructor()
@@ -50,6 +58,10 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
         $this->assertSame($this->innerContext, $this->context->context());
         $this->assertSame($this->symbols, $this->context->symbols());
         $this->assertSame($this->position, $this->context->position());
+        $this->assertSame(333, $this->context->offset());
+        $this->assertSame(444, $this->context->size());
+        $this->assertSame(555, $this->context->namespaceSymbolOffset());
+        $this->assertSame(666, $this->context->namespaceSymbolSize());
         $this->assertSame($this->innerContext->primaryNamespace(), $this->context->primaryNamespace());
         $this->assertSame($this->innerContext->useStatements(), $this->context->useStatements());
     }
@@ -61,6 +73,10 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(new ResolutionContext, $this->context->context());
         $this->assertSame(array(), $this->context->symbols());
         $this->assertEquals(new ParserPosition(0, 0), $this->context->position());
+        $this->assertSame(0, $this->context->offset());
+        $this->assertSame(0, $this->context->size());
+        $this->assertNull($this->context->namespaceSymbolOffset());
+        $this->assertNull($this->context->namespaceSymbolSize());
     }
 
     public function testUseStatementsByType()
