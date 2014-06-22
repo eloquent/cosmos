@@ -26,4 +26,13 @@ interface ResolutionContextRendererInterface
      * @return string The rendered context.
      */
     public function renderContext(ResolutionContextInterface $context);
+
+    /**
+     * Render a list of use statements.
+     *
+     * @param array<UseStatementInterface> $useStatements The use statements to render.
+     *
+     * @return string The rendered use statements.
+     */
+    public function renderUseStatements(array $useStatements);
 }

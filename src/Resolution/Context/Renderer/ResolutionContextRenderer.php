@@ -52,6 +52,23 @@ class ResolutionContextRenderer implements ResolutionContextRendererInterface,
     }
 
     /**
+     * Render a list of use statements.
+     *
+     * @param array<UseStatementInterface> $useStatements The use statements to render.
+     *
+     * @return string The rendered use statements.
+     */
+    public function renderUseStatements(array $useStatements)
+    {
+        $rendered = '';
+        foreach ($useStatements as $useStatement) {
+            $rendered .= $useStatement->accept($this) . ";\n";
+        }
+
+        return $rendered;
+    }
+
+    /**
      * Visit a resolution context.
      *
      * @param ResolutionContextInterface $context The context to visit.
@@ -71,9 +88,7 @@ class ResolutionContextRenderer implements ResolutionContextRendererInterface,
             $rendered .= "\n";
         }
 
-        foreach ($context->useStatements() as $useStatement) {
-            $rendered .= $useStatement->accept($this) . ";\n";
-        }
+        $rendered .= $this->renderUseStatements($context->useStatements());
 
         return $rendered;
     }

@@ -33,7 +33,7 @@ use ReflectionFunction;
 use ReflectionObject;
 
 /**
- * Reads resolution contexts from files and streams.
+ * Reads symbol resolution contexts from files and streams.
  */
 class ResolutionContextReader implements ResolutionContextReaderInterface
 {
