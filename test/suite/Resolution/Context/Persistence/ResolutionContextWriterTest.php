@@ -31,7 +31,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
 
         $this->contextRenderer = new ResolutionContextRenderer;
         $this->isolator = Phake::partialMock(Isolator::className());
-        $this->writer = new ResolutionContextWriter($this->contextRenderer, 1, $this->isolator);
+        $this->writer = new ResolutionContextWriter($this->contextRenderer, 10, $this->isolator);
 
         $this->source = <<<'EOD'
 <?php
@@ -85,7 +85,7 @@ EOD;
     public function testConstructor()
     {
         $this->assertSame($this->contextRenderer, $this->writer->contextRenderer());
-        $this->assertSame(1, $this->writer->bufferSize());
+        $this->assertSame(10, $this->writer->bufferSize());
     }
 
     public function testConstructorDefaults()
@@ -126,6 +126,42 @@ EOD;
 
         $this->assertSame($expected, $actual);
     }
+
+//     public function testReplaceContextInStreamMiddleContext()
+//     {
+//         $this->writer->replaceContextInStream(
+//             $this->stream,
+//             $this->streamSize,
+//             $this->parsedContexts[1],
+//             $this->context
+//         );
+//         fseek($this->stream, 0);
+//         $actual = stream_get_contents($this->stream);
+//         var_dump($actual);
+//         $expected = <<<'EOD'
+// <?php
+
+// namespace NamespaceA \ NamespaceB \ NamespaceC
+// {
+//     use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+
+//     use function SymbolE , SymbolF ;
+// }
+
+// namespace NamespaceX\NamespaceY {
+//     use const SymbolX\SymbolY as SymbolZ;
+//     use SymbolT\SymbolU, SymbolV\SymbolW;
+// }
+
+// namespace
+// {
+//     use SymbolG;
+// }
+
+// EOD;
+
+//         $this->assertSame($expected, $actual);
+//     }
 
     public function testInstance()
     {

@@ -45,7 +45,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
      * Construct a new resolution context writer.
      *
      * @param ResolutionContextRendererInterface|null $contextRenderer The renderer to use.
-     * @param integer|null $bufferSize The buffer size to use.
+     * @param integer|null                            $bufferSize      The buffer size to use.
      * @param Isolator|null                           $isolator        The isolator to use.
      */
     public function __construct(
@@ -105,13 +105,20 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
     ) {
         $this->assertStreamIsSeekable($stream, $path);
 
-        list($useStatementsOffset, $useStatementsSize, $indent) = $this
-            ->useStatementsStats($parsedContext->useStatements());
-        $renderedUseStatements = $this->doIndent(
-            $this->contextRenderer()
-                ->renderUseStatements($context->useStatements()),
-            str_repeat(' ', $indent)
-        );
+        $renderedUseStatements = $this->contextRenderer()
+            ->renderUseStatements($context->useStatements());
+
+        if (count($parsedContext->useStatements()) > 0) {
+            list($useStatementsOffset, $useStatementsSize, $indent) = $this
+                ->useStatementsStats($parsedContext->useStatements());
+
+            $renderedUseStatements = $this
+                ->doIndent($renderedUseStatements, str_repeat(' ', $indent));
+        } else {
+            $renderedUseStatements  = "\n" . $renderedUseStatements;
+            $useStatementsOffset = $parsedContext->namespaceBodyOffset();
+            $useStatementsSize = 0;
+        }
 
         $size = $this->doReplace(
             $stream,
@@ -184,23 +191,27 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
 
         if ($sizeDifference > 0) {
             $replaceEnd = $offset + $replaceSize;
-            $i = $streamSize - $bufferSize;
-            while (true) {
-                if ($i < $replaceEnd) {
-                    $i = $replaceEnd;
-                }
+            $this->doSeek($stream, $replaceEnd, $path);
+            $data = @stream_get_contents($stream);
+            $this->doSeek($stream, $replaceEnd + $sizeDifference, $path);
+            $this->doWrite($stream, $data, $path);
+            // $i = $streamSize - $bufferSize;
+            // while (true) {
+            //     if ($i < $replaceEnd) {
+            //         $i = $replaceEnd;
+            //     }
 
-                $this->doSeek($stream, $i, $path);
-                $data = $this->doRead($stream, $bufferSize, $path);
-                $this->doSeek($stream, $i + $sizeDifference, $path);
-                $this->doWrite($stream, $data, $path);
+            //     $this->doSeek($stream, $i, $path);
+            //     $data = $this->doRead($stream, $bufferSize, $path);
+            //     $this->doSeek($stream, $i + $sizeDifference, $path);
+            //     $this->doWrite($stream, $data, $path);
 
-                if ($i === $replaceEnd) {
-                    break;
-                } else {
-                    $i -= $bufferSize;
-                }
-            }
+            //     if ($i === $replaceEnd) {
+            //         break;
+            //     } else {
+            //         $i -= $bufferSize;
+            //     }
+            // }
         }
 
         $this->doSeek($stream, $offset - 1, $path);
@@ -253,7 +264,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         // echo 'Seeking to ' . $offset . PHP_EOL;
 
         $result = $this->isolator()->fseek($stream, $offset);
-        if (-1 === $result || false === $result) {
+        if (false === $result) {
             $lastError = $this->isolator()->error_get_last();
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
