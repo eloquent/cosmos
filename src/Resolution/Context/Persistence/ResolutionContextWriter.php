@@ -103,37 +103,10 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         ResolutionContextInterface $context,
         $path = null
     ) {
-        $this->assertStreamIsSeekable($stream, $path);
-
-        $renderedUseStatements = $this->contextRenderer()
-            ->renderUseStatements($context->useStatements());
-
-        if (count($parsedContext->useStatements()) > 0) {
-            list($useStatementsOffset, $useStatementsSize, $indent) = $this
-                ->useStatementsStats($parsedContext->useStatements());
-
-            $renderedUseStatements = $this
-                ->doIndent($renderedUseStatements, str_repeat(' ', $indent));
-        } else {
-            $renderedUseStatements  = "\n" . $renderedUseStatements;
-            $useStatementsOffset = $parsedContext->namespaceBodyOffset();
-            $useStatementsSize = 0;
-        }
-
-        $size = $this->doReplace(
+        return $this->doReplaceMultiple(
             $stream,
             $size,
-            $useStatementsOffset,
-            $useStatementsSize,
-            $renderedUseStatements,
-            $path
-        );
-        $this->doReplace(
-            $stream,
-            $size,
-            $parsedContext->namespaceSymbolOffset(),
-            $parsedContext->namespaceSymbolSize(),
-            $context->primaryNamespace()->accept($this->contextRenderer()),
+            $this->replacementsForContext($parsedContext, $context),
             $path
         );
     }
@@ -146,6 +119,52 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
     protected function isolator()
     {
         return $this->isolator;
+    }
+
+    private function replacementsForContext(
+        ParsedResolutionContextInterface $parsedContext,
+        ResolutionContextInterface $context
+    ) {
+        if (null === $parsedContext->namespaceSymbolOffset()) {
+            $renderedNamespaceSymbol = ' ' . $context->primaryNamespace()
+                ->accept($this->contextRenderer());
+            $namespaceSymbolOffset = $parsedContext->offset() + 9;
+            $namespaceSymbolSize = 0;
+        } else {
+            $renderedNamespaceSymbol = $context->primaryNamespace()
+                ->accept($this->contextRenderer());
+            $namespaceSymbolOffset = $parsedContext->namespaceSymbolOffset();
+            $namespaceSymbolSize = $parsedContext->namespaceSymbolSize();
+        }
+
+        $renderedUseStatements = $this->contextRenderer()
+            ->renderUseStatements($context->useStatements());
+
+        if (count($parsedContext->useStatements()) > 0) {
+            list($useStatementsOffset, $useStatementsSize, $indent) = $this
+                ->useStatementsStats($parsedContext->useStatements());
+
+            $renderedUseStatements = $this
+                ->doIndent($renderedUseStatements, str_repeat(' ', $indent));
+        } else {
+            $renderedUseStatements = $this
+                ->doIndent("\n" . $renderedUseStatements, '    ') . "\n";
+            $useStatementsOffset = $parsedContext->namespaceBodyOffset();
+            $useStatementsSize = 0;
+        }
+
+        return array(
+            array(
+                $namespaceSymbolOffset,
+                $namespaceSymbolSize,
+                $renderedNamespaceSymbol,
+            ),
+            array(
+                $useStatementsOffset,
+                $useStatementsSize,
+                $renderedUseStatements
+            ),
+        );
     }
 
     private function useStatementsStats(array $useStatements)
@@ -177,6 +196,34 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         return implode("\n" . $indent, $lines);
     }
 
+    private function doReplaceMultiple(
+        $stream,
+        $streamSize,
+        array $replacements,
+        $path
+    ) {
+        $this->assertStreamIsSeekable($stream, $path);
+
+        usort(
+            $replacements,
+            function ($left, $right) {
+                return $right[0] - $left[0];
+            }
+        );
+
+        foreach ($replacements as $replacement) {
+            list($offset, $replaceSize, $data) = $replacement;
+            $streamSize = $this->doReplace(
+                $stream,
+                $streamSize,
+                $offset,
+                $replaceSize,
+                $data,
+                $path
+            );
+        }
+    }
+
     private function doReplace(
         $stream,
         $streamSize,
@@ -190,39 +237,37 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         $sizeDifference = $replacementSize - $replaceSize;
 
         if ($sizeDifference > 0) {
-            $replaceEnd = $offset + $replaceSize;
-            $this->doSeek($stream, $replaceEnd, $path);
-            $data = @stream_get_contents($stream);
-            $this->doSeek($stream, $replaceEnd + $sizeDifference, $path);
-            $this->doWrite($stream, $data, $path);
-            // $i = $streamSize - $bufferSize;
-            // while (true) {
-            //     if ($i < $replaceEnd) {
-            //         $i = $replaceEnd;
-            //     }
+            $replaceEnd = $offset + $replaceSize - 1;
+            $i = $streamSize - $bufferSize;
+            while (true) {
+                if ($i < $replaceEnd) {
+                    $i = $replaceEnd;
+                }
 
-            //     $this->doSeek($stream, $i, $path);
-            //     $data = $this->doRead($stream, $bufferSize, $path);
-            //     $this->doSeek($stream, $i + $sizeDifference, $path);
-            //     $this->doWrite($stream, $data, $path);
+                $this->doSeekOrExpand($stream, $streamSize, $i, $path);
+                $data = $this->doRead($stream, $bufferSize, $path);
+                $this->doSeekOrExpand($stream, $streamSize, $i + $sizeDifference, $path);
+                $this->doWrite($stream, $data, $path);
 
-            //     if ($i === $replaceEnd) {
-            //         break;
-            //     } else {
-            //         $i -= $bufferSize;
-            //     }
-            // }
+                if ($i === $replaceEnd) {
+                    break;
+                } else {
+                    $i -= $bufferSize;
+                }
+            }
+
+            $streamSize += $sizeDifference;
         }
 
-        $this->doSeek($stream, $offset - 1, $path);
+        $this->doSeekOrExpand($stream, $streamSize, $offset - 1, $path);
         $result = $this->doWrite($stream, $replacement, $path);
 
         if ($sizeDifference < 0) {
             $i = $offset + $replaceSize - 1;
             while (true) {
-                $this->doSeek($stream, $i, $path);
+                $this->doSeekOrExpand($stream, $streamSize, $i, $path);
                 $data = $this->doRead($stream, $bufferSize, $path);
-                $this->doSeek($stream, $i + $sizeDifference, $path);
+                $this->doSeekOrExpand($stream, $streamSize, $i + $sizeDifference, $path);
                 $this->doWrite($stream, $data, $path);
 
                 if (strlen($data) < $bufferSize) {
@@ -233,6 +278,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
             }
 
             $streamSize += $sizeDifference;
+
             $this->doTruncate($stream, $streamSize, $path);
         }
 
@@ -259,12 +305,24 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         }
     }
 
+    private function doSeekOrExpand($stream, $size, $offset, $path)
+    {
+        if ($offset < $size) {
+            return $this->doSeek($stream, $offset, $path);
+        }
+
+        $result = $this->doSeek($stream, $size, $path);
+        $this->doWrite($stream, str_repeat("\0", $offset - $size), $path);
+
+        return $result;
+    }
+
     private function doSeek($stream, $offset, $path)
     {
         // echo 'Seeking to ' . $offset . PHP_EOL;
 
-        $result = $this->isolator()->fseek($stream, $offset);
-        if (false === $result) {
+        $result = @$this->isolator()->fseek($stream, $offset);
+        if (-1 === $result || false === $result) {
             $lastError = $this->isolator()->error_get_last();
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
@@ -276,11 +334,28 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         return $result;
     }
 
+    private function doTruncate($stream, $size, $path)
+    {
+        // echo 'Truncating to ' . $size . PHP_EOL;
+
+        $result = @$this->isolator()->ftruncate($stream, $size);
+        if (false === $result) {
+            $lastError = $this->isolator()->error_get_last();
+            if (is_string($path)) {
+                $path = FileSystemPath::fromString($path);
+
+                throw new WriteException($lastError['message'], $path);
+            }
+        }
+
+        return $result;
+    }
+
     private function doRead($stream, $size, $path)
     {
         // echo 'Reading ' . $size . PHP_EOL;
 
-        $result = $this->isolator()->fread($stream, $size);
+        $result = @$this->isolator()->fread($stream, $size);
         if (false === $result) {
             $lastError = $this->isolator()->error_get_last();
             if (is_string($path)) {
@@ -297,24 +372,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
     {
         // echo 'Writing ' . var_export($data, true) . PHP_EOL;
 
-        $result = $this->isolator()->fwrite($stream, $data);
-        if (false === $result) {
-            $lastError = $this->isolator()->error_get_last();
-            if (is_string($path)) {
-                $path = FileSystemPath::fromString($path);
-
-                throw new WriteException($lastError['message'], $path);
-            }
-        }
-
-        return $result;
-    }
-
-    private function doTruncate($stream, $size, $path)
-    {
-        // echo 'Truncating to ' . $size . PHP_EOL;
-
-        $result = $this->isolator()->ftruncate($stream, $size);
+        $result = @$this->isolator()->fwrite($stream, $data);
         if (false === $result) {
             $lastError = $this->isolator()->error_get_last();
             if (is_string($path)) {
