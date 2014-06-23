@@ -20,6 +20,7 @@ use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRendererInterfa
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Pathogen\FileSystem\FileSystemPath;
 use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
+use ErrorException;
 use Icecave\Isolator\Isolator;
 
 /**
@@ -289,12 +290,11 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
     {
         $metaData = @$this->isolator()->stream_get_meta_data($stream);
         if (false === $metaData) {
-            $lastError = $this->isolator()->error_get_last();
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
             }
 
-            throw new ReadException($lastError['message'], $path);
+            throw new ReadException($path, $this->lastError());
         }
         if (!$metaData['seekable']) {
             if (is_string($path)) {
@@ -323,12 +323,11 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
 
         $result = @$this->isolator()->fseek($stream, $offset);
         if (-1 === $result || false === $result) {
-            $lastError = $this->isolator()->error_get_last();
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
             }
 
-            throw new ReadException($lastError['message'], $path);
+            throw new ReadException($path, $this->lastError());
         }
 
         return $result;
@@ -340,12 +339,11 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
 
         $result = @$this->isolator()->ftruncate($stream, $size);
         if (false === $result) {
-            $lastError = $this->isolator()->error_get_last();
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
-
-                throw new WriteException($lastError['message'], $path);
             }
+
+            throw new WriteException($path, $this->lastError());
         }
 
         return $result;
@@ -357,12 +355,11 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
 
         $result = @$this->isolator()->fread($stream, $size);
         if (false === $result) {
-            $lastError = $this->isolator()->error_get_last();
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
-
-                throw new ReadException($lastError['message'], $path);
             }
+
+            throw new ReadException($path, $this->lastError());
         }
 
         return $result;
@@ -374,15 +371,30 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
 
         $result = @$this->isolator()->fwrite($stream, $data);
         if (false === $result) {
-            $lastError = $this->isolator()->error_get_last();
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
-
-                throw new WriteException($lastError['message'], $path);
             }
+
+            throw new WriteException($path, $this->lastError());
         }
 
         return $result;
+    }
+
+    private function lastError()
+    {
+        $lastError = $this->isolator()->error_get_last();
+        if (null === $lastError) {
+            return null;
+        }
+
+        return new ErrorException(
+            $lastError['message'],
+            0,
+            $lastError['type'],
+            $lastError['file'],
+            $lastError['line']
+        );
     }
 
     private static $instance;

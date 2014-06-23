@@ -22,42 +22,25 @@ final class WriteException extends Exception implements IoExceptionInterface
     /**
      * Construct a new write exception.
      *
-     * @param string                       $reason The reason message.
-     * @param FileSystemPathInterface|null $path   The path, if known.
-     * @param Exception|null               $cause  The cause, if available.
+     * @param FileSystemPathInterface|null $path  The path, if known.
+     * @param Exception|null               $cause The cause, if available.
      */
     public function __construct(
-        $reason,
         FileSystemPathInterface $path = null,
         Exception $cause = null
     ) {
-        $this->reason = $reason;
         $this->path = $path;
 
         if (null === $path) {
-            $message = sprintf(
-                'Unable to write to stream: %s.',
-                $reason
-            );
+            $message = 'Unable to write to stream.';
         } else {
             $message = sprintf(
-                'Unable to write to %s: %s.',
-                var_export($path->string(), true),
-                $reason
+                'Unable to write to %s.',
+                var_export($path->string(), true)
             );
         }
 
         parent::__construct($message, 0, $cause);
-    }
-
-    /**
-     * Get the reason message.
-     *
-     * @return string The reason message.
-     */
-    public function reason()
-    {
-        return $this->reason;
     }
 
     /**
@@ -70,6 +53,5 @@ final class WriteException extends Exception implements IoExceptionInterface
         return $this->path;
     }
 
-    private $reason;
     private $path;
 }

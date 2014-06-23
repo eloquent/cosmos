@@ -250,10 +250,7 @@ EOD;
         $class = Phake::mock('ReflectionClass');
         Phake::when($class)->getFileName()->thenReturn('/path/to/foo');
 
-        $this->setExpectedException(
-            'Eloquent\Cosmos\Exception\ReadException',
-            "Unable to read from '/path/to/foo': fopen(/path/to/foo): failed to open stream: No such file or directory."
-        );
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
         $this->reader->readFromClass($class);
     }
 
@@ -306,10 +303,7 @@ EOD;
         $function = Phake::mock('ReflectionFunction');
         Phake::when($function)->getFileName()->thenReturn('/path/to/foo');
 
-        $this->setExpectedException(
-            'Eloquent\Cosmos\Exception\ReadException',
-            "Unable to read from '/path/to/foo': fopen(/path/to/foo): failed to open stream: No such file or directory."
-        );
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
         $this->reader->readFromFunction($function);
     }
 
@@ -353,23 +347,23 @@ EOD;
 
     public function testReadFromFileFailureFileSystemOpen()
     {
-        $this->setExpectedException(
-            'Eloquent\Cosmos\Exception\ReadException',
-            "Unable to read from '/path/to/foo': fopen(/path/to/foo): failed to open stream: No such file or directory."
-        );
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
         $this->reader->readFromFile('/path/to/foo');
     }
 
     public function testReadFromFileFailureFileSystemRead()
     {
         Phake::when($this->isolator)->stream_get_contents(Phake::anyParameters())->thenReturn(false);
-        Phake::when($this->isolator)->error_get_last()
-            ->thenReturn(array('message' => 'stream_get_contents(): unable to read from stream'));
-
-        $this->setExpectedException(
-            'Eloquent\Cosmos\Exception\ReadException',
-            'stream_get_contents(): unable to read from stream'
+        Phake::when($this->isolator)->error_get_last()->thenReturn(
+            array(
+                'type' => E_WARNING,
+                'message' => 'stream_get_contents(): unable to read from stream',
+                'file' => '/path/to/file',
+                'line' => 111,
+            )
         );
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
         $this->reader->readFromFile($this->fixturePath);
     }
 
@@ -395,10 +389,7 @@ EOD;
 
     public function testReadFromFileByIndexFailureFileSystemOpen()
     {
-        $this->setExpectedException(
-            'Eloquent\Cosmos\Exception\ReadException',
-            "Unable to read from '/path/to/foo': fopen(/path/to/foo): failed to open stream: No such file or directory."
-        );
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
         $this->reader->readFromFileByIndex('/path/to/foo', 0);
     }
 
@@ -473,10 +464,7 @@ EOD;
     {
         $position = new ParserPosition(1111, 2222);
 
-        $this->setExpectedException(
-            'Eloquent\Cosmos\Exception\ReadException',
-            "Unable to read from '/path/to/foo': fopen(/path/to/foo): failed to open stream: No such file or directory."
-        );
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
         $this->reader->readFromFileByPosition('/path/to/foo', $position);
     }
 
@@ -497,13 +485,16 @@ EOD;
     public function testReadFromStreamFailureFileSystemRead()
     {
         Phake::when($this->isolator)->stream_get_contents(Phake::anyParameters())->thenReturn(false);
-        Phake::when($this->isolator)->error_get_last()
-            ->thenReturn(array('message' => 'stream_get_contents(): unable to read from stream'));
-
-        $this->setExpectedException(
-            'Eloquent\Cosmos\Exception\ReadException',
-            'stream_get_contents(): unable to read from stream'
+        Phake::when($this->isolator)->error_get_last()->thenReturn(
+            array(
+                'type' => E_WARNING,
+                'message' => 'stream_get_contents(): unable to read from stream',
+                'file' => '/path/to/file',
+                'line' => 111,
+            )
         );
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
         $this->reader->readFromStream($this->fixtureStream);
     }
 
@@ -530,13 +521,16 @@ EOD;
     public function testReadFromStreamByIndexFailureFileSystemRead()
     {
         Phake::when($this->isolator)->stream_get_contents(Phake::anyParameters())->thenReturn(false);
-        Phake::when($this->isolator)->error_get_last()
-            ->thenReturn(array('message' => 'stream_get_contents(): unable to read from stream'));
-
-        $this->setExpectedException(
-            'Eloquent\Cosmos\Exception\ReadException',
-            'stream_get_contents(): unable to read from stream'
+        Phake::when($this->isolator)->error_get_last()->thenReturn(
+            array(
+                'type' => E_WARNING,
+                'message' => 'stream_get_contents(): unable to read from stream',
+                'file' => '/path/to/file',
+                'line' => 111,
+            )
         );
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
         $this->reader->readFromStreamByIndex($this->fixtureStream, 0);
     }
 
@@ -596,13 +590,16 @@ EOD;
     {
         $position = new ParserPosition(1111, 2222);
         Phake::when($this->isolator)->stream_get_contents(Phake::anyParameters())->thenReturn(false);
-        Phake::when($this->isolator)->error_get_last()
-            ->thenReturn(array('message' => 'stream_get_contents(): unable to read from stream'));
-
-        $this->setExpectedException(
-            'Eloquent\Cosmos\Exception\ReadException',
-            'stream_get_contents(): unable to read from stream'
+        Phake::when($this->isolator)->error_get_last()->thenReturn(
+            array(
+                'type' => E_WARNING,
+                'message' => 'stream_get_contents(): unable to read from stream',
+                'file' => '/path/to/file',
+                'line' => 111,
+            )
         );
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
         $this->reader->readFromFileByPosition('/path/to/foo', $position);
     }
 

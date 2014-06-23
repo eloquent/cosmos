@@ -26,6 +26,7 @@ use Eloquent\Cosmos\Symbol\SymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Pathogen\FileSystem\FileSystemPath;
 use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
+use ErrorException;
 use Icecave\Isolator\Isolator;
 use ReflectionClass;
 use ReflectionException;
@@ -359,6 +360,16 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
             ->findByPosition($this->parseStream($stream, $path), $position);
     }
 
+    /**
+     * Get the isolator.
+     *
+     * @return Isolator The isolator.
+     */
+    protected function isolator()
+    {
+        return $this->isolator;
+    }
+
     private function findBySymbolPredicate(array $contexts, $predicate)
     {
         $context = null;
@@ -442,11 +453,9 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     {
         $stream = @$this->isolator()->fopen($path, 'rb');
         if (false === $stream) {
-            $lastError = $this->isolator()->error_get_last();
-
             throw new ReadException(
-                $lastError['message'],
-                FileSystemPath::fromString($path)
+                FileSystemPath::fromString($path),
+                $this->lastError()
             );
         }
 
@@ -470,12 +479,11 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     {
         $source = @$this->isolator()->stream_get_contents($stream);
         if (false === $source) {
-            $lastError = $this->isolator()->error_get_last();
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
             }
 
-            throw new ReadException($lastError['message'], $path);
+            throw new ReadException($path, $this->lastError());
         }
 
         return $source;
@@ -497,14 +505,20 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         return $left->column() > $right->column();
     }
 
-    /**
-     * Get the isolator.
-     *
-     * @return Isolator The isolator.
-     */
-    protected function isolator()
+    private function lastError()
     {
-        return $this->isolator;
+        $lastError = $this->isolator()->error_get_last();
+        if (null === $lastError) {
+            return null;
+        }
+
+        return new ErrorException(
+            $lastError['message'],
+            0,
+            $lastError['type'],
+            $lastError['file'],
+            $lastError['line']
+        );
     }
 
     private static $instance;
