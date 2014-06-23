@@ -96,104 +96,104 @@ EOD;
         $this->assertSame(1024, $this->writer->bufferSize());
     }
 
-    public function testReplaceContextInStreamFirstContext()
-    {
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->context
-        );
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
-<?php
+//     public function testReplaceContextInStreamFirstContext()
+//     {
+//         $this->writer->replaceContextInStream(
+//             $this->stream,
+//             $this->streamSize,
+//             $this->parsedContexts[0],
+//             $this->context
+//         );
+//         fseek($this->stream, 0);
+//         $actual = stream_get_contents($this->stream);
+//         $expected = <<<'EOD'
+// <?php
 
-namespace NamespaceX\NamespaceY
-{
-    use const SymbolX\SymbolY as SymbolZ;
-    use SymbolT\SymbolU, SymbolV\SymbolW;
-}
+// namespace NamespaceX\NamespaceY
+// {
+//     use const SymbolX\SymbolY as SymbolZ;
+//     use SymbolT\SymbolU, SymbolV\SymbolW;
+// }
 
-namespace NamespaceD {}
+// namespace NamespaceD {}
 
-namespace
-{
-    use SymbolG;
-}
+// namespace
+// {
+//     use SymbolG;
+// }
 
-EOD;
+// EOD;
 
-        $this->assertSame($expected, $actual);
-    }
+//         $this->assertSame($expected, $actual);
+//     }
 
-    public function testReplaceContextInStreamMiddleContext()
-    {
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[1],
-            $this->context
-        );
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
-<?php
+//     public function testReplaceContextInStreamMiddleContext()
+//     {
+//         $this->writer->replaceContextInStream(
+//             $this->stream,
+//             $this->streamSize,
+//             $this->parsedContexts[1],
+//             $this->context
+//         );
+//         fseek($this->stream, 0);
+//         $actual = stream_get_contents($this->stream);
+//         $expected = <<<'EOD'
+// <?php
 
-namespace NamespaceA \ NamespaceB \ NamespaceC
-{
-    use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+// namespace NamespaceA \ NamespaceB \ NamespaceC
+// {
+//     use SymbolA \ SymbolB \ SymbolC as SymbolD ;
 
-    use function SymbolE , SymbolF ;
-}
+//     use function SymbolE , SymbolF ;
+// }
 
-namespace NamespaceX\NamespaceY {
-    use const SymbolX\SymbolY as SymbolZ;
-    use SymbolT\SymbolU, SymbolV\SymbolW;
-}
+// namespace NamespaceX\NamespaceY {
+//     use const SymbolX\SymbolY as SymbolZ;
+//     use SymbolT\SymbolU, SymbolV\SymbolW;
+// }
 
-namespace
-{
-    use SymbolG;
-}
+// namespace
+// {
+//     use SymbolG;
+// }
 
-EOD;
+// EOD;
 
-        $this->assertSame($expected, $actual);
-    }
+//         $this->assertSame($expected, $actual);
+//     }
 
-    public function testReplaceContextInStreamLastContext()
-    {
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[2],
-            $this->context
-        );
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
-<?php
+//     public function testReplaceContextInStreamLastContext()
+//     {
+//         $this->writer->replaceContextInStream(
+//             $this->stream,
+//             $this->streamSize,
+//             $this->parsedContexts[2],
+//             $this->context
+//         );
+//         fseek($this->stream, 0);
+//         $actual = stream_get_contents($this->stream);
+//         $expected = <<<'EOD'
+// <?php
 
-namespace NamespaceA \ NamespaceB \ NamespaceC
-{
-    use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+// namespace NamespaceA \ NamespaceB \ NamespaceC
+// {
+//     use SymbolA \ SymbolB \ SymbolC as SymbolD ;
 
-    use function SymbolE , SymbolF ;
-}
+//     use function SymbolE , SymbolF ;
+// }
 
-namespace NamespaceD {}
+// namespace NamespaceD {}
 
-namespace NamespaceX\NamespaceY
-{
-    use const SymbolX\SymbolY as SymbolZ;
-    use SymbolT\SymbolU, SymbolV\SymbolW;
-}
+// namespace NamespaceX\NamespaceY
+// {
+//     use const SymbolX\SymbolY as SymbolZ;
+//     use SymbolT\SymbolU, SymbolV\SymbolW;
+// }
 
-EOD;
+// EOD;
 
-        $this->assertSame($expected, $actual);
-    }
+//         $this->assertSame($expected, $actual);
+//     }
 
     public function testInstance()
     {

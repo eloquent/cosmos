@@ -104,12 +104,12 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         ResolutionContextInterface $context,
         $path = null
     ) {
-        return $this->doReplaceMultiple(
-            $stream,
-            $size,
-            $this->replacementsForContext($parsedContext, $context),
-            $path
-        );
+        // return $this->doReplaceMultiple(
+        //     $stream,
+        //     $size,
+        //     $this->replacementsForContext($parsedContext, $context),
+        //     $path
+        // );
     }
 
     /**
@@ -122,173 +122,174 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         return $this->isolator;
     }
 
-    private function replacementsForContext(
-        ParsedResolutionContextInterface $parsedContext,
-        ResolutionContextInterface $context
-    ) {
-        if (null === $parsedContext->namespaceSymbolOffset()) {
-            $renderedNamespaceSymbol = ' ' . $context->primaryNamespace()
-                ->accept($this->contextRenderer());
-            $namespaceSymbolOffset = $parsedContext->offset() + 9;
-            $namespaceSymbolSize = 0;
-        } else {
-            $renderedNamespaceSymbol = $context->primaryNamespace()
-                ->accept($this->contextRenderer());
-            $namespaceSymbolOffset = $parsedContext->namespaceSymbolOffset();
-            $namespaceSymbolSize = $parsedContext->namespaceSymbolSize();
-        }
+    // private function replacementsForContext(
+    //     ParsedResolutionContextInterface $parsedContext,
+    //     ResolutionContextInterface $context
+    //) {
+    //     if (null === $parsedContext->namespaceSymbolOffset()) {
+    //         $renderedNamespaceSymbol = ' ' . $context->primaryNamespace()
+    //             ->accept($this->contextRenderer());
+    //         $namespaceSymbolOffset = $parsedContext->offset() + 9;
+    //         $namespaceSymbolSize = 0;
+    //     } else {
+    //         $renderedNamespaceSymbol = $context->primaryNamespace()
+    //             ->accept($this->contextRenderer());
+    //         $namespaceSymbolOffset = $parsedContext->namespaceSymbolOffset();
+    //         $namespaceSymbolSize = $parsedContext->namespaceSymbolSize();
+    //     }
 
-        $renderedUseStatements = $this->contextRenderer()
-            ->renderUseStatements($context->useStatements());
+    //     $renderedUseStatements = $this->contextRenderer()
+    //         ->renderUseStatements($context->useStatements());
 
-        if (count($parsedContext->useStatements()) > 0) {
-            list($useStatementsOffset, $useStatementsSize, $indent) = $this
-                ->useStatementsStats($parsedContext->useStatements());
+    //     if (count($parsedContext->useStatements()) > 0) {
+    //         list($useStatementsOffset, $useStatementsSize, $indent) = $this
+    //             ->useStatementsStats($parsedContext->useStatements());
 
-            $renderedUseStatements = $this
-                ->doIndent($renderedUseStatements, str_repeat(' ', $indent));
-        } else {
-            $renderedUseStatements = $this
-                ->doIndent("\n" . $renderedUseStatements, '    ') . "\n";
-            $useStatementsOffset = $parsedContext->namespaceBodyOffset();
-            $useStatementsSize = 0;
-        }
+    //         $renderedUseStatements = $this
+    //             ->doIndent($renderedUseStatements, str_repeat(' ', $indent));
+    //     } else {
+    //         $renderedUseStatements = $this
+    //             ->doIndent("\n" . $renderedUseStatements, '    ') . "\n";
+    //         $useStatementsOffset = $parsedContext->namespaceBodyOffset();
+    //         $useStatementsSize = 0;
+    //     }
 
-        return array(
-            array(
-                $namespaceSymbolOffset,
-                $namespaceSymbolSize,
-                $renderedNamespaceSymbol,
-            ),
-            array(
-                $useStatementsOffset,
-                $useStatementsSize,
-                $renderedUseStatements
-            ),
-        );
-    }
+    //     return array(
+    //         array(
+    //             $namespaceSymbolOffset,
+    //             $namespaceSymbolSize,
+    //             $renderedNamespaceSymbol,
+    //         ),
+    //         array(
+    //             $useStatementsOffset,
+    //             $useStatementsSize,
+    //             $renderedUseStatements
+    //         ),
+    //     );
+    // }
 
-    private function useStatementsStats(array $useStatements)
-    {
-        $startOffset = $endOffset = $indent = null;
-        foreach ($useStatements as $useStatement) {
-            if (
-                null === $startOffset ||
-                $useStatement->offset() < $startOffset
-            ) {
-                $startOffset = $useStatement->offset();
-                $indent = $useStatement->position()->column() - 1;
-            }
+    // private function useStatementsStats(array $useStatements)
+    // {
+    //     $startOffset = $endOffset = $indent = null;
+    //     foreach ($useStatements as $useStatement) {
+    //         if (
+    //             null === $startOffset ||
+    //             $useStatement->offset() < $startOffset
+    //         ) {
+    //             $startOffset = $useStatement->offset();
+    //             $indent = $useStatement->position()->column() - 1;
+    //         }
 
-            $statementEndOffset = $useStatement->offset() +
-                $useStatement->size() - 1;
-            if (null === $endOffset || $statementEndOffset > $endOffset) {
-                $endOffset = $statementEndOffset;
-            }
-        }
+    //         $statementEndOffset = $useStatement->offset() +
+    //             $useStatement->size() - 1;
+    //         if (null === $endOffset || $statementEndOffset > $endOffset) {
+    //             $endOffset = $statementEndOffset;
+    //         }
+    //     }
 
-        return array($startOffset, $endOffset - $startOffset + 1, $indent);
-    }
+    //     return array($startOffset, $endOffset - $startOffset + 1, $indent);
+    // }
 
-    private function doIndent($source, $indent)
-    {
-        $lines = preg_split('/(\r|\n|\r\n)/', rtrim($source, "\r\n"));
+    // private function doIndent($source, $indent)
+    // {
+    //     $lines = preg_split('/(\r|\n|\r\n)/', rtrim($source, "\r\n"));
 
-        return implode("\n" . $indent, $lines);
-    }
+    //     return implode("\n" . $indent, $lines);
+    // }
 
-    private function doReplaceMultiple(
-        $stream,
-        $streamSize,
-        array $replacements,
-        $path
-    ) {
-        $this->assertStreamIsSeekable($stream, $path);
+    // private function doReplaceMultiple(
+    //     $stream,
+    //     $streamSize,
+    //     array $replacements,
+    //     $path
+    //) {
+    //     $this->assertStreamIsSeekable($stream, $path);
 
-        usort(
-            $replacements,
-            function ($left, $right) {
-                return $right[0] - $left[0];
-            }
-        );
+    //     usort(
+    //         $replacements,
+    //         function ($left, $right) {
+    //             return $right[0] - $left[0];
+    //         }
+    //     );
 
-        foreach ($replacements as $replacement) {
-            list($offset, $replaceSize, $data) = $replacement;
-            $streamSize = $this->doReplace(
-                $stream,
-                $streamSize,
-                $offset,
-                $replaceSize,
-                $data,
-                $path
-            );
-        }
-    }
+    //     foreach ($replacements as $replacement) {
+    //         list($offset, $replaceSize, $data) = $replacement;
+    //         $streamSize = $this->doReplace(
+    //             $stream,
+    //             $streamSize,
+    //             $offset,
+    //             $replaceSize,
+    //             $data,
+    //             $path
+    //         );
+    //     }
+    // }
 
-    private function doReplace(
-        $stream,
-        $streamSize,
-        $offset,
-        $replaceSize,
-        $replacement,
-        $path
-    ) {
-        $bufferSize = $this->bufferSize();
-        $replacementSize = strlen($replacement);
-        $sizeDifference = $replacementSize - $replaceSize;
+    // private function doReplace(
+    //     $stream,
+    //     $streamSize,
+    //     $offset,
+    //     $replaceSize,
+    //     $replacement,
+    //     $path
+    //) {
+    //     $bufferSize = $this->bufferSize();
+    //     $replacementSize = strlen($replacement);
+    //     $sizeDifference = $replacementSize - $replaceSize;
 
-        if ($sizeDifference > 0) {
-            $replaceEnd = $offset + $replaceSize - 1;
-            $i = $streamSize - $bufferSize;
-            while (true) {
-                if ($i < $replaceEnd) {
-                    $i = $replaceEnd;
-                }
+    //     if ($sizeDifference > 0) {
+    //         $replaceEnd = $offset + $replaceSize - 1;
+    //         $i = $streamSize - $bufferSize;
+    //         while (true) {
+    //             if ($i < $replaceEnd) {
+    //                 $i = $replaceEnd;
+    //             }
 
-                $this->doSeekOrExpand($stream, $streamSize, $i, $path);
-                $data = $this->doRead($stream, $bufferSize, $path);
-                $this->doSeekOrExpand($stream, $streamSize, $i + $sizeDifference, $path);
-                $this->doWrite($stream, $data, $path);
+    //             $this->doSeekOrExpand($stream, $streamSize, $i, $path);
+    //             $data = $this->doRead($stream, $bufferSize, $path);
+    //             $this->doSeekOrExpand($stream, $streamSize, $i + $sizeDifference, $path);
+    //             $this->doWrite($stream, $data, $path);
 
-                if ($i === $replaceEnd) {
-                    break;
-                } else {
-                    $i -= $bufferSize;
-                }
-            }
+    //             if ($i === $replaceEnd) {
+    //                 break;
+    //             } else {
+    //                 $i -= $bufferSize;
+    //             }
+    //         }
 
-            $streamSize += $sizeDifference;
-        }
+    //         $streamSize += $sizeDifference;
+    //     }
 
-        $this->doSeekOrExpand($stream, $streamSize, $offset - 1, $path);
-        $result = $this->doWrite($stream, $replacement, $path);
+    //     $this->doSeekOrExpand($stream, $streamSize, $offset - 1, $path);
+    //     $result = $this->doWrite($stream, $replacement, $path);
 
-        if ($sizeDifference < 0) {
-            $i = $offset + $replaceSize - 1;
-            while (true) {
-                $this->doSeekOrExpand($stream, $streamSize, $i, $path);
-                $data = $this->doRead($stream, $bufferSize, $path);
-                $this->doSeekOrExpand($stream, $streamSize, $i + $sizeDifference, $path);
-                $this->doWrite($stream, $data, $path);
+    //     if ($sizeDifference < 0) {
+    //         $i = $offset + $replaceSize - 1;
+    //         while (true) {
+    //             $this->doSeekOrExpand($stream, $streamSize, $i, $path);
+    //             $data = $this->doRead($stream, $bufferSize, $path);
+    //             $this->doSeekOrExpand($stream, $streamSize, $i + $sizeDifference, $path);
+    //             $this->doWrite($stream, $data, $path);
 
-                if (strlen($data) < $bufferSize) {
-                    break;
-                } else {
-                    $i += $bufferSize;
-                }
-            }
+    //             if (strlen($data) < $bufferSize) {
+    //                 break;
+    //             } else {
+    //                 $i += $bufferSize;
+    //             }
+    //         }
 
-            $streamSize += $sizeDifference;
+    //         $streamSize += $sizeDifference;
 
-            $this->doTruncate($stream, $streamSize, $path);
-        }
+    //         $this->doTruncate($stream, $streamSize, $path);
+    //     }
 
-        return $streamSize;
-    }
+    //     return $streamSize;
+    // }
 
     private function assertStreamIsSeekable($stream, $path)
     {
         $metaData = @$this->isolator()->stream_get_meta_data($stream);
+
         if (false === $metaData) {
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
@@ -296,6 +297,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
 
             throw new ReadException($path, $this->lastError());
         }
+
         if (!$metaData['seekable']) {
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
@@ -322,6 +324,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         // echo 'Seeking to ' . $offset . PHP_EOL;
 
         $result = @$this->isolator()->fseek($stream, $offset);
+
         if (-1 === $result || false === $result) {
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
@@ -338,6 +341,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         // echo 'Truncating to ' . $size . PHP_EOL;
 
         $result = @$this->isolator()->ftruncate($stream, $size);
+
         if (false === $result) {
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
@@ -354,6 +358,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         // echo 'Reading ' . $size . PHP_EOL;
 
         $result = @$this->isolator()->fread($stream, $size);
+
         if (false === $result) {
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
@@ -370,6 +375,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         // echo 'Writing ' . var_export($data, true) . PHP_EOL;
 
         $result = @$this->isolator()->fwrite($stream, $data);
+
         if (false === $result) {
             if (is_string($path)) {
                 $path = FileSystemPath::fromString($path);
@@ -384,6 +390,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
     private function lastError()
     {
         $lastError = $this->isolator()->error_get_last();
+
         if (null === $lastError) {
             return null;
         }
