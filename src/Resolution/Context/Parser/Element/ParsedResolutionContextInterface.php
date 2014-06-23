@@ -33,4 +33,11 @@ interface ParsedResolutionContextInterface extends
      * @return array<ParsedSymbolInterface> The defined symbols.
      */
     public function symbols();
+
+    /**
+     * Get the source code tokens contained in this resolution context.
+     *
+     * @return array<tuple<integer|string,string,integer,integer>> The tokens.
+     */
+    public function tokens();
 }

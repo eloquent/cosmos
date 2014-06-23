@@ -30,18 +30,20 @@ class ParsedResolutionContext extends AbstractParsedElement implements
     /**
      * Construct a new parsed resolution context.
      *
-     * @param ResolutionContextInterface|null   $context     The resolution context.
-     * @param array<ParsedSymbolInterface>|null $symbols     The symbols defined under the parsed resolution context.
-     * @param ParserPositionInterface|null      $position    The position.
-     * @param integer|null                      $startOffset The offset.
-     * @param integer|null                      $size        The element size in bytes.
+     * @param ResolutionContextInterface|null                          $context     The resolution context.
+     * @param array<ParsedSymbolInterface>|null                        $symbols     The symbols defined under the parsed resolution context.
+     * @param ParserPositionInterface|null                             $position    The position.
+     * @param integer|null                                             $startOffset The offset.
+     * @param integer|null                                             $size        The element size in bytes.
+     * @param array<tuple<integer|string,string,integer,integer>>|null $tokens      The source code tokens contained in this resolution context.
      */
     public function __construct(
         ResolutionContextInterface $context = null,
         array $symbols = null,
         ParserPositionInterface $position = null,
         $startOffset = null,
-        $size = null
+        $size = null,
+        array $tokens = null
     ) {
         if (null === $context) {
             $context = new ResolutionContext;
@@ -49,11 +51,15 @@ class ParsedResolutionContext extends AbstractParsedElement implements
         if (null === $symbols) {
             $symbols = array();
         }
+        if (null === $tokens) {
+            $tokens = array();
+        }
 
         parent::__construct($position, $startOffset, $size);
 
         $this->context = $context;
         $this->symbols = $symbols;
+        $this->tokens = $tokens;
     }
 
     /**
@@ -74,6 +80,16 @@ class ParsedResolutionContext extends AbstractParsedElement implements
     public function symbols()
     {
         return $this->symbols;
+    }
+
+    /**
+     * Get the source code tokens contained in this resolution context.
+     *
+     * @return array<tuple<integer|string,string,integer,integer>> The tokens.
+     */
+    public function tokens()
+    {
+        return $this->tokens;
     }
 
     /**
@@ -138,4 +154,5 @@ class ParsedResolutionContext extends AbstractParsedElement implements
 
     private $context;
     private $symbols;
+    private $tokens;
 }

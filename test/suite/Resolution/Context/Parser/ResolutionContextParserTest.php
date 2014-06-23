@@ -199,9 +199,22 @@ class \NamespaceC\ClassE; // at position (79, 5), offset 1258, size 24
 interface \NamespaceC\InterfaceD; // at position (83, 5), offset 1288, size 32
 
 EOD;
+        $expectedTokens = <<<'EOD'
+namespace NamespaceA \ NamespaceB ;
+
+    use ClassF ;
+
+    use ClassG as ClassH ;
+
+    use NamespaceD \ ClassI ;
+
+    use NamespaceE \ ClassJ as ClassK , NamespaceF \ NamespaceG \ ClassL ;
+EOD;
         $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderTokens($actual[0]->tokens());
 
         $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
     }
 
     public function testAlternateNamespaces()
@@ -360,9 +373,22 @@ interface \InterfaceE; // at position (103, 9), offset 1766, size 40
 function \FunctionC; // at position (107, 9), offset 1816, size 40
 
 EOD;
+        $expectedTokens = <<<'EOD'
+namespace NamespaceA \ NamespaceB
+    {
+        use ClassF ;
+
+        use ClassG as ClassH ;
+
+        use NamespaceD \ ClassI ;
+
+        use NamespaceE \ ClassJ as ClassK , NamespaceF \ NamespaceG \ ClassL ;
+EOD;
         $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderTokens($actual[0]->tokens());
 
         $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
     }
 
     public function testNoNamespace()
@@ -953,5 +979,17 @@ EOD;
         }
 
         return $rendered;
+    }
+
+    protected function renderTokens(array $tokens)
+    {
+        return implode(
+            array_map(
+                function ($token) {
+                    return $token[1];
+                },
+                $tokens
+            )
+        );
     }
 }

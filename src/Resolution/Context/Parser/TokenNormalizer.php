@@ -36,9 +36,9 @@ class TokenNormalizer implements TokenNormalizerInterface
      * This method ensures all tokens include type, content, line number, and
      * column number information.
      *
-     * @param array<integer,array|string> $tokens The tokens as returned by token_get_all().
+     * @param array<integer,tuple<integer,string,integer>|string> $tokens The tokens as returned by token_get_all().
      *
-     * @return array<integer,array> The normalized tokens.
+     * @return array<tuple<integer|string,string,integer,integer>> The normalized tokens.
      */
     public function normalizeTokens(array $tokens)
     {

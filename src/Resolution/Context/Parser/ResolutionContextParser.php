@@ -199,13 +199,13 @@ class ResolutionContextParser implements ResolutionContextParserInterface
             $useStatements = $symbols = array();
         $namespaceName = $useStatementAlias = $useStatementType =
             $useStatementPosition = $symbolType = $symbolPosition = null;
-        $contextMetaStack = array(array(new ParserPosition(1, 1), 0, false));
+        $contextMetaStack = array(array(new ParserPosition(1, 1), 0, 0, false));
         $contextMetaStackSize = 1;
-        $startOffset = $endOffset = $contextEndOffset =
+        $startOffset = $endOffset = $contextEndOffset = $contextEndIndex =
             $useStatementStartOffset = $symbolStartOffset =
             $symbolBracketDepth = 0;
 
-        foreach ($tokens as $index => $token) {
+        foreach ($tokens as $tokenIndex => $token) {
             $startOffset = $endOffset + 1;
             $endOffset = $startOffset + strlen($token[1]) - 1;
 
@@ -220,6 +220,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                 array(
                                     new ParserPosition($token[2], $token[3]),
                                     $startOffset,
+                                    $tokenIndex,
                                     true,
                                 )
                             );
@@ -312,6 +313,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                 ->createFromAtoms($atoms, true);
                             $atoms = array();
                             $contextEndOffset = $endOffset;
+                            $contextEndIndex = $tokenIndex;
 
                             break;
                     }
@@ -486,6 +488,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         $useStatementClauses = $atoms = array();
                         $useStatementType = null;
                         $contextEndOffset = $endOffset;
+                        $contextEndIndex = $tokenIndex;
 
                         break;
 
@@ -504,7 +507,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         $namespaceName = null;
                         $useStatements = array();
 
-                        foreach ($symbols as $index => $parsedSymbol) {
+                        foreach ($symbols as $symbolIndex => $parsedSymbol) {
                             list(
                                 $symbol,
                                 $type,
@@ -513,7 +516,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                 $symbolEndOffset,
                             ) = $parsedSymbol;
 
-                            $symbols[$index] = new ParsedSymbol(
+                            $symbols[$symbolIndex] = new ParsedSymbol(
                                 $this->symbolResolver()
                                     ->resolveAgainstContext($context, $symbol),
                                 $type,
@@ -531,6 +534,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         list(
                             $contextPosition,
                             $contextStartOffset,
+                            $contextStartIndex,
                             $isExplicitNamespace,
                         ) = array_pop($contextMetaStack);
                         $contextMetaStackSize--;
@@ -562,7 +566,12 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $symbols,
                             $contextPosition,
                             $contextStartOffset,
-                            $contextSize
+                            $contextSize,
+                            array_slice(
+                                $tokens,
+                                $contextStartIndex,
+                                $contextEndIndex - $contextStartIndex + 1
+                            )
                         );
                         $symbols = array();
 
