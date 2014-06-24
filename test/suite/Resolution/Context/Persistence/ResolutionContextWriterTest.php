@@ -29,50 +29,30 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
+        $this->markTestIncomplete();
+
         $this->contextRenderer = new ResolutionContextRenderer;
         $this->isolator = Phake::partialMock(Isolator::className());
         $this->writer = new ResolutionContextWriter($this->contextRenderer, 10, $this->isolator);
 
-        $this->source = <<<'EOD'
-<?php
-
-namespace NamespaceA \ NamespaceB \ NamespaceC
-{
-    use SymbolA \ SymbolB \ SymbolC as SymbolD ;
-
-    use function SymbolE , SymbolF ;
-}
-
-namespace NamespaceD {}
-
-namespace
-{
-    use SymbolG;
-}
-
-EOD;
-        $this->stream = fopen('php://memory', 'rb+');
-        $this->streamSize = strlen($this->source);
-        fwrite($this->stream, $this->source);
-
         $this->contextParser = ResolutionContextParser::instance();
-        $this->parsedContexts = $this->contextParser->parseSource($this->source);
-        $this->context = new ResolutionContext(
-            Symbol::fromString('\NamespaceX\NamespaceY'),
-            array(
-                UseStatement::create(
-                    Symbol::fromString('\SymbolX\SymbolY'),
-                    Symbol::fromString('SymbolZ'),
-                    UseStatementType::CONSTANT()
-                ),
-                new UseStatement(
-                    array(
-                        new UseStatementClause(Symbol::fromString('\SymbolT\SymbolU')),
-                        new UseStatementClause(Symbol::fromString('\SymbolV\SymbolW')),
-                    )
-                ),
-            )
+        $this->useStatements = array(
+            UseStatement::create(
+                Symbol::fromString('\SymbolX\SymbolY'),
+                Symbol::fromString('SymbolZ'),
+                UseStatementType::CONSTANT()
+            ),
+            new UseStatement(
+                array(
+                    new UseStatementClause(Symbol::fromString('\SymbolT\SymbolU')),
+                    new UseStatementClause(Symbol::fromString('\SymbolV\SymbolW')),
+                )
+            ),
         );
+        $this->context = new ResolutionContext(Symbol::fromString('\NamespaceX\NamespaceY'), $this->useStatements);
+        $this->contextGlobal = new ResolutionContext(null, $this->useStatements);
+        $this->contextNoUse = new ResolutionContext(Symbol::fromString('\NamespaceX\NamespaceY'));
+        $this->stream = fopen('php://memory', 'rb+');
     }
 
     protected function tearDown()
@@ -80,6 +60,13 @@ EOD;
         parent::tearDown();
 
         fclose($this->stream);
+    }
+
+    protected function streamFixture($data)
+    {
+        fwrite($this->stream, $data);
+        $this->streamSize = strlen($data);
+        $this->parsedContexts = $this->contextParser->parseSource($data);
     }
 
     public function testConstructor()
@@ -96,104 +83,414 @@ EOD;
         $this->assertSame(1024, $this->writer->bufferSize());
     }
 
-//     public function testReplaceContextInStreamFirstContext()
-//     {
-//         $this->writer->replaceContextInStream(
-//             $this->stream,
-//             $this->streamSize,
-//             $this->parsedContexts[0],
-//             $this->context
-//         );
-//         fseek($this->stream, 0);
-//         $actual = stream_get_contents($this->stream);
-//         $expected = <<<'EOD'
-// <?php
+    public function testReplaceContextRegularShorter()
+    {
+        $this->streamFixture(
+<<<'EOD'
+<?php
 
-// namespace NamespaceX\NamespaceY
-// {
-//     use const SymbolX\SymbolY as SymbolZ;
-//     use SymbolT\SymbolU, SymbolV\SymbolW;
-// }
+    namespace NamespaceA \ NamespaceB \ NamespaceC ;
 
-// namespace NamespaceD {}
+    use SymbolA \ SymbolB \ SymbolC as SymbolD ;
 
-// namespace
-// {
-//     use SymbolG;
-// }
+    use function SymbolE , SymbolF ;
 
-// EOD;
+EOD
+        );
+        $this->writer->replaceContextInStream(
+            $this->stream,
+            $this->streamSize,
+            $this->parsedContexts[0],
+            $this->context
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+        $expected = <<<'EOD'
+<?php
 
-//         $this->assertSame($expected, $actual);
-//     }
+    namespace NamespaceX\NamespaceY;
 
-//     public function testReplaceContextInStreamMiddleContext()
-//     {
-//         $this->writer->replaceContextInStream(
-//             $this->stream,
-//             $this->streamSize,
-//             $this->parsedContexts[1],
-//             $this->context
-//         );
-//         fseek($this->stream, 0);
-//         $actual = stream_get_contents($this->stream);
-//         $expected = <<<'EOD'
-// <?php
+    use const SymbolX\SymbolY as SymbolZ;
+    use SymbolT\SymbolU, SymbolV\SymbolW;
 
-// namespace NamespaceA \ NamespaceB \ NamespaceC
-// {
-//     use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+EOD;
 
-//     use function SymbolE , SymbolF ;
-// }
+        $this->assertSame($expected, $actual);
+    }
 
-// namespace NamespaceX\NamespaceY {
-//     use const SymbolX\SymbolY as SymbolZ;
-//     use SymbolT\SymbolU, SymbolV\SymbolW;
-// }
+    public function testReplaceContextAlternateShorter()
+    {
+        $this->streamFixture(
+<<<'EOD'
+<?php
 
-// namespace
-// {
-//     use SymbolG;
-// }
+    namespace NamespaceA \ NamespaceB \ NamespaceC
+    {
+        use SymbolA \ SymbolB \ SymbolC as SymbolD ;
 
-// EOD;
+        use function SymbolE , SymbolF ;
+    }
 
-//         $this->assertSame($expected, $actual);
-//     }
+EOD
+        );
+        $this->writer->replaceContextInStream(
+            $this->stream,
+            $this->streamSize,
+            $this->parsedContexts[0],
+            $this->context
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+        $expected = <<<'EOD'
+<?php
 
-//     public function testReplaceContextInStreamLastContext()
-//     {
-//         $this->writer->replaceContextInStream(
-//             $this->stream,
-//             $this->streamSize,
-//             $this->parsedContexts[2],
-//             $this->context
-//         );
-//         fseek($this->stream, 0);
-//         $actual = stream_get_contents($this->stream);
-//         $expected = <<<'EOD'
-// <?php
+    namespace NamespaceX\NamespaceY
+    {
+        use const SymbolX\SymbolY as SymbolZ;
+        use SymbolT\SymbolU, SymbolV\SymbolW;
+    }
 
-// namespace NamespaceA \ NamespaceB \ NamespaceC
-// {
-//     use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+EOD;
 
-//     use function SymbolE , SymbolF ;
-// }
+        $this->assertSame($expected, $actual);
+    }
 
-// namespace NamespaceD {}
+    public function testReplaceContextRegularLonger()
+    {
+        $this->streamFixture(
+<<<'EOD'
+<?php
 
-// namespace NamespaceX\NamespaceY
-// {
-//     use const SymbolX\SymbolY as SymbolZ;
-//     use SymbolT\SymbolU, SymbolV\SymbolW;
-// }
+    namespace NamespaceA ;
 
-// EOD;
+    use SymbolA ;
 
-//         $this->assertSame($expected, $actual);
-//     }
+EOD
+        );
+        $this->writer->replaceContextInStream(
+            $this->stream,
+            $this->streamSize,
+            $this->parsedContexts[0],
+            $this->context
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+        $expected = <<<'EOD'
+<?php
+
+    namespace NamespaceX\NamespaceY;
+
+    use const SymbolX\SymbolY as SymbolZ;
+    use SymbolT\SymbolU, SymbolV\SymbolW;
+
+EOD;
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testReplaceContextAlternateLonger()
+    {
+        $this->streamFixture(
+<<<'EOD'
+<?php
+
+    namespace NamespaceA
+    {
+        use SymbolA ;
+    }
+
+EOD
+        );
+        $this->writer->replaceContextInStream(
+            $this->stream,
+            $this->streamSize,
+            $this->parsedContexts[0],
+            $this->context
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+        $expected = <<<'EOD'
+<?php
+
+    namespace NamespaceX\NamespaceY
+    {
+        use const SymbolX\SymbolY as SymbolZ;
+        use SymbolT\SymbolU, SymbolV\SymbolW;
+    }
+
+EOD;
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testReplaceContextRegularFromGlobal()
+    {
+        $this->streamFixture(
+<<<'EOD'
+<?php
+
+    use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+
+    use function SymbolE , SymbolF ;
+
+EOD
+        );
+        $this->writer->replaceContextInStream(
+            $this->stream,
+            $this->streamSize,
+            $this->parsedContexts[0],
+            $this->context
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+        $expected = <<<'EOD'
+<?php
+
+    namespace NamespaceX\NamespaceY;
+
+    use const SymbolX\SymbolY as SymbolZ;
+    use SymbolT\SymbolU, SymbolV\SymbolW;
+
+EOD;
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testReplaceContextAlternateFromGlobal()
+    {
+        $this->streamFixture(
+<<<'EOD'
+<?php
+
+    namespace
+    {
+        use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+
+        use function SymbolE , SymbolF ;
+    }
+
+EOD
+        );
+        $this->writer->replaceContextInStream(
+            $this->stream,
+            $this->streamSize,
+            $this->parsedContexts[0],
+            $this->context
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+        $expected = <<<'EOD'
+<?php
+
+    namespace NamespaceX\NamespaceY
+    {
+        use const SymbolX\SymbolY as SymbolZ;
+        use SymbolT\SymbolU, SymbolV\SymbolW;
+    }
+
+EOD;
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testReplaceContextRegularToGlobal()
+    {
+        $this->streamFixture(
+<<<'EOD'
+<?php
+
+    namespace NamespaceA \ NamespaceB;
+
+    use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+
+    use function SymbolE , SymbolF ;
+
+EOD
+        );
+        $this->writer->replaceContextInStream(
+            $this->stream,
+            $this->streamSize,
+            $this->parsedContexts[0],
+            $this->contextGlobal
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+        $expected = <<<'EOD'
+<?php
+
+    use const SymbolX\SymbolY as SymbolZ;
+    use SymbolT\SymbolU, SymbolV\SymbolW;
+
+EOD;
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testReplaceContextAlternateToGlobal()
+    {
+        $this->streamFixture(
+<<<'EOD'
+<?php
+
+    namespace NamespaceA \ NamespaceB
+    {
+        use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+
+        use function SymbolE , SymbolF ;
+    }
+
+EOD
+        );
+        $this->writer->replaceContextInStream(
+            $this->stream,
+            $this->streamSize,
+            $this->parsedContexts[0],
+            $this->contextGlobal
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+        $expected = <<<'EOD'
+<?php
+
+    namespace
+    {
+        use const SymbolX\SymbolY as SymbolZ;
+        use SymbolT\SymbolU, SymbolV\SymbolW;
+    }
+
+EOD;
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testReplaceContextRegularFromNoUseStatements()
+    {
+        $this->streamFixture(
+<<<'EOD'
+<?php
+
+    namespace NamespaceA;
+
+EOD
+        );
+        $this->writer->replaceContextInStream(
+            $this->stream,
+            $this->streamSize,
+            $this->parsedContexts[0],
+            $this->context
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+        $expected = <<<'EOD'
+<?php
+
+    namespace NamespaceX\NamespaceY;
+
+    use const SymbolX\SymbolY as SymbolZ;
+    use SymbolT\SymbolU, SymbolV\SymbolW;
+
+EOD;
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testReplaceContextAlternateFromNoUseStatements()
+    {
+        $this->streamFixture(
+<<<'EOD'
+<?php
+
+    namespace NamespaceA {}
+
+EOD
+        );
+        $this->writer->replaceContextInStream(
+            $this->stream,
+            $this->streamSize,
+            $this->parsedContexts[0],
+            $this->context
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+        $expected = <<<'EOD'
+<?php
+
+    namespace NamespaceX\NamespaceY {
+        use const SymbolX\SymbolY as SymbolZ;
+        use SymbolT\SymbolU, SymbolV\SymbolW;
+    }
+
+EOD;
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testReplaceContextRegularToNoUseStatements()
+    {
+        $this->streamFixture(
+<<<'EOD'
+<?php
+
+    namespace NamespaceA;
+
+    use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+
+    use function SymbolE , SymbolF ;
+
+EOD
+        );
+        $this->writer->replaceContextInStream(
+            $this->stream,
+            $this->streamSize,
+            $this->parsedContexts[0],
+            $this->contextNoUse
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+        $expected = <<<'EOD'
+<?php
+
+    namespace NamespaceX\NamespaceY;
+
+EOD;
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testReplaceContextAlternateToNoUseStatements()
+    {
+        $this->streamFixture(
+<<<'EOD'
+<?php
+
+    namespace NamespaceA
+    {
+        use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+
+        use function SymbolE , SymbolF ;
+    }
+
+EOD
+        );
+        $this->writer->replaceContextInStream(
+            $this->stream,
+            $this->streamSize,
+            $this->parsedContexts[0],
+            $this->contextNoUse
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+        $expected = <<<'EOD'
+<?php
+
+    namespace NamespaceX\NamespaceY
+    {
+    }
+
+EOD;
+
+        $this->assertSame($expected, $actual);
+    }
 
     public function testInstance()
     {
