@@ -52,19 +52,31 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
 
     public function replaceData()
     {
-        //                                   original     offset size replacement  expected           delta
+        //                                                   original     offset size  replacement  expected           delta
         return array(
-            'Expansion at start'    => array('123456789', 0,     3,   'ABCDEFGHI', 'ABCDEFGHI456789', 6),
-            'Expansion at middle'   => array('123456789', 3,     3,   'ABCDEFGHI', '123ABCDEFGHI789', 6),
-            'Expansion at end'      => array('123456789', 6,     3,   'ABCDEFGHI', '123456ABCDEFGHI', 6),
+            'Insertion at start'                    => array('123456789', 0,     0,    'ABC',       'ABC123456789',    3),
+            'Insertion at middle'                   => array('123456789', 5,     0,    'ABC',       '12345ABC6789',    3),
+            'Insertion at end'                      => array('123456789', 9,     0,    'ABC',       '123456789ABC',    3),
 
-            'Contraction at start'  => array('123456789', 0,     6,   'AB',        'AB789',           -4),
-            'Contraction at middle' => array('123456789', 2,     6,   'AB',        '12AB9',           -4),
-            'Contraction at end'    => array('123456789', 3,     6,   'AB',        '123AB',           -4),
+            'Expansion at start'                    => array('123456789', 0,     3,    'ABCDEFGHI', 'ABCDEFGHI456789', 6),
+            'Expansion at middle'                   => array('123456789', 3,     3,    'ABCDEFGHI', '123ABCDEFGHI789', 6),
+            'Expansion at end'                      => array('123456789', 6,     3,    'ABCDEFGHI', '123456ABCDEFGHI', 6),
 
-            'Deletion at start'     => array('123456789', 0,     6,   null,        '789',             -6),
-            'Deletion at middle'    => array('123456789', 2,     6,   null,        '129',             -6),
-            'Deletion at end'       => array('123456789', 3,     6,   null,        '123',             -6),
+            'Contraction at start'                  => array('123456789', 0,     6,    'AB',        'AB789',           -4),
+            'Contraction at middle'                 => array('123456789', 2,     6,    'AB',        '12AB9',           -4),
+            'Contraction at end'                    => array('123456789', 3,     6,    'AB',        '123AB',           -4),
+
+            'Deletion at start'                     => array('123456789', 0,     6,    null,        '789',             -6),
+            'Deletion at middle'                    => array('123456789', 2,     6,    null,        '129',             -6),
+            'Deletion at end'                       => array('123456789', 3,     6,    null,        '123',             -6),
+
+            'Truncation at start'                   => array('123456789', 0,     null, 'ABC',       'ABC',             -6),
+            'Truncation at middle'                  => array('123456789', 5,     null, 'ABC',       '12345ABC',        -1),
+            'Truncation at end'                     => array('123456789', 9,     null, 'ABC',       '123456789ABC',    3),
+
+            'Truncation at start, no replacement'   => array('123456789', 0,     null, null,        '',                -9),
+            'Truncation at middle, no replacement'  => array('123456789', 5,     null, null,        '12345',           -4),
+            'Truncation at end, no replacement'     => array('123456789', 9,     null, null,        '123456789',       0),
         );
     }
 
@@ -91,7 +103,7 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
             array(7, 1, 'JK'),
             array(2, 3, 'LM'),
         );
-        $expected = 'ABCDEFLM67GHI9';
+        $expected = 'ABCDEFLM67JKHI';
         fwrite($this->stream, $original);
         $actualDelta = $this->editor->replaceMultiple($this->stream, $replacements);
         fseek($this->stream, 0);

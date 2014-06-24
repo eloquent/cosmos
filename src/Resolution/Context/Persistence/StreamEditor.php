@@ -107,11 +107,20 @@ class StreamEditor implements StreamEditorInterface
     ) {
         $this->assertStreamIsSeekable($stream, $path);
 
-        usort(
-            $replacements,
-            function ($left, $right) {
-                return $right[0] - $left[0];
-            }
+        $offsets = array();
+        $indices = array();
+        foreach ($replacements as $index => $replacement) {
+            $offsets[$index] = $replacement[0];
+            $indices[$index] = $index;
+        }
+        array_multisort(
+            $offsets,
+            SORT_NUMERIC,
+            SORT_DESC,
+            $indices,
+            SORT_NUMERIC,
+            SORT_ASC,
+            $replacements
         );
 
         $sizeDifference = 0;
@@ -120,9 +129,6 @@ class StreamEditor implements StreamEditorInterface
 
             $sizeDifference +=
                 $this->doReplace($stream, $offset, $size, $data, $path);
-
-            // $this->doSeek($stream, 0, null, $path);
-            // var_dump($this->doRead($stream, 99999, $path));
         }
 
         return $sizeDifference;
@@ -136,6 +142,9 @@ class StreamEditor implements StreamEditorInterface
         } else {
             $dataSize = strlen($data);
         }
+        if (null === $size) {
+            $size = $this->doSize($stream, $path) - $offset;
+        }
         $delta = $dataSize - $size;
 
         if ($delta > 0) {
@@ -144,9 +153,7 @@ class StreamEditor implements StreamEditorInterface
             $this->doContract($stream, $delta, $offset + $size, $path);
         }
 
-        $streamSize = $this->doSize($stream, $path);
-
-        $this->doSeekOrExpand($stream, $offset, $streamSize, $path);
+        $this->doSeek($stream, $offset, null, $path);
         $this->doWrite($stream, $data, $path);
 
         return $delta;
@@ -194,7 +201,7 @@ class StreamEditor implements StreamEditorInterface
         do {
             $this->doSeek($stream, $i, null, $path);
             $data = $this->doRead($stream, $this->bufferSize, $path);
-            $this->doSeekOrExpand($stream, $i + $delta, $size, $path);
+            $this->doSeek($stream, $i + $delta, null, $path);
             $this->doWrite($stream, $data, $path);
 
             if (strlen($data) < $this->bufferSize) {
@@ -212,7 +219,18 @@ class StreamEditor implements StreamEditorInterface
         }
 
         $result = $this->doSeek($stream, $size, null, $path);
-        $this->doWrite($stream, str_repeat("\0", $offset - $size), $path);
+
+        $target = $offset - $size;
+        $filled = 0;
+        do {
+            $fillSize = $this->bufferSize;
+            if ($filled + $fillSize > $target) {
+                $fillSize = $target - $filled;
+            }
+
+            $this->doWrite($stream, str_repeat("\0", $fillSize), $path);
+            $filled += $fillSize;
+        } while ($filled < $target);
 
         return $result;
     }
