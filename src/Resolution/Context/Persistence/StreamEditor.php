@@ -249,8 +249,6 @@ class StreamEditor implements StreamEditorInterface
             $whence = SEEK_SET;
         }
 
-        // echo 'Seeking to ' . $offset . PHP_EOL;
-
         $result = @$this->isolator->fseek($stream, $offset, $whence);
 
         if (-1 === $result || false === $result) {
@@ -262,8 +260,6 @@ class StreamEditor implements StreamEditorInterface
 
     private function doTell($stream, $path)
     {
-        // echo 'Reading stream position ' . PHP_EOL;
-
         $result = @$this->isolator->ftell($stream);
 
         if (false === $result) {
@@ -275,8 +271,6 @@ class StreamEditor implements StreamEditorInterface
 
     private function doTruncate($stream, $size, $path)
     {
-        // echo 'Truncating to ' . $size . PHP_EOL;
-
         $result = @$this->isolator->ftruncate($stream, $size);
 
         if (false === $result) {
@@ -295,8 +289,6 @@ class StreamEditor implements StreamEditorInterface
 
     private function doRead($stream, $size, $path)
     {
-        // echo 'Reading ' . $size . PHP_EOL;
-
         $result = @$this->isolator->fread($stream, $size);
 
         if (false === $result) {
@@ -308,8 +300,6 @@ class StreamEditor implements StreamEditorInterface
 
     private function doWrite($stream, $data, $path)
     {
-        // echo 'Writing ' . var_export($data, true) . PHP_EOL;
-
         $result = @$this->isolator->fwrite($stream, $data);
 
         if (false === $result) {
