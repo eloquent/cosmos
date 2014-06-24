@@ -20,11 +20,11 @@ class ReadExceptionTest extends PHPUnit_Framework_TestCase
     public function testException()
     {
         $path = FileSystemPath::fromString('/path/to/foo');
-        $cause = new Exception;
+        $cause = new Exception('Exception message.');
         $exception = new ReadException($path, $cause);
 
         $this->assertSame($path, $exception->path());
-        $this->assertSame("Unable to read from '/path/to/foo'.", $exception->getMessage());
+        $this->assertSame("Unable to read from '/path/to/foo': Exception message.", $exception->getMessage());
         $this->assertSame(0, $exception->getCode());
         $this->assertSame($cause, $exception->getPrevious());
     }

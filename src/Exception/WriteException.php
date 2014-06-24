@@ -35,9 +35,13 @@ final class WriteException extends Exception implements IoExceptionInterface
             $message = 'Unable to write to stream.';
         } else {
             $message = sprintf(
-                'Unable to write to %s.',
+                'Unable to write to %s',
                 var_export($path->string(), true)
             );
+        }
+
+        if (null !== $cause) {
+            $message .= ': ' . $cause->getMessage();
         }
 
         parent::__construct($message, 0, $cause);

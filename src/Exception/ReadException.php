@@ -35,9 +35,13 @@ final class ReadException extends Exception implements IoExceptionInterface
             $message = 'Unable to read from stream.';
         } else {
             $message = sprintf(
-                'Unable to read from %s.',
+                'Unable to read from %s',
                 var_export($path->string(), true)
             );
+        }
+
+        if (null !== $cause) {
+            $message .= ': ' . $cause->getMessage();
         }
 
         parent::__construct($message, 0, $cause);
