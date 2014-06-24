@@ -16,6 +16,7 @@ use Eloquent\Cosmos\Exception\ReadException;
 use Eloquent\Cosmos\Exception\WriteException;
 use Eloquent\Cosmos\Resolution\Context\Persistence\Exception\StreamOffsetOutOfBoundsException;
 use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
+use ErrorException;
 use Icecave\Isolator\Isolator;
 
 /**
