@@ -58,6 +58,10 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
             'Insertion at middle'                   => array('123456789', 5,     0,    'ABC',       '12345ABC6789',    3),
             'Insertion at end'                      => array('123456789', 9,     0,    'ABC',       '123456789ABC',    3),
 
+            'Replacement at start'                  => array('123456789', 0,     3,    'ABC',       'ABC456789',       0),
+            'Replacement at middle'                 => array('123456789', 3,     3,    'ABC',       '123ABC789',       0),
+            'Replacement at end'                    => array('123456789', 6,     3,    'ABC',       '123456ABC',       0),
+
             'Expansion at start'                    => array('123456789', 0,     3,    'ABCDEFGHI', 'ABCDEFGHI456789', 6),
             'Expansion at middle'                   => array('123456789', 3,     3,    'ABCDEFGHI', '123ABCDEFGHI789', 6),
             'Expansion at end'                      => array('123456789', 6,     3,    'ABCDEFGHI', '123456ABCDEFGHI', 6),
@@ -92,6 +96,18 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(implode("\n", str_split($expected)), implode("\n", str_split($actual)));
         $this->assertSame($delta, $actualDelta);
+    }
+
+    public function testReplaceFailureUndefinedOffsetBeforeStart()
+    {
+        $this->setExpectedException('Eloquent\Cosmos\Resolution\Context\Persistence\Exception\StreamOffsetOutOfBoundsException');
+        $this->editor->replace($this->stream, -1);
+    }
+
+    public function testReplaceFailureUndefinedOffsetAfterEnd()
+    {
+        $this->setExpectedException('Eloquent\Cosmos\Resolution\Context\Persistence\Exception\StreamOffsetOutOfBoundsException');
+        $this->editor->replace($this->stream, 1);
     }
 
     public function testReplaceMultiple()

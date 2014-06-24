@@ -14,6 +14,7 @@ namespace Eloquent\Cosmos\Resolution\Context\Persistence;
 use Eloquent\Cosmos\Exception\IoExceptionInterface;
 use Eloquent\Cosmos\Exception\ReadException;
 use Eloquent\Cosmos\Exception\WriteException;
+use Eloquent\Cosmos\Resolution\Context\Persistence\Exception\StreamOffsetOutOfBoundsException;
 use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use Icecave\Isolator\Isolator;
 
@@ -136,6 +137,12 @@ class StreamEditor implements StreamEditorInterface
 
     private function doReplace($stream, $offset, $size, $data, $path)
     {
+        try {
+            $this->doSeek($stream, $offset, null, $path);
+        } catch (ReadException $e) {
+            throw new StreamOffsetOutOfBoundsException($offset, $path, $e);
+        }
+
         if (null === $data) {
             $data = '';
             $dataSize = 0;
