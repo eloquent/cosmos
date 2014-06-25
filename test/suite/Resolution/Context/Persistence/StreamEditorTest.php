@@ -35,8 +35,6 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
             'file' => '/path/to/file',
             'line' => 111,
         );
-
-        Phake::when($this->isolator)->error_get_last()->thenReturn($this->error);
     }
 
     protected function tearDown()
@@ -129,6 +127,7 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
     public function testReplaceFailureGetMetaData()
     {
         Phake::when($this->isolator)->stream_get_meta_data(Phake::anyParameters())->thenReturn(false);
+        Phake::when($this->isolator)->error_get_last()->thenReturn($this->error);
 
         $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException', 'Unable to read from stream: Error message.');
         $this->editor->replace($this->stream, 0);
@@ -137,6 +136,7 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
     public function testReplaceFailureSeek()
     {
         Phake::when($this->isolator)->fseek(Phake::anyParameters())->thenReturn(0)->thenReturn(false);
+        Phake::when($this->isolator)->error_get_last()->thenReturn($this->error);
 
         $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException', 'Unable to read from stream: Error message.');
         $this->editor->replace($this->stream, 0);
@@ -145,6 +145,7 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
     public function testReplaceFailureTell()
     {
         Phake::when($this->isolator)->ftell(Phake::anyParameters())->thenReturn(false);
+        Phake::when($this->isolator)->error_get_last()->thenReturn($this->error);
 
         $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException', 'Unable to read from stream: Error message.');
         $this->editor->replace($this->stream, 0);
@@ -154,6 +155,7 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
     {
         fwrite($this->stream, '123456789');
         Phake::when($this->isolator)->fread(Phake::anyParameters())->thenReturn(false);
+        Phake::when($this->isolator)->error_get_last()->thenReturn($this->error);
 
         $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException', 'Unable to read from stream: Error message.');
         $this->editor->replace($this->stream, 0);
@@ -173,6 +175,7 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
     {
         fwrite($this->stream, '123456789');
         Phake::when($this->isolator)->fwrite(Phake::anyParameters())->thenReturn(false);
+        Phake::when($this->isolator)->error_get_last()->thenReturn($this->error);
 
         $this->setExpectedException('Eloquent\Cosmos\Exception\WriteException', 'Unable to write to stream: Error message.');
         $this->editor->replace($this->stream, 0);
@@ -182,6 +185,7 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
     {
         fwrite($this->stream, '123456789');
         Phake::when($this->isolator)->ftruncate(Phake::anyParameters())->thenReturn(false);
+        Phake::when($this->isolator)->error_get_last()->thenReturn($this->error);
 
         $this->setExpectedException('Eloquent\Cosmos\Exception\WriteException', 'Unable to write to stream: Error message.');
         $this->editor->replace($this->stream, 0);
@@ -204,6 +208,54 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(implode("\n", str_split($expected)), implode("\n", str_split($actual)));
         $this->assertSame(5, $actualDelta);
+    }
+
+    public function testFindIndentByOffset()
+    {
+        $data = "foo\n\n    bar\n\n        baz\n";
+        fwrite($this->stream, $data);
+
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 0)));
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 1)));
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 4)));
+        $this->assertSame(bin2hex('    '), bin2hex($this->editor->findIndentByOffset($this->stream, 5)));
+        $this->assertSame(bin2hex('    '), bin2hex($this->editor->findIndentByOffset($this->stream, 12)));
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 13)));
+        $this->assertSame(bin2hex('        '), bin2hex($this->editor->findIndentByOffset($this->stream, 14)));
+        $this->assertSame(bin2hex('        '), bin2hex($this->editor->findIndentByOffset($this->stream, 25)));
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 26)));
+    }
+
+    public function testFindIndentByOffsetWithTabs()
+    {
+        $data = "foo\n\n\t\t\t\tbar\n\n\t\t\t\t\t\t\t\tbaz\n";
+        fwrite($this->stream, $data);
+
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 0)));
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 1)));
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 4)));
+        $this->assertSame(bin2hex("\t\t\t\t"), bin2hex($this->editor->findIndentByOffset($this->stream, 5)));
+        $this->assertSame(bin2hex("\t\t\t\t"), bin2hex($this->editor->findIndentByOffset($this->stream, 12)));
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 13)));
+        $this->assertSame(bin2hex("\t\t\t\t\t\t\t\t"), bin2hex($this->editor->findIndentByOffset($this->stream, 14)));
+        $this->assertSame(bin2hex("\t\t\t\t\t\t\t\t"), bin2hex($this->editor->findIndentByOffset($this->stream, 25)));
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 26)));
+    }
+
+    public function testFindIndentByOffsetWithMixedIndentation()
+    {
+        $data = "foo\n\n \t  bar\n\n  \t  \t  baz\n";
+        fwrite($this->stream, $data);
+
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 0)));
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 1)));
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 4)));
+        $this->assertSame(bin2hex(" \t  "), bin2hex($this->editor->findIndentByOffset($this->stream, 5)));
+        $this->assertSame(bin2hex(" \t  "), bin2hex($this->editor->findIndentByOffset($this->stream, 12)));
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 13)));
+        $this->assertSame(bin2hex("  \t  \t  "), bin2hex($this->editor->findIndentByOffset($this->stream, 14)));
+        $this->assertSame(bin2hex("  \t  \t  "), bin2hex($this->editor->findIndentByOffset($this->stream, 25)));
+        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 26)));
     }
 
     public function testInstance()

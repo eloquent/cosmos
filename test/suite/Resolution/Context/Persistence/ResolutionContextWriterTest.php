@@ -19,9 +19,7 @@ use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Cosmos\UseStatement\UseStatementClause;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
 use Eloquent\Liberator\Liberator;
-use Icecave\Isolator\Isolator;
 use PHPUnit_Framework_TestCase;
-use Phake;
 
 class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
 {
@@ -32,8 +30,8 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
         $this->markTestIncomplete();
 
         $this->contextRenderer = new ResolutionContextRenderer;
-        $this->isolator = Phake::partialMock(Isolator::className());
-        $this->writer = new ResolutionContextWriter($this->contextRenderer, 10, $this->isolator);
+        $this->streamEditor = new StreamEditor;
+        $this->writer = new ResolutionContextWriter($this->contextRenderer, $this->streamEditor);
 
         $this->contextParser = ResolutionContextParser::instance();
         $this->useStatements = array(
@@ -72,7 +70,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
     public function testConstructor()
     {
         $this->assertSame($this->contextRenderer, $this->writer->contextRenderer());
-        $this->assertSame(10, $this->writer->bufferSize());
+        $this->assertSame($this->streamEditor, $this->writer->streamEditor());
     }
 
     public function testConstructorDefaults()
@@ -80,7 +78,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
         $this->writer = new ResolutionContextWriter;
 
         $this->assertSame(ResolutionContextRenderer::instance(), $this->writer->contextRenderer());
-        $this->assertSame(1024, $this->writer->bufferSize());
+        $this->assertSame(StreamEditor::instance(), $this->writer->streamEditor());
     }
 
     public function testReplaceContextRegularShorter()

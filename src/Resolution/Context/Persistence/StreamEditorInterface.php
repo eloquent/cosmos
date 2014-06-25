@@ -112,4 +112,20 @@ interface StreamEditorInterface
         array $replacements,
         FileSystemPathInterface $path = null
     );
+
+    /**
+     * Find the line indent by offset into a stream.
+     *
+     * @param stream                       $stream The stream to inspect.
+     * @param integer                      $offset The offset to begin searching at.
+     * @param FileSystemPathInterface|null $path   The path, if known.
+     *
+     * @return string        The indent.
+     * @throws ReadException If the stream cannot be read.
+     */
+    public function findIndentByOffset(
+        $stream,
+        $offset,
+        FileSystemPathInterface $path = null
+    );
 }

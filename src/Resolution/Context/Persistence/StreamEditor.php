@@ -227,6 +227,67 @@ class StreamEditor implements StreamEditorInterface
         return $sizeDifference;
     }
 
+    /**
+     * Find the line indent by offset into a stream.
+     *
+     * @param stream                       $stream The stream to inspect.
+     * @param integer                      $offset The offset to begin searching at.
+     * @param FileSystemPathInterface|null $path   The path, if known.
+     *
+     * @return string        The indent.
+     * @throws ReadException If the stream cannot be read.
+     */
+    public function findIndentByOffset(
+        $stream,
+        $offset,
+        FileSystemPathInterface $path = null
+    ) {
+        $searchOffset = $offset - $this->bufferSize;
+        $searchSize = $this->bufferSize;
+        $indent = '';
+        while (true) {
+            if ($searchOffset < 0) {
+                $searchSize = $this->bufferSize + $searchOffset;
+                $searchOffset = 0;
+            }
+
+            if ($searchSize < 1) {
+                break;
+            }
+
+            $this->seek($stream, $searchOffset, null, $path);
+            $data = $this->read($stream, $searchSize, $path);
+
+            if (
+                preg_match('/.*(\r|\n)/s', $data, $matches, PREG_OFFSET_CAPTURE)
+            ) {
+                $newlineOffset = $searchOffset + $matches[1][1] + 1;
+                $this->seek($stream, $newlineOffset, null, $path);
+
+                while (preg_match('/^[ \t]*$/', $indent)) {
+                    $data = $this->read($stream, $this->bufferSize, $path);
+                    $indent .= $data;
+
+                    if (strlen($data) < $this->bufferSize) {
+                        break;
+                    }
+                }
+                $indent = preg_replace('/(?:\r|\n).*/', '', $indent);
+                $indent = preg_replace('/[^ \t]/', '', $indent);
+
+                break;
+            }
+
+            if (0 === $searchOffset) {
+                break;
+            }
+
+            $searchOffset -= $this->bufferSize;
+        }
+
+        return $indent;
+    }
+
     private function doReplace($stream, $offset, $size, $data, $path)
     {
         try {

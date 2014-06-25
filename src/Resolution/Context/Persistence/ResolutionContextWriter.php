@@ -16,8 +16,8 @@ use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedResolutionContextInt
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRendererInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+use Eloquent\Pathogen\FileSystem\FileSystemPath;
 use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
-use Icecave\Isolator\Isolator;
 
 /**
  * Writes symbol resolution contexts to files and streams.
@@ -42,24 +42,20 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
      * Construct a new resolution context writer.
      *
      * @param ResolutionContextRendererInterface|null $contextRenderer The renderer to use.
-     * @param integer|null                            $bufferSize      The buffer size to use.
-     * @param Isolator|null                           $isolator        The isolator to use.
      */
     public function __construct(
         ResolutionContextRendererInterface $contextRenderer = null,
-        $bufferSize = null,
-        Isolator $isolator = null
+        StreamEditorInterface $streamEditor = null
     ) {
         if (null === $contextRenderer) {
             $contextRenderer = ResolutionContextRenderer::instance();
         }
-        if (null === $bufferSize) {
-            $bufferSize = 1024;
+        if (null === $streamEditor) {
+            $streamEditor = StreamEditor::instance();
         }
 
         $this->contextRenderer = $contextRenderer;
-        $this->bufferSize = $bufferSize;
-        $this->isolator = Isolator::get($isolator);
+        $this->streamEditor = $streamEditor;
     }
 
     /**
@@ -73,13 +69,13 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
     }
 
     /**
-     * Get the buffer size.
+     * Get the stream editor.
      *
-     * @return integer The buffer size.
+     * @return StreamEditorInterface The stream editor.
      */
-    public function bufferSize()
+    public function streamEditor()
     {
-        return $this->bufferSize;
+        return $this->streamEditor;
     }
 
     /**
@@ -100,20 +96,16 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         ResolutionContextInterface $context,
         $path = null
     ) {
-    }
+        if (is_string($path)) {
+            $path = FileSystemPath::fromString($path);
+        }
 
-    /**
-     * Get the isolator.
-     *
-     * @return Isolator The isolator.
-     */
-    protected function isolator()
-    {
-        return $this->isolator;
+        $replacements = array();
+
+        $this->streamEditor()->replaceMultiple($stream, $replacements, $path);
     }
 
     private static $instance;
     private $contextRenderer;
-    private $bufferSize;
-    private $isolator;
+    private $streamEditor;
 }
