@@ -32,7 +32,7 @@ final class ReadException extends Exception implements IoExceptionInterface
         $this->path = $path;
 
         if (null === $path) {
-            $message = 'Unable to read from stream.';
+            $message = 'Unable to read from stream';
         } else {
             $message = sprintf(
                 'Unable to read from %s',
@@ -40,7 +40,9 @@ final class ReadException extends Exception implements IoExceptionInterface
             );
         }
 
-        if (null !== $cause) {
+        if (null === $cause) {
+            $message .= '.';
+        } else {
             $message .= ': ' . $cause->getMessage();
         }
 

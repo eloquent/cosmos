@@ -176,7 +176,7 @@ class StreamEditor implements StreamEditorInterface
         }
 
         if (!$metaData['seekable']) {
-            throw new WriteException('Stream is not seekable.', $path);
+            throw new ReadException($path);
         }
     }
 
@@ -269,17 +269,6 @@ class StreamEditor implements StreamEditorInterface
         return $result;
     }
 
-    private function doTruncate($stream, $size, $path)
-    {
-        $result = @$this->isolator->ftruncate($stream, $size);
-
-        if (false === $result) {
-            throw new WriteException($path, $this->lastError());
-        }
-
-        return $result;
-    }
-
     private function doSize($stream, $path)
     {
         $this->doSeek($stream, 0, SEEK_END, $path);
@@ -301,6 +290,17 @@ class StreamEditor implements StreamEditorInterface
     private function doWrite($stream, $data, $path)
     {
         $result = @$this->isolator->fwrite($stream, $data);
+
+        if (false === $result) {
+            throw new WriteException($path, $this->lastError());
+        }
+
+        return $result;
+    }
+
+    private function doTruncate($stream, $size, $path)
+    {
+        $result = @$this->isolator->ftruncate($stream, $size);
 
         if (false === $result) {
             throw new WriteException($path, $this->lastError());

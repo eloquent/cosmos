@@ -29,6 +29,14 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
 
         $this->stream = fopen('php://memory', 'rb+');
         $this->path = FileSystemPath::fromString('/path/to/file');
+        $this->error = array(
+            'message' => 'Error message.',
+            'type' => E_WARNING,
+            'file' => '/path/to/file',
+            'line' => 111,
+        );
+
+        Phake::when($this->isolator)->error_get_last()->thenReturn($this->error);
     }
 
     protected function tearDown()
@@ -108,6 +116,75 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('Eloquent\Cosmos\Resolution\Context\Persistence\Exception\StreamOffsetOutOfBoundsException');
         $this->editor->replace($this->stream, 1);
+    }
+
+    public function testReplaceFailureStreamNotSeekable()
+    {
+        Phake::when($this->isolator)->stream_get_meta_data(Phake::anyParameters())->thenReturn(array('seekable' => false));
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
+        $this->editor->replace($this->stream, 0);
+    }
+
+    public function testReplaceFailureGetMetaData()
+    {
+        Phake::when($this->isolator)->stream_get_meta_data(Phake::anyParameters())->thenReturn(false);
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException', 'Unable to read from stream: Error message.');
+        $this->editor->replace($this->stream, 0);
+    }
+
+    public function testReplaceFailureSeek()
+    {
+        Phake::when($this->isolator)->fseek(Phake::anyParameters())->thenReturn(0)->thenReturn(false);
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException', 'Unable to read from stream: Error message.');
+        $this->editor->replace($this->stream, 0);
+    }
+
+    public function testReplaceFailureTell()
+    {
+        Phake::when($this->isolator)->ftell(Phake::anyParameters())->thenReturn(false);
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException', 'Unable to read from stream: Error message.');
+        $this->editor->replace($this->stream, 0);
+    }
+
+    public function testReplaceFailureRead()
+    {
+        fwrite($this->stream, '123456789');
+        Phake::when($this->isolator)->fread(Phake::anyParameters())->thenReturn(false);
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException', 'Unable to read from stream: Error message.');
+        $this->editor->replace($this->stream, 0);
+    }
+
+    public function testReplaceFailureReadNoLastError()
+    {
+        fwrite($this->stream, '123456789');
+        Phake::when($this->isolator)->fread(Phake::anyParameters())->thenReturn(false);
+        Phake::when($this->isolator)->error_get_last()->thenReturn(null);
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException', 'Unable to read from stream.');
+        $this->editor->replace($this->stream, 0);
+    }
+
+    public function testReplaceFailureWrite()
+    {
+        fwrite($this->stream, '123456789');
+        Phake::when($this->isolator)->fwrite(Phake::anyParameters())->thenReturn(false);
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\WriteException', 'Unable to write to stream: Error message.');
+        $this->editor->replace($this->stream, 0);
+    }
+
+    public function testReplaceFailureTruncate()
+    {
+        fwrite($this->stream, '123456789');
+        Phake::when($this->isolator)->ftruncate(Phake::anyParameters())->thenReturn(false);
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\WriteException', 'Unable to write to stream: Error message.');
+        $this->editor->replace($this->stream, 0);
     }
 
     public function testReplaceMultiple()

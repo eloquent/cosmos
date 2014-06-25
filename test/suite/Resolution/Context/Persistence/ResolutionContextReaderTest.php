@@ -363,6 +363,19 @@ EOD;
             )
         );
 
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Exception\ReadException',
+            "Unable to read from '/Users/erin/Projects/cosmos/test/src/contexts.php': " .
+                "stream_get_contents(): unable to read from stream"
+        );
+        $this->reader->readFromFile($this->fixturePath);
+    }
+
+    public function testReadFromFileFailureFileSystemReadNoLastError()
+    {
+        Phake::when($this->isolator)->stream_get_contents(Phake::anyParameters())->thenReturn(false);
+        Phake::when($this->isolator)->error_get_last()->thenReturn(null);
+
         $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
         $this->reader->readFromFile($this->fixturePath);
     }

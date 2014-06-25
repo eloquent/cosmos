@@ -32,7 +32,7 @@ final class WriteException extends Exception implements IoExceptionInterface
         $this->path = $path;
 
         if (null === $path) {
-            $message = 'Unable to write to stream.';
+            $message = 'Unable to write to stream';
         } else {
             $message = sprintf(
                 'Unable to write to %s',
@@ -40,7 +40,9 @@ final class WriteException extends Exception implements IoExceptionInterface
             );
         }
 
-        if (null !== $cause) {
+        if (null === $cause) {
+            $message .= '.';
+        } else {
             $message .= ': ' . $cause->getMessage();
         }
 
