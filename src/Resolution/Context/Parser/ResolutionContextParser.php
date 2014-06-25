@@ -39,20 +39,23 @@ use Icecave\Isolator\Isolator;
 class ResolutionContextParser implements ResolutionContextParserInterface
 {
     const STATE_START = 0;
-    const STATE_POTENTIAL_NAMESPACE_NAME = 1;
-    const STATE_NAMESPACE_NAME = 2;
-    const STATE_USE_STATEMENT = 3;
-    const STATE_USE_STATEMENT_CLASS_NAME = 4;
-    const STATE_USE_STATEMENT_ALIAS = 5;
-    const STATE_SYMBOL = 6;
-    const STATE_SYMBOL_HEADER = 7;
-    const STATE_SYMBOL_BODY = 8;
+    const STATE_OPEN_TAG = 1;
+    const STATE_PHP = 2;
+    const STATE_POTENTIAL_NAMESPACE_NAME = 3;
+    const STATE_NAMESPACE_NAME = 4;
+    const STATE_USE_STATEMENT = 5;
+    const STATE_USE_STATEMENT_CLASS_NAME = 6;
+    const STATE_USE_STATEMENT_ALIAS = 7;
+    const STATE_SYMBOL = 8;
+    const STATE_SYMBOL_HEADER = 9;
+    const STATE_SYMBOL_BODY = 10;
 
-    const TRANSITION_SYMBOL_START = 1;
-    const TRANSITION_SYMBOL_END = 2;
-    const TRANSITION_USE_STATEMENT_CLAUSE_END = 3;
-    const TRANSITION_USE_STATEMENT_END = 4;
-    const TRANSITION_CONTEXT_END = 5;
+    const TRANSITION_CONTEXT_START = 1;
+    const TRANSITION_SYMBOL_START = 2;
+    const TRANSITION_SYMBOL_END = 3;
+    const TRANSITION_USE_STATEMENT_CLAUSE_END = 4;
+    const TRANSITION_USE_STATEMENT_END = 5;
+    const TRANSITION_CONTEXT_END = 6;
 
     /**
      * Get a static instance of this parser.
@@ -196,14 +199,15 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
         $state = static::STATE_START;
         $stateStack = $transitions = $atoms = $useStatementClauses =
-            $useStatements = $symbols = array();
+            $useStatements = $useStatementIndices = $symbols = array();
         $namespaceName = $useStatementAlias = $useStatementType =
             $useStatementPosition = $symbolType = $symbolPosition = null;
-        $contextMetaStack = array(array(new ParserPosition(1, 1), 0, 0, false));
-        $contextMetaStackSize = 1;
+        $contextMetaStack = array();
+        $contextMetaStackSize = 0;
         $startOffset = $endOffset = $contextEndOffset = $contextEndIndex =
             $useStatementStartOffset = $symbolStartOffset =
             $symbolBracketDepth = 0;
+        $isExplicitNamespace = false;
 
         foreach ($tokens as $tokenIndex => $token) {
             $startOffset = $endOffset + 1;
@@ -212,24 +216,32 @@ class ResolutionContextParser implements ResolutionContextParserInterface
             switch ($state) {
                 case static::STATE_START:
                     switch ($token[0]) {
+                        case T_OPEN_TAG:
+                            $state = static::STATE_OPEN_TAG;
+                    }
+
+                    break;
+
+                case static::STATE_OPEN_TAG:
+                    $state = static::STATE_PHP;
+                    $transitions[] = static::TRANSITION_CONTEXT_START;
+                    $isExplicitNamespace = false;
+
+                    break;
+
+                case static::STATE_PHP:
+                    switch ($token[0]) {
                         case T_NAMESPACE:
-                            $state = static::STATE_POTENTIAL_NAMESPACE_NAME;
                             array_push($stateStack, $state);
-                            array_push(
-                                $contextMetaStack,
-                                array(
-                                    new ParserPosition($token[2], $token[3]),
-                                    $startOffset,
-                                    $tokenIndex,
-                                    true,
-                                )
-                            );
-                            $contextMetaStackSize++;
+                            $state = static::STATE_POTENTIAL_NAMESPACE_NAME;
+                            $transitions[] = static::TRANSITION_CONTEXT_START;
+                            $isExplicitNamespace = true;
 
                             break;
 
                         case T_USE:
                             $state = static::STATE_USE_STATEMENT;
+                            $useStatementIndices[] = $tokenIndex;
                             $useStatementPosition =
                                 new ParserPosition($token[2], $token[3]);
                             $useStatementStartOffset = $startOffset;
@@ -277,7 +289,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                 case static::STATE_POTENTIAL_NAMESPACE_NAME:
                     switch ($token[0]) {
                         case T_NS_SEPARATOR:
-                            list($state) = array_pop($stateStack);
+                            $state = array_pop($stateStack);
                             array_pop($contextMetaStack);
                             $contextMetaStackSize--;
 
@@ -291,7 +303,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             break;
 
                         case '{':
-                            $state = static::STATE_START;
+                            $state = static::STATE_PHP;
                             $transitions[] = static::TRANSITION_CONTEXT_END;
 
                             break;
@@ -308,7 +320,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case ';':
                         case '{':
-                            $state = static::STATE_START;
+                            $state = static::STATE_PHP;
                             $namespaceName = $this->symbolFactory()
                                 ->createFromAtoms($atoms, true);
                             $atoms = array();
@@ -360,7 +372,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             break;
 
                         case ';':
-                            $state = static::STATE_START;
+                            $state = static::STATE_PHP;
                             $transitions[] =
                                 static::TRANSITION_USE_STATEMENT_CLAUSE_END;
                             $transitions[] =
@@ -426,7 +438,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
                         case '}':
                             if (0 === --$symbolBracketDepth) {
-                                $state = static::STATE_START;
+                                $state = static::STATE_PHP;
                                 $transitions[] = static::TRANSITION_SYMBOL_END;
                             }
 
@@ -442,6 +454,20 @@ class ResolutionContextParser implements ResolutionContextParserInterface
 
             foreach ($transitions as $transition) {
                 switch ($transition) {
+                    case static::TRANSITION_CONTEXT_START:
+                        array_push(
+                            $contextMetaStack,
+                            array(
+                                new ParserPosition($token[2], $token[3]),
+                                $startOffset,
+                                $tokenIndex,
+                                $isExplicitNamespace,
+                            )
+                        );
+                        $contextMetaStackSize++;
+
+                        break;
+
                     case static::TRANSITION_SYMBOL_START:
                         $symbolPosition =
                             new ParserPosition($token[2], $token[3]);
@@ -535,7 +561,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $contextPosition,
                             $contextStartOffset,
                             $contextStartIndex,
-                            $isExplicitNamespace,
+                            $thisIsExplicitNamespace,
                         ) = array_pop($contextMetaStack);
                         $contextMetaStackSize--;
 
@@ -543,16 +569,20 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             array_push($contextMetaStack, $nextContextMeta);
                         }
 
-                        if (!$isExplicitNamespace) {
+                        if (!$thisIsExplicitNamespace) {
                             $useStatements = $context->useStatements();
 
                             if (count($useStatements) > 0) {
+                                $contextPosition = $useStatements[0]
+                                    ->position();
                                 $contextStartOffset = $useStatements[0]
                                     ->offset();
+                                $contextStartIndex = $useStatementIndices[0];
                             }
 
                             $useStatements = array();
                         }
+                        $useStatementIndices = array();
 
                         if (0 === $contextEndOffset) {
                             $contextSize = 0;
@@ -561,18 +591,26 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                 $contextStartOffset + 1;
                         }
 
+                        if (0 === $contextEndIndex) {
+                            $contextTokens = array();
+                        } else {
+                            $contextTokens = array_slice(
+                                $tokens,
+                                $contextStartIndex,
+                                $contextEndIndex - $contextStartIndex + 1
+                            );
+                        }
+
                         $contexts[] = new ParsedResolutionContext(
                             $context,
                             $symbols,
                             $contextPosition,
                             $contextStartOffset,
                             $contextSize,
-                            array_slice(
-                                $tokens,
-                                $contextStartIndex,
-                                $contextEndIndex - $contextStartIndex + 1
-                            )
+                            $contextTokens
                         );
+                        $contextTokens = null;
+
                         $symbols = array();
 
                         break;

@@ -82,7 +82,9 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
     public function testRegularNamespaces()
     {
         $source = <<<'EOD'
-<?php
+Non-PHP content.
+
+<?php // some comment
 
     declare ( ticks = 1 ) ;
 
@@ -170,33 +172,33 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (5, 5), offset 41, size 188:
+// Context at position (7, 5), offset 75, size 188:
 
 namespace NamespaceA\NamespaceB;
 
-use ClassF; // at position (7, 5), offset 82, size 12
-use ClassG as ClassH; // at position (9, 5), offset 100, size 22
-use NamespaceD\ClassI; // at position (11, 5), offset 128, size 25
-use NamespaceE\ClassJ as ClassK, NamespaceF\NamespaceG\ClassL; // at position (13, 5), offset 159, size 70
+use ClassF; // at position (9, 5), offset 116, size 12
+use ClassG as ClassH; // at position (11, 5), offset 134, size 22
+use NamespaceD\ClassI; // at position (13, 5), offset 162, size 25
+use NamespaceE\ClassJ as ClassK, NamespaceF\NamespaceG\ClassL; // at position (15, 5), offset 193, size 70
 
-interface \NamespaceA\NamespaceB\InterfaceA; // at position (17, 5), offset 275, size 72
-interface \NamespaceA\NamespaceB\InterfaceB; // at position (22, 5), offset 353, size 112
-interface \NamespaceA\NamespaceB\InterfaceC; // at position (28, 5), offset 471, size 64
-class \NamespaceA\NamespaceB\ClassB; // at position (34, 5), offset 581, size 24
-class \NamespaceA\NamespaceB\ClassC; // at position (38, 5), offset 611, size 102
-class \NamespaceA\NamespaceB\ClassD; // at position (45, 5), offset 719, size 229
-function \NamespaceA\NamespaceB\FunctionA; // at position (60, 5), offset 954, size 77
-function \NamespaceA\NamespaceB\FunctionB; // at position (64, 5), offset 1037, size 32
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 5), offset 309, size 72
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 5), offset 387, size 112
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (30, 5), offset 505, size 64
+class \NamespaceA\NamespaceB\ClassB; // at position (36, 5), offset 615, size 24
+class \NamespaceA\NamespaceB\ClassC; // at position (40, 5), offset 645, size 102
+class \NamespaceA\NamespaceB\ClassD; // at position (47, 5), offset 753, size 229
+function \NamespaceA\NamespaceB\FunctionA; // at position (62, 5), offset 988, size 77
+function \NamespaceA\NamespaceB\FunctionB; // at position (66, 5), offset 1071, size 32
 
-// Context at position (73, 5), offset 1194, size 58:
+// Context at position (75, 5), offset 1228, size 58:
 
 namespace NamespaceC;
 
-use ClassM; // at position (75, 5), offset 1222, size 12
-use ClassN; // at position (77, 5), offset 1240, size 12
+use ClassM; // at position (77, 5), offset 1256, size 12
+use ClassN; // at position (79, 5), offset 1274, size 12
 
-class \NamespaceC\ClassE; // at position (79, 5), offset 1258, size 24
-interface \NamespaceC\InterfaceD; // at position (83, 5), offset 1288, size 32
+class \NamespaceC\ClassE; // at position (81, 5), offset 1292, size 24
+interface \NamespaceC\InterfaceD; // at position (85, 5), offset 1322, size 32
 
 EOD;
         $expectedTokens = <<<'EOD'
@@ -209,9 +211,16 @@ namespace NamespaceA \ NamespaceB ;
     use NamespaceD \ ClassI ;
 
     use NamespaceE \ ClassJ as ClassK , NamespaceF \ NamespaceG \ ClassL ;
+
+namespace NamespaceC ;
+
+    use ClassM ;
+
+    use ClassN ;
+
 EOD;
         $actual = $this->parser->parseSource($source);
-        $actualTokens = $this->renderTokens($actual[0]->tokens());
+        $actualTokens = $this->renderContextsTokens($actual);
 
         $this->assertSame($expected, $this->renderContexts($actual));
         $this->assertSame($expectedTokens, $actualTokens);
@@ -220,7 +229,9 @@ EOD;
     public function testAlternateNamespaces()
     {
         $source = <<<'EOD'
-<?php
+Non-PHP content.
+
+<?php // some comment
 
     declare ( ticks = 1 ) ;
 
@@ -335,42 +346,42 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (5, 5), offset 41, size 207:
+// Context at position (7, 5), offset 75, size 207:
 
 namespace NamespaceA\NamespaceB;
 
-use ClassF; // at position (7, 9), offset 89, size 12
-use ClassG as ClassH; // at position (9, 9), offset 111, size 22
-use NamespaceD\ClassI; // at position (11, 9), offset 143, size 25
-use NamespaceE\ClassJ as ClassK, NamespaceF\NamespaceG\ClassL; // at position (13, 9), offset 178, size 70
+use ClassF; // at position (9, 9), offset 123, size 12
+use ClassG as ClassH; // at position (11, 9), offset 145, size 22
+use NamespaceD\ClassI; // at position (13, 9), offset 177, size 25
+use NamespaceE\ClassJ as ClassK, NamespaceF\NamespaceG\ClassL; // at position (15, 9), offset 212, size 70
 
-interface \NamespaceA\NamespaceB\InterfaceA; // at position (17, 9), offset 302, size 84
-interface \NamespaceA\NamespaceB\InterfaceB; // at position (22, 9), offset 396, size 128
-interface \NamespaceA\NamespaceB\InterfaceC; // at position (28, 9), offset 534, size 72
-class \NamespaceA\NamespaceB\ClassB; // at position (34, 9), offset 660, size 32
-class \NamespaceA\NamespaceB\ClassC; // at position (38, 9), offset 702, size 122
-class \NamespaceA\NamespaceB\ClassD; // at position (45, 9), offset 834, size 273
-function \NamespaceA\NamespaceB\FunctionA; // at position (60, 9), offset 1117, size 85
-function \NamespaceA\NamespaceB\FunctionB; // at position (64, 9), offset 1212, size 40
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 9), offset 336, size 84
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 9), offset 430, size 128
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (30, 9), offset 568, size 72
+class \NamespaceA\NamespaceB\ClassB; // at position (36, 9), offset 694, size 32
+class \NamespaceA\NamespaceB\ClassC; // at position (40, 9), offset 736, size 122
+class \NamespaceA\NamespaceB\ClassD; // at position (47, 9), offset 868, size 273
+function \NamespaceA\NamespaceB\FunctionA; // at position (62, 9), offset 1151, size 85
+function \NamespaceA\NamespaceB\FunctionB; // at position (66, 9), offset 1246, size 40
 
-// Context at position (74, 5), offset 1395, size 69:
+// Context at position (76, 5), offset 1429, size 69:
 
 namespace NamespaceC;
 
-use ClassM; // at position (76, 9), offset 1430, size 12
-use ClassN; // at position (78, 9), offset 1452, size 12
+use ClassM; // at position (78, 9), offset 1464, size 12
+use ClassN; // at position (80, 9), offset 1486, size 12
 
-class \NamespaceC\ClassE; // at position (80, 9), offset 1474, size 32
-interface \NamespaceC\InterfaceD; // at position (84, 9), offset 1516, size 40
+class \NamespaceC\ClassE; // at position (82, 9), offset 1508, size 32
+interface \NamespaceC\InterfaceD; // at position (86, 9), offset 1550, size 40
 
-// Context at position (91, 5), offset 1612, size 58:
+// Context at position (93, 5), offset 1646, size 58:
 
-use ClassO; // at position (93, 9), offset 1636, size 12
-use ClassP; // at position (95, 9), offset 1658, size 12
+use ClassO; // at position (95, 9), offset 1670, size 12
+use ClassP; // at position (97, 9), offset 1692, size 12
 
-class \ClassQ; // at position (99, 9), offset 1724, size 32
-interface \InterfaceE; // at position (103, 9), offset 1766, size 40
-function \FunctionC; // at position (107, 9), offset 1816, size 40
+class \ClassQ; // at position (101, 9), offset 1758, size 32
+interface \InterfaceE; // at position (105, 9), offset 1800, size 40
+function \FunctionC; // at position (109, 9), offset 1850, size 40
 
 EOD;
         $expectedTokens = <<<'EOD'
@@ -383,9 +394,22 @@ namespace NamespaceA \ NamespaceB
         use NamespaceD \ ClassI ;
 
         use NamespaceE \ ClassJ as ClassK , NamespaceF \ NamespaceG \ ClassL ;
+
+namespace NamespaceC
+    {
+        use ClassM ;
+
+        use ClassN ;
+
+namespace
+    {
+        use ClassO ;
+
+        use ClassP ;
+
 EOD;
         $actual = $this->parser->parseSource($source);
-        $actualTokens = $this->renderTokens($actual[0]->tokens());
+        $actualTokens = $this->renderContextsTokens($actual);
 
         $this->assertSame($expected, $this->renderContexts($actual));
         $this->assertSame($expectedTokens, $actualTokens);
@@ -394,7 +418,9 @@ EOD;
     public function testNoNamespace()
     {
         $source = <<<'EOD'
-<?php
+Non-PHP content.
+
+<?php // some comment
 
     declare ( ticks = 1 ) ;
 
@@ -453,31 +479,47 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (1, 1), offset 41, size 156:
+// Context at position (7, 5), offset 75, size 156:
 
-use ClassF; // at position (5, 5), offset 41, size 12
-use ClassG as ClassH; // at position (7, 5), offset 59, size 22
-use NamespaceD\ClassI; // at position (9, 5), offset 87, size 25
-use NamespaceE\ClassJ as ClassK; // at position (11, 5), offset 118, size 35
-use NamespaceF\NamespaceG\ClassL; // at position (13, 5), offset 159, size 38
+use ClassF; // at position (7, 5), offset 75, size 12
+use ClassG as ClassH; // at position (9, 5), offset 93, size 22
+use NamespaceD\ClassI; // at position (11, 5), offset 121, size 25
+use NamespaceE\ClassJ as ClassK; // at position (13, 5), offset 152, size 35
+use NamespaceF\NamespaceG\ClassL; // at position (15, 5), offset 193, size 38
 
-interface \InterfaceA; // at position (17, 5), offset 243, size 72
-interface \InterfaceB; // at position (22, 5), offset 321, size 112
-interface \InterfaceC; // at position (28, 5), offset 439, size 64
-class \ClassB; // at position (32, 5), offset 509, size 24
-class \ClassC; // at position (36, 5), offset 539, size 102
-class \ClassD; // at position (43, 5), offset 647, size 229
+interface \InterfaceA; // at position (19, 5), offset 277, size 72
+interface \InterfaceB; // at position (24, 5), offset 355, size 112
+interface \InterfaceC; // at position (30, 5), offset 473, size 64
+class \ClassB; // at position (34, 5), offset 543, size 24
+class \ClassC; // at position (38, 5), offset 573, size 102
+class \ClassD; // at position (45, 5), offset 681, size 229
+
+EOD;
+        $expectedTokens = <<<'EOD'
+use ClassF ;
+
+    use ClassG as ClassH ;
+
+    use NamespaceD \ ClassI ;
+
+    use NamespaceE \ ClassJ as ClassK ;
+
+    use NamespaceF \ NamespaceG \ ClassL ;
 
 EOD;
         $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderContextsTokens($actual);
 
         $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
     }
 
     public function testNoUseStatements()
     {
         $source = <<<'EOD'
-<?php
+Non-PHP content.
+
+<?php // some comment
 
     declare ( ticks = 1 ) ;
 
@@ -528,27 +570,35 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (5, 5), offset 41, size 35:
+// Context at position (7, 5), offset 75, size 35:
 
 namespace NamespaceA\NamespaceB;
 
-interface \NamespaceA\NamespaceB\InterfaceA; // at position (9, 5), offset 122, size 72
-interface \NamespaceA\NamespaceB\InterfaceB; // at position (14, 5), offset 200, size 112
-interface \NamespaceA\NamespaceB\InterfaceC; // at position (20, 5), offset 318, size 64
-class \NamespaceA\NamespaceB\ClassB; // at position (24, 5), offset 388, size 24
-class \NamespaceA\NamespaceB\ClassC; // at position (28, 5), offset 418, size 102
-class \NamespaceA\NamespaceB\ClassD; // at position (35, 5), offset 526, size 229
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (11, 5), offset 156, size 72
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (16, 5), offset 234, size 112
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (22, 5), offset 352, size 64
+class \NamespaceA\NamespaceB\ClassB; // at position (26, 5), offset 422, size 24
+class \NamespaceA\NamespaceB\ClassC; // at position (30, 5), offset 452, size 102
+class \NamespaceA\NamespaceB\ClassD; // at position (37, 5), offset 560, size 229
+
+EOD;
+        $expectedTokens = <<<'EOD'
+namespace NamespaceA \ NamespaceB ;
 
 EOD;
         $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderContextsTokens($actual);
 
         $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
     }
 
     public function testNoNamespaceOrUseStatements()
     {
         $source = <<<'EOD'
-<?php
+Non-PHP content.
+
+<?php // some comment
 
     declare ( ticks = 1 ) ;
 
@@ -597,25 +647,33 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (1, 1), offset 0, size 0:
+// Context at position (3, 7), offset 25, size 0:
 
-interface \InterfaceA; // at position (7, 5), offset 81, size 72
-interface \InterfaceB; // at position (12, 5), offset 159, size 112
-interface \InterfaceC; // at position (18, 5), offset 277, size 64
-class \ClassB; // at position (22, 5), offset 347, size 24
-class \ClassC; // at position (26, 5), offset 377, size 102
-class \ClassD; // at position (33, 5), offset 485, size 229
+interface \InterfaceA; // at position (9, 5), offset 115, size 72
+interface \InterfaceB; // at position (14, 5), offset 193, size 112
+interface \InterfaceC; // at position (20, 5), offset 311, size 64
+class \ClassB; // at position (24, 5), offset 381, size 24
+class \ClassC; // at position (28, 5), offset 411, size 102
+class \ClassD; // at position (35, 5), offset 519, size 229
+
+EOD;
+        $expectedTokens = <<<'EOD'
+
 
 EOD;
         $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderContextsTokens($actual);
 
         $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
     }
 
     public function testNoClasses()
     {
         $source = <<<'EOD'
-<?php
+Non-PHP content.
+
+<?php // some comment
 
     declare ( ticks = 1 ) ;
 
@@ -650,51 +708,87 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (5, 5), offset 41, size 220:
+// Context at position (7, 5), offset 75, size 220:
 
 namespace NamespaceA\NamespaceB;
 
-use ClassF; // at position (7, 9), offset 89, size 12
-use ClassG as ClassH; // at position (9, 9), offset 111, size 22
-use NamespaceD\ClassI; // at position (11, 9), offset 143, size 25
-use NamespaceE\ClassJ as ClassK; // at position (13, 9), offset 178, size 35
-use NamespaceF\NamespaceG\ClassL; // at position (15, 9), offset 223, size 38
+use ClassF; // at position (9, 9), offset 123, size 12
+use ClassG as ClassH; // at position (11, 9), offset 145, size 22
+use NamespaceD\ClassI; // at position (13, 9), offset 177, size 25
+use NamespaceE\ClassJ as ClassK; // at position (15, 9), offset 212, size 35
+use NamespaceF\NamespaceG\ClassL; // at position (17, 9), offset 257, size 38
 
-// Context at position (20, 5), offset 317, size 69:
+// Context at position (22, 5), offset 351, size 69:
 
 namespace NamespaceC;
 
-use ClassM; // at position (22, 9), offset 352, size 12
-use ClassN; // at position (24, 9), offset 374, size 12
+use ClassM; // at position (24, 9), offset 386, size 12
+use ClassN; // at position (26, 9), offset 408, size 12
 
-// Context at position (27, 5), offset 398, size 58:
+// Context at position (29, 5), offset 432, size 58:
 
-use ClassO; // at position (29, 9), offset 422, size 12
-use ClassP; // at position (31, 9), offset 444, size 12
+use ClassO; // at position (31, 9), offset 456, size 12
+use ClassP; // at position (33, 9), offset 478, size 12
+
+EOD;
+        $expectedTokens = <<<'EOD'
+namespace NamespaceA \ NamespaceB
+    {
+        use ClassF ;
+
+        use ClassG as ClassH ;
+
+        use NamespaceD \ ClassI ;
+
+        use NamespaceE \ ClassJ as ClassK ;
+
+        use NamespaceF \ NamespaceG \ ClassL ;
+
+namespace NamespaceC
+    {
+        use ClassM ;
+
+        use ClassN ;
+
+namespace
+    {
+        use ClassO ;
+
+        use ClassP ;
 
 EOD;
         $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderContextsTokens($actual);
 
         $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
     }
 
     public function testEmptySource()
     {
         $source = '';
         $expected = <<<'EOD'
-// Context at position (1, 1), offset 0, size 0:
+// Context at position (0, 0), offset 0, size 0:
+
+EOD;
+        $expectedTokens = <<<'EOD'
+
 
 EOD;
         $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderContextsTokens($actual);
 
         $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
     }
 
     public function testTraitSupport()
     {
         $this->parser = new ResolutionContextParser;
         $source = <<<'EOD'
-<?php
+Non-PHP content.
+
+<?php // some comment
 
     declare ( ticks = 1 ) ;
 
@@ -774,30 +868,46 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (5, 5), offset 41, size 197:
+// Context at position (7, 5), offset 75, size 197:
 
 namespace NamespaceA\NamespaceB;
 
-use ClassF; // at position (7, 5), offset 82, size 12
-use ClassG as ClassH; // at position (9, 5), offset 100, size 22
-use NamespaceD\ClassI; // at position (11, 5), offset 128, size 25
-use NamespaceE\ClassJ as ClassK; // at position (13, 5), offset 159, size 35
-use NamespaceF\NamespaceG\ClassL; // at position (15, 5), offset 200, size 38
+use ClassF; // at position (9, 5), offset 116, size 12
+use ClassG as ClassH; // at position (11, 5), offset 134, size 22
+use NamespaceD\ClassI; // at position (13, 5), offset 162, size 25
+use NamespaceE\ClassJ as ClassK; // at position (15, 5), offset 193, size 35
+use NamespaceF\NamespaceG\ClassL; // at position (17, 5), offset 234, size 38
 
-interface \NamespaceA\NamespaceB\InterfaceA; // at position (19, 5), offset 284, size 72
-interface \NamespaceA\NamespaceB\InterfaceB; // at position (24, 5), offset 362, size 112
-interface \NamespaceA\NamespaceB\InterfaceC; // at position (30, 5), offset 480, size 64
-trait \NamespaceA\NamespaceB\TraitA; // at position (34, 5), offset 550, size 24
-trait \NamespaceA\NamespaceB\TraitB; // at position (38, 5), offset 580, size 24
-trait \NamespaceA\NamespaceB\TraitC; // at position (42, 5), offset 610, size 67
-class \NamespaceA\NamespaceB\ClassB; // at position (49, 5), offset 683, size 24
-class \NamespaceA\NamespaceB\ClassC; // at position (53, 5), offset 713, size 102
-class \NamespaceA\NamespaceB\ClassD; // at position (60, 5), offset 821, size 273
+interface \NamespaceA\NamespaceB\InterfaceA; // at position (21, 5), offset 318, size 72
+interface \NamespaceA\NamespaceB\InterfaceB; // at position (26, 5), offset 396, size 112
+interface \NamespaceA\NamespaceB\InterfaceC; // at position (32, 5), offset 514, size 64
+trait \NamespaceA\NamespaceB\TraitA; // at position (36, 5), offset 584, size 24
+trait \NamespaceA\NamespaceB\TraitB; // at position (40, 5), offset 614, size 24
+trait \NamespaceA\NamespaceB\TraitC; // at position (44, 5), offset 644, size 67
+class \NamespaceA\NamespaceB\ClassB; // at position (51, 5), offset 717, size 24
+class \NamespaceA\NamespaceB\ClassC; // at position (55, 5), offset 747, size 102
+class \NamespaceA\NamespaceB\ClassD; // at position (62, 5), offset 855, size 273
+
+EOD;
+        $expectedTokens = <<<'EOD'
+namespace NamespaceA \ NamespaceB ;
+
+    use ClassF ;
+
+    use ClassG as ClassH ;
+
+    use NamespaceD \ ClassI ;
+
+    use NamespaceE \ ClassJ as ClassK ;
+
+    use NamespaceF \ NamespaceG \ ClassL ;
 
 EOD;
         $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderContextsTokens($actual);
 
         $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
     }
 
     public function testNamespaceAndTraitOnly()
@@ -821,9 +931,15 @@ namespace NamespaceA;
 trait \NamespaceA\TraitA; // at position (5, 5), offset 39, size 24
 
 EOD;
+        $expectedTokens = <<<'EOD'
+namespace NamespaceA;
+
+EOD;
         $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderContextsTokens($actual);
 
         $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
     }
 
     public function testNamespaceAndFunctionOnly()
@@ -847,9 +963,15 @@ namespace NamespaceA;
 function \NamespaceA\FunctionA; // at position (5, 5), offset 39, size 30
 
 EOD;
+        $expectedTokens = <<<'EOD'
+namespace NamespaceA;
+
+EOD;
         $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderContextsTokens($actual);
 
         $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
     }
 
     public function testUseStatementTypes()
@@ -886,7 +1008,7 @@ EOD;
 
 EOD;
         $expected = <<<'EOD'
-// Context at position (1, 1), offset 12, size 494:
+// Context at position (3, 5), offset 12, size 494:
 
 use ClassF; // at position (3, 5), offset 12, size 12
 use ClassG as ClassH; // at position (5, 5), offset 30, size 22
@@ -903,9 +1025,39 @@ use const NamespaceI\CONSTANT_D; // at position (25, 5), offset 416, size 35
 use const NamespaceJ\CONSTANT_E as CONSTANT_F; // at position (27, 5), offset 457, size 49
 
 EOD;
+        $expectedTokens = <<<'EOD'
+use ClassF ;
+
+    use ClassG as ClassH ;
+
+    use NamespaceD \ ClassI ;
+
+    use NamespaceE \ ClassJ as ClassK ;
+
+    use NamespaceF \ NamespaceG \ ClassL ;
+
+    use function FunctionA ;
+
+    use function FunctionB as FunctionC ;
+
+    use function NamespaceG \ FunctionD ;
+
+    use function NamespaceH \ FunctionE as FunctionF ;
+
+    use const CONSTANT_A ;
+
+    use const CONSTANT_B as CONSTANT_C ;
+
+    use const NamespaceI \ CONSTANT_D ;
+
+    use const NamespaceJ \ CONSTANT_E as CONSTANT_F ;
+
+EOD;
         $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderContextsTokens($actual);
 
         $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
     }
 
     public function testInstance()
@@ -976,6 +1128,20 @@ EOD;
                 $symbol->offset(),
                 $symbol->size()
             );
+        }
+
+        return $rendered;
+    }
+
+    protected function renderContextsTokens(array $contexts)
+    {
+        $rendered = '';
+        foreach ($contexts as $context) {
+            if ('' !== $rendered) {
+                $rendered .= "\n";
+            }
+
+            $rendered .= $this->renderTokens($context->tokens()) . "\n";
         }
 
         return $rendered;
