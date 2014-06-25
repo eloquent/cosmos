@@ -22,6 +22,59 @@ use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 interface StreamEditorInterface
 {
     /**
+     * Assert that the supplied stream is seekable.
+     *
+     * @param stream                       $stream The stream to inspect.
+     * @param FileSystemPathInterface|null $path   The path, if known.
+     *
+     * @throws ReadException If the stream is not seekable.
+     */
+    public function assertStreamIsSeekable(
+        $stream,
+        FileSystemPathInterface $path = null
+    );
+
+    /**
+     * Seek to an offset on a stream.
+     *
+     * @param stream                       $stream The stream to seek on.
+     * @param integer                      $offset The offset to seek to.
+     * @param integer|null                 $whence The type of seek operation.
+     * @param FileSystemPathInterface|null $path   The path, if known.
+     *
+     * @throws ReadException If the operation fails.
+     */
+    public function seek(
+        $stream,
+        $offset,
+        $whence = null,
+        FileSystemPathInterface $path = null
+    );
+
+    /**
+     * Read the current offset of a stream.
+     *
+     * @param stream                       $stream The stream to read.
+     * @param FileSystemPathInterface|null $path   The path, if known.
+     *
+     * @return integer       The current offset.
+     * @throws ReadException If the operation fails.
+     */
+    public function tell($stream, FileSystemPathInterface $path = null);
+
+    /**
+     * Read from a stream.
+     *
+     * @param stream                       $stream The stream to read.
+     * @param integer                      $size   The maximum amount of data to read.
+     * @param FileSystemPathInterface|null $path   The path, if known.
+     *
+     * @return string        The read data.
+     * @throws ReadException If the operation fails.
+     */
+    public function read($stream, $size, FileSystemPathInterface $path = null);
+
+    /**
      * Replace a section of a stream.
      *
      * @param stream                       $stream The stream to replace within.

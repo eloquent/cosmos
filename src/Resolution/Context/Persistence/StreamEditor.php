@@ -66,6 +66,97 @@ class StreamEditor implements StreamEditorInterface
     }
 
     /**
+     * Assert that the supplied stream is seekable.
+     *
+     * @param stream                       $stream The stream to inspect.
+     * @param FileSystemPathInterface|null $path   The path, if known.
+     *
+     * @throws ReadException If the stream is not seekable.
+     */
+    public function assertStreamIsSeekable(
+        $stream,
+        FileSystemPathInterface $path = null
+    ) {
+        $metaData = $this->isolator->stream_get_meta_data($stream);
+
+        if (false === $metaData) {
+            throw new ReadException($path, $this->lastError());
+        }
+
+        if (!$metaData['seekable']) {
+            throw new ReadException($path);
+        }
+    }
+
+    /**
+     * Seek to an offset on a stream.
+     *
+     * @param stream                       $stream The stream to seek on.
+     * @param integer                      $offset The offset to seek to.
+     * @param integer|null                 $whence The type of seek operation.
+     * @param FileSystemPathInterface|null $path   The path, if known.
+     *
+     * @throws ReadException If the operation fails.
+     */
+    public function seek(
+        $stream,
+        $offset,
+        $whence = null,
+        FileSystemPathInterface $path = null
+    ) {
+        if (null === $whence) {
+            $whence = SEEK_SET;
+        }
+
+        $result = @$this->isolator->fseek($stream, $offset, $whence);
+
+        if (-1 === $result || false === $result) {
+            throw new ReadException($path, $this->lastError());
+        }
+    }
+
+    /**
+     * Read the current offset of a stream.
+     *
+     * @param stream                       $stream The stream to read.
+     * @param FileSystemPathInterface|null $path   The path, if known.
+     *
+     * @return integer       The current offset.
+     * @throws ReadException If the operation fails.
+     */
+    public function tell($stream, FileSystemPathInterface $path = null)
+    {
+        $result = @$this->isolator->ftell($stream);
+
+        if (false === $result) {
+            throw new ReadException($path, $this->lastError());
+        }
+
+        return $result;
+    }
+
+    /**
+     * Read from a stream.
+     *
+     * @param stream                       $stream The stream to read.
+     * @param integer                      $size   The maximum amount of data to read.
+     * @param FileSystemPathInterface|null $path   The path, if known.
+     *
+     * @return string        The read data.
+     * @throws ReadException If the operation fails.
+     */
+    public function read($stream, $size, FileSystemPathInterface $path = null)
+    {
+        $result = @$this->isolator->fread($stream, $size);
+
+        if (false === $result) {
+            throw new ReadException($path, $this->lastError());
+        }
+
+        return $result;
+    }
+
+    /**
      * Replace a section of a stream.
      *
      * @param stream                       $stream The stream to replace within.
@@ -139,7 +230,7 @@ class StreamEditor implements StreamEditorInterface
     private function doReplace($stream, $offset, $size, $data, $path)
     {
         try {
-            $this->doSeek($stream, $offset, null, $path);
+            $this->seek($stream, $offset, null, $path);
         } catch (ReadException $e) {
             throw new StreamOffsetOutOfBoundsException($offset, $path, $e);
         }
@@ -161,23 +252,10 @@ class StreamEditor implements StreamEditorInterface
             $this->doContract($stream, $delta, $offset + $size, $path);
         }
 
-        $this->doSeek($stream, $offset, null, $path);
+        $this->seek($stream, $offset, null, $path);
         $this->doWrite($stream, $data, $path);
 
         return $delta;
-    }
-
-    private function assertStreamIsSeekable($stream, $path)
-    {
-        $metaData = $this->isolator->stream_get_meta_data($stream);
-
-        if (false === $metaData) {
-            throw new ReadException($path, $this->lastError());
-        }
-
-        if (!$metaData['seekable']) {
-            throw new ReadException($path);
-        }
     }
 
     private function doExpand($stream, $delta, $offset, $path)
@@ -190,8 +268,8 @@ class StreamEditor implements StreamEditorInterface
                 $i = $offset;
             }
 
-            $this->doSeek($stream, $i, null, $path);
-            $data = $this->doRead($stream, $this->bufferSize, $path);
+            $this->seek($stream, $i, null, $path);
+            $data = $this->read($stream, $this->bufferSize, $path);
             $this->doSeekOrExpand($stream, $i + $delta, $size, $path);
             $this->doWrite($stream, $data, $path);
 
@@ -207,9 +285,9 @@ class StreamEditor implements StreamEditorInterface
 
         $i = $offset;
         do {
-            $this->doSeek($stream, $i, null, $path);
-            $data = $this->doRead($stream, $this->bufferSize, $path);
-            $this->doSeek($stream, $i + $delta, null, $path);
+            $this->seek($stream, $i, null, $path);
+            $data = $this->read($stream, $this->bufferSize, $path);
+            $this->seek($stream, $i + $delta, null, $path);
             $this->doWrite($stream, $data, $path);
 
             if (strlen($data) < $this->bufferSize) {
@@ -223,10 +301,10 @@ class StreamEditor implements StreamEditorInterface
     private function doSeekOrExpand($stream, $offset, $size, $path)
     {
         if ($offset < $size) {
-            return $this->doSeek($stream, $offset, null, $path);
+            return $this->seek($stream, $offset, null, $path);
         }
 
-        $result = $this->doSeek($stream, $size, null, $path);
+        $result = $this->seek($stream, $size, null, $path);
 
         $target = $offset - $size;
         $filled = 0;
@@ -243,48 +321,11 @@ class StreamEditor implements StreamEditorInterface
         return $result;
     }
 
-    private function doSeek($stream, $offset, $whence, $path)
-    {
-        if (null === $whence) {
-            $whence = SEEK_SET;
-        }
-
-        $result = @$this->isolator->fseek($stream, $offset, $whence);
-
-        if (-1 === $result || false === $result) {
-            throw new ReadException($path, $this->lastError());
-        }
-
-        return $result;
-    }
-
-    private function doTell($stream, $path)
-    {
-        $result = @$this->isolator->ftell($stream);
-
-        if (false === $result) {
-            throw new ReadException($path, $this->lastError());
-        }
-
-        return $result;
-    }
-
     private function doSize($stream, $path)
     {
-        $this->doSeek($stream, 0, SEEK_END, $path);
+        $this->seek($stream, 0, SEEK_END, $path);
 
-        return $this->doTell($stream, $path);
-    }
-
-    private function doRead($stream, $size, $path)
-    {
-        $result = @$this->isolator->fread($stream, $size);
-
-        if (false === $result) {
-            throw new ReadException($path, $this->lastError());
-        }
-
-        return $result;
+        return $this->tell($stream, $path);
     }
 
     private function doWrite($stream, $data, $path)
