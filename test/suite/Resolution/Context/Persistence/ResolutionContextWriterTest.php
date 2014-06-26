@@ -90,6 +90,10 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
 
     use function SymbolE , SymbolF ;
 
+    // some other code
+
+    namespace NamespaceD;
+
 EOD
         );
         $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
@@ -98,10 +102,14 @@ EOD
         $expected = <<<'EOD'
 <?php
 
-    namespace NamespaceX\NamespaceY;
+    namespace NamespaceX\NamespaceY ;
 
     use const SymbolX\SymbolY as SymbolZ;
     use SymbolT\SymbolU, SymbolV\SymbolW;
+
+    // some other code
+
+    namespace NamespaceD;
 
 EOD;
 
@@ -110,8 +118,6 @@ EOD;
 
     public function testReplaceContextAlternateShorter()
     {
-        $this->markTestIncomplete();
-
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -123,6 +129,10 @@ EOD;
         use function SymbolE , SymbolF ;
     }
 
+    // some other code
+
+    namespace NamespaceD {}
+
 EOD
         );
         $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
@@ -137,6 +147,10 @@ EOD
         use SymbolT\SymbolU, SymbolV\SymbolW;
     }
 
+    // some other code
+
+    namespace NamespaceD {}
+
 EOD;
 
         $this->assertSame($expected, $actual);
@@ -144,8 +158,6 @@ EOD;
 
     public function testReplaceContextRegularLonger()
     {
-        $this->markTestIncomplete();
-
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -153,6 +165,10 @@ EOD;
     namespace NamespaceA ;
 
     use SymbolA ;
+
+    // some other code
+
+    namespace NamespaceD;
 
 EOD
         );
@@ -162,10 +178,14 @@ EOD
         $expected = <<<'EOD'
 <?php
 
-    namespace NamespaceX\NamespaceY;
+    namespace NamespaceX\NamespaceY ;
 
     use const SymbolX\SymbolY as SymbolZ;
     use SymbolT\SymbolU, SymbolV\SymbolW;
+
+    // some other code
+
+    namespace NamespaceD;
 
 EOD;
 
@@ -174,8 +194,6 @@ EOD;
 
     public function testReplaceContextAlternateLonger()
     {
-        $this->markTestIncomplete();
-
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -185,6 +203,10 @@ EOD;
         use SymbolA ;
     }
 
+    // some other code
+
+    namespace NamespaceD {}
+
 EOD
         );
         $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
@@ -199,6 +221,10 @@ EOD
         use SymbolT\SymbolU, SymbolV\SymbolW;
     }
 
+    // some other code
+
+    namespace NamespaceD {}
+
 EOD;
 
         $this->assertSame($expected, $actual);
@@ -206,8 +232,6 @@ EOD;
 
     public function testReplaceContextRegularFromGlobal()
     {
-        $this->markTestIncomplete();
-
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -215,6 +239,10 @@ EOD;
     use SymbolA \ SymbolB \ SymbolC as SymbolD ;
 
     use function SymbolE , SymbolF ;
+
+    // some other code
+
+    namespace NamespaceD;
 
 EOD
         );
@@ -229,6 +257,10 @@ EOD
     use const SymbolX\SymbolY as SymbolZ;
     use SymbolT\SymbolU, SymbolV\SymbolW;
 
+    // some other code
+
+    namespace NamespaceD;
+
 EOD;
 
         $this->assertSame($expected, $actual);
@@ -236,8 +268,6 @@ EOD;
 
     public function testReplaceContextAlternateFromGlobal()
     {
-        $this->markTestIncomplete();
-
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -249,6 +279,10 @@ EOD;
         use function SymbolE , SymbolF ;
     }
 
+    // some other code
+
+    namespace NamespaceD {}
+
 EOD
         );
         $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
@@ -263,6 +297,10 @@ EOD
         use SymbolT\SymbolU, SymbolV\SymbolW;
     }
 
+    // some other code
+
+    namespace NamespaceD {}
+
 EOD;
 
         $this->assertSame($expected, $actual);
@@ -270,8 +308,6 @@ EOD;
 
     public function testReplaceContextRegularToGlobal()
     {
-        $this->markTestIncomplete();
-
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -281,6 +317,10 @@ EOD;
     use SymbolA \ SymbolB \ SymbolC as SymbolD ;
 
     use function SymbolE , SymbolF ;
+
+    // some other code
+
+    namespace NamespaceD;
 
 EOD
         );
@@ -293,6 +333,10 @@ EOD
     use const SymbolX\SymbolY as SymbolZ;
     use SymbolT\SymbolU, SymbolV\SymbolW;
 
+    // some other code
+
+    namespace NamespaceD;
+
 EOD;
 
         $this->assertSame($expected, $actual);
@@ -300,8 +344,6 @@ EOD;
 
     public function testReplaceContextAlternateToGlobal()
     {
-        $this->markTestIncomplete();
-
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -313,6 +355,10 @@ EOD;
         use function SymbolE , SymbolF ;
     }
 
+    // some other code
+
+    namespace NamespaceD {}
+
 EOD
         );
         $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextGlobal);
@@ -327,6 +373,10 @@ EOD
         use SymbolT\SymbolU, SymbolV\SymbolW;
     }
 
+    // some other code
+
+    namespace NamespaceD {}
+
 EOD;
 
         $this->assertSame($expected, $actual);
@@ -334,13 +384,15 @@ EOD;
 
     public function testReplaceContextRegularFromNoUseStatements()
     {
-        $this->markTestIncomplete();
-
         $this->streamFixture(
 <<<'EOD'
 <?php
 
     namespace NamespaceA;
+
+    // some other code
+
+    namespace NamespaceD;
 
 EOD
         );
@@ -355,6 +407,10 @@ EOD
     use const SymbolX\SymbolY as SymbolZ;
     use SymbolT\SymbolU, SymbolV\SymbolW;
 
+    // some other code
+
+    namespace NamespaceD;
+
 EOD;
 
         $this->assertSame($expected, $actual);
@@ -362,13 +418,15 @@ EOD;
 
     public function testReplaceContextAlternateFromNoUseStatements()
     {
-        $this->markTestIncomplete();
-
         $this->streamFixture(
 <<<'EOD'
 <?php
 
     namespace NamespaceA {}
+
+    // some other code
+
+    namespace NamespaceD {}
 
 EOD
         );
@@ -381,7 +439,11 @@ EOD
     namespace NamespaceX\NamespaceY {
         use const SymbolX\SymbolY as SymbolZ;
         use SymbolT\SymbolU, SymbolV\SymbolW;
-    }
+}
+
+    // some other code
+
+    namespace NamespaceD {}
 
 EOD;
 
@@ -390,8 +452,6 @@ EOD;
 
     public function testReplaceContextRegularToNoUseStatements()
     {
-        $this->markTestIncomplete();
-
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -401,6 +461,10 @@ EOD;
     use SymbolA \ SymbolB \ SymbolC as SymbolD ;
 
     use function SymbolE , SymbolF ;
+
+    // some other code
+
+    namespace NamespaceD;
 
 EOD
         );
@@ -412,6 +476,10 @@ EOD
 
     namespace NamespaceX\NamespaceY;
 
+    // some other code
+
+    namespace NamespaceD;
+
 EOD;
 
         $this->assertSame($expected, $actual);
@@ -419,8 +487,6 @@ EOD;
 
     public function testReplaceContextAlternateToNoUseStatements()
     {
-        $this->markTestIncomplete();
-
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -431,6 +497,10 @@ EOD;
 
         use function SymbolE , SymbolF ;
     }
+
+    // some other code
+
+    namespace NamespaceD {}
 
 EOD
         );
@@ -443,6 +513,10 @@ EOD
     namespace NamespaceX\NamespaceY
     {
     }
+
+    // some other code
+
+    namespace NamespaceD {}
 
 EOD;
 

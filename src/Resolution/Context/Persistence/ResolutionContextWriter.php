@@ -102,81 +102,145 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
             $path = FileSystemPath::fromString($path);
         }
 
-        $replacements = array();
-
-        list(
-            $namespaceSymbolOffset,
-            $namespaceSymbolSize,
-        ) = $this->inspectContext($stream, $parsedContext);
-
-        // if ($isAlternate) {
-        //     $this->handleAlternate();
-        // } else {
-            $this->handleRegular(
+        $this->streamEditor()->replaceMultiple(
+            $stream,
+            $this->replacementsForContext(
                 $stream,
                 $path,
                 $parsedContext,
-                $context,
-                $replacements,
-                $namespaceSymbolOffset,
-                $namespaceSymbolSize
-            );
-        // }
-
-        $this->streamEditor()->replaceMultiple($stream, $replacements, $path);
+                $context
+            ),
+            $path
+        );
     }
 
-    private function handleRegular(
+    private function replacementsForContext(
         $stream,
         $path,
         $parsedContext,
-        $context,
-        &$replacements,
-        $namespaceSymbolOffset,
-        $namespaceSymbolSize
+        $context
     ) {
-        if ($parsedContext->primaryNamespace()->isRoot()) {
-            if (!$context->primaryNamespace()->isRoot()) {
+        $replacements = array();
 
+        list(
+            $isAlternate,
+            $parsedNsSymbolOffset,
+            $parsedNsSymbolEndOffset,
+            $parsedNsBodyOffset,
+        ) = $this->inspectContext($stream, $parsedContext);
+
+        $contextIndent = $this->streamEditor()
+            ->findIndentByOffset($stream, $parsedContext->offset(), $path);
+        $parsedHasNsSymbol = !$parsedContext->primaryNamespace()->isRoot();
+        $newHasNsSymbol = !$context->primaryNamespace()->isRoot();
+        $parsedUseStatements = $parsedContext->useStatements();
+        $parsedHasUseStatements = count($parsedUseStatements) > 0;
+        $newUseStatements = $context->useStatements();
+        $newHasUseStatements = count($newUseStatements) > 0;
+
+        if ($parsedHasUseStatements) {
+            $useStatementsIndent = $this->streamEditor()->findIndentByOffset(
+                $stream,
+                $parsedUseStatements[0]->offset(),
+                $path
+            );
+            $useStatementsPrefix = $useStatementsSuffix = '';
+
+            if ($newHasUseStatements) {
+                $useStatementsOffset = $parsedUseStatements[0]->offset();
+                $useStatementsSize = $parsedContext->offset() +
+                    $parsedContext->size() - $useStatementsOffset;
+            } else {
+                $useStatementsOffset = $parsedNsBodyOffset + 1;
+                $useStatementsSize = $parsedContext->offset() +
+                    $parsedContext->size() - $parsedNsBodyOffset - 1;
             }
         } else {
-            if ($context->primaryNamespace()->isRoot()) {
+            $useStatementsOffset = $parsedNsBodyOffset + 1;
+            $useStatementsSize = 0;
 
-            } elseif (
-                $parsedContext->primaryNamespace()->atoms() !==
-                $context->primaryNamespace()->atoms()
-            ) {
-                $replacements[] = array(
-                    $namespaceSymbolOffset,
-                    $namespaceSymbolSize,
-                    $context->primaryNamespace()
-                        ->accept($this->contextRenderer()),
-                );
+            if ($isAlternate) {
+                $useStatementsIndent = $contextIndent . '    ';
+                $useStatementsPrefix = "\n" . $useStatementsIndent;
+                $useStatementsSuffix = "\n";
+            } else {
+                $useStatementsIndent = $contextIndent;
+                $useStatementsPrefix = "\n\n" . $useStatementsIndent;
+                $useStatementsSuffix = '';
             }
         }
 
-        $parsedUseStatements = $parsedContext->useStatements();
+        if ($newHasUseStatements) {
+            $useStatementsReplacement =
+                $useStatementsPrefix .
+                $this->transformLines(
+                    $this->contextRenderer()
+                        ->renderUseStatements($newUseStatements),
+                    $useStatementsIndent
+                ) .
+                $useStatementsSuffix;
+        } else {
+            $useStatementsReplacement = '';
+        }
 
-        if (count($parsedUseStatements) > 0) {
-            $useStatementsOffset = $parsedUseStatements[0]->offset();
-            $useStatementsSize = $parsedContext->offset() +
-                $parsedContext->size() - $useStatementsOffset;
-
-            $useStatements = $this->transformLines(
-                $this->contextRenderer()
-                    ->renderUseStatements($context->useStatements()),
-                $this->streamEditor()
-                    ->findIndentByOffset($stream, $useStatementsOffset, $path)
-            );
-
+        if ($parsedHasUseStatements || $newHasUseStatements) {
             $replacements[] = array(
                 $useStatementsOffset,
                 $useStatementsSize,
-                $useStatements
+                $useStatementsReplacement,
             );
-        } else {
-
         }
+
+        if ($parsedContext->primaryNamespace()->isRoot()) {
+            if (!$context->primaryNamespace()->isRoot()) {
+                if ($isAlternate) {
+                    $nsSymbolOffset = $parsedContext->offset() + 9;
+                    $nsSymbolSize = 0;
+                    $nsSymbolPrefix = ' ';
+                    $nsSymbolSuffix = '';
+                } else {
+                    $nsSymbolOffset = $useStatementsOffset;
+                    $nsSymbolSize = 0;
+                    $nsSymbolPrefix = 'namespace ';
+                    $nsSymbolSuffix = ";\n\n" . $useStatementsIndent;
+                }
+            }
+        } else {
+            if ($context->primaryNamespace()->isRoot()) {
+                if ($isAlternate) {
+                    $nsSymbolOffset = $parsedContext->offset() + 9;
+                    $nsSymbolSize = $parsedNsSymbolEndOffset - $nsSymbolOffset +
+                        1;
+                    $nsSymbolPrefix = $nsSymbolSuffix = '';
+                } else {
+                    $nsSymbolOffset = $parsedContext->offset();
+                    $nsSymbolSize = $useStatementsOffset - $nsSymbolOffset;
+                }
+            } else {
+                $nsSymbolOffset = $parsedNsSymbolOffset;
+                $nsSymbolSize = $parsedNsSymbolEndOffset - $nsSymbolOffset + 1;
+                $nsSymbolPrefix = $nsSymbolSuffix = '';
+            }
+        }
+
+        if ($newHasNsSymbol) {
+            $nsSymbolReplacement =
+                $nsSymbolPrefix .
+                $context->primaryNamespace()->accept($this->contextRenderer()) .
+                $nsSymbolSuffix;
+        } else {
+            $nsSymbolReplacement = '';
+        }
+
+        if ($parsedHasNsSymbol || $newHasNsSymbol) {
+            $replacements[] = array(
+                $nsSymbolOffset,
+                $nsSymbolSize,
+                $nsSymbolReplacement,
+            );
+        }
+
+        return $replacements;
     }
 
     private function transformLines($lines, $indent)
@@ -189,8 +253,9 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
     private function inspectContext($stream, $parsedContext)
     {
         $state = static::STATE_START;
-        $namespaceSymbolSize = 0;
-        $namespaceSymbolOffset = $namespaceSymbolEndOffset = null;
+        $isAlternate = false;
+        $parsedNsSymbolSize = $parsedNsBodyOffset = 0;
+        $parsedNsSymbolOffset = $parsedNsSymbolEndOffset = null;
 
         foreach ($parsedContext->tokens() as $token) {
             switch ($state) {
@@ -208,8 +273,14 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
                     switch ($token[0]) {
                         case T_STRING:
                             $state = static::STATE_NAMESPACE_NAME;
-                            $namespaceSymbolOffset = $token[4];
-                            $namespaceSymbolEndOffset = $token[5];
+                            $parsedNsSymbolOffset = $token[4];
+                            $parsedNsSymbolEndOffset = $token[5];
+
+                            break;
+
+                        case '{':
+                            $isAlternate = true;
+                            $parsedNsBodyOffset = $token[5];
 
                             break;
                     }
@@ -220,15 +291,18 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
                     switch ($token[0]) {
                         case T_STRING:
                         case T_NS_SEPARATOR:
-                        case T_WHITESPACE:
-                            if ($token[5] > $namespaceSymbolEndOffset) {
-                                $namespaceSymbolEndOffset = $token[5];
+                            if ($token[5] > $parsedNsSymbolEndOffset) {
+                                $parsedNsSymbolEndOffset = $token[5];
                             }
 
                             break;
 
+                        case '{':
+                            $isAlternate = true;
+
                         case ';':
                             $state = static::STATE_START;
+                            $parsedNsBodyOffset = $token[5];
 
                             break;
                     }
@@ -237,14 +311,11 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
             }
         }
 
-        if (null !== $namespaceSymbolOffset) {
-            $namespaceSymbolSize = $namespaceSymbolEndOffset -
-                $namespaceSymbolOffset + 1;
-        }
-
         return array(
-            $namespaceSymbolOffset,
-            $namespaceSymbolSize,
+            $isAlternate,
+            $parsedNsSymbolOffset,
+            $parsedNsSymbolEndOffset,
+            $parsedNsBodyOffset,
         );
     }
 
