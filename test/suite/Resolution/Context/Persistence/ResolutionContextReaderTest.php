@@ -365,8 +365,7 @@ EOD;
 
         $this->setExpectedException(
             'Eloquent\Cosmos\Exception\ReadException',
-            "Unable to read from '/Users/erin/Projects/cosmos/test/src/contexts.php': " .
-                "stream_get_contents(): unable to read from stream"
+            "Unable to read from '" . $this->fixturePath . "': stream_get_contents(): unable to read from stream"
         );
         $this->reader->readFromFile($this->fixturePath);
     }
