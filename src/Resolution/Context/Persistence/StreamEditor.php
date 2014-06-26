@@ -242,48 +242,26 @@ class StreamEditor implements StreamEditorInterface
         $offset,
         FileSystemPathInterface $path = null
     ) {
-        $searchOffset = $offset - $this->bufferSize;
-        $searchSize = $this->bufferSize;
-        $indent = '';
-        while (true) {
-            if ($searchOffset < 0) {
-                $searchSize = $this->bufferSize + $searchOffset;
-                $searchOffset = 0;
-            }
+        while ($offset > 0) {
+            $offset--;
+            $this->seek($stream, $offset, null, $path);
+            $character = $this->read($stream, 1, $path);
 
-            if ($searchSize < 1) {
-                break;
-            }
-
-            $this->seek($stream, $searchOffset, null, $path);
-            $data = $this->read($stream, $searchSize, $path);
-
-            if (
-                preg_match('/.*(\r|\n)/s', $data, $matches, PREG_OFFSET_CAPTURE)
-            ) {
-                $newlineOffset = $searchOffset + $matches[1][1] + 1;
-                $this->seek($stream, $newlineOffset, null, $path);
-
-                while (preg_match('/^[ \t]*$/', $indent)) {
-                    $data = $this->read($stream, $this->bufferSize, $path);
-                    $indent .= $data;
-
-                    if (strlen($data) < $this->bufferSize) {
-                        break;
-                    }
-                }
-                $indent = preg_replace('/(?:\r|\n).*/', '', $indent);
-                $indent = preg_replace('/[^ \t]/', '', $indent);
+            if ("\n" === $character || "\r" === $character) {
+                $offset++;
 
                 break;
             }
-
-            if (0 === $searchOffset) {
-                break;
-            }
-
-            $searchOffset -= $this->bufferSize;
         }
+
+        $this->seek($stream, $offset, null, $path);
+
+        $character = '';
+        $indent = '';
+        do {
+            $indent .= $character;
+            $character = $this->read($stream, 1, $path);
+        } while (' ' === $character || "\t" === $character);
 
         return $indent;
     }
