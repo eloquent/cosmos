@@ -24,6 +24,10 @@ use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
  */
 class ResolutionContextWriter implements ResolutionContextWriterInterface
 {
+    const STATE_START = 0;
+    const STATE_NAMESPACE = 1;
+    const STATE_NAMESPACE_NAME = 2;
+
     /**
      * Get a static instance of this writer.
      *
@@ -82,7 +86,6 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
      * Replace a symbol resolution context in a stream.
      *
      * @param stream                              $stream        The stream.
-     * @param integer                             $size          The stream size.
      * @param ParsedResolutionContextInterface    $parsedContext The parsed resolution context.
      * @param ResolutionContextInterface          $context       The replacement resolution context.
      * @param FileSystemPathInterface|string|null $path          The path, if known.
@@ -91,7 +94,6 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
      */
     public function replaceContextInStream(
         $stream,
-        $size,
         ParsedResolutionContextInterface $parsedContext,
         ResolutionContextInterface $context,
         $path = null
@@ -102,7 +104,148 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
 
         $replacements = array();
 
+        list(
+            $namespaceSymbolOffset,
+            $namespaceSymbolSize,
+        ) = $this->inspectContext($stream, $parsedContext);
+
+        // if ($isAlternate) {
+        //     $this->handleAlternate();
+        // } else {
+            $this->handleRegular(
+                $stream,
+                $path,
+                $parsedContext,
+                $context,
+                $replacements,
+                $namespaceSymbolOffset,
+                $namespaceSymbolSize
+            );
+        // }
+
         $this->streamEditor()->replaceMultiple($stream, $replacements, $path);
+    }
+
+    private function handleRegular(
+        $stream,
+        $path,
+        $parsedContext,
+        $context,
+        &$replacements,
+        $namespaceSymbolOffset,
+        $namespaceSymbolSize
+    ) {
+        if ($parsedContext->primaryNamespace()->isRoot()) {
+            if (!$context->primaryNamespace()->isRoot()) {
+
+            }
+        } else {
+            if ($context->primaryNamespace()->isRoot()) {
+
+            } elseif (
+                $parsedContext->primaryNamespace()->atoms() !==
+                $context->primaryNamespace()->atoms()
+            ) {
+                $replacements[] = array(
+                    $namespaceSymbolOffset,
+                    $namespaceSymbolSize,
+                    $context->primaryNamespace()
+                        ->accept($this->contextRenderer()),
+                );
+            }
+        }
+
+        $parsedUseStatements = $parsedContext->useStatements();
+
+        if (count($parsedUseStatements) > 0) {
+            $useStatementsOffset = $parsedUseStatements[0]->offset();
+            $useStatementsSize = $parsedContext->offset() +
+                $parsedContext->size() - $useStatementsOffset;
+
+            $useStatements = $this->transformLines(
+                $this->contextRenderer()
+                    ->renderUseStatements($context->useStatements()),
+                $this->streamEditor()
+                    ->findIndentByOffset($stream, $useStatementsOffset, $path)
+            );
+
+            $replacements[] = array(
+                $useStatementsOffset,
+                $useStatementsSize,
+                $useStatements
+            );
+        } else {
+
+        }
+    }
+
+    private function transformLines($lines, $indent)
+    {
+        $lines = preg_split('/(\r|\n|\r\n)/', trim($lines));
+
+        return implode("\n" . $indent, $lines);
+    }
+
+    private function inspectContext($stream, $parsedContext)
+    {
+        $state = static::STATE_START;
+        $namespaceSymbolSize = 0;
+        $namespaceSymbolOffset = $namespaceSymbolEndOffset = null;
+
+        foreach ($parsedContext->tokens() as $token) {
+            switch ($state) {
+                case static::STATE_START:
+                    switch ($token[0]) {
+                        case T_NAMESPACE:
+                            $state = static::STATE_NAMESPACE;
+
+                            break;
+                    }
+
+                    break;
+
+                case static::STATE_NAMESPACE:
+                    switch ($token[0]) {
+                        case T_STRING:
+                            $state = static::STATE_NAMESPACE_NAME;
+                            $namespaceSymbolOffset = $token[4];
+                            $namespaceSymbolEndOffset = $token[5];
+
+                            break;
+                    }
+
+                    break;
+
+                case static::STATE_NAMESPACE_NAME:
+                    switch ($token[0]) {
+                        case T_STRING:
+                        case T_NS_SEPARATOR:
+                        case T_WHITESPACE:
+                            if ($token[5] > $namespaceSymbolEndOffset) {
+                                $namespaceSymbolEndOffset = $token[5];
+                            }
+
+                            break;
+
+                        case ';':
+                            $state = static::STATE_START;
+
+                            break;
+                    }
+
+                    break;
+            }
+        }
+
+        if (null !== $namespaceSymbolOffset) {
+            $namespaceSymbolSize = $namespaceSymbolEndOffset -
+                $namespaceSymbolOffset + 1;
+        }
+
+        return array(
+            $namespaceSymbolOffset,
+            $namespaceSymbolSize,
+        );
     }
 
     private static $instance;

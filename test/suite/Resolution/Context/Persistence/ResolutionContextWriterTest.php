@@ -27,8 +27,6 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->markTestIncomplete();
-
         $this->contextRenderer = new ResolutionContextRenderer;
         $this->streamEditor = new StreamEditor;
         $this->writer = new ResolutionContextWriter($this->contextRenderer, $this->streamEditor);
@@ -63,7 +61,6 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
     protected function streamFixture($data)
     {
         fwrite($this->stream, $data);
-        $this->streamSize = strlen($data);
         $this->parsedContexts = $this->contextParser->parseSource($data);
     }
 
@@ -95,12 +92,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
 
 EOD
         );
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->context
-        );
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -118,6 +110,8 @@ EOD;
 
     public function testReplaceContextAlternateShorter()
     {
+        $this->markTestIncomplete();
+
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -131,12 +125,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->context
-        );
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -155,6 +144,8 @@ EOD;
 
     public function testReplaceContextRegularLonger()
     {
+        $this->markTestIncomplete();
+
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -165,12 +156,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->context
-        );
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -188,6 +174,8 @@ EOD;
 
     public function testReplaceContextAlternateLonger()
     {
+        $this->markTestIncomplete();
+
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -199,12 +187,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->context
-        );
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -223,6 +206,8 @@ EOD;
 
     public function testReplaceContextRegularFromGlobal()
     {
+        $this->markTestIncomplete();
+
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -233,12 +218,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->context
-        );
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -256,6 +236,8 @@ EOD;
 
     public function testReplaceContextAlternateFromGlobal()
     {
+        $this->markTestIncomplete();
+
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -269,12 +251,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->context
-        );
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -293,6 +270,8 @@ EOD;
 
     public function testReplaceContextRegularToGlobal()
     {
+        $this->markTestIncomplete();
+
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -305,12 +284,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->contextGlobal
-        );
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextGlobal);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -326,6 +300,8 @@ EOD;
 
     public function testReplaceContextAlternateToGlobal()
     {
+        $this->markTestIncomplete();
+
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -339,12 +315,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->contextGlobal
-        );
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextGlobal);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -363,6 +334,8 @@ EOD;
 
     public function testReplaceContextRegularFromNoUseStatements()
     {
+        $this->markTestIncomplete();
+
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -371,12 +344,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->context
-        );
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -394,6 +362,8 @@ EOD;
 
     public function testReplaceContextAlternateFromNoUseStatements()
     {
+        $this->markTestIncomplete();
+
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -402,12 +372,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->context
-        );
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -425,6 +390,8 @@ EOD;
 
     public function testReplaceContextRegularToNoUseStatements()
     {
+        $this->markTestIncomplete();
+
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -437,12 +404,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->contextNoUse
-        );
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextNoUse);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -457,6 +419,8 @@ EOD;
 
     public function testReplaceContextAlternateToNoUseStatements()
     {
+        $this->markTestIncomplete();
+
         $this->streamFixture(
 <<<'EOD'
 <?php
@@ -470,12 +434,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream(
-            $this->stream,
-            $this->streamSize,
-            $this->parsedContexts[0],
-            $this->contextNoUse
-        );
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextNoUse);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'

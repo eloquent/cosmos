@@ -24,7 +24,6 @@ interface ResolutionContextWriterInterface
      * Replace a symbol resolution context in a stream.
      *
      * @param stream                              $stream        The stream.
-     * @param integer                             $size          The stream size.
      * @param ParsedResolutionContextInterface    $parsedContext The parsed resolution context.
      * @param ResolutionContextInterface          $context       The replacement resolution context.
      * @param FileSystemPathInterface|string|null $path          The path, if known.
@@ -33,7 +32,6 @@ interface ResolutionContextWriterInterface
      */
     public function replaceContextInStream(
         $stream,
-        $size,
         ParsedResolutionContextInterface $parsedContext,
         ResolutionContextInterface $context,
         $path = null
