@@ -19,12 +19,12 @@ interface TokenNormalizerInterface
     /**
      * Normalize the supplied PHP tokens.
      *
-     * This method ensures all tokens include type, content, line number, and
-     * column number information.
+     * This method ensures all tokens include type, content, line number, column
+     * number, start offset, and end offset information.
      *
      * @param array<integer,tuple<integer,string,integer>|string> $tokens The tokens as returned by token_get_all().
      *
-     * @return array<tuple<integer|string,string,integer,integer>> The normalized tokens.
+     * @return array<tuple<integer|string,string,integer,integer,integer,integer>> The normalized tokens.
      */
     public function normalizeTokens(array $tokens);
 }

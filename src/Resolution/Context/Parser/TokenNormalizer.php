@@ -33,28 +33,37 @@ class TokenNormalizer implements TokenNormalizerInterface
     /**
      * Normalize the supplied PHP tokens.
      *
-     * This method ensures all tokens include type, content, line number, and
-     * column number information.
+     * This method ensures all tokens include type, content, line number, column
+     * number, offset, and end offset information.
      *
      * @param array<integer,tuple<integer,string,integer>|string> $tokens The tokens as returned by token_get_all().
      *
-     * @return array<tuple<integer|string,string,integer,integer>> The normalized tokens.
+     * @return array<tuple<integer|string,string,integer,integer,integer,integer>> The normalized tokens.
      */
     public function normalizeTokens(array $tokens)
     {
-        $lineNumber = 1;
-        $columnNumber = 1;
+        $lineNumber = $columnNumber = 1;
+        $startOffset = $endOffset = 0;
         foreach ($tokens as $index => $token) {
             if (is_string($token)) {
+                $endOffset = $startOffset + strlen($token) - 1;
+
                 $tokens[$index] = array(
                     $token,
                     $token,
                     $lineNumber,
-                    $columnNumber
+                    $columnNumber,
+                    $startOffset,
+                    $endOffset,
                 );
+
                 $columnNumber++;
             } else {
+                $endOffset = $startOffset + strlen($token[1]) - 1;
+
                 $tokens[$index][] = $columnNumber;
+                $tokens[$index][] = $startOffset;
+                $tokens[$index][] = $endOffset;
 
                 $lines = preg_split('/(?:\r|\n|\r\n)/', $token[1]);
                 $numNewlines = count($lines) - 1;
@@ -66,9 +75,18 @@ class TokenNormalizer implements TokenNormalizerInterface
                     $columnNumber += strlen($token[1]);
                 }
             }
+
+            $startOffset = $endOffset + 1;
         }
 
-        $tokens[] = array('end', '', $lineNumber, $columnNumber);
+        $tokens[] = array(
+            'end',
+            '',
+            $lineNumber,
+            $columnNumber,
+            $startOffset,
+            $startOffset
+        );
 
         return $tokens;
     }

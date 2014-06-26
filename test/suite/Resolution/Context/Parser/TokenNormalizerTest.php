@@ -28,7 +28,7 @@ class TokenNormalizerTest extends PHPUnit_Framework_TestCase
         $source = '';
         $actual = $this->normalizer->normalizeTokens(token_get_all($source));
         $expected = <<<'EOD'
-end (1, 1): ''
+end (1, 1, 0, 0): ''
 
 EOD;
 
@@ -48,26 +48,26 @@ EOD;
 EOD;
         $actual = $this->normalizer->normalizeTokens(token_get_all($source));
         $expected = <<<'EOD'
-T_OPEN_TAG (1, 1): '<?php
+T_OPEN_TAG (1, 1, 0, 5): '<?php
 '
-T_WHITESPACE (2, 1): '
+T_WHITESPACE (2, 1, 6, 10): '
     '
-T_ECHO (3, 5): 'echo'
-T_WHITESPACE (3, 9): ' '
-T_CONSTANT_ENCAPSED_STRING (3, 10): '\'foo\''
-; (3, 15): ';'
-T_WHITESPACE (3, 16): '
+T_ECHO (3, 5, 11, 14): 'echo'
+T_WHITESPACE (3, 9, 15, 15): ' '
+T_CONSTANT_ENCAPSED_STRING (3, 10, 16, 20): '\'foo\''
+; (3, 15, 21, 21): ';'
+T_WHITESPACE (3, 16, 22, 31): '
 
         '
-T_ECHO (5, 9): 'echo'
-T_WHITESPACE (5, 13): ' '
-T_CONSTANT_ENCAPSED_STRING (5, 14): '\'bar\''
-; (5, 19): ';'
-T_WHITESPACE (5, 20): '
+T_ECHO (5, 9, 32, 35): 'echo'
+T_WHITESPACE (5, 13, 36, 36): ' '
+T_CONSTANT_ENCAPSED_STRING (5, 14, 37, 41): '\'bar\''
+; (5, 19, 42, 42): ';'
+T_WHITESPACE (5, 20, 43, 48): '
 
     '
-; (7, 5): ';'
-end (7, 6): ''
+; (7, 5, 49, 49): ';'
+end (7, 6, 50, 50): ''
 
 EOD;
 
@@ -95,7 +95,15 @@ EOD;
                 $tokenName = token_name($token[0]);
             }
 
-            $rendered .= sprintf("%s (%d, %d): %s\n", $tokenName, $token[2], $token[3], var_export($token[1], true));
+            $rendered .= sprintf(
+                "%s (%d, %d, %d, %d): %s\n",
+                $tokenName,
+                $token[2],
+                $token[3],
+                $token[4],
+                $token[5],
+                var_export($token[1], true)
+            );
         }
 
         return $rendered;
