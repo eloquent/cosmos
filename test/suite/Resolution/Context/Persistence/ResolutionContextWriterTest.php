@@ -49,6 +49,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
         $this->contextGlobal = new ResolutionContext(null, $this->useStatements);
         $this->contextNoUse = new ResolutionContext(Symbol::fromString('\NamespaceX\NamespaceY'));
         $this->stream = fopen('php://memory', 'rb+');
+        $this->path = '/path/to/file';
     }
 
     protected function tearDown()
@@ -96,7 +97,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
 
 EOD
         );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -135,7 +136,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -172,7 +173,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -209,7 +210,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -246,7 +247,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -285,7 +286,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -324,7 +325,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextGlobal);
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextGlobal, $this->path);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -361,7 +362,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextGlobal);
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextGlobal, $this->path);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -396,7 +397,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -430,7 +431,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context);
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -468,7 +469,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextNoUse);
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextNoUse, $this->path);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
@@ -504,7 +505,7 @@ EOD;
 
 EOD
         );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextNoUse);
+        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextNoUse, $this->path);
         fseek($this->stream, 0);
         $actual = stream_get_contents($this->stream);
         $expected = <<<'EOD'
