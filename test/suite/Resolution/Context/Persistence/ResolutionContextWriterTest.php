@@ -50,6 +50,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
         $this->context = new ResolutionContext(Symbol::fromString('\NamespaceX\NamespaceY'), $this->useStatements);
         $this->contextGlobal = new ResolutionContext(null, $this->useStatements);
         $this->contextNoUse = new ResolutionContext(Symbol::fromString('\NamespaceX\NamespaceY'));
+        $this->contextSecondary = new ResolutionContext(Symbol::fromString('\NamespaceZ'));
         $this->file = tempnam(sys_get_temp_dir(), 'cosmos-');
         $this->stream = fopen('php://memory', 'rb+');
         $this->path = '/path/to/file';
@@ -536,6 +537,108 @@ EOD
 
         $this->setExpectedException('Eloquent\Cosmos\Exception\WriteException');
         $this->writer->replaceContextInFile($this->file, $this->parsedContexts[0], $this->context, $this->path);
+    }
+
+    public function replaceContextsInData()
+    {
+        return array(
+            'Typical example' => array( // -----------------------------------------------------------------------------
+                <<<'EOD'
+<?php
+
+    namespace NamespaceA ;
+
+    use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+
+    use function SymbolE , SymbolF ;
+
+    // some other code
+
+    namespace NamespaceD ;
+
+    use SymbolG as SymbolH ;
+
+    // some other code
+
+EOD
+                ,
+                <<<'EOD'
+<?php
+
+    namespace NamespaceX\NamespaceY ;
+
+    use const SymbolX\SymbolY as SymbolZ;
+    use SymbolT\SymbolU, SymbolV\SymbolW;
+
+    // some other code
+
+    namespace NamespaceZ ;
+
+    // some other code
+
+EOD
+                ,
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider replaceContextsInData
+     */
+    public function testReplaceContextsInString($source, $expected)
+    {
+        $this->parsedContexts = $this->contextParser->parseSource($source);
+        $actual = $this->writer->replaceContextsInString(
+            $source,
+            $this->parsedContexts,
+            array($this->context, $this->contextSecondary),
+            $this->path
+        );
+
+        $this->assertSame($expected, $actual);
+    }
+
+    /**
+     * @dataProvider replaceContextsInData
+     */
+    public function testReplaceContextsInStream($source, $expected)
+    {
+        $this->streamFixture($source);
+        $actual = $this->writer->replaceContextsInStream(
+            $this->stream,
+            $this->parsedContexts,
+            array($this->context, $this->contextSecondary),
+            $this->path
+        );
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+
+        $this->assertSame($expected, $actual);
+    }
+
+    /**
+     * @dataProvider replaceContextsInData
+     */
+    public function testReplaceContextsInFile($source, $expected)
+    {
+        $this->fileFixture($source);
+        $actual = $this->writer->replaceContextsInFile(
+            $this->file,
+            $this->parsedContexts,
+            array($this->context, $this->contextSecondary)
+        );
+        $actual = file_get_contents($this->file);
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testReplaceContextsInFileFailure()
+    {
+        $this->parsedContexts = $this->contextParser->parseSource('');
+        Phake::when($this->streamEditor)->replaceMultiple(Phake::anyParameters())->thenThrow(new WriteException);
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\WriteException');
+        $this->writer->replaceContextsInFile($this->file, $this->parsedContexts, array($this->context), $this->path);
     }
 
     public function testInstance()

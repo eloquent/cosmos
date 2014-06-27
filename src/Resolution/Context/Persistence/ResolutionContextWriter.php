@@ -99,9 +99,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         ResolutionContextInterface $context,
         $path = null
     ) {
-        $stream = $this->streamEditor()->open('php://temp', 'rb+');
-
-        $this->streamEditor()->write($stream, $data, $path);
+        $stream = $this->createStringStream($data, $path);
         $this->replaceContextInStream($stream, $parsedContext, $context, $path);
         $this->streamEditor()->seek($stream, 0, null, $path);
 
@@ -154,7 +152,117 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
 
         $error = null;
         try {
-            $this->replaceContextInStream($stream, $parsedContext, $context, $path);
+            $this->replaceContextInStream(
+                $stream,
+                $parsedContext,
+                $context,
+                $path
+            );
+        } catch (Exception $error) {
+            // re-throw after cleanup
+        }
+
+        $this->streamEditor()->close($stream, $path);
+
+        if ($error) {
+            throw $error;
+        }
+    }
+
+    /**
+     * Replace a symbol resolution context in a string.
+     *
+     * The array keys of the replacement contexts must match those of the parsed
+     * contexts.
+     *
+     * @param string                                  $data           The string.
+     * @param array<ParsedResolutionContextInterface> $parsedContexts The parsed resolution contexts.
+     * @param array<ResolutionContextInterface>       $contexts       The replacement resolution contexts.
+     * @param string|null                             $path           The path, if known.
+     *
+     * @return string               The modified string.
+     * @throws IoExceptionInterface If a stream operation fails.
+     */
+    public function replaceContextsInString(
+        $data,
+        array $parsedContexts,
+        array $contexts,
+        $path = null
+    ) {
+        $stream = $this->createStringStream($data, $path);
+        $this->replaceContextsInStream(
+            $stream,
+            $parsedContexts,
+            $contexts,
+            $path
+        );
+        $this->streamEditor()->seek($stream, 0, null, $path);
+
+        return $this->streamEditor()->readAll($stream, $path);
+    }
+
+    /**
+     * Replace a symbol resolution context in a stream.
+     *
+     * The array keys of the replacement contexts must match those of the parsed
+     * contexts.
+     *
+     * @param stream                                  $stream         The stream.
+     * @param array<ParsedResolutionContextInterface> $parsedContexts The parsed resolution contexts.
+     * @param array<ResolutionContextInterface>       $contexts       The replacement resolution contexts.
+     * @param string|null                             $path           The path, if known.
+     *
+     * @throws IoExceptionInterface If a stream operation fails.
+     */
+    public function replaceContextsInStream(
+        $stream,
+        array $parsedContexts,
+        array $contexts,
+        $path = null
+    ) {
+        $replacements = array();
+        foreach ($parsedContexts as $index => $parsedContext) {
+            $replacements = array_merge(
+                $replacements,
+                $this->replacementsForContext(
+                    $stream,
+                    $path,
+                    $parsedContext,
+                    $contexts[$index]
+                )
+            );
+        }
+
+        $this->streamEditor()->replaceMultiple($stream, $replacements, $path);
+    }
+
+    /**
+     * Replace a symbol resolution context in a file.
+     *
+     * The array keys of the replacement contexts must match those of the parsed
+     * contexts.
+     *
+     * @param string                                  $path           The path.
+     * @param array<ParsedResolutionContextInterface> $parsedContexts The parsed resolution contexts.
+     * @param array<ResolutionContextInterface>       $contexts       The replacement resolution contexts.
+     *
+     * @throws IoExceptionInterface If a stream operation fails.
+     */
+    public function replaceContextsInFile(
+        $path,
+        array $parsedContexts,
+        array $contexts
+    ) {
+        $stream = $this->streamEditor()->open($path, 'rb+');
+
+        $error = null;
+        try {
+            $this->replaceContextsInStream(
+                $stream,
+                $parsedContexts,
+                $contexts,
+                $path
+            );
         } catch (Exception $error) {
             // re-throw after cleanup
         }
@@ -369,6 +477,14 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
             $parsedNsSymbolEndOffset,
             $parsedNsBodyOffset,
         );
+    }
+
+    private function createStringStream($data, $path)
+    {
+        $stream = $this->streamEditor()->open('php://temp', 'rb+');
+        $this->streamEditor()->write($stream, $data, $path);
+
+        return $stream;
     }
 
     private static $instance;
