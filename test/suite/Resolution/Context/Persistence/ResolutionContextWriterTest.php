@@ -79,10 +79,11 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
         $this->assertSame(StreamEditor::instance(), $this->writer->streamEditor());
     }
 
-    public function testReplaceContextRegularShorter()
+    public function replaceContextInData()
     {
-        $this->streamFixture(
-<<<'EOD'
+        return array(
+            'Shorter' => array( //--------------------------------------------------------------------------------------
+                <<<'EOD'
 <?php
 
     namespace NamespaceA \ NamespaceB \ NamespaceC ;
@@ -96,11 +97,10 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
     namespace NamespaceD;
 
 EOD
-        );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
+                ,
+                0,
+                'context',
+                <<<'EOD'
 <?php
 
     namespace NamespaceX\NamespaceY ;
@@ -112,15 +112,12 @@ EOD
 
     namespace NamespaceD;
 
-EOD;
+EOD
+                ,
+            ),
 
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testReplaceContextAlternateShorter()
-    {
-        $this->streamFixture(
-<<<'EOD'
+            'Shorter (alternate)' => array( //--------------------------------------------------------------------------
+                <<<'EOD'
 <?php
 
     namespace NamespaceA \ NamespaceB \ NamespaceC
@@ -135,11 +132,10 @@ EOD;
     namespace NamespaceD {}
 
 EOD
-        );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
+                ,
+                0,
+                'context',
+                <<<'EOD'
 <?php
 
     namespace NamespaceX\NamespaceY
@@ -152,15 +148,12 @@ EOD
 
     namespace NamespaceD {}
 
-EOD;
+EOD
+                ,
+            ),
 
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testReplaceContextRegularLonger()
-    {
-        $this->streamFixture(
-<<<'EOD'
+            'Longer' => array( //---------------------------------------------------------------------------------------
+                <<<'EOD'
 <?php
 
     namespace NamespaceA ;
@@ -172,11 +165,10 @@ EOD;
     namespace NamespaceD;
 
 EOD
-        );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
+                ,
+                0,
+                'context',
+                <<<'EOD'
 <?php
 
     namespace NamespaceX\NamespaceY ;
@@ -188,15 +180,12 @@ EOD
 
     namespace NamespaceD;
 
-EOD;
+EOD
+                ,
+            ),
 
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testReplaceContextAlternateLonger()
-    {
-        $this->streamFixture(
-<<<'EOD'
+            'Longer (alternate)' => array( //---------------------------------------------------------------------------
+                <<<'EOD'
 <?php
 
     namespace NamespaceA
@@ -209,11 +198,10 @@ EOD;
     namespace NamespaceD {}
 
 EOD
-        );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
+                ,
+                0,
+                'context',
+                <<<'EOD'
 <?php
 
     namespace NamespaceX\NamespaceY
@@ -226,15 +214,12 @@ EOD
 
     namespace NamespaceD {}
 
-EOD;
+EOD
+                ,
+            ),
 
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testReplaceContextRegularFromGlobal()
-    {
-        $this->streamFixture(
-<<<'EOD'
+            'From global' => array( //----------------------------------------------------------------------------------
+                <<<'EOD'
 <?php
 
     use SymbolA \ SymbolB \ SymbolC as SymbolD ;
@@ -246,11 +231,10 @@ EOD;
     namespace NamespaceD;
 
 EOD
-        );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
+                ,
+                0,
+                'context',
+                <<<'EOD'
 <?php
 
     namespace NamespaceX\NamespaceY;
@@ -262,15 +246,12 @@ EOD
 
     namespace NamespaceD;
 
-EOD;
+EOD
+                ,
+            ),
 
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testReplaceContextAlternateFromGlobal()
-    {
-        $this->streamFixture(
-<<<'EOD'
+            'From global (alternate)' => array( //----------------------------------------------------------------------
+                <<<'EOD'
 <?php
 
     namespace
@@ -285,11 +266,10 @@ EOD;
     namespace NamespaceD {}
 
 EOD
-        );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
+                ,
+                0,
+                'context',
+                <<<'EOD'
 <?php
 
     namespace NamespaceX\NamespaceY
@@ -302,15 +282,12 @@ EOD
 
     namespace NamespaceD {}
 
-EOD;
+EOD
+                ,
+            ),
 
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testReplaceContextRegularToGlobal()
-    {
-        $this->streamFixture(
-<<<'EOD'
+            'To global' => array( //------------------------------------------------------------------------------------
+                <<<'EOD'
 <?php
 
     namespace NamespaceA \ NamespaceB;
@@ -324,11 +301,10 @@ EOD;
     namespace NamespaceD;
 
 EOD
-        );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextGlobal, $this->path);
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
+                ,
+                0,
+                'contextGlobal',
+                <<<'EOD'
 <?php
 
     use const SymbolX\SymbolY as SymbolZ;
@@ -338,15 +314,12 @@ EOD
 
     namespace NamespaceD;
 
-EOD;
+EOD
+                ,
+            ),
 
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testReplaceContextAlternateToGlobal()
-    {
-        $this->streamFixture(
-<<<'EOD'
+            'To global (alternate)' => array( //------------------------------------------------------------------------
+                <<<'EOD'
 <?php
 
     namespace NamespaceA \ NamespaceB
@@ -361,11 +334,10 @@ EOD;
     namespace NamespaceD {}
 
 EOD
-        );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextGlobal, $this->path);
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
+                ,
+                0,
+                'contextGlobal',
+                <<<'EOD'
 <?php
 
     namespace
@@ -378,15 +350,12 @@ EOD
 
     namespace NamespaceD {}
 
-EOD;
+EOD
+                ,
+            ),
 
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testReplaceContextRegularFromNoUseStatements()
-    {
-        $this->streamFixture(
-<<<'EOD'
+            'From no uses' => array( //---------------------------------------------------------------------------------
+                <<<'EOD'
 <?php
 
     namespace NamespaceA;
@@ -396,11 +365,10 @@ EOD;
     namespace NamespaceD;
 
 EOD
-        );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
+                ,
+                0,
+                'context',
+                <<<'EOD'
 <?php
 
     namespace NamespaceX\NamespaceY;
@@ -412,15 +380,12 @@ EOD
 
     namespace NamespaceD;
 
-EOD;
+EOD
+                ,
+            ),
 
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testReplaceContextAlternateFromNoUseStatements()
-    {
-        $this->streamFixture(
-<<<'EOD'
+            'From no uses (alternate)' => array( //---------------------------------------------------------------------
+                <<<'EOD'
 <?php
 
     namespace NamespaceA {}
@@ -430,11 +395,10 @@ EOD;
     namespace NamespaceD {}
 
 EOD
-        );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->context, $this->path);
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
+                ,
+                0,
+                'context',
+                <<<'EOD'
 <?php
 
     namespace NamespaceX\NamespaceY {
@@ -446,15 +410,12 @@ EOD
 
     namespace NamespaceD {}
 
-EOD;
+EOD
+                ,
+            ),
 
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testReplaceContextRegularToNoUseStatements()
-    {
-        $this->streamFixture(
-<<<'EOD'
+            'To no uses' => array( //-----------------------------------------------------------------------------------
+                <<<'EOD'
 <?php
 
     namespace NamespaceA;
@@ -468,11 +429,10 @@ EOD;
     namespace NamespaceD;
 
 EOD
-        );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextNoUse, $this->path);
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
+                ,
+                0,
+                'contextNoUse',
+                <<<'EOD'
 <?php
 
     namespace NamespaceX\NamespaceY;
@@ -481,15 +441,12 @@ EOD
 
     namespace NamespaceD;
 
-EOD;
+EOD
+                ,
+            ),
 
-        $this->assertSame($expected, $actual);
-    }
-
-    public function testReplaceContextAlternateToNoUseStatements()
-    {
-        $this->streamFixture(
-<<<'EOD'
+            'To no uses (alternate)' => array( //-----------------------------------------------------------------------
+                <<<'EOD'
 <?php
 
     namespace NamespaceA
@@ -504,11 +461,10 @@ EOD;
     namespace NamespaceD {}
 
 EOD
-        );
-        $this->writer->replaceContextInStream($this->stream, $this->parsedContexts[0], $this->contextNoUse, $this->path);
-        fseek($this->stream, 0);
-        $actual = stream_get_contents($this->stream);
-        $expected = <<<'EOD'
+                ,
+                0,
+                'contextNoUse',
+                <<<'EOD'
 <?php
 
     namespace NamespaceX\NamespaceY
@@ -519,7 +475,22 @@ EOD
 
     namespace NamespaceD {}
 
-EOD;
+EOD
+                ,
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider replaceContextInData
+     */
+    public function testReplaceContextInStream($source, $index, $context, $expected)
+    {
+        $this->streamFixture($source);
+        $this->writer
+            ->replaceContextInStream($this->stream, $this->parsedContexts[$index], $this->$context, $this->path);
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
 
         $this->assertSame($expected, $actual);
     }
