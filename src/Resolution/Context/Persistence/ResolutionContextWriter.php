@@ -132,6 +132,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
             ),
             $path
         );
+        $this->streamEditor()->stripTrailingWhitespace($stream, $path);
     }
 
     /**
@@ -234,6 +235,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         }
 
         $this->streamEditor()->replaceMultiple($stream, $replacements, $path);
+        $this->streamEditor()->stripTrailingWhitespace($stream, $path);
     }
 
     /**
@@ -274,6 +276,9 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         }
     }
 
+    /**
+     * Here be dragons...
+     */
     private function replacementsForContext(
         $stream,
         $path,

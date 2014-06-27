@@ -145,6 +145,28 @@ interface StreamEditorInterface
     public function replaceMultiple($stream, array $replacements, $path = null);
 
     /**
+     * Strip trailing whitespace from all lines in a stream.
+     *
+     * @param stream      $stream The stream.
+     * @param string|null $path   The path, if known.
+     *
+     * @throws IoExceptionInterface If a stream operation cannot be performed.
+     */
+    public function stripTrailingWhitespace($stream, $path = null);
+
+    /**
+     * Find the start of the line by offset into a stream.
+     *
+     * @param stream      $stream The stream to inspect.
+     * @param integer     $offset The offset to begin searching at.
+     * @param string|null $path   The path, if known.
+     *
+     * @return integer       The offset of the start of the line.
+     * @throws ReadException If the stream cannot be read.
+     */
+    public function findStartOfLineByOffset($stream, $offset, $path = null);
+
+    /**
      * Find the line indent by offset into a stream.
      *
      * @param stream      $stream The stream to inspect.

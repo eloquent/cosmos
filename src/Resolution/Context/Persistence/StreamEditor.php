@@ -296,6 +296,95 @@ class StreamEditor implements StreamEditorInterface
     }
 
     /**
+     * Strip trailing whitespace from all lines in a stream.
+     *
+     * @param stream      $stream The stream.
+     * @param string|null $path   The path, if known.
+     *
+     * @throws IoExceptionInterface If a stream operation cannot be performed.
+     */
+    public function stripTrailingWhitespace($stream, $path = null)
+    {
+        $this->seek($stream, 0, null, $path);
+
+        $replacements = array();
+        $offset = $startOfWhitespace = $whitespaceSize = 0;
+        while (true) {
+            $data = $this->read($stream, $this->bufferSize, $path);
+
+            foreach (str_split($data) as $character) {
+                switch ($character) {
+                    case ' ':
+                    case "\t":
+                        if (0 === $whitespaceSize) {
+                            $startOfWhitespace = $offset;
+                        }
+
+                        $whitespaceSize++;
+
+                        break;
+
+                    case "\n":
+                    case "\r":
+                        if ($whitespaceSize > 0) {
+                            $replacements[] = array(
+                                $startOfWhitespace,
+                                $whitespaceSize,
+                                '',
+                            );
+                        }
+
+                    default:
+                        $whitespaceSize = 0;
+                }
+
+                $offset++;
+            }
+
+            if (strlen($data) < $this->bufferSize) {
+                break;
+            }
+        }
+
+        $this->replaceMultiple($stream, $replacements, $path);
+    }
+
+    /**
+     * Find the start of the line by offset into a stream.
+     *
+     * @param stream      $stream The stream to inspect.
+     * @param integer     $offset The offset to begin searching at.
+     * @param string|null $path   The path, if known.
+     *
+     * @return integer       The offset of the start of the line.
+     * @throws ReadException If the stream cannot be read.
+     */
+    public function findStartOfLineByOffset($stream, $offset, $path = null)
+    {
+        $this->seek($stream, $offset, null, $path);
+        $nextCharacter = $this->read($stream, 1, $path);
+
+        while ($offset > 0) {
+            $offset--;
+            $this->seek($stream, $offset, null, $path);
+            $character = $this->read($stream, 1, $path);
+
+            if (
+                "\n" === $character ||
+                ("\r" === $character && "\n" !== $nextCharacter)
+            ) {
+                $offset++;
+
+                break;
+            }
+
+            $nextCharacter = $character;
+        }
+
+        return $offset;
+    }
+
+    /**
      * Find the line indent by offset into a stream.
      *
      * @param stream      $stream The stream to inspect.
@@ -307,18 +396,7 @@ class StreamEditor implements StreamEditorInterface
      */
     public function findIndentByOffset($stream, $offset, $path = null)
     {
-        while ($offset > 0) {
-            $offset--;
-            $this->seek($stream, $offset, null, $path);
-            $character = $this->read($stream, 1, $path);
-
-            if ("\n" === $character || "\r" === $character) {
-                $offset++;
-
-                break;
-            }
-        }
-
+        $offset = $this->findStartOfLineByOffset($stream, $offset, $path);
         $this->seek($stream, $offset, null, $path);
 
         $character = '';

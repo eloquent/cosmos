@@ -255,20 +255,106 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
         $this->assertSame(5, $actualDelta);
     }
 
+    public function testStripTrailingWhitespace()
+    {
+        $original = "foo   \n\t\n    bar\n\n        baz  \t  \n";
+        $expected = "foo\n\n    bar\n\n        baz\n";
+        fwrite($this->stream, $original);
+        $this->editor->stripTrailingWhitespace($this->stream);
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+
+        $this->assertSame(rawurlencode($expected), rawurlencode($actual));
+    }
+
+    public function testStripTrailingWhitespaceWithCarriageReturns()
+    {
+        $original = "foo   \r\t\r    bar\r\r        baz  \t  \r";
+        $expected = "foo\r\r    bar\r\r        baz\r";
+        fwrite($this->stream, $original);
+        $this->editor->stripTrailingWhitespace($this->stream);
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+
+        $this->assertSame(rawurlencode($expected), rawurlencode($actual));
+    }
+
+    public function testStripTrailingWhitespaceWithCarriageReturnsAndNewlines()
+    {
+        $original = "foo   \r\n\t\r\n    bar\r\n\r\n        baz  \t  \r\n";
+        $expected = "foo\r\n\r\n    bar\r\n\r\n        baz\r\n";
+        fwrite($this->stream, $original);
+        $this->editor->stripTrailingWhitespace($this->stream);
+        fseek($this->stream, 0);
+        $actual = stream_get_contents($this->stream);
+
+        $this->assertSame(rawurlencode($expected), rawurlencode($actual));
+    }
+
+    public function testFindStartOfLineByOffset()
+    {
+        $data = "foo\n\n    bar\n\n        baz\n";
+        fwrite($this->stream, $data);
+
+        $this->assertSame(0, $this->editor->findStartOfLineByOffset($this->stream, 0));
+        $this->assertSame(0, $this->editor->findStartOfLineByOffset($this->stream, 3));
+        $this->assertSame(4, $this->editor->findStartOfLineByOffset($this->stream, 4));
+        $this->assertSame(5, $this->editor->findStartOfLineByOffset($this->stream, 5));
+        $this->assertSame(5, $this->editor->findStartOfLineByOffset($this->stream, 12));
+        $this->assertSame(13, $this->editor->findStartOfLineByOffset($this->stream, 13));
+        $this->assertSame(14, $this->editor->findStartOfLineByOffset($this->stream, 14));
+        $this->assertSame(14, $this->editor->findStartOfLineByOffset($this->stream, 25));
+        $this->assertSame(26, $this->editor->findStartOfLineByOffset($this->stream, 26));
+    }
+
+    public function testFindStartOfLineByOffsetWithCarriageReturns()
+    {
+        $data = "foo\r\r    bar\r\r        baz\r";
+        fwrite($this->stream, $data);
+
+        $this->assertSame(0, $this->editor->findStartOfLineByOffset($this->stream, 0));
+        $this->assertSame(0, $this->editor->findStartOfLineByOffset($this->stream, 3));
+        $this->assertSame(4, $this->editor->findStartOfLineByOffset($this->stream, 4));
+        $this->assertSame(5, $this->editor->findStartOfLineByOffset($this->stream, 5));
+        $this->assertSame(5, $this->editor->findStartOfLineByOffset($this->stream, 12));
+        $this->assertSame(13, $this->editor->findStartOfLineByOffset($this->stream, 13));
+        $this->assertSame(14, $this->editor->findStartOfLineByOffset($this->stream, 14));
+        $this->assertSame(14, $this->editor->findStartOfLineByOffset($this->stream, 25));
+        $this->assertSame(26, $this->editor->findStartOfLineByOffset($this->stream, 26));
+    }
+
+    public function testFindStartOfLineByOffsetWithCarriageReturnsAndNewlines()
+    {
+        $data = "foo\r\n\r\n    bar\r\n\r\n        baz\r\n";
+        fwrite($this->stream, $data);
+
+        $this->assertSame(0, $this->editor->findStartOfLineByOffset($this->stream, 0));
+        $this->assertSame(0, $this->editor->findStartOfLineByOffset($this->stream, 4));
+        $this->assertSame(5, $this->editor->findStartOfLineByOffset($this->stream, 5));
+        $this->assertSame(5, $this->editor->findStartOfLineByOffset($this->stream, 6));
+        $this->assertSame(7, $this->editor->findStartOfLineByOffset($this->stream, 7));
+        $this->assertSame(7, $this->editor->findStartOfLineByOffset($this->stream, 15));
+        $this->assertSame(16, $this->editor->findStartOfLineByOffset($this->stream, 16));
+        $this->assertSame(16, $this->editor->findStartOfLineByOffset($this->stream, 17));
+        $this->assertSame(18, $this->editor->findStartOfLineByOffset($this->stream, 18));
+        $this->assertSame(18, $this->editor->findStartOfLineByOffset($this->stream, 30));
+        $this->assertSame(31, $this->editor->findStartOfLineByOffset($this->stream, 31));
+    }
+
     public function testFindIndentByOffset()
     {
         $data = "foo\n\n    bar\n\n        baz\n";
         fwrite($this->stream, $data);
 
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 0)));
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 1)));
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 4)));
-        $this->assertSame(bin2hex('    '), bin2hex($this->editor->findIndentByOffset($this->stream, 5)));
-        $this->assertSame(bin2hex('    '), bin2hex($this->editor->findIndentByOffset($this->stream, 12)));
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 13)));
-        $this->assertSame(bin2hex('        '), bin2hex($this->editor->findIndentByOffset($this->stream, 14)));
-        $this->assertSame(bin2hex('        '), bin2hex($this->editor->findIndentByOffset($this->stream, 25)));
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 26)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 0)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 1)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 4)));
+        $this->assertSame(rawurlencode('    '), rawurlencode($this->editor->findIndentByOffset($this->stream, 5)));
+        $this->assertSame(rawurlencode('    '), rawurlencode($this->editor->findIndentByOffset($this->stream, 12)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 13)));
+        $this->assertSame(rawurlencode('        '), rawurlencode($this->editor->findIndentByOffset($this->stream, 14)));
+        $this->assertSame(rawurlencode('        '), rawurlencode($this->editor->findIndentByOffset($this->stream, 25)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 26)));
     }
 
     public function testFindIndentByOffsetWithTabs()
@@ -276,15 +362,15 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
         $data = "foo\n\n\t\t\t\tbar\n\n\t\t\t\t\t\t\t\tbaz\n";
         fwrite($this->stream, $data);
 
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 0)));
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 1)));
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 4)));
-        $this->assertSame(bin2hex("\t\t\t\t"), bin2hex($this->editor->findIndentByOffset($this->stream, 5)));
-        $this->assertSame(bin2hex("\t\t\t\t"), bin2hex($this->editor->findIndentByOffset($this->stream, 12)));
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 13)));
-        $this->assertSame(bin2hex("\t\t\t\t\t\t\t\t"), bin2hex($this->editor->findIndentByOffset($this->stream, 14)));
-        $this->assertSame(bin2hex("\t\t\t\t\t\t\t\t"), bin2hex($this->editor->findIndentByOffset($this->stream, 25)));
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 26)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 0)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 1)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 4)));
+        $this->assertSame(rawurlencode("\t\t\t\t"), rawurlencode($this->editor->findIndentByOffset($this->stream, 5)));
+        $this->assertSame(rawurlencode("\t\t\t\t"), rawurlencode($this->editor->findIndentByOffset($this->stream, 12)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 13)));
+        $this->assertSame(rawurlencode("\t\t\t\t\t\t\t\t"), rawurlencode($this->editor->findIndentByOffset($this->stream, 14)));
+        $this->assertSame(rawurlencode("\t\t\t\t\t\t\t\t"), rawurlencode($this->editor->findIndentByOffset($this->stream, 25)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 26)));
     }
 
     public function testFindIndentByOffsetWithMixedIndentation()
@@ -292,15 +378,15 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
         $data = "foo\n\n \t  bar\n\n  \t  \t  baz\n";
         fwrite($this->stream, $data);
 
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 0)));
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 1)));
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 4)));
-        $this->assertSame(bin2hex(" \t  "), bin2hex($this->editor->findIndentByOffset($this->stream, 5)));
-        $this->assertSame(bin2hex(" \t  "), bin2hex($this->editor->findIndentByOffset($this->stream, 12)));
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 13)));
-        $this->assertSame(bin2hex("  \t  \t  "), bin2hex($this->editor->findIndentByOffset($this->stream, 14)));
-        $this->assertSame(bin2hex("  \t  \t  "), bin2hex($this->editor->findIndentByOffset($this->stream, 25)));
-        $this->assertSame(bin2hex(''), bin2hex($this->editor->findIndentByOffset($this->stream, 26)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 0)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 1)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 4)));
+        $this->assertSame(rawurlencode(" \t  "), rawurlencode($this->editor->findIndentByOffset($this->stream, 5)));
+        $this->assertSame(rawurlencode(" \t  "), rawurlencode($this->editor->findIndentByOffset($this->stream, 12)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 13)));
+        $this->assertSame(rawurlencode("  \t  \t  "), rawurlencode($this->editor->findIndentByOffset($this->stream, 14)));
+        $this->assertSame(rawurlencode("  \t  \t  "), rawurlencode($this->editor->findIndentByOffset($this->stream, 25)));
+        $this->assertSame(rawurlencode(''), rawurlencode($this->editor->findIndentByOffset($this->stream, 26)));
     }
 
     public function testInstance()

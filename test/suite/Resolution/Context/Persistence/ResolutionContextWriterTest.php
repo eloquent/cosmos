@@ -50,6 +50,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
         $this->context = new ResolutionContext(Symbol::fromString('\NamespaceX\NamespaceY'), $this->useStatements);
         $this->contextGlobal = new ResolutionContext(null, $this->useStatements);
         $this->contextNoUse = new ResolutionContext(Symbol::fromString('\NamespaceX\NamespaceY'));
+        $this->contextEmpty = new ResolutionContext;
         $this->contextSecondary = new ResolutionContext(Symbol::fromString('\NamespaceZ'));
         $this->file = tempnam(sys_get_temp_dir(), 'cosmos-');
         $this->stream = fopen('php://memory', 'rb+');
@@ -479,6 +480,71 @@ EOD
 <?php
 
     namespace NamespaceX\NamespaceY
+    {
+    }
+
+    // some other code
+
+    namespace NamespaceD {}
+
+EOD
+                ,
+            ),
+
+            'To empty' => array( //------------------------------------------------------------------------------------
+                <<<'EOD'
+<?php
+
+    namespace NamespaceA \ NamespaceB;
+
+    use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+
+    use function SymbolE , SymbolF ;
+
+    // some other code
+
+    namespace NamespaceD;
+
+EOD
+                ,
+                0,
+                'contextEmpty',
+                <<<'EOD'
+<?php
+
+
+
+    // some other code
+
+    namespace NamespaceD;
+
+EOD
+                ,
+            ),
+
+            'To empty (alternate)' => array( //------------------------------------------------------------------------------------
+                <<<'EOD'
+<?php
+
+    namespace NamespaceA
+    {
+        use SymbolA \ SymbolB \ SymbolC as SymbolD ;
+
+        use function SymbolE , SymbolF ;
+    }
+
+    // some other code
+
+    namespace NamespaceD {}
+
+EOD
+                ,
+                0,
+                'contextEmpty',
+                <<<'EOD'
+<?php
+
+    namespace
     {
     }
 
