@@ -11,6 +11,7 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Persistence;
 
+use Eloquent\Cosmos\Exception\WriteException;
 use Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
@@ -19,6 +20,7 @@ use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Cosmos\UseStatement\UseStatementClause;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
 use Eloquent\Liberator\Liberator;
+use Phake;
 use PHPUnit_Framework_TestCase;
 
 class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
@@ -28,7 +30,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
         parent::setUp();
 
         $this->contextRenderer = new ResolutionContextRenderer;
-        $this->streamEditor = new StreamEditor;
+        $this->streamEditor = Phake::partialMock('Eloquent\Cosmos\Resolution\Context\Persistence\StreamEditor');
         $this->writer = new ResolutionContextWriter($this->contextRenderer, $this->streamEditor);
 
         $this->contextParser = ResolutionContextParser::instance();
@@ -48,6 +50,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
         $this->context = new ResolutionContext(Symbol::fromString('\NamespaceX\NamespaceY'), $this->useStatements);
         $this->contextGlobal = new ResolutionContext(null, $this->useStatements);
         $this->contextNoUse = new ResolutionContext(Symbol::fromString('\NamespaceX\NamespaceY'));
+        $this->file = tempnam(sys_get_temp_dir(), 'cosmos-');
         $this->stream = fopen('php://memory', 'rb+');
         $this->path = '/path/to/file';
     }
@@ -57,11 +60,18 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
         parent::tearDown();
 
         fclose($this->stream);
+        unlink($this->file);
     }
 
     protected function streamFixture($data)
     {
         fwrite($this->stream, $data);
+        $this->parsedContexts = $this->contextParser->parseSource($data);
+    }
+
+    protected function fileFixture($data)
+    {
+        file_put_contents($this->file, $data);
         $this->parsedContexts = $this->contextParser->parseSource($data);
     }
 
@@ -484,6 +494,18 @@ EOD
     /**
      * @dataProvider replaceContextInData
      */
+    public function testReplaceContextInString($source, $index, $context, $expected)
+    {
+        $this->parsedContexts = $this->contextParser->parseSource($source);
+        $actual = $this->writer
+            ->replaceContextInString($source, $this->parsedContexts[$index], $this->$context, $this->path);
+
+        $this->assertSame($expected, $actual);
+    }
+
+    /**
+     * @dataProvider replaceContextInData
+     */
     public function testReplaceContextInStream($source, $index, $context, $expected)
     {
         $this->streamFixture($source);
@@ -493,6 +515,27 @@ EOD
         $actual = stream_get_contents($this->stream);
 
         $this->assertSame($expected, $actual);
+    }
+
+    /**
+     * @dataProvider replaceContextInData
+     */
+    public function testReplaceContextInFile($source, $index, $context, $expected)
+    {
+        $this->fileFixture($source);
+        $this->writer->replaceContextInFile($this->file, $this->parsedContexts[$index], $this->$context, $this->path);
+        $actual = file_get_contents($this->file);
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testReplaceContextInFileFailure()
+    {
+        $this->parsedContexts = $this->contextParser->parseSource('');
+        Phake::when($this->streamEditor)->replaceMultiple(Phake::anyParameters())->thenThrow(new WriteException);
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\WriteException');
+        $this->writer->replaceContextInFile($this->file, $this->parsedContexts[0], $this->context, $this->path);
     }
 
     public function testInstance()

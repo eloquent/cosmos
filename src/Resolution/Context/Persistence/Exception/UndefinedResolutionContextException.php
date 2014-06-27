@@ -11,7 +11,6 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Persistence\Exception;
 
-use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use Exception;
 
 /**
@@ -22,15 +21,12 @@ final class UndefinedResolutionContextException extends Exception
     /**
      * Construct a new undefined resolution context exception.
      *
-     * @param integer                      $index The specified index.
-     * @param FileSystemPathInterface|null $path  The path, if known.
-     * @param Exception|null               $cause The cause, if available.
+     * @param integer        $index The specified index.
+     * @param string|null    $path  The path, if known.
+     * @param Exception|null $cause The cause, if available.
      */
-    public function __construct(
-        $index,
-        FileSystemPathInterface $path = null,
-        Exception $cause = null
-    ) {
+    public function __construct($index, $path = null, Exception $cause = null)
+    {
         $this->index = $index;
         $this->path = $path;
 
@@ -43,7 +39,7 @@ final class UndefinedResolutionContextException extends Exception
             $message = sprintf(
                 'No resolution context defined at index %s in file %s.',
                 var_export($index, true),
-                var_export($path->string(), true)
+                var_export($path, true)
             );
         }
 
@@ -63,7 +59,7 @@ final class UndefinedResolutionContextException extends Exception
     /**
      * Get the path.
      *
-     * @return FileSystemPathInterface|null The path, if known.
+     * @return string|null The path, if known.
      */
     public function path()
     {

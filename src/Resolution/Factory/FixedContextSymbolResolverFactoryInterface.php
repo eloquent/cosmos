@@ -17,7 +17,6 @@ use Eloquent\Cosmos\Resolution\Context\Factory\Exception\UndefinedResolutionCont
 use Eloquent\Cosmos\Resolution\Context\Parser\ParserPositionInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
-use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use Eloquent\Pathogen\Resolver\PathResolverInterface;
 use ReflectionClass;
 use ReflectionFunction;
@@ -98,7 +97,7 @@ interface FixedContextSymbolResolverFactoryInterface
      * Create a new fixed context symbol resolver for the first context found in
      * a file.
      *
-     * @param FileSystemPathInterface|string $path The path.
+     * @param string $path The path.
      *
      * @return PathResolverInterface The newly created resolver.
      * @throws ReadException         If the source code cannot be read.
@@ -109,8 +108,8 @@ interface FixedContextSymbolResolverFactoryInterface
      * Create a new fixed context symbol resolver for the context found at the
      * specified index in a file.
      *
-     * @param FileSystemPathInterface|string $path  The path.
-     * @param integer                        $index The index.
+     * @param string  $path  The path.
+     * @param integer $index The index.
      *
      * @return ResolutionContextInterface          The newly created resolution context.
      * @throws ReadException                       If the source code cannot be read.
@@ -122,8 +121,8 @@ interface FixedContextSymbolResolverFactoryInterface
      * Create a new fixed context symbol resolver for the context found at the
      * specified position in a file.
      *
-     * @param FileSystemPathInterface|string $path     The path.
-     * @param ParserPositionInterface        $position The position.
+     * @param string                  $path     The path.
+     * @param ParserPositionInterface $position The position.
      *
      * @return PathResolverInterface The newly created resolver.
      * @throws ReadException         If the source code cannot be read.
@@ -137,8 +136,8 @@ interface FixedContextSymbolResolverFactoryInterface
      * Create a new fixed context symbol resolver for the first context found in
      * a stream.
      *
-     * @param stream                              $stream The stream.
-     * @param FileSystemPathInterface|string|null $path   The path, if known.
+     * @param stream      $stream The stream.
+     * @param string|null $path   The path, if known.
      *
      * @return PathResolverInterface The newly created resolver.
      * @throws ReadException         If the source code cannot be read.
@@ -149,9 +148,9 @@ interface FixedContextSymbolResolverFactoryInterface
      * Create a new fixed context symbol resolver for the context found at the
      * specified index in a stream.
      *
-     * @param stream                              $stream The stream.
-     * @param integer                             $index  The index.
-     * @param FileSystemPathInterface|string|null $path   The path, if known.
+     * @param stream      $stream The stream.
+     * @param integer     $index  The index.
+     * @param string|null $path   The path, if known.
      *
      * @return ResolutionContextInterface          The newly created resolution context.
      * @throws ReadException                       If the source code cannot be read.
@@ -163,9 +162,9 @@ interface FixedContextSymbolResolverFactoryInterface
      * Create a new fixed context symbol resolver for the context found at the
      * specified position in a stream.
      *
-     * @param stream                              $stream   The stream.
-     * @param ParserPositionInterface             $position The position.
-     * @param FileSystemPathInterface|string|null $path     The path, if known.
+     * @param stream                  $stream   The stream.
+     * @param ParserPositionInterface $position The position.
+     * @param string|null             $path     The path, if known.
      *
      * @return PathResolverInterface The newly created resolver.
      * @throws ReadException         If the source code cannot be read.

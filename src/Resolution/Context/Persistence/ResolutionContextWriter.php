@@ -16,8 +16,7 @@ use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedResolutionContextInt
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRendererInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
-use Eloquent\Pathogen\FileSystem\FileSystemPath;
-use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
+use Exception;
 
 /**
  * Writes symbol resolution contexts to files and streams.
@@ -46,6 +45,7 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
      * Construct a new resolution context writer.
      *
      * @param ResolutionContextRendererInterface|null $contextRenderer The renderer to use.
+     * @param StreamEditorInterface|null              $streamEditor    The stream editor to use.
      */
     public function __construct(
         ResolutionContextRendererInterface $contextRenderer = null,
@@ -83,12 +83,38 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
     }
 
     /**
+     * Replace a symbol resolution context in a string.
+     *
+     * @param string                           $data          The string.
+     * @param ParsedResolutionContextInterface $parsedContext The parsed resolution context.
+     * @param ResolutionContextInterface       $context       The replacement resolution context.
+     * @param string|null                      $path          The path, if known.
+     *
+     * @return string               The modified string.
+     * @throws IoExceptionInterface If a stream operation fails.
+     */
+    public function replaceContextInString(
+        $data,
+        ParsedResolutionContextInterface $parsedContext,
+        ResolutionContextInterface $context,
+        $path = null
+    ) {
+        $stream = $this->streamEditor()->open('php://temp', 'rb+');
+
+        $this->streamEditor()->write($stream, $data, $path);
+        $this->replaceContextInStream($stream, $parsedContext, $context, $path);
+        $this->streamEditor()->seek($stream, 0, null, $path);
+
+        return $this->streamEditor()->readAll($stream, $path);
+    }
+
+    /**
      * Replace a symbol resolution context in a stream.
      *
-     * @param stream                              $stream        The stream.
-     * @param ParsedResolutionContextInterface    $parsedContext The parsed resolution context.
-     * @param ResolutionContextInterface          $context       The replacement resolution context.
-     * @param FileSystemPathInterface|string|null $path          The path, if known.
+     * @param stream                           $stream        The stream.
+     * @param ParsedResolutionContextInterface $parsedContext The parsed resolution context.
+     * @param ResolutionContextInterface       $context       The replacement resolution context.
+     * @param string|null                      $path          The path, if known.
      *
      * @throws IoExceptionInterface If a stream operation fails.
      */
@@ -98,10 +124,6 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         ResolutionContextInterface $context,
         $path = null
     ) {
-        if (is_string($path)) {
-            $path = FileSystemPath::fromString($path);
-        }
-
         $this->streamEditor()->replaceMultiple(
             $stream,
             $this->replacementsForContext(
@@ -112,6 +134,36 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
             ),
             $path
         );
+    }
+
+    /**
+     * Replace a symbol resolution context in a file.
+     *
+     * @param string                           $path          The path.
+     * @param ParsedResolutionContextInterface $parsedContext The parsed resolution context.
+     * @param ResolutionContextInterface       $context       The replacement resolution context.
+     *
+     * @throws IoExceptionInterface If a stream operation fails.
+     */
+    public function replaceContextInFile(
+        $path,
+        ParsedResolutionContextInterface $parsedContext,
+        ResolutionContextInterface $context
+    ) {
+        $stream = $this->streamEditor()->open($path, 'rb+');
+
+        $error = null;
+        try {
+            $this->replaceContextInStream($stream, $parsedContext, $context, $path);
+        } catch (Exception $error) {
+            // re-throw after cleanup
+        }
+
+        $this->streamEditor()->close($stream, $path);
+
+        if ($error) {
+            throw $error;
+        }
     }
 
     private function replacementsForContext(

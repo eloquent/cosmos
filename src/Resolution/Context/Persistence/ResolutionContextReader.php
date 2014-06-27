@@ -24,8 +24,6 @@ use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactoryInterface;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolType;
-use Eloquent\Pathogen\FileSystem\FileSystemPath;
-use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use ErrorException;
 use Icecave\Isolator\Isolator;
 use ReflectionClass;
@@ -269,7 +267,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create the first context found in a file.
      *
-     * @param FileSystemPathInterface|string $path The path.
+     * @param string $path The path.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws ReadException              If the source code cannot be read.
@@ -282,8 +280,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create the context found at the specified index in a file.
      *
-     * @param FileSystemPathInterface|string $path  The path.
-     * @param integer                        $index The index.
+     * @param string  $path  The path.
+     * @param integer $index The index.
      *
      * @return ResolutionContextInterface          The newly created resolution context.
      * @throws ReadException                       If the source code cannot be read.
@@ -297,8 +295,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create the context found at the specified position in a file.
      *
-     * @param FileSystemPathInterface|string $path     The path.
-     * @param ParserPositionInterface        $position The position.
+     * @param string                  $path     The path.
+     * @param ParserPositionInterface $position The position.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws ReadException              If the source code cannot be read.
@@ -313,8 +311,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create the first context found in a stream.
      *
-     * @param stream                              $stream The stream.
-     * @param FileSystemPathInterface|string|null $path   The path, if known.
+     * @param stream      $stream The stream.
+     * @param string|null $path   The path, if known.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws ReadException              If the source code cannot be read.
@@ -327,9 +325,9 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create the context found at the specified index in a stream.
      *
-     * @param stream                              $stream The stream.
-     * @param integer                             $index  The index.
-     * @param FileSystemPathInterface|string|null $path   The path, if known.
+     * @param stream      $stream The stream.
+     * @param integer     $index  The index.
+     * @param string|null $path   The path, if known.
      *
      * @return ResolutionContextInterface          The newly created resolution context.
      * @throws ReadException                       If the source code cannot be read.
@@ -344,9 +342,9 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create the context found at the specified position in a stream.
      *
-     * @param stream                              $stream   The stream.
-     * @param ParserPositionInterface             $position The position.
-     * @param FileSystemPathInterface|string|null $path     The path, if known.
+     * @param stream                  $stream   The stream.
+     * @param ParserPositionInterface $position The position.
+     * @param string|null             $path     The path, if known.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws ReadException              If the source code cannot be read.
@@ -389,10 +387,6 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     private function findByIndex(array $contexts, $index, $path = null)
     {
         if (!array_key_exists($index, $contexts)) {
-            if (is_string($path)) {
-                $path = FileSystemPath::fromString($path);
-            }
-
             throw new UndefinedResolutionContextException($index, $path);
         }
 
@@ -421,10 +415,6 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
 
     private function parseFile($path)
     {
-        if ($path instanceof FileSystemPathInterface) {
-            $path = $path->string();
-        }
-
         if (!array_key_exists($path, $this->fileCache)) {
             $this->fileCache[$path] = $this->contextParser()
                 ->parseSource($this->readFile($path));
@@ -453,10 +443,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     {
         $stream = @$this->isolator()->fopen($path, 'rb');
         if (false === $stream) {
-            throw new ReadException(
-                FileSystemPath::fromString($path),
-                $this->lastError()
-            );
+            throw new ReadException($path, $this->lastError());
         }
 
         $error = null;
@@ -479,10 +466,6 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     {
         $source = @$this->isolator()->stream_get_contents($stream);
         if (false === $source) {
-            if (is_string($path)) {
-                $path = FileSystemPath::fromString($path);
-            }
-
             throw new ReadException($path, $this->lastError());
         }
 

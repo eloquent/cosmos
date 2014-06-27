@@ -11,7 +11,6 @@
 
 namespace Eloquent\Cosmos\Exception;
 
-use Eloquent\Pathogen\FileSystem\FileSystemPath;
 use Exception;
 use PHPUnit_Framework_TestCase;
 
@@ -19,7 +18,7 @@ class ReadExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testException()
     {
-        $path = FileSystemPath::fromString('/path/to/foo');
+        $path = '/path/to/foo';
         $cause = new Exception('Exception message.');
         $exception = new ReadException($path, $cause);
 

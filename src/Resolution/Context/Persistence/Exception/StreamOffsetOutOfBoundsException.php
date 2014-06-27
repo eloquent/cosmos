@@ -11,7 +11,6 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Persistence\Exception;
 
-use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use Exception;
 
 /**
@@ -22,15 +21,12 @@ final class StreamOffsetOutOfBoundsException extends Exception
     /**
      * Construct a new stream offset out of bounds exception.
      *
-     * @param integer                      $offset The specified offset.
-     * @param FileSystemPathInterface|null $path   The path, if known.
-     * @param Exception|null               $cause  The cause, if available.
+     * @param integer        $offset The specified offset.
+     * @param string|null    $path   The path, if known.
+     * @param Exception|null $cause  The cause, if available.
      */
-    public function __construct(
-        $offset,
-        FileSystemPathInterface $path = null,
-        Exception $cause = null
-    ) {
+    public function __construct($offset, $path = null, Exception $cause = null)
+    {
         $this->offset = $offset;
         $this->path = $path;
 
@@ -43,7 +39,7 @@ final class StreamOffsetOutOfBoundsException extends Exception
             $message = sprintf(
                 'Stream offset %d is out of bounds in file %s.',
                 var_export($offset, true),
-                var_export($path->string(), true)
+                var_export($path, true)
             );
         }
 
@@ -63,7 +59,7 @@ final class StreamOffsetOutOfBoundsException extends Exception
     /**
      * Get the path.
      *
-     * @return FileSystemPathInterface|null The path, if known.
+     * @return string|null The path, if known.
      */
     public function path()
     {

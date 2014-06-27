@@ -11,7 +11,6 @@
 
 namespace Eloquent\Cosmos\Resolution\Context\Persistence\Exception;
 
-use Eloquent\Pathogen\FileSystem\FileSystemPath;
 use Exception;
 use PHPUnit_Framework_TestCase;
 
@@ -19,7 +18,7 @@ class StreamOffsetOutOfBoundsExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testException()
     {
-        $path = FileSystemPath::fromString('/path/to/foo.php');
+        $path = '/path/to/foo.php';
         $cause = new Exception;
         $exception = new StreamOffsetOutOfBoundsException(111, $path, $cause);
 

@@ -11,7 +11,6 @@
 
 namespace Eloquent\Cosmos\Exception;
 
-use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use Exception;
 
 /**
@@ -22,13 +21,11 @@ final class WriteException extends Exception implements IoExceptionInterface
     /**
      * Construct a new write exception.
      *
-     * @param FileSystemPathInterface|null $path  The path, if known.
-     * @param Exception|null               $cause The cause, if available.
+     * @param string|null    $path  The path, if known.
+     * @param Exception|null $cause The cause, if available.
      */
-    public function __construct(
-        FileSystemPathInterface $path = null,
-        Exception $cause = null
-    ) {
+    public function __construct($path = null, Exception $cause = null)
+    {
         $this->path = $path;
 
         if (null === $path) {
@@ -36,7 +33,7 @@ final class WriteException extends Exception implements IoExceptionInterface
         } else {
             $message = sprintf(
                 'Unable to write to %s',
-                var_export($path->string(), true)
+                var_export($path, true)
             );
         }
 
@@ -52,7 +49,7 @@ final class WriteException extends Exception implements IoExceptionInterface
     /**
      * Get the path.
      *
-     * @return FileSystemPathInterface|null The path, if known.
+     * @return string|null The path, if known.
      */
     public function path()
     {

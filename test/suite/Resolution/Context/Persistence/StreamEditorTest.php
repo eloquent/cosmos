@@ -12,7 +12,6 @@
 namespace Eloquent\Cosmos\Resolution\Context\Persistence;
 
 use Eloquent\Liberator\Liberator;
-use Eloquent\Pathogen\FileSystem\FileSystemPath;
 use Icecave\Isolator\Isolator;
 use PHPUnit_Framework_TestCase;
 use Phake;
@@ -28,7 +27,7 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
         $this->editor = new StreamEditor($this->bufferSize, $this->isolator);
 
         $this->stream = fopen('php://memory', 'rb+');
-        $this->path = FileSystemPath::fromString('/path/to/file');
+        $this->path = '/path/to/file';
         $this->error = array(
             'message' => 'Error message.',
             'type' => E_WARNING,
@@ -54,6 +53,52 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
         $this->editor = new StreamEditor;
 
         $this->assertSame(8192, $this->editor->bufferSize());
+    }
+
+    public function testOpen()
+    {
+        Phake::when($this->isolator)->fopen($this->path, 'rb+')->thenReturn($this->stream);
+
+        $this->assertSame($this->stream, $this->editor->open($this->path, 'rb+'));
+    }
+
+    public function testOpenFailure()
+    {
+        Phake::when($this->isolator)->fopen($this->path, 'rb+')->thenReturn(false);
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
+        $this->editor->open($this->path, 'rb+');
+    }
+
+    public function testClose()
+    {
+        Phake::when($this->isolator)->fclose($this->stream)->thenReturn(true);
+
+        $this->assertNull($this->editor->close($this->stream));
+    }
+
+    public function testCloseFailure()
+    {
+        Phake::when($this->isolator)->fclose($this->stream)->thenReturn(false);
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
+        $this->editor->close($this->stream);
+    }
+
+    public function testReadAll()
+    {
+        fwrite($this->stream, 'foo');
+        fseek($this->stream, 0);
+
+        $this->assertSame('foo', $this->editor->readAll($this->stream, $this->path));
+    }
+
+    public function testReadAllFailure()
+    {
+        Phake::when($this->isolator)->stream_get_contents($this->stream)->thenReturn(false);
+
+        $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException');
+        $this->editor->readAll($this->stream, $this->path);
     }
 
     public function replaceData()

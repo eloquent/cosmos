@@ -20,7 +20,6 @@ use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
-use Eloquent\Pathogen\FileSystem\FileSystemPath;
 use Icecave\Isolator\Isolator;
 use NamespaceA\NamespaceB\ClassA;
 use NamespaceC\ClassC;
@@ -319,20 +318,6 @@ EOD;
 
     public function testReadFromFile()
     {
-        $actual = $this->reader->readFromFile(FileSystemPath::fromString($this->fixturePath));
-        $expected = <<<'EOD'
-namespace NamespaceA\NamespaceB;
-
-use NamespaceD\NamespaceE\SymbolA as SymbolB;
-use SymbolC as SymbolD;
-
-EOD;
-
-        $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
-    }
-
-    public function testReadFromFileWithString()
-    {
         $actual = $this->reader->readFromFile($this->fixturePath);
         $expected = <<<'EOD'
 namespace NamespaceA\NamespaceB;
@@ -381,7 +366,7 @@ EOD;
 
     public function testReadFromFileByIndex()
     {
-        $actual = $this->reader->readFromFileByIndex(FileSystemPath::fromString($this->fixturePath), 2);
+        $actual = $this->reader->readFromFileByIndex($this->fixturePath, 2);
         $expected = <<<'EOD'
 use NamespaceH\NamespaceI\SymbolI as SymbolJ;
 use SymbolK as SymbolL;
@@ -408,7 +393,7 @@ EOD;
     public function testReadFromFileByPosition()
     {
         $position = new ParserPosition(24, 111);
-        $actual = $this->reader->readFromFileByPosition(FileSystemPath::fromString($this->fixturePath), $position);
+        $actual = $this->reader->readFromFileByPosition($this->fixturePath, $position);
         $expected = <<<'EOD'
 namespace NamespaceA\NamespaceB;
 
@@ -438,7 +423,7 @@ EOD;
     public function testReadFromFileByPositionSecondaryNamespace()
     {
         $position = new ParserPosition(36, 1);
-        $actual = $this->reader->readFromFileByPosition(FileSystemPath::fromString($this->fixturePath), $position);
+        $actual = $this->reader->readFromFileByPosition($this->fixturePath, $position);
         $expected = <<<'EOD'
 namespace NamespaceC;
 
@@ -453,7 +438,7 @@ EOD;
     public function testReadFromFileByPositionBeforeFirst()
     {
         $position = new ParserPosition(1, 1);
-        $actual = $this->reader->readFromFileByPosition(FileSystemPath::fromString($this->fixturePath), $position);
+        $actual = $this->reader->readFromFileByPosition($this->fixturePath, $position);
         $expected = '';
 
         $this->assertSame($expected, $this->contextRenderer->renderContext($actual));
@@ -462,7 +447,7 @@ EOD;
     public function testReadFromFileByPositionAfterLast()
     {
         $position = new ParserPosition(1111, 2222);
-        $actual = $this->reader->readFromFileByPosition(FileSystemPath::fromString($this->fixturePath), $position);
+        $actual = $this->reader->readFromFileByPosition($this->fixturePath, $position);
         $expected = <<<'EOD'
 use NamespaceH\NamespaceI\SymbolI as SymbolJ;
 use SymbolK as SymbolL;

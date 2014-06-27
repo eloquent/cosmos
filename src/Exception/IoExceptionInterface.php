@@ -11,8 +11,6 @@
 
 namespace Eloquent\Cosmos\Exception;
 
-use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
-
 /**
  * The interface implemented by I/O exceptions.
  */
@@ -21,7 +19,7 @@ interface IoExceptionInterface
     /**
      * Get the path.
      *
-     * @return FileSystemPathInterface|null The path, if known.
+     * @return string|null The path, if known.
      */
     public function path();
 }

@@ -19,7 +19,6 @@ use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
-use Eloquent\Pathogen\FileSystem\FileSystemPath;
 use NamespaceA\NamespaceB\ClassA;
 use Phake;
 use PHPUnit_Framework_TestCase;
@@ -141,7 +140,7 @@ EOD;
 
     public function testFromFile()
     {
-        $actual = ResolutionContext::fromFile(FileSystemPath::fromString($this->fixturePath));
+        $actual = ResolutionContext::fromFile($this->fixturePath);
         $expected = <<<'EOD'
 namespace NamespaceA\NamespaceB;
 
@@ -155,7 +154,7 @@ EOD;
 
     public function testFromFileByIndex()
     {
-        $actual = ResolutionContext::fromFileByIndex(FileSystemPath::fromString($this->fixturePath), 2);
+        $actual = ResolutionContext::fromFileByIndex($this->fixturePath, 2);
         $expected = <<<'EOD'
 use NamespaceH\NamespaceI\SymbolI as SymbolJ;
 use SymbolK as SymbolL;
@@ -168,7 +167,7 @@ EOD;
     public function testFromFileByPosition()
     {
         $position = new ParserPosition(24, 111);
-        $actual = ResolutionContext::fromFileByPosition(FileSystemPath::fromString($this->fixturePath), $position);
+        $actual = ResolutionContext::fromFileByPosition($this->fixturePath, $position);
         $expected = <<<'EOD'
 namespace NamespaceA\NamespaceB;
 

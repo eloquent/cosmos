@@ -25,7 +25,6 @@ use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
-use Eloquent\Pathogen\FileSystem\FileSystemPathInterface;
 use ReflectionClass;
 use ReflectionFunction;
 
@@ -109,7 +108,7 @@ class ResolutionContext implements ResolutionContextInterface
     /**
      * Create the first context found in a file.
      *
-     * @param FileSystemPathInterface|string $path The path.
+     * @param string $path The path.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws ReadException              If the source code cannot be read.
@@ -122,8 +121,8 @@ class ResolutionContext implements ResolutionContextInterface
     /**
      * Create the context found at the specified index in a file.
      *
-     * @param FileSystemPathInterface|string $path  The path.
-     * @param integer                        $index The index.
+     * @param string  $path  The path.
+     * @param integer $index The index.
      *
      * @return ResolutionContextInterface          The newly created resolution context.
      * @throws ReadException                       If the source code cannot be read.
@@ -137,8 +136,8 @@ class ResolutionContext implements ResolutionContextInterface
     /**
      * Create the context found at the specified position in a file.
      *
-     * @param FileSystemPathInterface|string $path     The path.
-     * @param ParserPositionInterface        $position The position.
+     * @param string                  $path     The path.
+     * @param ParserPositionInterface $position The position.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws ReadException              If the source code cannot be read.
@@ -153,8 +152,8 @@ class ResolutionContext implements ResolutionContextInterface
     /**
      * Create the first context found in a stream.
      *
-     * @param stream                              $stream The stream.
-     * @param FileSystemPathInterface|string|null $path   The path, if known.
+     * @param stream      $stream The stream.
+     * @param string|null $path   The path, if known.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws ReadException              If the source code cannot be read.
@@ -167,9 +166,9 @@ class ResolutionContext implements ResolutionContextInterface
     /**
      * Create the context found at the specified index in a stream.
      *
-     * @param stream                              $stream The stream.
-     * @param integer                             $index  The index.
-     * @param FileSystemPathInterface|string|null $path   The path, if known.
+     * @param stream      $stream The stream.
+     * @param integer     $index  The index.
+     * @param string|null $path   The path, if known.
      *
      * @return ResolutionContextInterface          The newly created resolution context.
      * @throws ReadException                       If the source code cannot be read.
@@ -183,9 +182,9 @@ class ResolutionContext implements ResolutionContextInterface
     /**
      * Create the context found at the specified position in a stream.
      *
-     * @param stream                              $stream   The stream.
-     * @param ParserPositionInterface             $position The position.
-     * @param FileSystemPathInterface|string|null $path     The path, if known.
+     * @param stream                  $stream   The stream.
+     * @param ParserPositionInterface $position The position.
+     * @param string|null             $path     The path, if known.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws ReadException              If the source code cannot be read.
