@@ -96,6 +96,8 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
         return array(
             'Shorter' => array( //--------------------------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceA \ NamespaceB \ NamespaceC ;
@@ -113,6 +115,8 @@ EOD
                 0,
                 'context',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceX\NamespaceY ;
@@ -130,6 +134,8 @@ EOD
 
             'Shorter (alternate)' => array( //--------------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceA \ NamespaceB \ NamespaceC
@@ -148,6 +154,8 @@ EOD
                 0,
                 'context',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceX\NamespaceY
@@ -166,6 +174,8 @@ EOD
 
             'Longer' => array( //---------------------------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceA ;
@@ -181,6 +191,8 @@ EOD
                 0,
                 'context',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceX\NamespaceY ;
@@ -198,6 +210,8 @@ EOD
 
             'Longer (alternate)' => array( //---------------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceA
@@ -214,6 +228,8 @@ EOD
                 0,
                 'context',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceX\NamespaceY
@@ -232,6 +248,8 @@ EOD
 
             'From global' => array( //----------------------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     use SymbolA \ SymbolB \ SymbolC as SymbolD ;
@@ -247,6 +265,8 @@ EOD
                 0,
                 'context',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceX\NamespaceY;
@@ -264,6 +284,8 @@ EOD
 
             'From global (alternate)' => array( //----------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace
@@ -282,6 +304,8 @@ EOD
                 0,
                 'context',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceX\NamespaceY
@@ -300,6 +324,8 @@ EOD
 
             'To global' => array( //------------------------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceA \ NamespaceB;
@@ -317,6 +343,8 @@ EOD
                 0,
                 'contextGlobal',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     use const SymbolX\SymbolY as SymbolZ;
@@ -332,6 +360,8 @@ EOD
 
             'To global (alternate)' => array( //------------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceA \ NamespaceB
@@ -350,6 +380,8 @@ EOD
                 0,
                 'contextGlobal',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace
@@ -368,6 +400,8 @@ EOD
 
             'From no uses' => array( //---------------------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceA;
@@ -381,6 +415,8 @@ EOD
                 0,
                 'context',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceX\NamespaceY;
@@ -398,6 +434,8 @@ EOD
 
             'From no uses (alternate)' => array( //---------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceA {}
@@ -411,6 +449,8 @@ EOD
                 0,
                 'context',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceX\NamespaceY {
@@ -428,6 +468,8 @@ EOD
 
             'To no uses' => array( //-----------------------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceA;
@@ -445,6 +487,8 @@ EOD
                 0,
                 'contextNoUse',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceX\NamespaceY;
@@ -459,6 +503,8 @@ EOD
 
             'To no uses (alternate)' => array( //-----------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceA
@@ -477,6 +523,8 @@ EOD
                 0,
                 'contextNoUse',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceX\NamespaceY
@@ -491,8 +539,10 @@ EOD
                 ,
             ),
 
-            'To empty' => array( //------------------------------------------------------------------------------------
+            'To empty' => array( //-------------------------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceA \ NamespaceB;
@@ -510,6 +560,8 @@ EOD
                 0,
                 'contextEmpty',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
 
@@ -522,8 +574,10 @@ EOD
                 ,
             ),
 
-            'To empty (alternate)' => array( //------------------------------------------------------------------------------------
+            'To empty (alternate)' => array( //-------------------------------------------------------------------------
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace NamespaceA
@@ -542,6 +596,8 @@ EOD
                 0,
                 'contextEmpty',
                 <<<'EOD'
+Non-PHP content.
+
 <?php
 
     namespace
@@ -551,6 +607,68 @@ EOD
     // some other code
 
     namespace NamespaceD {}
+
+EOD
+                ,
+            ),
+
+            'From empty' => array( //-----------------------------------------------------------------------------------
+                <<<'EOD'
+Non-PHP content.
+
+<?php
+
+    // some other code
+
+EOD
+                ,
+                0,
+                'context',
+                <<<'EOD'
+Non-PHP content.
+
+<?php
+
+namespace NamespaceX\NamespaceY;
+
+use const SymbolX\SymbolY as SymbolZ;
+use SymbolT\SymbolU, SymbolV\SymbolW;
+
+    // some other code
+
+EOD
+                ,
+            ),
+
+            'From empty (alternate)' => array( //-----------------------------------------------------------------------
+                <<<'EOD'
+Non-PHP content.
+
+<?php
+
+    namespace
+    {
+    }
+
+    // some other code
+
+EOD
+                ,
+                0,
+                'context',
+                <<<'EOD'
+Non-PHP content.
+
+<?php
+
+    namespace NamespaceX\NamespaceY
+    {
+        use const SymbolX\SymbolY as SymbolZ;
+        use SymbolT\SymbolU, SymbolV\SymbolW;
+
+    }
+
+    // some other code
 
 EOD
                 ,

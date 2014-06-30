@@ -477,6 +477,20 @@ Non-PHP content.
         }
     }
 
+    namespace NamespaceC ;
+
+    use ClassM ;
+
+    use ClassN ;
+
+    class ClassE
+    {
+    }
+
+    interface InterfaceD
+    {
+    }
+
 EOD;
         $expected = <<<'EOD'
 // Context at position (7, 5), offset 74, size 156:
@@ -494,6 +508,16 @@ class \ClassB; // at position (34, 5), offset 542, size 24
 class \ClassC; // at position (38, 5), offset 572, size 102
 class \ClassD; // at position (45, 5), offset 680, size 229
 
+// Context at position (60, 5), offset 915, size 58:
+
+namespace NamespaceC;
+
+use ClassM; // at position (62, 5), offset 943, size 12
+use ClassN; // at position (64, 5), offset 961, size 12
+
+class \NamespaceC\ClassE; // at position (66, 5), offset 979, size 24
+interface \NamespaceC\InterfaceD; // at position (70, 5), offset 1009, size 32
+
 EOD;
         $expectedTokens = <<<'EOD'
 use ClassF ;
@@ -505,6 +529,12 @@ use ClassF ;
     use NamespaceE \ ClassJ as ClassK ;
 
     use NamespaceF \ NamespaceG \ ClassL ;
+
+namespace NamespaceC ;
+
+    use ClassM ;
+
+    use ClassN ;
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -645,6 +675,20 @@ Non-PHP content.
         }
     }
 
+    namespace NamespaceC ;
+
+    use ClassM ;
+
+    use ClassN ;
+
+    class ClassE
+    {
+    }
+
+    interface InterfaceD
+    {
+    }
+
 EOD;
         $expected = <<<'EOD'
 // Context at position (3, 7), offset 24, size 0:
@@ -656,9 +700,25 @@ class \ClassB; // at position (24, 5), offset 380, size 24
 class \ClassC; // at position (28, 5), offset 410, size 102
 class \ClassD; // at position (35, 5), offset 518, size 229
 
+// Context at position (50, 5), offset 753, size 58:
+
+namespace NamespaceC;
+
+use ClassM; // at position (52, 5), offset 781, size 12
+use ClassN; // at position (54, 5), offset 799, size 12
+
+class \NamespaceC\ClassE; // at position (56, 5), offset 817, size 24
+interface \NamespaceC\InterfaceD; // at position (60, 5), offset 847, size 32
+
 EOD;
         $expectedTokens = <<<'EOD'
 
+
+namespace NamespaceC ;
+
+    use ClassM ;
+
+    use ClassN ;
 
 EOD;
         $actual = $this->parser->parseSource($source);
@@ -766,13 +826,67 @@ EOD;
 
     public function testEmptySource()
     {
-        $source = '';
+        $source = <<<'EOD'
+Non-PHP content.
+
+EOD;
         $expected = <<<'EOD'
 // Context at position (0, 0), offset 0, size 0:
 
 EOD;
         $expectedTokens = <<<'EOD'
 
+
+EOD;
+        $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderContextsTokens($actual);
+
+        $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
+    }
+
+    public function testEmptySourceWithOpenTag()
+    {
+        $source = <<<'EOD'
+Non-PHP content.
+
+<?php // some comment
+
+EOD;
+        $expected = <<<'EOD'
+// Context at position (3, 7), offset 24, size 0:
+
+EOD;
+        $expectedTokens = <<<'EOD'
+
+
+EOD;
+        $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderContextsTokens($actual);
+
+        $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
+    }
+
+    public function testEmptyAlternate()
+    {
+        $source = <<<'EOD'
+Non-PHP content.
+
+<?php // some comment
+
+    namespace
+    {
+    }
+
+EOD;
+        $expected = <<<'EOD'
+// Context at position (5, 5), offset 45, size 15:
+
+EOD;
+        $expectedTokens = <<<'EOD'
+namespace
+    {
 
 EOD;
         $actual = $this->parser->parseSource($source);

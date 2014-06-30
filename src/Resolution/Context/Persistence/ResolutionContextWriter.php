@@ -331,7 +331,12 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
             } else {
                 $useStatementsIndent = $contextIndent;
                 $useStatementsPrefix = "\n\n" . $useStatementsIndent;
-                $useStatementsSuffix = '';
+
+                if (!$parsedHasNsSymbol) {
+                    $useStatementsSuffix = "\n\n";
+                } else {
+                    $useStatementsSuffix = '';
+                }
             }
         }
 
@@ -367,7 +372,12 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
                     $nsSymbolOffset = $useStatementsOffset;
                     $nsSymbolSize = 0;
                     $nsSymbolPrefix = 'namespace ';
-                    $nsSymbolSuffix = ";\n\n" . $useStatementsIndent;
+
+                    if ($newHasUseStatements && !$parsedHasUseStatements) {
+                        $nsSymbolSuffix = ";";
+                    } else {
+                        $nsSymbolSuffix = ";\n\n" . $useStatementsIndent;
+                    }
                 }
             }
         } else {
@@ -418,8 +428,9 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
     private function inspectContext($stream, $parsedContext)
     {
         $state = static::STATE_START;
+        $parsedNsBodyOffset = $parsedContext->offset();
         $isAlternate = false;
-        $parsedNsSymbolSize = $parsedNsBodyOffset = 0;
+        $parsedNsSymbolSize = 0;
         $parsedNsSymbolOffset = $parsedNsSymbolEndOffset = null;
 
         foreach ($parsedContext->tokens() as $token) {
