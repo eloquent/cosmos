@@ -42,8 +42,10 @@ class TokenNormalizer implements TokenNormalizerInterface
      */
     public function normalizeTokens(array $tokens)
     {
-        $lineNumber = $columnNumber = 1;
-        $startOffset = $endOffset = 0;
+        $lineNumber = 1;
+        $columnNumber = 1;
+        $startOffset = 0;
+        $endOffset = 0;
         foreach ($tokens as $index => $token) {
             if (is_string($token)) {
                 $endOffset = $startOffset + strlen($token) - 1;

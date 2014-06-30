@@ -309,7 +309,8 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
                 $parsedUseStatements[0]->offset(),
                 $path
             );
-            $useStatementsPrefix = $useStatementsSuffix = '';
+            $useStatementsPrefix = '';
+            $useStatementsSuffix = '';
 
             if ($newHasUseStatements) {
                 $useStatementsOffset = $parsedUseStatements[0]->offset();
@@ -386,7 +387,8 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
                     $nsSymbolOffset = $parsedContext->offset() + 9;
                     $nsSymbolSize = $parsedNsSymbolEndOffset - $nsSymbolOffset +
                         1;
-                    $nsSymbolPrefix = $nsSymbolSuffix = '';
+                    $nsSymbolPrefix = '';
+                    $nsSymbolSuffix = '';
                 } else {
                     $nsSymbolOffset = $parsedContext->offset();
                     $nsSymbolSize = $useStatementsOffset - $nsSymbolOffset;
@@ -394,7 +396,8 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
             } else {
                 $nsSymbolOffset = $parsedNsSymbolOffset;
                 $nsSymbolSize = $parsedNsSymbolEndOffset - $nsSymbolOffset + 1;
-                $nsSymbolPrefix = $nsSymbolSuffix = '';
+                $nsSymbolPrefix = '';
+                $nsSymbolSuffix = '';
             }
         }
 
@@ -431,7 +434,8 @@ class ResolutionContextWriter implements ResolutionContextWriterInterface
         $parsedNsBodyOffset = $parsedContext->offset();
         $isAlternate = false;
         $parsedNsSymbolSize = 0;
-        $parsedNsSymbolOffset = $parsedNsSymbolEndOffset = null;
+        $parsedNsSymbolOffset = null;
+        $parsedNsSymbolEndOffset = null;
 
         foreach ($parsedContext->tokens() as $token) {
             switch ($state) {

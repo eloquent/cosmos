@@ -308,7 +308,9 @@ class StreamEditor implements StreamEditorInterface
         $this->seek($stream, 0, null, $path);
 
         $replacements = array();
-        $offset = $startOfWhitespace = $whitespaceSize = 0;
+        $offset = 0;
+        $startOfWhitespace = 0;
+        $whitespaceSize = 0;
         while (true) {
             $data = $this->read($stream, $this->bufferSize, $path);
 

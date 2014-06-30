@@ -78,8 +78,10 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         $this->contextFactory = $contextFactory;
         $this->symbolFactory = $symbolFactory;
         $this->isolator = Isolator::get($isolator);
-        $this->fileCache = $this->sourceCache = $this->classCache =
-            $this->functionCache = array();
+        $this->fileCache = array();
+        $this->sourceCache = array();
+        $this->classCache = array();
+        $this->functionCache = array();
     }
 
     /**

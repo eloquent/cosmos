@@ -314,11 +314,12 @@ class ResolutionContext implements ResolutionContextInterface
         $functionType = UseStatementType::FUNCT1ON()->value();
         $constantType = UseStatementType::CONSTANT()->value();
 
-        $this->typeIndex = $this->aliasIndex = array(
+        $this->typeIndex = array(
             $typeType => array(),
             $functionType => array(),
             $constantType => array(),
         );
+        $this->aliasIndex = $this->typeIndex;
 
         foreach ($this->useStatements() as $useStatement) {
             $type = $useStatement->type()->value();

@@ -71,7 +71,9 @@ class UseStatementNormalizer implements UseStatementNormalizerInterface
         $typeType = UseStatementType::TYPE();
         $functionType = UseStatementType::FUNCT1ON();
         $constantType = UseStatementType::CONSTANT();
-        $typeClauses = $functionClauses = $constantClauses = array();
+        $typeClauses = array();
+        $functionClauses = array();
+        $constantClauses = array();
 
         foreach ($useStatements as $useStatement) {
             if ($functionType === $useStatement->type()) {
@@ -118,7 +120,8 @@ class UseStatementNormalizer implements UseStatementNormalizerInterface
      */
     public function normalizeClauses(array $useStatementClauses)
     {
-        $normalized = $seen = array();
+        $normalized = array();
+        $seen = array();
         foreach ($useStatementClauses as $clause) {
             $key = $clause->string();
             if (array_key_exists($key, $seen)) {
