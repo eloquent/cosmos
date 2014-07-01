@@ -54,7 +54,7 @@ $symbol = Symbol::fromString('\ArrayObject');
 echo $namespace->resolve($symbol); // outputs '\ArrayObject'
 ```
 
-## Resolving a symbol against a set of namespace and use statements
+## Resolving a symbol against a resolution context
 
 Symbols can be resolved against a full set of `namespace` and `use` statements.
 In this case the statements are defined manually, but they can also be read from
@@ -123,7 +123,7 @@ echo $context->resolve($symbol, SymbolType::FUNCT1ON());               // output
 echo $symbol->resolveAgainstContext($context, SymbolType::FUNCT1ON()); // outputs '\NamespaceE\SymbolD' (assuming the function exists)
 ```
 
-## Reading a set of namespace and use statements
+## Reading a resolution context
 
 There are many ways to read an existing symbol resolution context. Note that all
 of these methods involve actually parsing source code to determine the relevant
