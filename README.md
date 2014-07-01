@@ -214,7 +214,7 @@ $symbol = Symbol::fromString('\NamespaceA\NamespaceE\SymbolD');
 echo $symbol->relativeToContext($context); // outputs '\NamespaceA\NamespaceE\SymbolD'
 ```
 
-## Generating an optimal resolution context for a set of symbols
+## Generating an optimal resolution context
 
 *Cosmos* can generate an optimal resolution context for a given set of symbols
 to be used:
