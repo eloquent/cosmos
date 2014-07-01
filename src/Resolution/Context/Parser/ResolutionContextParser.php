@@ -247,8 +247,6 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                     );
                     $contextStackSize = 1;
 
-                    break;
-
                 case static::STATE_PHP:
                     switch ($token[0]) {
                         case T_NAMESPACE:

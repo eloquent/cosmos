@@ -1174,6 +1174,34 @@ EOD;
         $this->assertSame($expectedTokens, $actualTokens);
     }
 
+    public function testClassOnFirstLine()
+    {
+        $source = <<<'EOD'
+<?php
+class ClassA
+{
+    public function methodA()
+    {
+    }
+}
+EOD;
+        $expected = <<<'EOD'
+// Context at position (2, 1), offset 6, size 0:
+
+class \ClassA; // at position (2, 1), offset 6, size 58
+
+EOD;
+        $expectedTokens = <<<'EOD'
+
+
+EOD;
+        $actual = $this->parser->parseSource($source);
+        $actualTokens = $this->renderContextsTokens($actual);
+
+        $this->assertSame($expected, $this->renderContexts($actual));
+        $this->assertSame($expectedTokens, $actualTokens);
+    }
+
     public function testInstance()
     {
         $class = get_class($this->parser);
