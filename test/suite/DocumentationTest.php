@@ -23,13 +23,13 @@ use ReflectionClass;
 use ReflectionFunction;
 use ReflectionObject;
 
-class FunctionalTest extends PHPUnit_Framework_TestCase
+class DocumentationTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
     {
         parent::setUp();
 
-        require_once __DIR__ . '/../src/functional-fixtures.php';
+        require_once __DIR__ . '/../src/documentation-fixtures.php';
     }
 
     public function testResolveAgainstNamespace()
