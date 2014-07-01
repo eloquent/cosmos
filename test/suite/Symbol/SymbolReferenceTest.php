@@ -243,7 +243,10 @@ class SymbolReferenceTest extends PHPUnit_Framework_TestCase
     {
         $reference = $this->factory->create('Symbol');
 
-        $this->assertSame('\VendorA\PackageA\Symbol', $reference->resolveAgainstContext($this->context)->string());
+        $this->assertSame(
+            '\VendorA\PackageA\Symbol',
+            $reference->resolveAgainstContext($this->context, SymbolType::CLA55())->string()
+        );
     }
 
     public function testResolveAgainstContextGlobalNsNoUseStatements()

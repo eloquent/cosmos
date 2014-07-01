@@ -16,6 +16,7 @@ use Eloquent\Cosmos\Resolution\Context\Persistence\ResolutionContextReader;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\Symbol;
+use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 use ReflectionClass;
 use ReflectionFunction;
@@ -33,6 +34,9 @@ class FixedContextSymbolResolverTest extends PHPUnit_Framework_TestCase
 
         $this->contextReader = ResolutionContextReader::instance();
         $this->stream = fopen(__FILE__, 'rb');
+
+        Liberator::liberateClass('Eloquent\Cosmos\Resolution\FixedContextSymbolResolver')->factory()->resolver()
+            ->contextFactory()->createEmpty();
     }
 
     protected function tearDown()

@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\Resolution\Context;
 
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
+use Eloquent\Cosmos\Symbol\SymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolReferenceInterface;
 use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
@@ -57,4 +58,14 @@ interface ResolutionContextInterface extends ResolutionContextElementInterface
         SymbolReferenceInterface $symbol,
         SymbolType $type = null
     );
+
+    /**
+     * Resolve a symbol against this resolution context.
+     *
+     * @param SymbolInterface $symbol The symbol to resolve.
+     * @param SymbolType|null $type   The symbol type.
+     *
+     * @return QualifiedSymbolInterface The resolved symbol.
+     */
+    public function resolve(SymbolInterface $symbol, SymbolType $type = null);
 }

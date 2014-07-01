@@ -158,6 +158,14 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
         $this->assertNull($this->context->symbolByFirstAtom(Symbol::fromString('SymbolB'), SymbolType::CONSTANT()));
     }
 
+    public function testResolve()
+    {
+        $this->assertSame(
+            '\VendorB\PackageB\PackageC\SymbolD',
+            $this->context->resolve(Symbol::fromString('PackageB\PackageC\SymbolD'))->string()
+        );
+    }
+
     public function testAccept()
     {
         $visitor = Phake::mock('Eloquent\Cosmos\Resolution\Context\ResolutionContextVisitorInterface');

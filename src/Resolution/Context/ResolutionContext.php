@@ -17,6 +17,8 @@ use Eloquent\Cosmos\Resolution\Context\Factory\Exception\UndefinedResolutionCont
 use Eloquent\Cosmos\Resolution\Context\Parser\ParserPositionInterface;
 use Eloquent\Cosmos\Resolution\Context\Persistence\ResolutionContextReader;
 use Eloquent\Cosmos\Resolution\Context\Persistence\ResolutionContextReaderInterface;
+use Eloquent\Cosmos\Resolution\SymbolResolver;
+use Eloquent\Cosmos\Resolution\SymbolResolverInterface;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactoryInterface;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
@@ -287,6 +289,19 @@ class ResolutionContext implements ResolutionContextInterface
     }
 
     /**
+     * Resolve a symbol against this resolution context.
+     *
+     * @param SymbolInterface $symbol The symbol to resolve.
+     * @param SymbolType|null $type   The symbol type.
+     *
+     * @return QualifiedSymbolInterface The resolved symbol.
+     */
+    public function resolve(SymbolInterface $symbol, SymbolType $type = null)
+    {
+        return static::resolver()->resolveAgainstContext($this, $symbol, $type);
+    }
+
+    /**
      * Accept a visitor.
      *
      * @param ResolutionContextVisitorInterface $visitor The visitor to accept.
@@ -306,6 +321,16 @@ class ResolutionContext implements ResolutionContextInterface
     protected static function reader()
     {
         return ResolutionContextReader::instance();
+    }
+
+    /**
+     * Get the symbol resolver.
+     *
+     * @return SymbolResolverInterface The symbol resolver.
+     */
+    protected static function resolver()
+    {
+        return SymbolResolver::instance();
     }
 
     private function buildIndices()

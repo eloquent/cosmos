@@ -102,12 +102,16 @@ class SymbolReference extends RelativePath implements SymbolReferenceInterface
      * Resolve this symbol against the supplied resolution context.
      *
      * @param ResolutionContextInterface $context The resolution context.
+     * @param SymbolType|null            $type    The symbol type.
      *
      * @return QualifiedSymbolInterface The resolved, qualified symbol.
      */
-    public function resolveAgainstContext(ResolutionContextInterface $context)
-    {
-        return static::resolver()->resolveAgainstContext($context, $this);
+    public function resolveAgainstContext(
+        ResolutionContextInterface $context,
+        SymbolType $type = null
+    ) {
+        return static::resolver()
+            ->resolveAgainstContext($context, $this, $type);
     }
 
     /**
