@@ -171,6 +171,82 @@ class ClassA
 }
 ```
 
+## Finding the shortest reference to a symbol
+
+*Cosmos* can determine the shortest symbol reference that will resolve to a
+given qualified symbol relative to a context:
+
+```php
+use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+use Eloquent\Cosmos\Symbol\Symbol;
+use Eloquent\Cosmos\UseStatement\UseStatement;
+
+$context = new ResolutionContext(
+    Symbol::fromString('\NamespaceA\NamespaceB'),
+    array(
+        // basic use statement
+        UseStatement::create(Symbol::fromString('\NamespaceC\SymbolA')),
+
+        // use statement with alias
+        UseStatement::create(
+            Symbol::fromString('\NamespaceD\SymbolB'),
+            Symbol::fromString('SymbolC')
+        ),
+    )
+);
+
+$symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolD');
+echo $symbol->relativeToContext($context); // outputs 'SymbolD'
+
+$symbol = Symbol::fromString('\NamespaceC\SymbolA');
+echo $symbol->relativeToContext($context); // outputs 'SymbolA'
+
+$symbol = Symbol::fromString('\NamespaceD\SymbolB');
+echo $symbol->relativeToContext($context); // outputs 'SymbolC'
+
+$symbol = Symbol::fromString('\NamespaceD\SymbolB\SymbolD');
+echo $symbol->relativeToContext($context); // outputs 'SymbolB\SymbolD'
+
+$symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolA');
+echo $symbol->relativeToContext($context); // outputs 'namespace\SymbolA'
+
+$symbol = Symbol::fromString('\NamespaceA\NamespaceE\SymbolD');
+echo $symbol->relativeToContext($context); // outputs '\NamespaceA\NamespaceE\SymbolD'
+```
+
+## Generating an optimal resolution context for a set of symbols
+
+*Cosmos* can generate an optimal resolution context for a given set of symbols
+to be used:
+
+```php
+use Eloquent\Cosmos\Resolution\Context\Generator\ResolutionContextGenerator;
+use Eloquent\Cosmos\Symbol\Symbol;
+
+$generator = new ResolutionContextGenerator;
+$context = $generator->generate(
+    Symbol::fromString('\NamespaceA\NamespaceB'),
+    array(
+        Symbol::fromString('\NamespaceA\NamespaceB\ClassA'),
+        Symbol::fromString('\NamespaceA\NamespaceB\NamespaceC\ClassB'),
+        Symbol::fromString('\NamespaceD\NamespaceE\ClassC'),
+        Symbol::fromString('\NamespaceD\NamespaceF\ClassC'),
+        Symbol::fromString('\ClassD'),
+    )
+);
+```
+
+The generated context is then equivalent to:
+
+```php
+namespace NamespaceA\NamespaceB;
+
+use ClassD;
+use NamespaceA\NamespaceB\NamespaceC\ClassB;
+use NamespaceD\NamespaceE\ClassC as NamespaceEClassC;
+use NamespaceD\NamespaceF\ClassC as NamespaceFClassC;
+```
+
 ## What is a symbol?
 
 In *Cosmos*, a *symbol* is a generic object used to represent class, interface,
