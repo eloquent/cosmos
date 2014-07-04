@@ -21,7 +21,9 @@ use Eloquent\Cosmos\Symbol\Factory\SymbolFactoryInterface;
 use Eloquent\Cosmos\Symbol\Normalizer\SymbolNormalizer;
 use Eloquent\Cosmos\Symbol\Normalizer\SymbolNormalizerInterface;
 use Eloquent\Pathogen\AbsolutePath;
+use Eloquent\Pathogen\Exception\EmptyPathAtomException;
 use Eloquent\Pathogen\Exception\InvalidPathAtomExceptionInterface;
+use Eloquent\Pathogen\Exception\PathAtomContainsSeparatorException;
 use ReflectionClass;
 use ReflectionFunction;
 
@@ -43,7 +45,7 @@ class QualifiedSymbol extends AbsolutePath implements QualifiedSymbolInterface
     /**
      * The regular expression used to validate symbol atoms.
      */
-    const ATOM_PATTERN = '/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/';
+    const ATOM_PATTERN = '/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/S';
 
     /**
      * Creates a new qualified symbol from its string representation, regardless
@@ -108,15 +110,31 @@ class QualifiedSymbol extends AbsolutePath implements QualifiedSymbolInterface
     }
 
     /**
-     * Construct a new qualified symbol.
+     * Construct a new qualified symbol (internal use only).
+     *
+     * @internal This method is not intended for public use.
      *
      * @param mixed<string> $atoms The symbol atoms.
      *
      * @throws InvalidPathAtomExceptionInterface If any of the supplied symbol atoms are invalid.
      */
-    public function __construct($atoms)
+    public static function constructSymbol($atoms)
     {
-        parent::__construct($atoms);
+        return new static(static::normalizeAtoms($atoms));
+    }
+
+    /**
+     * Construct a new qualified symbol without validation (internal use only).
+     *
+     * @internal This method is not intended for public use.
+     *
+     * @param mixed<string> $atoms The symbol atoms.
+     *
+     * @throws InvalidPathAtomExceptionInterface If any of the supplied symbol atoms are invalid.
+     */
+    public static function constructSymbolUnsafe($atoms)
+    {
+        return new static($atoms);
     }
 
     /**
@@ -180,21 +198,49 @@ class QualifiedSymbol extends AbsolutePath implements QualifiedSymbolInterface
     }
 
     /**
-     * Validates the supplied symbol atom.
+     * Normalizes and validates a sequence of symbol atoms.
      *
-     * @param string $atom The atom to validate.
+     * This method is called internally by the constructor upon instantiation.
+     * It can be overridden in child classes to change how symbol atoms are
+     * normalized and/or validated.
      *
-     * @throws InvalidPathAtomExceptionInterface If the atom is invalid.
+     * @param mixed<string> $atoms The symbol atoms to normalize.
+     *
+     * @return array<string>                      The normalized symbol atoms.
+     * @throws EmptyPathAtomException             If any symbol atom is empty.
+     * @throws PathAtomContainsSeparatorException If any symbol atom contains a separator.
      */
-    protected function validateAtom($atom)
+    protected static function normalizeAtoms($atoms)
     {
-        if (static::SELF_ATOM === $atom || static::PARENT_ATOM === $atom) {
-            return;
+        foreach ($atoms as $atom) {
+            if (static::SELF_ATOM === $atom || static::PARENT_ATOM === $atom) {
+                continue;
+            }
+
+            if ('' === $atom) {
+                throw new EmptyPathAtomException;
+            } elseif (false !== strpos($atom, static::ATOM_SEPARATOR)) {
+                throw new PathAtomContainsSeparatorException($atom);
+            } elseif (!preg_match(static::ATOM_PATTERN, $atom)) {
+                throw new InvalidSymbolAtomException($atom);
+            }
         }
 
-        if (!preg_match(static::ATOM_PATTERN, $atom)) {
-            throw new InvalidSymbolAtomException($atom);
-        }
+        return $atoms;
+    }
+
+    /**
+     * Construct a new qualified symbol (internal use only).
+     *
+     * @internal This method is not intended for public use.
+     *
+     * @param mixed<string> $atoms The symbol atoms.
+     *
+     * @throws InvalidPathAtomExceptionInterface If any of the supplied symbol atoms are invalid.
+     */
+    protected function __construct($atoms)
+    {
+        parent::__construct($atoms);
     }
 
     /**

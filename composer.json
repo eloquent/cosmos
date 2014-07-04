@@ -26,12 +26,12 @@
     "require": {
         "php": ">=5.3",
         "eloquent/enumeration": "~5",
-        "eloquent/pathogen": "dev-develop@dev",
+        "eloquent/pathogen": "dev-validation-bypass@dev",
         "icecave/isolator": "~2"
     },
     "require-dev": {
         "eloquent/liberator": "~2",
-        "icecave/archer": "dev-develop@dev"
+        "icecave/archer": "~1"
     },
     "autoload": {
         "psr-4": {

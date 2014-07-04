@@ -11,6 +11,7 @@
 
 namespace Eloquent\Cosmos\Symbol\Factory;
 
+use Eloquent\Cosmos\Symbol\Exception\InvalidSymbolAtomException;
 use Eloquent\Cosmos\Symbol\QualifiedSymbol;
 use Eloquent\Cosmos\Symbol\QualifiedSymbolInterface;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
@@ -24,6 +25,11 @@ use ReflectionFunction;
  */
 class SymbolFactory implements SymbolFactoryInterface
 {
+    /**
+     * The regular expression used to validate symbol atoms.
+     */
+    const ATOM_PATTERN = '/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/S';
+
     /**
      * Get a static instance of this factory.
      *
@@ -43,7 +49,8 @@ class SymbolFactory implements SymbolFactoryInterface
      *
      * @param string $symbol The string representation of the symbol.
      *
-     * @return SymbolInterface The newly created symbol.
+     * @return SymbolInterface            The newly created symbol.
+     * @throws InvalidSymbolAtomException If an invalid symbol atom is supplied.
      */
     public function create($symbol)
     {
@@ -74,13 +81,23 @@ class SymbolFactory implements SymbolFactoryInterface
         }
 
         foreach ($atoms as $index => $atom) {
+            if ('.' === $atom || '..' === $atom) {
+                continue;
+            }
+
             if ('' === $atom) {
                 array_splice($atoms, $index, 1);
                 --$numAtoms;
+            } elseif (!preg_match(static::ATOM_PATTERN, $atom)) {
+                throw new InvalidSymbolAtomException($atom);
             }
         }
 
-        return $this->createFromAtoms($atoms, $isQualified);
+        if ($isQualified) {
+            return QualifiedSymbol::constructSymbolUnsafe($atoms);
+        }
+
+        return SymbolReference::constructSymbolUnsafe($atoms);
     }
 
     /**
@@ -105,10 +122,10 @@ class SymbolFactory implements SymbolFactoryInterface
         }
 
         if ($isQualified) {
-            return new QualifiedSymbol($atoms);
+            return QualifiedSymbol::constructSymbol($atoms);
         }
 
-        return new SymbolReference($atoms);
+        return SymbolReference::constructSymbol($atoms);
     }
 
     /**

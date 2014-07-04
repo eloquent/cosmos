@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "315154638d43d268742e86cedc66b282",
+    "hash": "d011bc2fa7e96c673d36827433d2be7d",
     "packages": [
         {
             "name": "eloquent/enumeration",
@@ -57,16 +57,16 @@
         },
         {
             "name": "eloquent/pathogen",
-            "version": "dev-develop",
+            "version": "dev-validation-bypass",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eloquent/pathogen.git",
-                "reference": "1f599c0ee5db2b9e7f29345b22b65c60d32dfc03"
+                "reference": "2d0e0ba15aaf03811725a6eacec77ebc9e70fa99"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/pathogen/zipball/1f599c0ee5db2b9e7f29345b22b65c60d32dfc03",
-                "reference": "1f599c0ee5db2b9e7f29345b22b65c60d32dfc03",
+                "url": "https://api.github.com/repos/eloquent/pathogen/zipball/2d0e0ba15aaf03811725a6eacec77ebc9e70fa99",
+                "reference": "2d0e0ba15aaf03811725a6eacec77ebc9e70fa99",
                 "shasum": ""
             },
             "require": {
@@ -76,7 +76,7 @@
             },
             "require-dev": {
                 "eloquent/liberator": "~2",
-                "icecave/archer": "dev-develop@dev"
+                "icecave/archer": "~1"
             },
             "type": "library",
             "autoload": {
@@ -108,7 +108,7 @@
                 "manipulation",
                 "path"
             ],
-            "time": "2014-06-11 02:05:55"
+            "time": "2014-07-04 01:50:04"
         },
         {
             "name": "icecave/isolator",
@@ -415,16 +415,16 @@
         },
         {
             "name": "icecave/archer",
-            "version": "dev-develop",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/IcecaveStudios/archer.git",
-                "reference": "89adaa49d2a86777cdd3d5bbbaa7ecf7fc004b77"
+                "reference": "49e90d8c0d0a63e537b26d90591367093ebf45be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/89adaa49d2a86777cdd3d5bbbaa7ecf7fc004b77",
-                "reference": "89adaa49d2a86777cdd3d5bbbaa7ecf7fc004b77",
+                "url": "https://api.github.com/repos/IcecaveStudios/archer/zipball/49e90d8c0d0a63e537b26d90591367093ebf45be",
+                "reference": "49e90d8c0d0a63e537b26d90591367093ebf45be",
                 "shasum": ""
             },
             "require": {
@@ -483,7 +483,7 @@
                 "testing",
                 "unit"
             ],
-            "time": "2014-06-13 03:29:56"
+            "time": "2014-06-23 00:33:17"
         },
         {
             "name": "nikic/php-parser",
@@ -1260,8 +1260,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "eloquent/pathogen": 20,
-        "icecave/archer": 20
+        "eloquent/pathogen": 20
     },
     "platform": {
         "php": ">=5.3"

@@ -68,7 +68,7 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
     {
         $this->context = new ResolutionContext;
 
-        $this->assertEquals(new QualifiedSymbol(array()), $this->context->primaryNamespace());
+        $this->assertEquals(QualifiedSymbol::globalNamespace(), $this->context->primaryNamespace());
         $this->assertSame(array(), $this->context->useStatements());
     }
 
