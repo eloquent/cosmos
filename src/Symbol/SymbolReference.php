@@ -210,10 +210,16 @@ class SymbolReference extends RelativePath implements SymbolReferenceInterface
         $hasTrailingSeparator = null
     ) {
         if ($isAbsolute) {
-            return QualifiedSymbol::constructUnsafe($atoms, $hasTrailingSeparator);
+            return QualifiedSymbol::constructSymbolUnsafe(
+                $atoms,
+                $hasTrailingSeparator
+            );
         }
 
-        return SymbolReference::constructUnsafe($atoms, $hasTrailingSeparator);
+        return SymbolReference::constructSymbolUnsafe(
+            $atoms,
+            $hasTrailingSeparator
+        );
     }
 
     /**
