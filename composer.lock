@@ -61,12 +61,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/eloquent/pathogen.git",
-                "reference": "2d0e0ba15aaf03811725a6eacec77ebc9e70fa99"
+                "reference": "ffac2c9700b5f8b041c8d17b08f2204b5623cbad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/pathogen/zipball/2d0e0ba15aaf03811725a6eacec77ebc9e70fa99",
-                "reference": "2d0e0ba15aaf03811725a6eacec77ebc9e70fa99",
+                "url": "https://api.github.com/repos/eloquent/pathogen/zipball/ffac2c9700b5f8b041c8d17b08f2204b5623cbad",
+                "reference": "ffac2c9700b5f8b041c8d17b08f2204b5623cbad",
                 "shasum": ""
             },
             "require": {
@@ -108,7 +108,7 @@
                 "manipulation",
                 "path"
             ],
-            "time": "2014-07-04 01:50:04"
+            "time": "2014-07-04 03:30:23"
         },
         {
             "name": "icecave/isolator",
@@ -1201,16 +1201,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.15.1",
+            "version": "v1.16.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fabpot/Twig.git",
-                "reference": "1fb5784662f438d7d96a541e305e28b812e2eeed"
+                "reference": "8ce37115802e257a984a82d38254884085060024"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fabpot/Twig/zipball/1fb5784662f438d7d96a541e305e28b812e2eeed",
-                "reference": "1fb5784662f438d7d96a541e305e28b812e2eeed",
+                "url": "https://api.github.com/repos/fabpot/Twig/zipball/8ce37115802e257a984a82d38254884085060024",
+                "reference": "8ce37115802e257a984a82d38254884085060024",
                 "shasum": ""
             },
             "require": {
@@ -1219,7 +1219,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.15-dev"
+                    "dev-master": "1.16-dev"
                 }
             },
             "autoload": {
@@ -1254,7 +1254,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2014-02-13 10:19:29"
+            "time": "2014-07-05 12:19:05"
         }
     ],
     "aliases": [],
