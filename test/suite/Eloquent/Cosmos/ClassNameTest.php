@@ -16,6 +16,34 @@ use PHPUnit_Framework_TestCase;
 
 class ClassNameTest extends PHPUnit_Framework_TestCase
 {
+    public function testFromObject()
+    {
+        $this->assertSame(__CLASS__, ClassName::fromObject($this)->string());
+
+        $isolator = Phake::mock('Icecave\Isolator\Isolator');
+        Phake::when($isolator)
+            ->get_class(Phake::anyParameters())
+            ->thenReturn('Foo')
+            ->thenReturn('\Foo')
+            ->thenReturn('Foo\Bar')
+            ->thenReturn('\Foo\Bar')
+        ;
+
+        $classNameA = ClassName::fromObject(null, $isolator);
+        $classNameB = ClassName::fromObject(null, $isolator);
+        $classNameC = ClassName::fromObject(null, $isolator);
+        $classNameD = ClassName::fromObject(null, $isolator);
+
+        $this->assertSame(array('Foo'), $classNameA->atoms());
+        $this->assertSame(array('Foo'), $classNameB->atoms());
+        $this->assertSame(array('Foo', 'Bar'), $classNameC->atoms());
+        $this->assertSame(array('Foo', 'Bar'), $classNameD->atoms());
+        $this->assertFalse($classNameA->isAbsolute());
+        $this->assertTrue($classNameB->isAbsolute());
+        $this->assertFalse($classNameC->isAbsolute());
+        $this->assertTrue($classNameD->isAbsolute());
+    }
+
     public function testFromString()
     {
         $classNameA = ClassName::fromString('Foo');
