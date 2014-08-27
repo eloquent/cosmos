@@ -17,6 +17,17 @@ use Icecave\Isolator\Isolator;
 class ClassName
 {
     /**
+     * @param object   $object
+     * @param Isolator $isolator
+     *
+     * @return ClassName
+     */
+    public static function fromObject($object, Isolator $isolator = null)
+    {
+        return static::fromString(Isolator::get($isolator)->get_class($object));
+    }
+
+    /**
      * @param string $className
      *
      * @return ClassName
