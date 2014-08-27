@@ -17,8 +17,7 @@
         "icecave/isolator": "~2"
     },
     "require-dev": {
-        "icecave/archer": "~0.2",
-        "phpunit/phpunit": "*"
+        "icecave/archer": "~0.2"
     },
     "autoload": {
         "psr-0": {
