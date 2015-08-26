@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distrig2ted with this source code.
@@ -26,7 +26,6 @@ use Eloquent\Cosmos\Symbol\Normalizer\SymbolNormalizerInterface;
 use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
-use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
 use Icecave\Isolator\Isolator;
 
@@ -63,7 +62,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
     public static function instance()
     {
         if (null === self::$instance) {
-            self::$instance = new self;
+            self::$instance = new self();
         }
 
         return self::$instance;
@@ -201,7 +200,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
         $transitions = array();
         $isEnd = false;
         $contextStack = array(
-            array(false, new ParserPosition(0, 0), 0, 0, 0, 0)
+            array(false, new ParserPosition(0, 0), 0, 0, 0, 0),
         );
         $contextStackSize = 1;
         $atoms = null;
@@ -243,7 +242,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $token[4],
                             $tokenIndex,
                             $tokenIndex,
-                        )
+                        ),
                     );
                     $contextStackSize = 1;
 
@@ -264,7 +263,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                     $tokenIndex,
                                 )
                             );
-                            $contextStackSize++;
+                            ++$contextStackSize;
                             $atoms = array();
 
                             break;
@@ -342,7 +341,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $state = $previousState;
 
                             array_pop($contextStack);
-                            $contextStackSize--;
+                            --$contextStackSize;
 
                             break;
 
@@ -488,7 +487,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case '{':
                             $state = static::STATE_SYMBOL_BODY;
 
-                            $symbolBracketDepth++;
+                            ++$symbolBracketDepth;
 
                             break;
                     }
@@ -500,7 +499,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                         case '{':
                             $state = static::STATE_SYMBOL_BODY;
 
-                            $symbolBracketDepth++;
+                            ++$symbolBracketDepth;
 
                             break;
                     }
@@ -526,7 +525,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                     $this->symbolFactory()
                                         ->createFromAtoms($atoms, false),
                                 );
-                                $numSymbols++;
+                                ++$numSymbols;
                             }
 
                             break;
@@ -574,7 +573,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $useStatementOffset,
                             $token[5] - $useStatementOffset + 1
                         );
-                        $numUseStatements++;
+                        ++$numUseStatements;
                         $contextStack[$contextStackSize - 1][3] = $token[5];
                         $contextStack[$contextStackSize - 1][5] =
                             $tokenIndex;
@@ -594,8 +593,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                                 $thisSymbolPosition,
                                 $thisSymbolOffset,
                                 $thisSymbolEndOffset,
-                                $symbol,
-                            ) = $thisSymbol;
+                                $symbol) = $thisSymbol;
 
                             $symbols[$symbolIndex] = new ParsedSymbol(
                                 $this->symbolResolver()
@@ -627,8 +625,7 @@ class ResolutionContextParser implements ResolutionContextParserInterface
                             $thisContextOffset,
                             $thisContextEndOffset,
                             $thisContextIndex,
-                            $thisContextEndIndex,
-                        ) = $previousContext;
+                            $thisContextEndIndex) = $previousContext;
 
                         if ($thisContextEndOffset === $thisContextOffset) {
                             $thisContextSize = 0;

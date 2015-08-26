@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -14,8 +14,8 @@ namespace Eloquent\Cosmos\Symbol;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\UseStatement\UseStatement;
-use PHPUnit_Framework_TestCase;
 use Phake;
+use PHPUnit_Framework_TestCase;
 
 class SymbolReferenceTest extends PHPUnit_Framework_TestCase
 {
@@ -23,7 +23,7 @@ class SymbolReferenceTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->factory = new SymbolFactory;
+        $this->factory = new SymbolFactory();
 
         $this->primaryNamespace = $this->factory->create('\VendorA\PackageA');
         $this->useStatements = array(
@@ -251,7 +251,7 @@ class SymbolReferenceTest extends PHPUnit_Framework_TestCase
 
     public function testResolveAgainstContextGlobalNsNoUseStatements()
     {
-        $this->context = new ResolutionContext;
+        $this->context = new ResolutionContext();
 
         $this->assertSame('\Symbol', $this->factory->create('Symbol')->resolveAgainstContext($this->context)->string());
         $this->assertSame(

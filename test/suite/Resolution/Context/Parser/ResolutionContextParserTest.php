@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -17,7 +17,6 @@ use Eloquent\Cosmos\Resolution\SymbolResolver;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\Symbol\Normalizer\SymbolNormalizer;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
-use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
 use Icecave\Isolator\Isolator;
 use Phake;
@@ -29,12 +28,12 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->symbolFactory = new SymbolFactory;
-        $this->symbolResolver = new SymbolResolver;
-        $this->symbolNormalizer = new SymbolNormalizer;
-        $this->useStatementFactory = new UseStatementFactory;
-        $this->contextFactory = new ResolutionContextFactory;
-        $this->tokenNormalizer = new TokenNormalizer;
+        $this->symbolFactory = new SymbolFactory();
+        $this->symbolResolver = new SymbolResolver();
+        $this->symbolNormalizer = new SymbolNormalizer();
+        $this->useStatementFactory = new UseStatementFactory();
+        $this->contextFactory = new ResolutionContextFactory();
+        $this->tokenNormalizer = new TokenNormalizer();
         $this->isolator = Phake::mock(Isolator::className());
         Phake::when($this->isolator)->defined('T_TRAIT')->thenReturn(false);
         $this->parser = new ResolutionContextParser(
@@ -60,7 +59,7 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorDefaults()
     {
-        $this->parser = new ResolutionContextParser;
+        $this->parser = new ResolutionContextParser();
 
         $this->assertSame(SymbolFactory::instance(), $this->parser->symbolFactory());
         $this->assertSame(SymbolResolver::instance(), $this->parser->symbolResolver());
@@ -898,7 +897,7 @@ EOD;
 
     public function testTraitSupport()
     {
-        $this->parser = new ResolutionContextParser;
+        $this->parser = new ResolutionContextParser();
         $source = <<<'EOD'
 Non-PHP content.
 
@@ -1026,7 +1025,7 @@ EOD;
 
     public function testNamespaceAndTraitOnly()
     {
-        $this->parser = new ResolutionContextParser;
+        $this->parser = new ResolutionContextParser();
         $source = <<<'EOD'
 <?php
 
@@ -1058,7 +1057,7 @@ EOD;
 
     public function testNamespaceAndFunctionOnly()
     {
-        $this->parser = new ResolutionContextParser;
+        $this->parser = new ResolutionContextParser();
         $source = <<<'EOD'
 <?php
 
@@ -1090,7 +1089,7 @@ EOD;
 
     public function testUseStatementTypes()
     {
-        $this->parser = new ResolutionContextParser;
+        $this->parser = new ResolutionContextParser();
         $source = <<<'EOD'
 <?php
 

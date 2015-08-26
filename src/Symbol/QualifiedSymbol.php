@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -218,7 +218,7 @@ class QualifiedSymbol extends AbsolutePath implements QualifiedSymbolInterface
             }
 
             if ('' === $atom) {
-                throw new EmptyPathAtomException;
+                throw new EmptyPathAtomException();
             } elseif (false !== strpos($atom, static::ATOM_SEPARATOR)) {
                 throw new PathAtomContainsSeparatorException($atom);
             } elseif (!preg_match(static::ATOM_PATTERN, $atom)) {
@@ -263,7 +263,7 @@ class QualifiedSymbol extends AbsolutePath implements QualifiedSymbolInterface
         $hasTrailingSeparator = null
     ) {
         if ($isAbsolute) {
-            return QualifiedSymbol::constructUnsafe($atoms, $hasTrailingSeparator);
+            return self::constructUnsafe($atoms, $hasTrailingSeparator);
         }
 
         return SymbolReference::constructUnsafe($atoms, $hasTrailingSeparator);

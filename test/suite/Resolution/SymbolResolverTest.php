@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -33,7 +33,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         $this->constantResolver = function ($constantName) {
             return true;
         };
-        $this->contextFactory = new ResolutionContextFactory;
+        $this->contextFactory = new ResolutionContextFactory();
         $this->resolver = new SymbolResolver($this->functionResolver, $this->constantResolver, $this->contextFactory);
 
         $this->primaryNamespace = Symbol::fromString('\VendorA\PackageA');
@@ -57,7 +57,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorDefaults()
     {
-        $this->resolver = new SymbolResolver;
+        $this->resolver = new SymbolResolver();
 
         $this->assertSame('function_exists', $this->resolver->functionResolver());
         $this->assertSame('defined', $this->resolver->constantResolver());
@@ -136,7 +136,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
 
     public function testResolveAgainstContextGlobalNsNoUseStatements()
     {
-        $this->context = new ResolutionContext;
+        $this->context = new ResolutionContext();
 
         $this->assertSame(
             '\Symbol',
@@ -151,7 +151,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     public function testResolveSingleAtomFunctionAgainstGlobal()
     {
         $symbol = Symbol::fromString('Symbol');
-        $context = new ResolutionContext;
+        $context = new ResolutionContext();
 
         $this->assertSame(
             '\Symbol',
@@ -160,7 +160,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "Namespaces overview"
+     * Tests for PHP manual entry "Namespaces overview".
      *
      * Example "Example #1 Namespace syntax example"
      *
@@ -181,7 +181,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "Using namespaces: Basics"
+     * Tests for PHP manual entry "Using namespaces: Basics".
      *
      * Examples "file1.php" / "file2.php"
      *
@@ -247,7 +247,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "Using namespaces: Basics"
+     * Tests for PHP manual entry "Using namespaces: Basics".
      *
      * Example "Example #1 Accessing global classes, functions and constants from within a namespace"
      *
@@ -276,7 +276,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "namespace keyword and __NAMESPACE__ constant"
+     * Tests for PHP manual entry "namespace keyword and __NAMESPACE__ constant".
      *
      * Example "Example #4 the namespace operator, inside a namespace"
      *
@@ -344,7 +344,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "namespace keyword and __NAMESPACE__ constant"
+     * Tests for PHP manual entry "namespace keyword and __NAMESPACE__ constant".
      *
      * Example "Example #5 the namespace operator, in global code"
      *
@@ -352,7 +352,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveAgainstContextDocumentationNamespaceKeywordExample5()
     {
-        $this->context = new ResolutionContext;
+        $this->context = new ResolutionContext();
 
         $this->assertSame(
             '\func',
@@ -391,7 +391,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "Using namespaces: Aliasing/Importing"
+     * Tests for PHP manual entry "Using namespaces: Aliasing/Importing".
      *
      * Example "Example #1 importing/aliasing with the use operator"
      *
@@ -447,7 +447,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "Using namespaces: Aliasing/Importing"
+     * Tests for PHP manual entry "Using namespaces: Aliasing/Importing".
      *
      * Example "Example #2 importing/aliasing with the use operator, multiple use statements combined"
      *
@@ -480,7 +480,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "Using namespaces: Aliasing/Importing"
+     * Tests for PHP manual entry "Using namespaces: Aliasing/Importing".
      *
      * Example "Example #4 Importing and fully qualified names"
      *
@@ -519,7 +519,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "Global space"
+     * Tests for PHP manual entry "Global space".
      *
      * Example "Example #1 Using global space specification"
      *
@@ -537,7 +537,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "Using namespaces: fallback to global function/constant"
+     * Tests for PHP manual entry "Using namespaces: fallback to global function/constant".
      *
      * Example "Example #1 Accessing global classes inside a namespace"
      *
@@ -562,7 +562,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "Using namespaces: fallback to global function/constant"
+     * Tests for PHP manual entry "Using namespaces: fallback to global function/constant".
      *
      * Example "Example #2 global functions/constants fallback inside a namespace"
      *
@@ -594,7 +594,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "Name resolution rules"
+     * Tests for PHP manual entry "Name resolution rules".
      *
      * Example "Example #1 Name resolutions illustrated"
      *
@@ -698,7 +698,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "FAQ: things you need to know about namespaces"
+     * Tests for PHP manual entry "FAQ: things you need to know about namespaces".
      *
      * Example "If I don't use namespaces, should I care about any of this?"
      *
@@ -706,7 +706,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveAgainstContextDocumentationFaqShouldICare()
     {
-        $this->context = new ResolutionContext;
+        $this->context = new ResolutionContext();
 
         $this->assertSame(
             '\stdClass',
@@ -719,7 +719,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "FAQ: things you need to know about namespaces"
+     * Tests for PHP manual entry "FAQ: things you need to know about namespaces".
      *
      * Example "How do I use internal or global classes in a namespace?"
      *
@@ -748,7 +748,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "FAQ: things you need to know about namespaces"
+     * Tests for PHP manual entry "FAQ: things you need to know about namespaces".
      *
      * Example "How do I use namespaces classes, functions, or constants in their own namespace?"
      *
@@ -785,7 +785,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "FAQ: things you need to know about namespaces"
+     * Tests for PHP manual entry "FAQ: things you need to know about namespaces".
      *
      * Example "How does a name like \my\name or \name resolve?"
      *
@@ -814,7 +814,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "FAQ: things you need to know about namespaces"
+     * Tests for PHP manual entry "FAQ: things you need to know about namespaces".
      *
      * Example "How does a name like my\name resolve?"
      *
@@ -852,7 +852,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "FAQ: things you need to know about namespaces"
+     * Tests for PHP manual entry "FAQ: things you need to know about namespaces".
      *
      * Example "How does an unqualified class name like name resolve?"
      *
@@ -878,7 +878,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "FAQ: things you need to know about namespaces"
+     * Tests for PHP manual entry "FAQ: things you need to know about namespaces".
      *
      * Example "How does an unqualified function name or unqualified constant name like name resolve?"
      *
@@ -938,7 +938,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "FAQ: things you need to know about namespaces"
+     * Tests for PHP manual entry "FAQ: things you need to know about namespaces".
      *
      * Example "Neither functions nor constants can be imported via the use statement."
      *
@@ -968,7 +968,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "FAQ: things you need to know about namespaces"
+     * Tests for PHP manual entry "FAQ: things you need to know about namespaces".
      *
      * Example "Undefined Constants referenced using any backslash die with fatal error"
      *
@@ -1009,7 +1009,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests for PHP manual entry "Migrating from PHP 5.5.x to PHP 5.6.x: New features"
+     * Tests for PHP manual entry "Migrating from PHP 5.5.x to PHP 5.6.x: New features".
      *
      * Example "use function and use const"
      *

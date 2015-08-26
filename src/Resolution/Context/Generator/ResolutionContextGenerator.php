@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -21,7 +21,6 @@ use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactoryInterface;
 use Eloquent\Cosmos\UseStatement\Normalizer\UseStatementNormalizer;
 use Eloquent\Cosmos\UseStatement\Normalizer\UseStatementNormalizerInterface;
-use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
 
@@ -255,7 +254,7 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
                 $currentAlias = $clause->effectiveAlias()->name();
                 $newAlias = $this->symbolFactory()->createFromAtoms(
                     array(
-                        $clause->symbol()->atomAt($startIndex) . $currentAlias
+                        $clause->symbol()->atomAt($startIndex) . $currentAlias,
                     ),
                     false
                 );
@@ -263,7 +262,7 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
                     ->createClause($clause->symbol(), $newAlias);
 
                 unset($clauses[$index]);
-                $numClauses--;
+                --$numClauses;
 
                 $aliasString = $newAlias->string();
                 if (!array_key_exists($aliasString, $byAlias)) {

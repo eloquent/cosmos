@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -28,8 +28,8 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->resolver = new SymbolResolver;
-        $this->contextReader = new ResolutionContextReader;
+        $this->resolver = new SymbolResolver();
+        $this->contextReader = new ResolutionContextReader();
         $this->factory = new FixedContextSymbolResolverFactory($this->resolver, $this->contextReader);
 
         $this->stream = fopen(__FILE__, 'rb');
@@ -50,7 +50,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorDefaults()
     {
-        $this->factory = new FixedContextSymbolResolverFactory;
+        $this->factory = new FixedContextSymbolResolverFactory();
 
         $this->assertSame(SymbolResolver::instance(), $this->factory->resolver());
         $this->assertSame(ResolutionContextReader::instance(), $this->factory->contextReader());
@@ -58,7 +58,7 @@ class FixedContextSymbolResolverFactoryTest extends PHPUnit_Framework_TestCase
 
     public function testCreate()
     {
-        $context = new ResolutionContext;
+        $context = new ResolutionContext();
         $actual = $this->factory->create($context);
         $expected = new FixedContextSymbolResolver($context, $this->resolver);
 

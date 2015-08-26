@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -24,7 +24,7 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->symbolFactory = new SymbolFactory;
+        $this->symbolFactory = new SymbolFactory();
         $this->factory = new ResolutionContextFactory($this->symbolFactory);
 
         $this->primaryNamespace = Symbol::fromString('\VendorA\PackageA');
@@ -42,7 +42,7 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorDefaults()
     {
-        $this->factory = new ResolutionContextFactory;
+        $this->factory = new ResolutionContextFactory();
 
         $this->assertSame(SymbolFactory::instance(), $this->factory->symbolFactory());
     }
@@ -58,7 +58,7 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
     {
         $actual = $this->factory->createEmpty();
 
-        $this->assertEquals(new ResolutionContext, $actual);
+        $this->assertEquals(new ResolutionContext(), $actual);
         $this->assertSame($actual, $this->factory->createEmpty());
     }
 

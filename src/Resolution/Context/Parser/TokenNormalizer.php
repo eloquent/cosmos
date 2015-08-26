@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -24,7 +24,7 @@ class TokenNormalizer implements TokenNormalizerInterface
     public static function instance()
     {
         if (null === self::$instance) {
-            self::$instance = new self;
+            self::$instance = new self();
         }
 
         return self::$instance;
@@ -59,7 +59,7 @@ class TokenNormalizer implements TokenNormalizerInterface
                     $endOffset,
                 );
 
-                $columnNumber++;
+                ++$columnNumber;
             } else {
                 $endOffset = $startOffset + strlen($token[1]) - 1;
 
@@ -87,7 +87,7 @@ class TokenNormalizer implements TokenNormalizerInterface
             $lineNumber,
             $columnNumber,
             $startOffset,
-            $startOffset
+            $startOffset,
         );
 
         return $tokens;

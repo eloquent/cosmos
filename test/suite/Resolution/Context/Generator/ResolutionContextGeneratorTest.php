@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -14,7 +14,6 @@ namespace Eloquent\Cosmos\Resolution\Context\Generator;
 use Eloquent\Cosmos\Resolution\Context\Factory\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\Renderer\ResolutionContextRenderer;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
-use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\Factory\UseStatementFactory;
 use Eloquent\Cosmos\UseStatement\Normalizer\UseStatementNormalizer;
 use PHPUnit_Framework_TestCase;
@@ -25,10 +24,10 @@ class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->contextFactory = new ResolutionContextFactory;
-        $this->useStatementFactory = new UseStatementFactory;
-        $this->useStatementNormalizer = new UseStatementNormalizer;
-        $this->symbolFactory = new SymbolFactory;
+        $this->contextFactory = new ResolutionContextFactory();
+        $this->useStatementFactory = new UseStatementFactory();
+        $this->useStatementNormalizer = new UseStatementNormalizer();
+        $this->symbolFactory = new SymbolFactory();
         $this->generator = new ResolutionContextGenerator(
             3,
             $this->contextFactory,
@@ -50,7 +49,7 @@ class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorDefaults()
     {
-        $this->generator = new ResolutionContextGenerator;
+        $this->generator = new ResolutionContextGenerator();
 
         $this->assertSame(1, $this->generator->maxReferenceAtoms());
         $this->assertSame(ResolutionContextFactory::instance(), $this->generator->contextFactory());

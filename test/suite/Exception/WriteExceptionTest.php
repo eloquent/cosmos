@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -30,9 +30,9 @@ class WriteExceptionTest extends PHPUnit_Framework_TestCase
 
     public function testExceptionDefaults()
     {
-        $exception = new WriteException;
+        $exception = new WriteException();
 
         $this->assertNull($exception->path());
-        $this->assertSame("Unable to write to stream.", $exception->getMessage());
+        $this->assertSame('Unable to write to stream.', $exception->getMessage());
     }
 }

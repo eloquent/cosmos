@@ -5,4 +5,4 @@
 - **[NEW]** [Archer] integration
 - **[NEW]** Implemented changelog
 
-[Archer]: https://github.com/IcecaveStudios/archer
+[archer]: https://github.com/IcecaveStudios/archer

@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -12,8 +12,8 @@
 namespace Eloquent\Cosmos\UseStatement;
 
 use Eloquent\Cosmos\Symbol\Symbol;
-use PHPUnit_Framework_TestCase;
 use Phake;
+use PHPUnit_Framework_TestCase;
 
 class UseStatementTest extends PHPUnit_Framework_TestCase
 {
@@ -89,7 +89,7 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
 
     public function testStringSingleNoType()
     {
-        $this->clauses = array(new UseStatementClause(Symbol::fromString('\SymbolA')),);
+        $this->clauses = array(new UseStatementClause(Symbol::fromString('\SymbolA')));
         $this->useStatement = new UseStatement($this->clauses);
         $this->assertSame('use SymbolA', $this->useStatement->string());
         $this->assertSame('use SymbolA', strval($this->useStatement));

@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -13,8 +13,8 @@ namespace Eloquent\Cosmos\Resolution\Context\Persistence;
 
 use Eloquent\Liberator\Liberator;
 use Icecave\Isolator\Isolator;
-use PHPUnit_Framework_TestCase;
 use Phake;
+use PHPUnit_Framework_TestCase;
 
 class StreamEditorTest extends PHPUnit_Framework_TestCase
 {
@@ -50,7 +50,7 @@ class StreamEditorTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorDefaults()
     {
-        $this->editor = new StreamEditor;
+        $this->editor = new StreamEditor();
 
         $this->assertSame(8192, $this->editor->bufferSize());
     }

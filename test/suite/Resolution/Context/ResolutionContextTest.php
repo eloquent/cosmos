@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -31,7 +31,7 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->symbolFactory = new SymbolFactory;
+        $this->symbolFactory = new SymbolFactory();
         $this->primaryNamespace = Symbol::fromString('\VendorA\PackageA');
         $this->useStatements = array(
             UseStatement::create(Symbol::fromString('\VendorB\PackageB')),
@@ -45,7 +45,7 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
 
         $this->contextRenderer = ResolutionContextRenderer::instance();
 
-        $this->fixturePath = dirname(dirname(dirname(__DIR__))) . '/src/contexts.php';
+        $this->fixturePath = dirname(dirname(dirname(__DIR__))) . '/fixture/contexts.php';
         $this->fixtureStream = fopen($this->fixturePath, 'rb');
 
         require_once $this->fixturePath;
@@ -66,7 +66,7 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorDefaults()
     {
-        $this->context = new ResolutionContext;
+        $this->context = new ResolutionContext();
 
         $this->assertEquals(QualifiedSymbol::globalNamespace(), $this->context->primaryNamespace());
         $this->assertSame(array(), $this->context->useStatements());
@@ -74,7 +74,7 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
 
     public function testFromObject()
     {
-        $actual = ResolutionContext::fromObject(new ClassA);
+        $actual = ResolutionContext::fromObject(new ClassA());
         $expected = <<<'EOD'
 namespace NamespaceA\NamespaceB;
 

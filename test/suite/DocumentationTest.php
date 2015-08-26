@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -31,7 +31,7 @@ class DocumentationTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        require_once __DIR__ . '/../src/documentation-fixtures.php';
+        require_once __DIR__ . '/../fixture/documentation.php';
     }
 
     public function testResolveAgainstNamespace()
@@ -42,18 +42,18 @@ class DocumentationTest extends PHPUnit_Framework_TestCase
             '\ArrayObject'
         );
 
-$namespace = Symbol::fromString('\Psr\Log');
+        $namespace = Symbol::fromString('\Psr\Log');
 
-$symbol = Symbol::fromString('NullLogger');
-echo $namespace->resolve($symbol);        // outputs '\Psr\Log\NullLogger'
+        $symbol = Symbol::fromString('NullLogger');
+        echo $namespace->resolve($symbol);        // outputs '\Psr\Log\NullLogger'
 echo $symbol->resolveAgainst($namespace); // outputs '\Psr\Log\NullLogger'
 
 $symbol = Symbol::fromString('..\HttpMessage\MessageInterface');
-echo $namespace->resolve($symbol)->normalize();        // outputs '\Psr\HttpMessage\MessageInterface'
+        echo $namespace->resolve($symbol)->normalize();        // outputs '\Psr\HttpMessage\MessageInterface'
 echo $symbol->resolveAgainst($namespace)->normalize(); // outputs '\Psr\HttpMessage\MessageInterface'
 
 $symbol = Symbol::fromString('\ArrayObject');
-echo $namespace->resolve($symbol); // outputs '\ArrayObject'
+        echo $namespace->resolve($symbol); // outputs '\ArrayObject'
     }
 
     public function testResolveAgainstContext()
@@ -70,7 +70,7 @@ echo $namespace->resolve($symbol); // outputs '\ArrayObject'
             '\NamespaceE\SymbolD\NamespaceE\SymbolD'
         );
 
-$context = new ResolutionContext(
+        $context = new ResolutionContext(
     Symbol::fromString('\NamespaceA\NamespaceB'),
     array(
         // basic use statement
@@ -91,35 +91,35 @@ $context = new ResolutionContext(
     )
 );
 
-$symbol = Symbol::fromString('SymbolA');
-echo $context->resolve($symbol);               // outputs '\NamespaceC\SymbolA'
+        $symbol = Symbol::fromString('SymbolA');
+        echo $context->resolve($symbol);               // outputs '\NamespaceC\SymbolA'
 echo $symbol->resolveAgainstContext($context); // outputs '\NamespaceC\SymbolA'
 
 $symbol = Symbol::fromString('\SymbolA');
-echo $context->resolve($symbol);               // outputs '\SymbolA'
+        echo $context->resolve($symbol);               // outputs '\SymbolA'
 
 $symbol = Symbol::fromString('SymbolB');
-echo $context->resolve($symbol);               // outputs '\NamespaceA\NamespaceB\SymbolB'
+        echo $context->resolve($symbol);               // outputs '\NamespaceA\NamespaceB\SymbolB'
 echo $symbol->resolveAgainstContext($context); // outputs '\NamespaceA\NamespaceB\SymbolB'
 
 $symbol = Symbol::fromString('SymbolC');
-echo $context->resolve($symbol);               // outputs '\NamespaceD\SymbolB'
+        echo $context->resolve($symbol);               // outputs '\NamespaceD\SymbolB'
 echo $symbol->resolveAgainstContext($context); // outputs '\NamespaceD\SymbolB'
 
 $symbol = Symbol::fromString('SymbolC\SymbolE\SymbolF');
-echo $context->resolve($symbol);               // outputs '\NamespaceD\SymbolB\SymbolE\SymbolF'
+        echo $context->resolve($symbol);               // outputs '\NamespaceD\SymbolB\SymbolE\SymbolF'
 echo $symbol->resolveAgainstContext($context); // outputs '\NamespaceD\SymbolB\SymbolE\SymbolF'
 
 $symbol = Symbol::fromString('namespace\SymbolA');
-echo $context->resolve($symbol);               // outputs '\NamespaceA\NamespaceB\SymbolA'
+        echo $context->resolve($symbol);               // outputs '\NamespaceA\NamespaceB\SymbolA'
 echo $symbol->resolveAgainstContext($context); // outputs '\NamespaceA\NamespaceB\SymbolA'
 
 $symbol = Symbol::fromString('namespace\..\SymbolA');
-echo $context->resolve($symbol)->normalize();               // outputs '\NamespaceA\SymbolA'
+        echo $context->resolve($symbol)->normalize();               // outputs '\NamespaceA\SymbolA'
 echo $symbol->resolveAgainstContext($context)->normalize(); // outputs '\NamespaceA\SymbolA'
 
 $symbol = Symbol::fromString('SymbolD');
-echo $context->resolve($symbol);                                       // outputs '\NamespaceA\NamespaceB\SymbolD'
+        echo $context->resolve($symbol);                                       // outputs '\NamespaceA\NamespaceB\SymbolD'
 echo $symbol->resolveAgainstContext($context);                         // outputs '\NamespaceA\NamespaceB\SymbolD'
 echo $context->resolve($symbol, SymbolType::FUNCT1ON());               // outputs '\NamespaceE\SymbolD' (assuming the function exists)
 echo $symbol->resolveAgainstContext($context, SymbolType::FUNCT1ON()); // outputs '\NamespaceE\SymbolD' (assuming the function exists)
@@ -130,7 +130,7 @@ echo $symbol->resolveAgainstContext($context, SymbolType::FUNCT1ON()); // output
         $path = __FILE__;
         $stream = fopen('php://memory', 'rb+');
 
-ResolutionContext::fromObject($this);                                          // from an object instance
+        ResolutionContext::fromObject($this);                                          // from an object instance
 ResolutionContext::fromSymbol(__CLASS__);                                      // from a symbol
 ResolutionContext::fromFunctionSymbol('NamespaceE\SymbolD');                   // from a function symbol
 ResolutionContext::fromClass(new ReflectionClass(__CLASS__));                  // from a class reflector
@@ -149,7 +149,7 @@ ResolutionContext::fromStreamByPosition($stream, new ParserPosition(11, 22));  /
 
     public function testFixedResolverExample()
     {
-        $object = new ClassA;
+        $object = new ClassA();
 
         $this->expectOutputString('\NamespaceB\SymbolA');
         $object->methodA();
@@ -166,7 +166,7 @@ ResolutionContext::fromStreamByPosition($stream, new ParserPosition(11, 22));  /
             '\NamespaceA\NamespaceE\SymbolD'
         );
 
-$context = new ResolutionContext(
+        $context = new ResolutionContext(
     Symbol::fromString('\NamespaceA\NamespaceB'),
     array(
         // basic use statement
@@ -180,29 +180,29 @@ $context = new ResolutionContext(
     )
 );
 
-$symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolD');
-echo $symbol->relativeToContext($context); // outputs 'SymbolD'
+        $symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolD');
+        echo $symbol->relativeToContext($context); // outputs 'SymbolD'
 
 $symbol = Symbol::fromString('\NamespaceC\SymbolA');
-echo $symbol->relativeToContext($context); // outputs 'SymbolA'
+        echo $symbol->relativeToContext($context); // outputs 'SymbolA'
 
 $symbol = Symbol::fromString('\NamespaceD\SymbolB');
-echo $symbol->relativeToContext($context); // outputs 'SymbolC'
+        echo $symbol->relativeToContext($context); // outputs 'SymbolC'
 
 $symbol = Symbol::fromString('\NamespaceD\SymbolB\SymbolD');
-echo $symbol->relativeToContext($context); // outputs 'SymbolC\SymbolD'
+        echo $symbol->relativeToContext($context); // outputs 'SymbolC\SymbolD'
 
 $symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolA');
-echo $symbol->relativeToContext($context); // outputs 'namespace\SymbolA'
+        echo $symbol->relativeToContext($context); // outputs 'namespace\SymbolA'
 
 $symbol = Symbol::fromString('\NamespaceA\NamespaceE\SymbolD');
-echo $symbol->relativeToContext($context); // outputs '\NamespaceA\NamespaceE\SymbolD'
+        echo $symbol->relativeToContext($context); // outputs '\NamespaceA\NamespaceE\SymbolD'
     }
 
     public function testContextGeneration()
     {
-$generator = new ResolutionContextGenerator;
-$context = $generator->generate(
+        $generator = new ResolutionContextGenerator();
+        $context = $generator->generate(
     Symbol::fromString('\NamespaceA\NamespaceB'),
     array(
         Symbol::fromString('\NamespaceA\NamespaceB\ClassA'),

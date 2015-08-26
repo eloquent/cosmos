@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -29,7 +29,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->contextRenderer = new ResolutionContextRenderer;
+        $this->contextRenderer = new ResolutionContextRenderer();
         $this->streamEditor = Phake::partialMock('Eloquent\Cosmos\Resolution\Context\Persistence\StreamEditor');
         $this->writer = new ResolutionContextWriter($this->contextRenderer, $this->streamEditor);
 
@@ -50,7 +50,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
         $this->context = new ResolutionContext(Symbol::fromString('\NamespaceX\NamespaceY'), $this->useStatements);
         $this->contextGlobal = new ResolutionContext(null, $this->useStatements);
         $this->contextNoUse = new ResolutionContext(Symbol::fromString('\NamespaceX\NamespaceY'));
-        $this->contextEmpty = new ResolutionContext;
+        $this->contextEmpty = new ResolutionContext();
         $this->contextSecondary = new ResolutionContext(Symbol::fromString('\NamespaceZ'));
         $this->file = tempnam(sys_get_temp_dir(), 'cosmos-');
         $this->stream = fopen('php://memory', 'rb+');
@@ -85,7 +85,7 @@ class ResolutionContextWriterTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorDefaults()
     {
-        $this->writer = new ResolutionContextWriter;
+        $this->writer = new ResolutionContextWriter();
 
         $this->assertSame(ResolutionContextRenderer::instance(), $this->writer->contextRenderer());
         $this->assertSame(StreamEditor::instance(), $this->writer->streamEditor());
@@ -717,7 +717,7 @@ EOD
     public function testReplaceContextInFileFailure()
     {
         $this->parsedContexts = $this->contextParser->parseSource('');
-        Phake::when($this->streamEditor)->replaceMultiple(Phake::anyParameters())->thenThrow(new WriteException);
+        Phake::when($this->streamEditor)->replaceMultiple(Phake::anyParameters())->thenThrow(new WriteException());
 
         $this->setExpectedException('Eloquent\Cosmos\Exception\WriteException');
         $this->writer->replaceContextInFile($this->file, $this->parsedContexts[0], $this->context, $this->path);
@@ -819,7 +819,7 @@ EOD
     public function testReplaceContextsInFileFailure()
     {
         $this->parsedContexts = $this->contextParser->parseSource('');
-        Phake::when($this->streamEditor)->replaceMultiple(Phake::anyParameters())->thenThrow(new WriteException);
+        Phake::when($this->streamEditor)->replaceMultiple(Phake::anyParameters())->thenThrow(new WriteException());
 
         $this->setExpectedException('Eloquent\Cosmos\Exception\WriteException');
         $this->writer->replaceContextsInFile($this->file, $this->parsedContexts, array($this->context), $this->path);

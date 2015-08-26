@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -34,9 +34,9 @@ class ResolutionContextReaderTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->contextParser = new ResolutionContextParser;
-        $this->contextFactory = new ResolutionContextFactory;
-        $this->symbolFactory = new SymbolFactory;
+        $this->contextParser = new ResolutionContextParser();
+        $this->contextFactory = new ResolutionContextFactory();
+        $this->symbolFactory = new SymbolFactory();
         $this->isolator = Phake::partialMock(Isolator::className());
         $this->reader = new ResolutionContextReader(
             $this->contextParser,
@@ -56,7 +56,7 @@ class ResolutionContextReaderTest extends PHPUnit_Framework_TestCase
         SymbolFactory::instance()->globalNamespace();
         $this->symbolFactory->globalNamespace();
 
-        $this->fixturePath = dirname(dirname(dirname(dirname(__DIR__)))) . '/src/contexts.php';
+        $this->fixturePath = dirname(dirname(dirname(dirname(__DIR__)))) . '/fixture/contexts.php';
         $this->fixtureStream = fopen($this->fixturePath, 'rb');
 
         require_once $this->fixturePath;
@@ -78,7 +78,7 @@ class ResolutionContextReaderTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorDefaults()
     {
-        $this->reader = new ResolutionContextReader;
+        $this->reader = new ResolutionContextReader();
 
         $this->assertSame(ResolutionContextParser::instance(), $this->reader->contextParser());
         $this->assertSame(ResolutionContextFactory::instance(), $this->reader->contextFactory());
@@ -87,7 +87,7 @@ class ResolutionContextReaderTest extends PHPUnit_Framework_TestCase
 
     public function testReadFromObject()
     {
-        $actual = $this->reader->readFromObject(new ClassA);
+        $actual = $this->reader->readFromObject(new ClassA());
         $expected = <<<'EOD'
 namespace NamespaceA\NamespaceB;
 
@@ -101,7 +101,7 @@ EOD;
 
     public function testReadFromObjectSecondaryNamespace()
     {
-        $actual = $this->reader->readFromObject(new ClassC);
+        $actual = $this->reader->readFromObject(new ClassC());
         $expected = <<<'EOD'
 namespace NamespaceC;
 

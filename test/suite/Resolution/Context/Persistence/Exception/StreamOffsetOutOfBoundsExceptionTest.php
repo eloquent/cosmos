@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -19,7 +19,7 @@ class StreamOffsetOutOfBoundsExceptionTest extends PHPUnit_Framework_TestCase
     public function testException()
     {
         $path = '/path/to/foo.php';
-        $cause = new Exception;
+        $cause = new Exception();
         $exception = new StreamOffsetOutOfBoundsException(111, $path, $cause);
 
         $this->assertSame(111, $exception->offset());
@@ -34,6 +34,6 @@ class StreamOffsetOutOfBoundsExceptionTest extends PHPUnit_Framework_TestCase
         $exception = new StreamOffsetOutOfBoundsException(111);
 
         $this->assertNull($exception->path());
-        $this->assertSame("Stream offset 111 is out of bounds.", $exception->getMessage());
+        $this->assertSame('Stream offset 111 is out of bounds.', $exception->getMessage());
     }
 }

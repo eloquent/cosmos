@@ -6,10 +6,21 @@
 [![Current build status image][build-image]][Current build status]
 [![Current coverage status image][coverage-image]][Current coverage status]
 
+[build-image]: http://img.shields.io/travis/eloquent/cosmos/develop.svg "Current build status for the develop branch"
+[current build status]: https://travis-ci.org/eloquent/cosmos
+[coverage-image]: http://img.shields.io/coveralls/eloquent/cosmos/develop.svg "Current test coverage for the develop branch"
+[current coverage status]: https://coveralls.io/r/eloquent/cosmos
+[semantic versioning]: http://semver.org/
+[version-image]: http://img.shields.io/:semver-2.3.1-brightgreen.svg "This project uses semantic versioning"
+
 ## Installation and documentation
 
-* Available as [Composer] package [eloquent/cosmos].
-* [API documentation] available.
+- Available as [Composer] package [eloquent/cosmos].
+- [API documentation] available.
+
+[api documentation]: http://lqnt.co/cosmos/artifacts/documentation/api/
+[composer]: http://getcomposer.org/
+[eloquent/cosmos]: https://packagist.org/packages/eloquent/cosmos
 
 ## What is *Cosmos*?
 
@@ -31,6 +42,9 @@ circumstance where run-time symbol resolution is involved.
 
 *Cosmos* also supports PHP 5.6 new features including `use function` and
 `use const`.
+
+[namespace]: http://php.net/manual/en/language.namespaces.definition.php
+[use]: http://php.net/manual/en/language.namespaces.importing.php
 
 ## Resolving a symbol against a namespace
 
@@ -307,18 +321,5 @@ sections of an atom separated by underscores (`_`) as 'name extensions'. This is
 equivalent to the treatment of file name extensions in a typical file system
 path, that are usually separated by a dot (`.`).
 
-<!-- References -->
+[pathogen]: https://github.com/eloquent/pathogen
 
-[namespace]: http://php.net/manual/en/language.namespaces.definition.php
-[Pathogen]: https://github.com/eloquent/pathogen
-[use]: http://php.net/manual/en/language.namespaces.importing.php
-
-[API documentation]: http://lqnt.co/cosmos/artifacts/documentation/api/
-[Composer]: http://getcomposer.org/
-[build-image]: http://img.shields.io/travis/eloquent/cosmos/develop.svg "Current build status for the develop branch"
-[Current build status]: https://travis-ci.org/eloquent/cosmos
-[coverage-image]: http://img.shields.io/coveralls/eloquent/cosmos/develop.svg "Current test coverage for the develop branch"
-[Current coverage status]: https://coveralls.io/r/eloquent/cosmos
-[eloquent/cosmos]: https://packagist.org/packages/eloquent/cosmos
-[Semantic versioning]: http://semver.org/
-[version-image]: http://img.shields.io/:semver-2.3.1-brightgreen.svg "This project uses semantic versioning"

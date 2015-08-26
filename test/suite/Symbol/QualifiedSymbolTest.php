@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -14,8 +14,8 @@ namespace Eloquent\Cosmos\Symbol;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 use Eloquent\Cosmos\UseStatement\UseStatement;
-use PHPUnit_Framework_TestCase;
 use Phake;
+use PHPUnit_Framework_TestCase;
 use ReflectionClass;
 use ReflectionFunction;
 
@@ -25,7 +25,7 @@ class QualifiedSymbolTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->factory = new SymbolFactory;
+        $this->factory = new SymbolFactory();
     }
 
     public function createData()

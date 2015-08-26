@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -33,7 +33,7 @@ class StreamEditor implements StreamEditorInterface
     public static function instance()
     {
         if (null === self::$instance) {
-            self::$instance = new self;
+            self::$instance = new self();
         }
 
         return self::$instance;
@@ -322,7 +322,7 @@ class StreamEditor implements StreamEditorInterface
                             $startOfWhitespace = $offset;
                         }
 
-                        $whitespaceSize++;
+                        ++$whitespaceSize;
 
                         break;
 
@@ -340,7 +340,7 @@ class StreamEditor implements StreamEditorInterface
                         $whitespaceSize = 0;
                 }
 
-                $offset++;
+                ++$offset;
             }
 
             if (strlen($data) < $this->bufferSize) {
@@ -367,7 +367,7 @@ class StreamEditor implements StreamEditorInterface
         $nextCharacter = $this->read($stream, 1, $path);
 
         while ($offset > 0) {
-            $offset--;
+            --$offset;
             $this->seek($stream, $offset, null, $path);
             $character = $this->read($stream, 1, $path);
 
@@ -375,7 +375,7 @@ class StreamEditor implements StreamEditorInterface
                 "\n" === $character ||
                 ("\r" === $character && "\n" !== $nextCharacter)
             ) {
-                $offset++;
+                ++$offset;
 
                 break;
             }

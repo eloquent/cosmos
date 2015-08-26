@@ -3,7 +3,7 @@
 /*
  * This file is part of the Cosmos package.
  *
- * Copyright © 2014 Erin Millard
+ * Copyright © 2015 Erin Millard
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
@@ -17,8 +17,8 @@ use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\Symbol\SymbolType;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Cosmos\UseStatement\UseStatementType;
-use PHPUnit_Framework_TestCase;
 use Phake;
+use PHPUnit_Framework_TestCase;
 
 /**
  * @covers \Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedResolutionContext
@@ -64,9 +64,9 @@ class ParsedResolutionContextTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorDefaults()
     {
-        $this->context = new ParsedResolutionContext;
+        $this->context = new ParsedResolutionContext();
 
-        $this->assertEquals(new ResolutionContext, $this->context->context());
+        $this->assertEquals(new ResolutionContext(), $this->context->context());
         $this->assertSame(array(), $this->context->symbols());
         $this->assertEquals(new ParserPosition(0, 0), $this->context->position());
         $this->assertSame(0, $this->context->offset());
