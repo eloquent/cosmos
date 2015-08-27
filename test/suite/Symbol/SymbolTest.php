@@ -35,6 +35,7 @@ class SymbolTest extends PHPUnit_Framework_TestCase
         $symbol = Symbol::fromString($string);
 
         $this->assertSame($atoms, $symbol->atoms());
+        $this->assertSame($atoms[0], $symbol->firstAtom());
         $this->assertSame($isQualified, $symbol->isQualified());
     }
 
@@ -46,6 +47,7 @@ class SymbolTest extends PHPUnit_Framework_TestCase
         $symbol = Symbol::fromRuntimeString($string);
 
         $this->assertSame($atoms, $symbol->atoms());
+        $this->assertSame($atoms[0], $symbol->firstAtom());
         $this->assertTrue($symbol->isQualified());
     }
 
@@ -57,6 +59,7 @@ class SymbolTest extends PHPUnit_Framework_TestCase
         $symbol = Symbol::fromAtoms($atoms, $isQualified);
 
         $this->assertSame($atoms, $symbol->atoms());
+        $this->assertSame($atoms[0], $symbol->firstAtom());
         $this->assertSame($isQualified, $symbol->isQualified());
     }
 

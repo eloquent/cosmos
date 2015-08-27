@@ -87,6 +87,16 @@ class Symbol implements SymbolInterface
     }
 
     /**
+     * Get the first atom.
+     *
+     * @return string The atom.
+     */
+    public function firstAtom()
+    {
+        return $this->atoms[0];
+    }
+
+    /**
      * Returns true if qualified.
      *
      * @return boolean True if qualified.

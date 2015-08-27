@@ -36,7 +36,7 @@ interface ResolutionContextInterface
     /**
      * Get the use statements by type.
      *
-     * @param string $type The type.
+     * @param string|null $type The type.
      *
      * @return array<UseStatementInterface> The use statements.
      */

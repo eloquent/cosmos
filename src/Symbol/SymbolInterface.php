@@ -17,6 +17,27 @@ namespace Eloquent\Cosmos\Symbol;
 interface SymbolInterface
 {
     /**
+     * Get the atoms.
+     *
+     * @return array<string> $atoms The atoms.
+     */
+    public function atoms();
+
+    /**
+     * Get the first atom.
+     *
+     * @return string The atom.
+     */
+    public function firstAtom();
+
+    /**
+     * Returns true if qualified.
+     *
+     * @return boolean True if qualified.
+     */
+    public function isQualified();
+
+    /**
      * Get the runtime string representation of this symbol.
      *
      * @return string The runtime string representation.
