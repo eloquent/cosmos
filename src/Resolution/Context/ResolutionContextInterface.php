@@ -22,7 +22,7 @@ interface ResolutionContextInterface
     /**
      * Get the namespace.
      *
-     * @return SymbolInterface The namespace.
+     * @return SymbolInterface|null The namespace, or null if global.
      */
     public function primaryNamespace();
 
@@ -52,4 +52,11 @@ interface ResolutionContextInterface
      * @return SymbolInterface|null The symbol, or null if no associated symbol exists.
      */
     public function symbolByFirstAtom(SymbolInterface $symbol, $type = null);
+
+    /**
+     * Get the string representation of this context.
+     *
+     * @return string The string representation.
+     */
+    public function __toString();
 }

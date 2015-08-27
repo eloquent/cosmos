@@ -20,14 +20,23 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->primaryNamespace = Symbol::fromString('\VendorA\PackageA');
-        $this->useStatements = array(
-            UseStatement::fromSymbol(Symbol::fromString('\VendorB\PackageB')),
-            UseStatement::fromSymbol(Symbol::fromString('\VendorC\PackageC')),
-            UseStatement::fromSymbol(Symbol::fromString('\VendorD\PackageD'), null, 'function'),
-            UseStatement::fromSymbol(Symbol::fromString('\VendorE\PackageE'), null, 'function'),
-            UseStatement::fromSymbol(Symbol::fromString('\VendorF\PackageF'), null, 'const'),
-            UseStatement::fromSymbol(Symbol::fromString('\VendorG\PackageG'), null, 'const'),
+        $this->typeUseStatements = array(
+            UseStatement::fromSymbol(Symbol::fromString('\NamespaceA\NamespaceB\SymbolA'), 'SymbolB'),
+            UseStatement::fromSymbol(Symbol::fromString('\NamespaceC\NamespaceD')),
+            UseStatement::fromSymbol(Symbol::fromString('\SymbolC')),
         );
+        $this->functionUseStatements = array(
+            UseStatement::fromSymbol(Symbol::fromString('\NamespaceE\NamespaceF\SymbolD'), 'SymbolE', 'function'),
+            UseStatement::fromSymbol(Symbol::fromString('\NamespaceG\SymbolF'), null, 'function'),
+            UseStatement::fromSymbol(Symbol::fromString('\SymbolC'), null, 'function'),
+        );
+        $this->constUseStatements = array(
+            UseStatement::fromSymbol(Symbol::fromString('\NamespaceH\NamespaceI\SymbolG'), 'SymbolH', 'const'),
+            UseStatement::fromSymbol(Symbol::fromString('\NamespaceJ\SymbolI'), null, 'const'),
+            UseStatement::fromSymbol(Symbol::fromString('\SymbolC'), null, 'const'),
+        );
+        $this->useStatements =
+            array_merge($this->typeUseStatements, $this->functionUseStatements, $this->constUseStatements);
         $this->subject = new ResolutionContext($this->primaryNamespace, $this->useStatements);
     }
 
@@ -39,13 +48,9 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
 
     public function testUseStatementsByType()
     {
-        $typeUseStatements = array($this->useStatements[0], $this->useStatements[1]);
-        $functionUseStatements = array($this->useStatements[2], $this->useStatements[3]);
-        $constantUseStatements = array($this->useStatements[4], $this->useStatements[5]);
-
-        $this->assertSame($typeUseStatements, $this->subject->useStatementsByType(null));
-        $this->assertSame($functionUseStatements, $this->subject->useStatementsByType('function'));
-        $this->assertSame($constantUseStatements, $this->subject->useStatementsByType('const'));
+        $this->assertSame($this->typeUseStatements, $this->subject->useStatementsByType(null));
+        $this->assertSame($this->functionUseStatements, $this->subject->useStatementsByType('function'));
+        $this->assertSame($this->constUseStatements, $this->subject->useStatementsByType('const'));
         $this->assertSame(array(), $this->subject->useStatementsByType('nonexistent'));
     }
 
@@ -78,27 +83,49 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
      */
     public function testSymbolByFirstAtom($type, $symbol, $expected)
     {
-        $this->subject = new ResolutionContext(
-            Symbol::fromString('\foo'),
-            array(
-                UseStatement::fromSymbol(Symbol::fromString('\NamespaceA\NamespaceB\SymbolA'), 'SymbolB'),
-                UseStatement::fromSymbol(Symbol::fromString('\NamespaceC\NamespaceD')),
-                UseStatement::fromSymbol(Symbol::fromString('\SymbolC')),
-
-                UseStatement::fromSymbol(Symbol::fromString('\NamespaceE\NamespaceF\SymbolD'), 'SymbolE', 'function'),
-                UseStatement::fromSymbol(Symbol::fromString('\NamespaceG\SymbolF'), null, 'function'),
-                UseStatement::fromSymbol(Symbol::fromString('\SymbolC'), null, 'function'),
-
-                UseStatement::fromSymbol(Symbol::fromString('\NamespaceH\NamespaceI\SymbolG'), 'SymbolH', 'const'),
-                UseStatement::fromSymbol(Symbol::fromString('\NamespaceJ\SymbolI'), null, 'const'),
-                UseStatement::fromSymbol(Symbol::fromString('\SymbolC'), null, 'const'),
-            )
-        );
-
         if (null === $expected) {
             $this->assertNull($this->subject->symbolByFirstAtom(Symbol::fromString($symbol), $type));
         } else {
             $this->assertSame($expected, strval($this->subject->symbolByFirstAtom(Symbol::fromString($symbol), $type)));
         }
+    }
+
+    public function testToString()
+    {
+        $expected = <<<'EOD'
+namespace VendorA\PackageA;
+
+use NamespaceA\NamespaceB\SymbolA as SymbolB;
+use NamespaceC\NamespaceD;
+use SymbolC;
+use function NamespaceE\NamespaceF\SymbolD as SymbolE;
+use function NamespaceG\SymbolF;
+use function SymbolC;
+use const NamespaceH\NamespaceI\SymbolG as SymbolH;
+use const NamespaceJ\SymbolI;
+use const SymbolC;
+
+EOD;
+
+        $this->assertSame($expected, strval($this->subject));
+    }
+
+    public function testToStringWithGlobalNamespace()
+    {
+        $this->subject = new ResolutionContext(null, $this->useStatements);
+        $expected = <<<'EOD'
+use NamespaceA\NamespaceB\SymbolA as SymbolB;
+use NamespaceC\NamespaceD;
+use SymbolC;
+use function NamespaceE\NamespaceF\SymbolD as SymbolE;
+use function NamespaceG\SymbolF;
+use function SymbolC;
+use const NamespaceH\NamespaceI\SymbolG as SymbolH;
+use const NamespaceJ\SymbolI;
+use const SymbolC;
+
+EOD;
+
+        $this->assertSame($expected, strval($this->subject));
     }
 }

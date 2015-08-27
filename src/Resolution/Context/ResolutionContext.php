@@ -68,7 +68,7 @@ class ResolutionContext implements ResolutionContextInterface
     /**
      * Get the namespace.
      *
-     * @return SymbolInterface The namespace.
+     * @return SymbolInterface|null The namespace, or null if global.
      */
     public function primaryNamespace()
     {
@@ -129,6 +129,23 @@ class ResolutionContext implements ResolutionContextInterface
         }
 
         return null;
+    }
+
+    /**
+     * Get the string representation of this context.
+     *
+     * @return string The string representation.
+     */
+    public function __toString()
+    {
+        if (null === $this->primaryNamespace) {
+            return implode(";\n", $this->useStatements) . ";\n";
+        }
+
+        return 'namespace ' .
+            $this->primaryNamespace->runtimeString() .
+            ";\n\n" .
+            implode(";\n", $this->useStatements) . ";\n";
     }
 
     private $primaryNamespace;
