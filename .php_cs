@@ -5,7 +5,9 @@ $finder = Symfony\CS\Finder\DefaultFinder::create()
     ->exclude(
         array(
             'artifacts',
+            'src.bak',
             'test/fixture',
+            'test/suite.bak',
             'vendor',
         )
     );
