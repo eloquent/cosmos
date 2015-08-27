@@ -14,6 +14,9 @@ namespace Eloquent\Cosmos\UseStatement;
 use Eloquent\Cosmos\Symbol\Symbol;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers \Eloquent\Cosmos\UseStatement\UseStatementClause
+ */
 class UseStatementClauseTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()

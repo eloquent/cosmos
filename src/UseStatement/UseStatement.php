@@ -11,11 +11,33 @@
 
 namespace Eloquent\Cosmos\UseStatement;
 
+use Eloquent\Cosmos\Exception\InvalidSymbolAtomException;
+use Eloquent\Cosmos\Symbol\SymbolInterface;
+
 /**
  * Represents a use statement.
  */
 class UseStatement implements UseStatementInterface
 {
+    /**
+     * Create a new use statement from a symbol.
+     *
+     * @param SymbolInterface $symbol The symbol.
+     * @param string|null     $alias  The alias.
+     * @param string|null     $type   The type.
+     *
+     * @return UseStatementInterface      The newly created use statement.
+     * @throws InvalidSymbolAtomException If an invalid alias is supplied.
+     */
+    public static function fromSymbol(
+        SymbolInterface $symbol,
+        $alias = null,
+        $type = null
+    ) {
+        return UseStatementFactory::instance()
+            ->createStatementFromSymbol($symbol, $alias, $type);
+    }
+
     /**
      * Construct a new use statement.
      *

@@ -17,9 +17,9 @@ namespace Eloquent\Cosmos\UseStatement;
 interface UseStatementInterface
 {
     /**
-     * Get the use statement type.
+     * Get the type.
      *
-     * @return string The type.
+     * @return string|null The type.
      */
     public function type();
 

@@ -15,6 +15,9 @@ use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers \Eloquent\Cosmos\UseStatement\UseStatementNormalizer
+ */
 class UseStatementNormalizerTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()

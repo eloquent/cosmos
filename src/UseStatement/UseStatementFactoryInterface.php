@@ -39,4 +39,20 @@ interface UseStatementFactoryInterface
      * @return UseStatementInterface The newly created use statement.
      */
     public function createStatement(array $clauses, $type = null);
+
+    /**
+     * Create a new use statement from a symbol.
+     *
+     * @param SymbolInterface $symbol The symbol.
+     * @param string|null     $alias  The alias.
+     * @param string|null     $type   The type.
+     *
+     * @return UseStatementInterface      The newly created use statement.
+     * @throws InvalidSymbolAtomException If an invalid alias is supplied.
+     */
+    public function createStatementFromSymbol(
+        SymbolInterface $symbol,
+        $alias = null,
+        $type = null
+    );
 }

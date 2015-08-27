@@ -14,6 +14,9 @@ namespace Eloquent\Cosmos\UseStatement;
 use Eloquent\Cosmos\Symbol\Symbol;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers \Eloquent\Cosmos\UseStatement\UseStatement
+ */
 class UseStatementTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
@@ -23,6 +26,15 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
             new UseStatementClause(Symbol::fromString('\NamespaceB\SymbolC')),
         );
         $this->subject = new UseStatement($this->clauses, 'const');
+    }
+
+    public function testFromSymbol()
+    {
+        $symbol = Symbol::fromString('\NamespaceA\SymbolA');
+        $actual = UseStatement::fromSymbol($symbol, 'Alias', 'const');
+        $expected = new UseStatement(array(new UseStatementClause($symbol, 'Alias')), 'const');
+
+        $this->assertEquals($expected, $actual);
     }
 
     public function testConstructor()

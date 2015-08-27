@@ -15,6 +15,9 @@ use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers \Eloquent\Cosmos\UseStatement\UseStatementFactory
+ */
 class UseStatementFactoryTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
@@ -43,6 +46,14 @@ class UseStatementFactoryTest extends PHPUnit_Framework_TestCase
             new UseStatement($this->clauses, 'const'),
             $this->subject->createStatement($this->clauses, 'const')
         );
+    }
+
+    public function testCreateStatementFromSymbol()
+    {
+        $actual = $this->subject->createStatementFromSymbol($this->symbol, $this->alias, 'const');
+        $expected = new UseStatement(array(new UseStatementClause($this->symbol, $this->alias)), 'const');
+
+        $this->assertEquals($expected, $actual);
     }
 
     public function testInstance()
