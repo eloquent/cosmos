@@ -25,7 +25,7 @@ class InvalidSymbolAtomExceptionTest extends PHPUnit_Framework_TestCase
         $exception = new InvalidSymbolAtomException('foo', $previous);
 
         $this->assertSame('foo', $exception->atom());
-        $this->assertSame("The symbol atom 'foo' contains invalid characters.", $exception->getMessage());
+        $this->assertSame("Invalid symbol atom 'foo'.", $exception->getMessage());
         $this->assertSame(0, $exception->getCode());
         $this->assertSame($previous, $exception->getPrevious());
     }

@@ -9,10 +9,9 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Symbol\Factory;
+namespace Eloquent\Cosmos\Symbol;
 
 use Eloquent\Cosmos\Exception\InvalidSymbolAtomException;
-use Eloquent\Cosmos\Symbol\SymbolInterface;
 
 /**
  * The interface implemented by symbol factories.

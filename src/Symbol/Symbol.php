@@ -12,7 +12,6 @@
 namespace Eloquent\Cosmos\Symbol;
 
 use Eloquent\Cosmos\Exception\InvalidSymbolAtomException;
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
 
 /**
  * Represents a symbol.

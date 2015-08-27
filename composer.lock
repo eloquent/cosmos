@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cecf45689378017cd5fa719e8717d8d6",
+    "hash": "51dff70a24953cf2241e567ebf0280e7",
     "packages": [],
     "packages-dev": [
         {
@@ -60,6 +60,57 @@
                 "instantiate"
             ],
             "time": "2015-06-14 21:17:01"
+        },
+        {
+            "name": "eloquent/liberator",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eloquent/liberator.git",
+                "reference": "8d71b1ff4794b09fc7d0e205ee994780412d3a1f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eloquent/liberator/zipball/8d71b1ff4794b09fc7d0e205ee994780412d3a1f",
+                "reference": "8d71b1ff4794b09fc7d0e205ee994780412d3a1f",
+                "shasum": ""
+            },
+            "require": {
+                "eloquent/pops": "~4.1.0",
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "icecave/archer": "~1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Eloquent\\Liberator\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erin Millard",
+                    "email": "ezzatron@gmail.com",
+                    "homepage": "http://ezzatron.com/"
+                }
+            ],
+            "description": "A proxy for circumventing PHP access modifier restrictions.",
+            "homepage": "https://github.com/eloquent/liberator",
+            "keywords": [
+                "access",
+                "modifier",
+                "object",
+                "private",
+                "protected",
+                "proxy",
+                "reflection"
+            ],
+            "time": "2014-02-09 12:27:12"
         },
         {
             "name": "eloquent/phony",
@@ -135,6 +186,53 @@
                 "test"
             ],
             "time": "2015-08-24 07:31:15"
+        },
+        {
+            "name": "eloquent/pops",
+            "version": "4.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eloquent/pops.git",
+                "reference": "80dbee5422347dc581d38ade92001509dce34926"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eloquent/pops/zipball/80dbee5422347dc581d38ade92001509dce34926",
+                "reference": "80dbee5422347dc581d38ade92001509dce34926",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "icecave/archer": "~1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Eloquent\\Pops\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erin Millard",
+                    "email": "ezzatron@gmail.com",
+                    "homepage": "http://ezzatron.com/"
+                }
+            ],
+            "description": "PHP object proxy system.",
+            "homepage": "https://github.com/eloquent/pops",
+            "keywords": [
+                "method",
+                "object",
+                "property",
+                "proxy"
+            ],
+            "time": "2014-02-09 10:09:42"
         },
         {
             "name": "icecave/archer",

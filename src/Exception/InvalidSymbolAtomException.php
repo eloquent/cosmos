@@ -29,10 +29,7 @@ final class InvalidSymbolAtomException extends Exception
         $this->atom = $atom;
 
         parent::__construct(
-            sprintf(
-                'The symbol atom %s contains invalid characters.',
-                var_export($atom, true)
-            ),
+            sprintf('Invalid symbol atom %s.', var_export($atom, true)),
             0,
             $cause
         );
