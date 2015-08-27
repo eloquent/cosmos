@@ -12,23 +12,24 @@
 namespace Eloquent\Cosmos\Exception;
 
 use Eloquent\Cosmos\Symbol\Symbol;
-use Eloquent\Phony\Phpunit\Phony;
 use Exception;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers \Eloquent\Cosmos\Exception\UndefinedSymbolException
+ */
 class UndefinedSymbolExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testException()
     {
         $type = 'class';
-        $symbol = Phony::mock('Eloquent\Cosmos\Symbol\SymbolInterface');
-        $symbol->__toString->returns('symbol');
+        $symbol = Symbol::fromString('\Foo\Bar');
         $cause = new Exception();
-        $exception = new UndefinedSymbolException($type, $symbol->mock(), $cause);
+        $exception = new UndefinedSymbolException($type, $symbol, $cause);
 
         $this->assertSame($type, $exception->type());
-        $this->assertSame($symbol->mock(), $exception->symbol());
-        $this->assertSame("Undefined class 'symbol'.", $exception->getMessage());
+        $this->assertSame($symbol, $exception->symbol());
+        $this->assertSame("Undefined class '\\\\Foo\\\\Bar'.", $exception->getMessage());
         $this->assertSame(0, $exception->getCode());
         $this->assertSame($cause, $exception->getPrevious());
     }

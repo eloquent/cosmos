@@ -62,7 +62,7 @@ class Symbol implements SymbolInterface
      */
     public static function fromAtoms(array $atoms, $isQualified = null)
     {
-        return SymbolFactory::instance()->createFromAtoms($atoms, $isQualifiedå);
+        return SymbolFactory::instance()->createFromAtoms($atoms, $isQualified);
     }
 
     /**
@@ -110,7 +110,7 @@ class Symbol implements SymbolInterface
      */
     public function __toString()
     {
-        $this->string;
+        return $this->string;
     }
 
     private $atoms;

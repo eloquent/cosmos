@@ -14,6 +14,9 @@ namespace Eloquent\Cosmos\Exception;
 use Exception;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers \Eloquent\Cosmos\Exception\WriteException
+ */
 class WriteExceptionTest extends PHPUnit_Framework_TestCase
 {
     public function testException()
