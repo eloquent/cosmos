@@ -74,4 +74,10 @@ class SymbolTest extends PHPUnit_Framework_TestCase
     {
         $this->assertSame($string, strval(Symbol::fromAtoms($atoms, $isQualified)));
     }
+
+    public function testRuntimeString()
+    {
+        $this->assertSame('Namespace\Symbol', Symbol::fromString('Namespace\Symbol')->runtimeString());
+        $this->assertSame('Namespace\Symbol', Symbol::fromString('\Namespace\Symbol')->runtimeString());
+    }
 }

@@ -74,11 +74,12 @@ class Symbol implements SymbolInterface
     {
         $this->atoms = $atoms;
         $this->isQualified = $isQualified;
+        $this->runtimeString = implode('\\', $atoms);
 
         if ($isQualified) {
             $this->string = '\\' . implode('\\', $atoms);
         } else {
-            $this->string = implode('\\', $atoms);
+            $this->string = $this->runtimeString;
         }
     }
 
@@ -103,6 +104,16 @@ class Symbol implements SymbolInterface
     }
 
     /**
+     * Get the runtime string representation of this symbol.
+     *
+     * @return string The runtime string representation.
+     */
+    public function runtimeString()
+    {
+        return $this->runtimeString;
+    }
+
+    /**
      * Get the string representation of this symbol.
      *
      * @return string The string representation.
@@ -114,5 +125,6 @@ class Symbol implements SymbolInterface
 
     private $atoms;
     private $isQualified;
+    private $runtimeString;
     private $string;
 }

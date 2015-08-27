@@ -17,6 +17,13 @@ namespace Eloquent\Cosmos\Symbol;
 interface SymbolInterface
 {
     /**
+     * Get the runtime string representation of this symbol.
+     *
+     * @return string The runtime string representation.
+     */
+    public function runtimeString();
+
+    /**
      * Get the string representation of this symbol.
      *
      * @return string The string representation.
