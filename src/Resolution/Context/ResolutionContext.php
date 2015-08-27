@@ -135,14 +135,24 @@ class ResolutionContext implements ResolutionContextInterface
      */
     public function __toString()
     {
-        if (null === $this->primaryNamespace) {
-            return \implode(";\n", $this->useStatements) . ";\n";
+        if ($this->useStatements) {
+            $statements = \implode(";\n", $this->useStatements) . ";\n";
+
+            if (null === $this->primaryNamespace) {
+                return $statements;
+            }
+
+            return 'namespace ' .
+                $this->primaryNamespace->runtimeString() .
+                ";\n\n" .
+                $statements;
         }
 
-        return 'namespace ' .
-            $this->primaryNamespace->runtimeString() .
-            ";\n\n" .
-            \implode(";\n", $this->useStatements) . ";\n";
+        if (null === $this->primaryNamespace) {
+            return '';
+        }
+
+        return 'namespace ' . $this->primaryNamespace->runtimeString() . ";\n";
     }
 
     private $primaryNamespace;

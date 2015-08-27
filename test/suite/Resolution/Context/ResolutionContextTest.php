@@ -110,6 +110,17 @@ EOD;
         $this->assertSame($expected, strval($this->subject));
     }
 
+    public function testToStringWithNoUseStatements()
+    {
+        $this->subject = new ResolutionContext($this->primaryNamespace, array());
+        $expected = <<<'EOD'
+namespace VendorA\PackageA;
+
+EOD;
+
+        $this->assertSame($expected, strval($this->subject));
+    }
+
     public function testToStringWithGlobalNamespace()
     {
         $this->subject = new ResolutionContext(null, $this->useStatements);
@@ -127,5 +138,12 @@ use const SymbolC;
 EOD;
 
         $this->assertSame($expected, strval($this->subject));
+    }
+
+    public function testToStringWithGlobalNamespaceAndNoUseStatements()
+    {
+        $this->subject = new ResolutionContext(null, array());
+
+        $this->assertSame('', strval($this->subject));
     }
 }

@@ -88,11 +88,13 @@ class SymbolResolver implements SymbolResolverInterface
         }
 
         if ($parent) {
+            // chop first reference atom and join to parent
             $symbol = $this->symbolFactory->createFromAtoms(
                 \array_merge($parent->atoms(), \array_slice($atoms, 1)),
                 true
             );
         } else {
+            // join directly to namespace
             $symbol = $this->symbolFactory->createFromAtoms(
                 \array_merge($context->primaryNamespace()->atoms(), $atoms),
                 true
@@ -102,9 +104,6 @@ class SymbolResolver implements SymbolResolverInterface
         if (null === $type) {
             return $symbol;
         }
-
-        $atoms = $symbol->atoms();
-        $numAtoms = \count($atoms);
 
         if ('const' === $type) {
             $callback = $this->constantResolver;
@@ -120,8 +119,11 @@ class SymbolResolver implements SymbolResolverInterface
         }
 
         if (!$callback(\strval($symbol))) {
+            // symbol actually exists, do not fall back to global namespace
+            $atoms = $symbol->atoms();
+
             return $this->symbolFactory
-                ->createFromAtoms(array($atoms[$numAtoms - 1]));
+                ->createFromAtoms(array($atoms[\count($atoms) - 1]));
         }
 
         return $symbol;
