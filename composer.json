@@ -24,15 +24,11 @@
         }
     ],
     "require": {
-        "php": ">=5.3",
-        "eloquent/enumeration": "^5",
-        "eloquent/pathogen": "dev-validation-bypass@dev",
-        "icecave/isolator": "^2"
+        "php": ">=5.3"
     },
     "require-dev": {
-        "eloquent/liberator": "^2",
+        "eloquent/phony": "dev-feature/mock-rendering",
         "icecave/archer": "dev-develop",
-        "phake/phake": "~2",
         "phpunit/phpunit": "~4"
     },
     "autoload": {

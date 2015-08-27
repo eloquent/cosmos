@@ -11,88 +11,30 @@
 
 namespace Eloquent\Cosmos\Symbol;
 
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactory;
-use Eloquent\Cosmos\Symbol\Factory\SymbolFactoryInterface;
-use Eloquent\Pathogen\Path;
-use ReflectionClass;
-use ReflectionFunction;
-
 /**
- * A static utility class for constructing symbols.
- *
- * Do not use this class in type hints; use SymbolInterface instead.
+ * Represents a symbol.
  */
-abstract class Symbol extends Path
+class Symbol implements SymbolInterface
 {
     /**
-     * Creates a new qualified symbol from its string representation, regardless
-     * of whether it starts with a namespace separator.
+     * Create a new symbol from its string representation.
      *
-     * This method emulates the manner in which symbols are typically
-     * interpreted at run time.
+     * @param string $string The string.
      *
-     * @param string $symbol The string representation of the symbol.
-     *
-     * @return QualifiedSymbolInterface The newly created qualified symbol instance.
+     * @return SymbolInterface The newly created symbol.
      */
-    public static function fromRuntimeString($symbol)
+    public static function fromString($string)
     {
-        return static::factory()->createRuntime($symbol);
+        return new self();
     }
 
     /**
-     * Get the class name of the supplied object.
+     * Get the string representation of this symbol.
      *
-     * @param object $object The object.
-     *
-     * @return QualifiedSymbolInterface The object's qualified class name.
+     * @return string The string representation.
      */
-    public static function fromObject($object)
+    public function __toString()
     {
-        return static::factory()->createFromObject($object);
-    }
-
-    /**
-     * Get the class name of the supplied class or object reflector.
-     *
-     * @param ReflectionClass $class The class or object reflector.
-     *
-     * @return QualifiedSymbolInterface The qualified class name.
-     */
-    public static function fromClass(ReflectionClass $class)
-    {
-        return static::factory()->createFromClass($class);
-    }
-
-    /**
-     * Get the function name of the supplied function reflector.
-     *
-     * @param ReflectionFunction $function The function reflector.
-     *
-     * @return QualifiedSymbolInterface The qualified function name.
-     */
-    public static function fromFunction(ReflectionFunction $function)
-    {
-        return static::factory()->createFromFunction($function);
-    }
-
-    /**
-     * Get the qualified symbol representing the global namespace.
-     *
-     * @return QualifiedSymbolInterface The global namespace symbol.
-     */
-    public static function globalNamespace()
-    {
-        return static::factory()->globalNamespace();
-    }
-
-    /**
-     * Get the symbol factory.
-     *
-     * @return SymbolFactoryInterface The symbol factory.
-     */
-    protected static function factory()
-    {
-        return SymbolFactory::instance();
+        return '';
     }
 }

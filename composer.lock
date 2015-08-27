@@ -4,165 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "7caf5c453b2b4833841faad791c29259",
-    "packages": [
-        {
-            "name": "eloquent/enumeration",
-            "version": "5.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/eloquent/enumeration.git",
-                "reference": "9c50109cf25b2008b9b8233b814e50e0cdf8b737"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/enumeration/zipball/9c50109cf25b2008b9b8233b814e50e0cdf8b737",
-                "reference": "9c50109cf25b2008b9b8233b814e50e0cdf8b737",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3"
-            },
-            "require-dev": {
-                "icecave/archer": "~1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Eloquent\\Enumeration\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Erin Millard",
-                    "email": "ezzatron@gmail.com",
-                    "homepage": "http://ezzatron.com/"
-                }
-            ],
-            "description": "An enumeration implementation for PHP.",
-            "homepage": "https://github.com/eloquent/enumeration",
-            "keywords": [
-                "class",
-                "enum",
-                "enumeration",
-                "multiton",
-                "set",
-                "type"
-            ],
-            "time": "2014-03-13 01:16:59"
-        },
-        {
-            "name": "eloquent/pathogen",
-            "version": "dev-validation-bypass",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/eloquent/pathogen.git",
-                "reference": "e9ab91f4bdaf3b93c5fce98fdd2f06e32243929c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/pathogen/zipball/e9ab91f4bdaf3b93c5fce98fdd2f06e32243929c",
-                "reference": "e9ab91f4bdaf3b93c5fce98fdd2f06e32243929c",
-                "shasum": ""
-            },
-            "require": {
-                "ext-mbstring": "*",
-                "icecave/isolator": "~2",
-                "php": ">=5.3"
-            },
-            "require-dev": {
-                "eloquent/liberator": "~2",
-                "icecave/archer": "~1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Eloquent\\Pathogen\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Erin Millard",
-                    "email": "ezzatron@gmail.com",
-                    "homepage": "http://ezzatron.com/"
-                },
-                {
-                    "name": "Darian Brown",
-                    "email": "darianbr@gmail.com",
-                    "homepage": "http://www.darian-brown.com/"
-                }
-            ],
-            "description": "General-purpose path library for PHP.",
-            "homepage": "https://github.com/eloquent/pathogen",
-            "keywords": [
-                "file",
-                "filesystem",
-                "manipulation",
-                "path"
-            ],
-            "time": "2014-09-17 08:22:40"
-        },
-        {
-            "name": "icecave/isolator",
-            "version": "2.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/IcecaveStudios/isolator.git",
-                "reference": "97c51fafa39c57a8f1a31f978a48fbe6cea4a5d5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/IcecaveStudios/isolator/zipball/97c51fafa39c57a8f1a31f978a48fbe6cea4a5d5",
-                "reference": "97c51fafa39c57a8f1a31f978a48fbe6cea4a5d5",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3"
-            },
-            "require-dev": {
-                "icecave/archer": "~1"
-            },
-            "suggest": {
-                "eloquent/asplode": "Drop-in exception-based error handling."
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Icecave\\Isolator\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "James Harris",
-                    "email": "james.harris@icecave.com.au",
-                    "homepage": "https://github.com/jmalloc"
-                }
-            ],
-            "description": "Dependency injection for global functions.",
-            "homepage": "https://github.com/IcecaveStudios/isolator",
-            "keywords": [
-                "fake",
-                "mock",
-                "phake",
-                "phpunit",
-                "test",
-                "unit"
-            ],
-            "time": "2014-08-12 03:16:11"
-        }
-    ],
+    "hash": "cecf45689378017cd5fa719e8717d8d6",
+    "packages": [],
     "packages-dev": [
         {
             "name": "doctrine/instantiator",
@@ -219,31 +62,53 @@
             "time": "2015-06-14 21:17:01"
         },
         {
-            "name": "eloquent/liberator",
-            "version": "2.0.0",
+            "name": "eloquent/phony",
+            "version": "dev-feature/mock-rendering",
             "source": {
                 "type": "git",
-                "url": "https://github.com/eloquent/liberator.git",
-                "reference": "8d71b1ff4794b09fc7d0e205ee994780412d3a1f"
+                "url": "https://github.com/eloquent/phony.git",
+                "reference": "0e020921231ae06a207c609335665122abc8e9ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/liberator/zipball/8d71b1ff4794b09fc7d0e205ee994780412d3a1f",
-                "reference": "8d71b1ff4794b09fc7d0e205ee994780412d3a1f",
+                "url": "https://api.github.com/repos/eloquent/phony/zipball/0e020921231ae06a207c609335665122abc8e9ac",
+                "reference": "0e020921231ae06a207c609335665122abc8e9ac",
                 "shasum": ""
             },
             "require": {
-                "eloquent/pops": "~4.1.0",
-                "php": ">=5.3"
+                "php": ">=5.3",
+                "sebastian/comparator": "^1"
             },
             "require-dev": {
-                "icecave/archer": "~1"
+                "athletic/athletic": "^0.1",
+                "counterpart/counterpart": "^1",
+                "danielstjules/pho": "^1",
+                "eloquent/asplode": "^2",
+                "hamcrest/hamcrest-php": "^1",
+                "icecave/isolator": "^3",
+                "mockery/mockery": "^0",
+                "peridot-php/peridot": "^1",
+                "phake/phake": "^2",
+                "phpspec/prophecy": "^1",
+                "phpunit/phpunit": "^4",
+                "simpletest/simpletest": "^1"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-develop": "0.4.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
-                    "Eloquent\\Liberator\\": "src"
-                }
+                    "Eloquent\\Phony\\": "src"
+                },
+                "files": [
+                    "src/functions.php",
+                    "src/Pho/functions.php",
+                    "src/Phpunit/functions.php",
+                    "src/Simpletest/functions.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -256,65 +121,20 @@
                     "homepage": "http://ezzatron.com/"
                 }
             ],
-            "description": "A proxy for circumventing PHP access modifier restrictions.",
-            "homepage": "https://github.com/eloquent/liberator",
+            "description": "Mocks, stubs, and spies for PHP.",
+            "homepage": "https://github.com/eloquent/phony",
             "keywords": [
-                "access",
-                "modifier",
-                "object",
-                "private",
-                "protected",
-                "proxy",
-                "reflection"
+                "Double",
+                "Dummy",
+                "fake",
+                "mock",
+                "mocking",
+                "spy",
+                "stub",
+                "stubbing",
+                "test"
             ],
-            "time": "2014-02-09 12:27:12"
-        },
-        {
-            "name": "eloquent/pops",
-            "version": "4.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/eloquent/pops.git",
-                "reference": "80dbee5422347dc581d38ade92001509dce34926"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/eloquent/pops/zipball/80dbee5422347dc581d38ade92001509dce34926",
-                "reference": "80dbee5422347dc581d38ade92001509dce34926",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3"
-            },
-            "require-dev": {
-                "icecave/archer": "~1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Eloquent\\Pops\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Erin Millard",
-                    "email": "ezzatron@gmail.com",
-                    "homepage": "http://ezzatron.com/"
-                }
-            ],
-            "description": "PHP object proxy system.",
-            "homepage": "https://github.com/eloquent/pops",
-            "keywords": [
-                "method",
-                "object",
-                "property",
-                "proxy"
-            ],
-            "time": "2014-02-09 10:09:42"
+            "time": "2015-08-24 07:31:15"
         },
         {
             "name": "icecave/archer",
@@ -391,58 +211,6 @@
                 "unit"
             ],
             "time": "2015-08-26 23:48:42"
-        },
-        {
-            "name": "phake/phake",
-            "version": "v2.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mlively/Phake.git",
-                "reference": "20d76de0ec09f219d548752847835c256526d22d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mlively/Phake/zipball/20d76de0ec09f219d548752847835c256526d22d",
-                "reference": "20d76de0ec09f219d548752847835c256526d22d",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3",
-                "sebastian/comparator": "~1.1"
-            },
-            "require-dev": {
-                "doctrine/common": "2.3.*",
-                "ext-soap": "*",
-                "hamcrest/hamcrest-php": "1.1.*",
-                "phpunit/phpunit": "3.7.*"
-            },
-            "suggest": {
-                "doctrine/common": "Allows mock annotations to use import statements for classes.",
-                "hamcrest/hamcrest-php": "Use Hamcrest matchers."
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Phake": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Mike Lively",
-                    "email": "m@digitalsandwich.com"
-                }
-            ],
-            "description": "The Phake mock testing library",
-            "homepage": "https://github.com/mlively/Phake",
-            "keywords": [
-                "mock",
-                "testing"
-            ],
-            "time": "2015-05-09 13:58:15"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -1451,7 +1219,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "eloquent/pathogen": 20,
+        "eloquent/phony": 20,
         "icecave/archer": 20
     },
     "prefer-stable": false,
