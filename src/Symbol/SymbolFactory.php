@@ -50,12 +50,6 @@ class SymbolFactory implements SymbolFactoryInterface
             $isQualified = true;
         }
 
-        foreach ($atoms as $atom) {
-            if (!preg_match(self::$atomPattern, $atom)) {
-                throw new InvalidSymbolAtomException($atom);
-            }
-        }
-
         return new Symbol($atoms, $isQualified);
     }
 
@@ -79,12 +73,6 @@ class SymbolFactory implements SymbolFactoryInterface
             array_shift($atoms);
         }
 
-        foreach ($atoms as $atom) {
-            if (!preg_match(self::$atomPattern, $atom)) {
-                throw new InvalidSymbolAtomException($atom);
-            }
-        }
-
         return new Symbol($atoms, true);
     }
 
@@ -101,12 +89,6 @@ class SymbolFactory implements SymbolFactoryInterface
      */
     public function createFromAtoms(array $atoms, $isQualified = null)
     {
-        foreach ($atoms as $atom) {
-            if (!preg_match(self::$atomPattern, $atom)) {
-                throw new InvalidSymbolAtomException($atom);
-            }
-        }
-
         if (null === $isQualified) {
             $isQualified = true;
         }
@@ -115,6 +97,4 @@ class SymbolFactory implements SymbolFactoryInterface
     }
 
     private static $instance;
-    private static $atomPattern =
-        '/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]+$/S';
 }

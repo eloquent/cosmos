@@ -18,37 +18,35 @@ class UseStatementClauseTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
     {
-        parent::setUp();
-
         $this->symbol = Symbol::fromString('\Namespace\Symbol');
         $this->alias = 'Alias';
-        $this->clause = new UseStatementClause($this->symbol, $this->alias);
+        $this->subject = new UseStatementClause($this->symbol, $this->alias);
     }
 
     public function testConstructor()
     {
-        $this->assertSame($this->symbol, $this->clause->symbol());
-        $this->assertSame($this->alias, $this->clause->alias());
-        $this->assertSame($this->alias, $this->clause->effectiveAlias());
+        $this->assertSame($this->symbol, $this->subject->symbol());
+        $this->assertSame($this->alias, $this->subject->alias());
+        $this->assertSame($this->alias, $this->subject->effectiveAlias());
     }
 
     public function testConstructorDefaults()
     {
-        $this->clause = new UseStatementClause($this->symbol);
+        $this->subject = new UseStatementClause($this->symbol);
 
-        $this->assertNull($this->clause->alias());
-        $this->assertSame('Symbol', $this->clause->effectiveAlias());
+        $this->assertNull($this->subject->alias());
+        $this->assertSame('Symbol', $this->subject->effectiveAlias());
     }
 
     public function testToString()
     {
-        $this->assertSame('Namespace\Symbol as Alias', strval($this->clause));
+        $this->assertSame('Namespace\Symbol as Alias', strval($this->subject));
     }
 
     public function testToStringNoAlias()
     {
-        $this->clause = new UseStatementClause($this->symbol);
+        $this->subject = new UseStatementClause($this->symbol);
 
-        $this->assertSame('Namespace\Symbol', strval($this->clause));
+        $this->assertSame('Namespace\Symbol', strval($this->subject));
     }
 }

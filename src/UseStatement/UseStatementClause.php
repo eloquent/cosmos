@@ -21,8 +21,8 @@ class UseStatementClause implements UseStatementClauseInterface
     /**
      * Construct a new use statement clause.
      *
-     * @param SymbolInterface      $symbol The symbol.
-     * @param string|null $alias  The alias for the symbol.
+     * @param SymbolInterface $symbol The symbol.
+     * @param string|null     $alias  The alias for the symbol.
      */
     public function __construct(SymbolInterface $symbol, $alias = null)
     {

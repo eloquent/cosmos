@@ -74,13 +74,6 @@ class Symbol implements SymbolInterface
     {
         $this->atoms = $atoms;
         $this->isQualified = $isQualified;
-        $this->runtimeString = implode('\\', $atoms);
-
-        if ($isQualified) {
-            $this->string = '\\' . implode('\\', $atoms);
-        } else {
-            $this->string = $this->runtimeString;
-        }
     }
 
     /**
@@ -110,7 +103,7 @@ class Symbol implements SymbolInterface
      */
     public function runtimeString()
     {
-        return $this->runtimeString;
+        return implode('\\', $this->atoms);
     }
 
     /**
@@ -120,11 +113,13 @@ class Symbol implements SymbolInterface
      */
     public function __toString()
     {
-        return $this->string;
+        if ($this->isQualified) {
+            return '\\' . implode('\\', $this->atoms);
+        }
+
+        return implode('\\', $this->atoms);
     }
 
     private $atoms;
     private $isQualified;
-    private $runtimeString;
-    private $string;
 }
