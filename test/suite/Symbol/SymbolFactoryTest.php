@@ -68,7 +68,7 @@ class SymbolFactoryTest extends PHPUnit_Framework_TestCase
 
     public function testCreateFromAtomsDefaults()
     {
-        $symbol = $this->subject->createFromAtoms(array());
+        $symbol = $this->subject->createFromAtoms(array('Atom'));
 
         $this->assertTrue($symbol->isQualified());
     }

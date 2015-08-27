@@ -31,7 +31,7 @@ class UseStatementClause implements UseStatementClauseInterface
 
         if (null === $alias) {
             $atoms = $symbol->atoms();
-            $this->effectiveAlias = array_pop($atoms);
+            $this->effectiveAlias = \array_pop($atoms);
         } else {
             $this->effectiveAlias = $alias;
         }

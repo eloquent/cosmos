@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\Symbol;
 
 use Eloquent\Cosmos\Exception\InvalidSymbolAtomException;
+use InvalidArgumentException;
 
 /**
  * Represents a symbol.
@@ -72,6 +73,10 @@ class Symbol implements SymbolInterface
      */
     public function __construct(array $atoms, $isQualified)
     {
+        if (count($atoms) < 1) {
+            throw new InvalidArgumentException('Symbols cannot be empty.');
+        }
+
         $this->atoms = $atoms;
         $this->isQualified = $isQualified;
     }
@@ -84,16 +89,6 @@ class Symbol implements SymbolInterface
     public function atoms()
     {
         return $this->atoms;
-    }
-
-    /**
-     * Get the first atom.
-     *
-     * @return string The atom.
-     */
-    public function firstAtom()
-    {
-        return $this->atoms[0];
     }
 
     /**
@@ -113,7 +108,7 @@ class Symbol implements SymbolInterface
      */
     public function runtimeString()
     {
-        return implode('\\', $this->atoms);
+        return \implode('\\', $this->atoms);
     }
 
     /**
@@ -124,10 +119,10 @@ class Symbol implements SymbolInterface
     public function __toString()
     {
         if ($this->isQualified) {
-            return '\\' . implode('\\', $this->atoms);
+            return '\\' . \implode('\\', $this->atoms);
         }
 
-        return implode('\\', $this->atoms);
+        return \implode('\\', $this->atoms);
     }
 
     private $atoms;

@@ -106,25 +106,22 @@ class ResolutionContext implements ResolutionContextInterface
     }
 
     /**
-     * Get the symbol associated with the supplied symbol reference's first
-     * atom.
+     * Get the symbol associated with the supplied atom.
      *
-     * @param SymbolInterface $symbol The symbol reference.
-     * @param string|null     $type   The symbol type.
+     * @param string      $atom The atom.
+     * @param string|null $type The symbol type.
      *
      * @return SymbolInterface|null The symbol, or null if no associated symbol exists.
      */
-    public function symbolByFirstAtom(SymbolInterface $symbol, $type = null)
+    public function symbolByAtom($atom, $type = null)
     {
-        $firstAtom = $symbol->firstAtom();
-
         if (null === $type) {
-            if (isset($this->symbolIndexNoType[$firstAtom])) {
-                return $this->symbolIndexNoType[$firstAtom];
+            if (isset($this->symbolIndexNoType[$atom])) {
+                return $this->symbolIndexNoType[$atom];
             }
         } else {
-            if (isset($this->symbolIndexByType[$type][$firstAtom])) {
-                return $this->symbolIndexByType[$type][$firstAtom];
+            if (isset($this->symbolIndexByType[$type][$atom])) {
+                return $this->symbolIndexByType[$type][$atom];
             }
         }
 
@@ -139,13 +136,13 @@ class ResolutionContext implements ResolutionContextInterface
     public function __toString()
     {
         if (null === $this->primaryNamespace) {
-            return implode(";\n", $this->useStatements) . ";\n";
+            return \implode(";\n", $this->useStatements) . ";\n";
         }
 
         return 'namespace ' .
             $this->primaryNamespace->runtimeString() .
             ";\n\n" .
-            implode(";\n", $this->useStatements) . ";\n";
+            \implode(";\n", $this->useStatements) . ";\n";
     }
 
     private $primaryNamespace;

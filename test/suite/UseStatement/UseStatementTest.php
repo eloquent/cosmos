@@ -43,6 +43,12 @@ class UseStatementTest extends PHPUnit_Framework_TestCase
         $this->assertSame('const', $this->subject->type());
     }
 
+    public function testConstructorFailureEmpty()
+    {
+        $this->setExpectedException('InvalidArgumentException', 'Use statements cannot be empty.');
+        new UseStatement(array());
+    }
+
     public function testToString()
     {
         $this->assertSame('use const NamespaceA\SymbolA as SymbolB, NamespaceB\SymbolC', strval($this->subject));

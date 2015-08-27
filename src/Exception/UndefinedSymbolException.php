@@ -35,10 +35,10 @@ final class UndefinedSymbolException extends Exception
         $this->type = $type;
 
         parent::__construct(
-            sprintf(
+            \sprintf(
                 'Undefined %s %s.',
                 $type,
-                var_export(strval($symbol), true)
+                \var_export(\strval($symbol), true)
             ),
             0,
             $cause

@@ -24,13 +24,6 @@ interface SymbolInterface
     public function atoms();
 
     /**
-     * Get the first atom.
-     *
-     * @return string The atom.
-     */
-    public function firstAtom();
-
-    /**
      * Returns true if qualified.
      *
      * @return boolean True if qualified.

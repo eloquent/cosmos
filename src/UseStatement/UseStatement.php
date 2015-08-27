@@ -13,6 +13,7 @@ namespace Eloquent\Cosmos\UseStatement;
 
 use Eloquent\Cosmos\Exception\InvalidSymbolAtomException;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
+use InvalidArgumentException;
 
 /**
  * Represents a use statement.
@@ -46,6 +47,12 @@ class UseStatement implements UseStatementInterface
      */
     public function __construct(array $clauses, $type = null)
     {
+        if (count($clauses) < 1) {
+            throw new InvalidArgumentException(
+                'Use statements cannot be empty.'
+            );
+        }
+
         $this->clauses = $clauses;
         $this->type = $type;
     }
@@ -86,10 +93,10 @@ class UseStatement implements UseStatementInterface
         $clauses = array();
 
         foreach ($this->clauses as $clause) {
-            $clauses[] = strval($clause);
+            $clauses[] = \strval($clause);
         }
 
-        return $string . implode(', ', $clauses);
+        return $string . \implode(', ', $clauses);
     }
 
     private $clauses;

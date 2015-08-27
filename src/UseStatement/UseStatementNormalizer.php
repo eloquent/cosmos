@@ -57,18 +57,18 @@ class UseStatementNormalizer implements UseStatementNormalizerInterface
             $type = $statement->type();
 
             if (null === $type) {
-                $clauses = array_merge($clauses, $statement->clauses());
+                $clauses = \array_merge($clauses, $statement->clauses());
             } else {
                 if (!isset($clausesByType[$type])) {
                     $clausesByType[$type] = array();
                 }
 
                 $clausesByType[$type] =
-                    array_merge($clausesByType[$type], $statement->clauses());
+                    \array_merge($clausesByType[$type], $statement->clauses());
             }
         }
 
-        ksort($clausesByType, SORT_STRING);
+        \ksort($clausesByType, SORT_STRING);
 
         $statements = array();
 
@@ -93,9 +93,9 @@ class UseStatementNormalizer implements UseStatementNormalizerInterface
         $seen = array();
 
         foreach ($clauses as $clause) {
-            $key = strval($clause);
+            $key = \strval($clause);
 
-            if (array_key_exists($key, $seen)) {
+            if (\array_key_exists($key, $seen)) {
                 continue;
             }
 
@@ -103,7 +103,7 @@ class UseStatementNormalizer implements UseStatementNormalizerInterface
             $normalized[] = $clause;
         }
 
-        sort($normalized, SORT_STRING);
+        \sort($normalized, SORT_STRING);
 
         return $normalized;
     }

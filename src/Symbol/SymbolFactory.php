@@ -42,11 +42,11 @@ class SymbolFactory implements SymbolFactoryInterface
      */
     public function createFromString($symbol)
     {
-        $atoms = explode('\\', $symbol);
+        $atoms = \explode('\\', $symbol);
         $isQualified = false;
 
-        if (count($atoms) > 1 && '' === $atoms[0]) {
-            array_shift($atoms);
+        if (\count($atoms) > 1 && '' === $atoms[0]) {
+            \array_shift($atoms);
             $isQualified = true;
         }
 
@@ -67,10 +67,10 @@ class SymbolFactory implements SymbolFactoryInterface
      */
     public function createFromRuntimeString($symbol)
     {
-        $atoms = explode('\\', $symbol);
+        $atoms = \explode('\\', $symbol);
 
-        if (count($atoms) > 1 && '' === $atoms[0]) {
-            array_shift($atoms);
+        if (\count($atoms) > 1 && '' === $atoms[0]) {
+            \array_shift($atoms);
         }
 
         return new Symbol($atoms, true);

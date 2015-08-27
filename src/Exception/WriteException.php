@@ -29,18 +29,12 @@ final class WriteException extends Exception implements IoExceptionInterface
         $this->path = $path;
 
         if (null === $path) {
-            $message = 'Unable to write to stream';
+            $message = 'Unable to write to stream.';
         } else {
-            $message = sprintf(
-                'Unable to write to %s',
-                var_export($path, true)
+            $message = \sprintf(
+                'Unable to write to %s.',
+                \var_export($path, true)
             );
-        }
-
-        if (null === $cause) {
-            $message .= '.';
-        } else {
-            $message .= ': ' . $cause->getMessage();
         }
 
         parent::__construct($message, 0, $cause);

@@ -54,9 +54,9 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
         $this->assertSame(array(), $this->subject->useStatementsByType('nonexistent'));
     }
 
-    public function symbolByFirstAtomData()
+    public function symbolByAtomData()
     {
-        //                              type        symbol        expected
+        //                              type        atom          expected
         return array(
             'SymbolB'          => array(null,       'SymbolB',    '\NamespaceA\NamespaceB\SymbolA'),
             'NamespaceD'       => array(null,       'NamespaceD', '\NamespaceC\NamespaceD'),
@@ -79,14 +79,14 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider symbolByFirstAtomData
+     * @dataProvider symbolByAtomData
      */
-    public function testSymbolByFirstAtom($type, $symbol, $expected)
+    public function testSymbolByAtom($type, $atom, $expected)
     {
         if (null === $expected) {
-            $this->assertNull($this->subject->symbolByFirstAtom(Symbol::fromString($symbol), $type));
+            $this->assertNull($this->subject->symbolByAtom($atom, $type));
         } else {
-            $this->assertSame($expected, strval($this->subject->symbolByFirstAtom(Symbol::fromString($symbol), $type)));
+            $this->assertSame($expected, strval($this->subject->symbolByAtom($atom, $type)));
         }
     }
 

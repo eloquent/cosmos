@@ -35,7 +35,6 @@ class SymbolTest extends PHPUnit_Framework_TestCase
         $symbol = Symbol::fromString($string);
 
         $this->assertSame($atoms, $symbol->atoms());
-        $this->assertSame($atoms[0], $symbol->firstAtom());
         $this->assertSame($isQualified, $symbol->isQualified());
     }
 
@@ -47,7 +46,6 @@ class SymbolTest extends PHPUnit_Framework_TestCase
         $symbol = Symbol::fromRuntimeString($string);
 
         $this->assertSame($atoms, $symbol->atoms());
-        $this->assertSame($atoms[0], $symbol->firstAtom());
         $this->assertTrue($symbol->isQualified());
     }
 
@@ -59,15 +57,20 @@ class SymbolTest extends PHPUnit_Framework_TestCase
         $symbol = Symbol::fromAtoms($atoms, $isQualified);
 
         $this->assertSame($atoms, $symbol->atoms());
-        $this->assertSame($atoms[0], $symbol->firstAtom());
         $this->assertSame($isQualified, $symbol->isQualified());
     }
 
     public function testFromAtomsDefaults()
     {
-        $symbol = Symbol::fromAtoms(array());
+        $symbol = Symbol::fromAtoms(array('Atom'));
 
         $this->assertTrue($symbol->isQualified());
+    }
+
+    public function testConstructorFailureEmpty()
+    {
+        $this->setExpectedException('InvalidArgumentException', 'Symbols cannot be empty.');
+        new Symbol(array(), true);
     }
 
     /**

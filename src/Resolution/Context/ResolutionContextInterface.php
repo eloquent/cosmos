@@ -43,15 +43,14 @@ interface ResolutionContextInterface
     public function useStatementsByType($type);
 
     /**
-     * Get the symbol associated with the supplied symbol reference's first
-     * atom.
+     * Get the symbol associated with the supplied atom.
      *
-     * @param SymbolInterface $symbol The symbol reference.
-     * @param string|null     $type   The symbol type.
+     * @param string      $atom The atom.
+     * @param string|null $type The symbol type.
      *
      * @return SymbolInterface|null The symbol, or null if no associated symbol exists.
      */
-    public function symbolByFirstAtom(SymbolInterface $symbol, $type = null);
+    public function symbolByAtom($atom, $type = null);
 
     /**
      * Get the string representation of this context.

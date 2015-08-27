@@ -22,11 +22,11 @@ class WriteExceptionTest extends PHPUnit_Framework_TestCase
     public function testException()
     {
         $path = '/path/to/foo';
-        $cause = new Exception('Exception message.');
+        $cause = new Exception();
         $exception = new WriteException($path, $cause);
 
         $this->assertSame($path, $exception->path());
-        $this->assertSame("Unable to write to '/path/to/foo': Exception message.", $exception->getMessage());
+        $this->assertSame("Unable to write to '/path/to/foo'.", $exception->getMessage());
         $this->assertSame(0, $exception->getCode());
         $this->assertSame($cause, $exception->getPrevious());
     }
