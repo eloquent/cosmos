@@ -16,6 +16,9 @@ use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers \Eloquent\Cosmos\Resolution\Context\ResolutionContextFactory
+ */
 class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()

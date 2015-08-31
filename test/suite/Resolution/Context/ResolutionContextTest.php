@@ -15,6 +15,9 @@ use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatement;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers \Eloquent\Cosmos\Resolution\Context\ResolutionContext
+ */
 class ResolutionContextTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()

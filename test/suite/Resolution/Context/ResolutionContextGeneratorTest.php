@@ -17,6 +17,9 @@ use Eloquent\Cosmos\UseStatement\UseStatementNormalizer;
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @covers \Eloquent\Cosmos\Resolution\Context\ResolutionContextGenerator
+ */
 class ResolutionContextGeneratorTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
