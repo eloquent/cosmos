@@ -51,7 +51,7 @@ class UseStatement implements UseStatementInterface
      */
     public function __construct(array $clauses, $type = null)
     {
-        if (count($clauses) < 1) {
+        if (\count($clauses) < 1) {
             throw new InvalidArgumentException(
                 'Use statements cannot be empty.'
             );

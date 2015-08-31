@@ -81,7 +81,7 @@ class Symbol implements SymbolInterface
      */
     public function __construct(array $atoms, $isQualified)
     {
-        if (count($atoms) < 1) {
+        if (\count($atoms) < 1) {
             throw new InvalidArgumentException('Symbols cannot be empty.');
         }
 
