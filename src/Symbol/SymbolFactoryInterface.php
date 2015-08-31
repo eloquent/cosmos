@@ -15,11 +15,15 @@ use Eloquent\Cosmos\Exception\InvalidSymbolAtomException;
 
 /**
  * The interface implemented by symbol factories.
+ *
+ * @api
  */
 interface SymbolFactoryInterface
 {
     /**
      * Create a new symbol from its string representation.
+     *
+     * @api
      *
      * @param string $symbol The string representation.
      *
@@ -35,6 +39,8 @@ interface SymbolFactoryInterface
      * This method emulates the manner in which symbols are typically
      * interpreted at run time.
      *
+     * @api
+     *
      * @param string $symbol The string representation.
      *
      * @return SymbolInterface            The newly created symbol.
@@ -46,6 +52,8 @@ interface SymbolFactoryInterface
      * Create a new symbol from a set of symbol atoms.
      *
      * Unless otherwise specified, created symbols will be qualified.
+     *
+     * @api
      *
      * @param array<string> $atoms       The symbol atoms.
      * @param boolean|null  $isQualified True if qualified.

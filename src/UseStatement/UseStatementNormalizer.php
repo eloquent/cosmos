@@ -12,7 +12,9 @@
 namespace Eloquent\Cosmos\UseStatement;
 
 /**
- * The interface implemented by use statement normalizers.
+ * Normalizes use statements.
+ *
+ * @api
  */
 class UseStatementNormalizer implements UseStatementNormalizerInterface
 {
@@ -43,6 +45,8 @@ class UseStatementNormalizer implements UseStatementNormalizerInterface
 
     /**
      * Normalize the supplied use statements.
+     *
+     * @api
      *
      * @param array<UseStatementInterface> $statements The use statements to normalize.
      *

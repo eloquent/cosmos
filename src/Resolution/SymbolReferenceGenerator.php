@@ -18,6 +18,8 @@ use Eloquent\Cosmos\Symbol\SymbolInterface;
 
 /**
  * Generates references to qualified symbols.
+ *
+ * @api
  */
 class SymbolReferenceGenerator implements SymbolReferenceGeneratorInterface
 {
@@ -52,6 +54,8 @@ class SymbolReferenceGenerator implements SymbolReferenceGeneratorInterface
      * If the qualified symbol is not a child of the primary namespace, and
      * there are no related use statements, this method will return a qualified
      * symbol.
+     *
+     * @api
      *
      * @param ResolutionContextInterface $context The resolution context.
      * @param SymbolInterface            $symbol  The symbol to resolve.

@@ -19,6 +19,8 @@ use InvalidArgumentException;
 
 /**
  * Resolves symbols into qualified symbols.
+ *
+ * @api
  */
 class SymbolResolver implements SymbolResolverInterface
 {
@@ -61,6 +63,8 @@ class SymbolResolver implements SymbolResolverInterface
      * Resolve a symbol against a resolution context.
      *
      * Symbols that are already qualified will be returned unaltered.
+     *
+     * @api
      *
      * @param ResolutionContextInterface $context The resolution context.
      * @param SymbolInterface            $symbol  The symbol to resolve.

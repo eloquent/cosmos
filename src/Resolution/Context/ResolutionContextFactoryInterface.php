@@ -16,11 +16,15 @@ use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 
 /**
  * The interface implemented by symbol resolution context factories.
+ *
+ * @api
  */
 interface ResolutionContextFactoryInterface
 {
     /**
      * Create a new symbol resolution context.
+     *
+     * @api
      *
      * @param SymbolInterface|null              $primaryNamespace The namespace.
      * @param array<UseStatementInterface>|null $useStatements    The use statements.

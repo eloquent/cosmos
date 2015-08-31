@@ -15,6 +15,8 @@ use Eloquent\Cosmos\Symbol\SymbolInterface;
 
 /**
  * The interface implemented by resolution context generators.
+ *
+ * @api
  */
 interface ResolutionContextGeneratorInterface
 {
@@ -25,6 +27,8 @@ interface ResolutionContextGeneratorInterface
      * be provided to this method as an associative array, where the keys are
      * the relevant keywords (i.e. 'const' or 'function'), and the values are
      * arrays of symbols.
+     *
+     * @api
      *
      * @param SymbolInterface|null                      $namespace         The namespace, or null to use the global namespace.
      * @param array<SymbolInterface>|null               $symbols           The symbols to generate use statements for.

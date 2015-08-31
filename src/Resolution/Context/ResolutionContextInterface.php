@@ -16,11 +16,15 @@ use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 
 /**
  * The interface implemented by symbol resolution contexts.
+ *
+ * @api
  */
 interface ResolutionContextInterface
 {
     /**
      * Get the namespace.
+     *
+     * @api
      *
      * @return SymbolInterface|null The namespace, or null if global.
      */
@@ -29,12 +33,16 @@ interface ResolutionContextInterface
     /**
      * Get the use statements.
      *
+     * @api
+     *
      * @return array<UseStatementInterface> The use statements.
      */
     public function useStatements();
 
     /**
      * Get the use statements by type.
+     *
+     * @api
      *
      * @param string|null $type The type.
      *
@@ -45,6 +53,8 @@ interface ResolutionContextInterface
     /**
      * Get the symbol associated with the supplied atom.
      *
+     * @api
+     *
      * @param string      $atom The atom.
      * @param string|null $type The symbol type.
      *
@@ -54,6 +64,8 @@ interface ResolutionContextInterface
 
     /**
      * Get the string representation of this context.
+     *
+     * @api
      *
      * @return string The string representation.
      */

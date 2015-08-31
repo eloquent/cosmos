@@ -13,11 +13,15 @@ namespace Eloquent\Cosmos\UseStatement;
 
 /**
  * The interface implemented by use statements.
+ *
+ * @api
  */
 interface UseStatementInterface
 {
     /**
      * Get the type.
+     *
+     * @api
      *
      * @return string|null The type.
      */
@@ -26,12 +30,16 @@ interface UseStatementInterface
     /**
      * Get the clauses.
      *
+     * @api
+     *
      * @return array<UseStatementClauseInterface> The clauses.
      */
     public function clauses();
 
     /**
      * Get the string representation of this use statement.
+     *
+     * @api
      *
      * @return string The string representation.
      */

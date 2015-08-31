@@ -1,0 +1,20 @@
+<?php
+
+use Sami\Parser\Filter\SymfonyFilter;
+use Sami\RemoteRepository\GitHubRemoteRepository;
+use Sami\Sami;
+
+return new Sami(
+    __DIR__ . '/src',
+    array(
+        'title' => 'Cosmos API',
+        'version' => 'feature/rewrite',
+        'default_opened_level' => 2,
+        'build_dir' => './artifacts/documentation/api',
+        'cache_dir' => './artifacts/documentation/api-cache',
+        'remote_repository' => new GitHubRemoteRepository('eloquent/cosmos', __DIR__),
+        'filter' => function () {
+            return new SymfonyFilter();
+        },
+    )
+);

@@ -16,11 +16,15 @@ use InvalidArgumentException;
 
 /**
  * Represents a symbol.
+ *
+ * @api
  */
 class Symbol implements SymbolInterface
 {
     /**
      * Create a new symbol from its string representation.
+     *
+     * @api
      *
      * @param string $symbol The string representation.
      *
@@ -39,6 +43,8 @@ class Symbol implements SymbolInterface
      * This method emulates the manner in which symbols are typically
      * interpreted at run time.
      *
+     * @api
+     *
      * @param string $symbol The string representation.
      *
      * @return SymbolInterface            The newly created symbol.
@@ -53,6 +59,8 @@ class Symbol implements SymbolInterface
      * Create a new symbol from a set of atoms.
      *
      * Unless otherwise specified, created symbols will be qualified.
+     *
+     * @api
      *
      * @param array<string> $atoms       The atoms.
      * @param boolean|null  $isQualified True if qualified.
@@ -84,6 +92,8 @@ class Symbol implements SymbolInterface
     /**
      * Get the atoms.
      *
+     * @api
+     *
      * @return array<string> $atoms The atoms.
      */
     public function atoms()
@@ -93,6 +103,8 @@ class Symbol implements SymbolInterface
 
     /**
      * Returns true if qualified.
+     *
+     * @api
      *
      * @return boolean True if qualified.
      */
@@ -104,6 +116,8 @@ class Symbol implements SymbolInterface
     /**
      * Get the runtime string representation of this symbol.
      *
+     * @api
+     *
      * @return string The runtime string representation.
      */
     public function runtimeString()
@@ -113,6 +127,8 @@ class Symbol implements SymbolInterface
 
     /**
      * Get the string representation of this symbol.
+     *
+     * @api
      *
      * @return string The string representation.
      */

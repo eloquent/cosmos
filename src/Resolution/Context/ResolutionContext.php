@@ -16,6 +16,8 @@ use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 
 /**
  * Represents a combined namespace and set of use statements.
+ *
+ * @api
  */
 class ResolutionContext implements ResolutionContextInterface
 {
@@ -68,6 +70,8 @@ class ResolutionContext implements ResolutionContextInterface
     /**
      * Get the namespace.
      *
+     * @api
+     *
      * @return SymbolInterface|null The namespace, or null if global.
      */
     public function primaryNamespace()
@@ -77,6 +81,8 @@ class ResolutionContext implements ResolutionContextInterface
 
     /**
      * Get the use statements.
+     *
+     * @api
      *
      * @return array<UseStatementInterface> The use statements.
      */
@@ -88,7 +94,9 @@ class ResolutionContext implements ResolutionContextInterface
     /**
      * Get the use statements by type.
      *
-     * @param string $type The type.
+     * @api
+     *
+     * @param string|null $type The type.
      *
      * @return array<UseStatementInterface> The use statements.
      */
@@ -107,6 +115,8 @@ class ResolutionContext implements ResolutionContextInterface
 
     /**
      * Get the symbol associated with the supplied atom.
+     *
+     * @api
      *
      * @param string      $atom The atom.
      * @param string|null $type The symbol type.
@@ -130,6 +140,8 @@ class ResolutionContext implements ResolutionContextInterface
 
     /**
      * Get the string representation of this context.
+     *
+     * @api
      *
      * @return string The string representation.
      */

@@ -17,11 +17,15 @@ use InvalidArgumentException;
 
 /**
  * Represents a use statement.
+ *
+ * @api
  */
 class UseStatement implements UseStatementInterface
 {
     /**
      * Create a new use statement from a symbol.
+     *
+     * @api
      *
      * @param SymbolInterface $symbol The symbol.
      * @param string|null     $alias  The alias.
@@ -60,6 +64,8 @@ class UseStatement implements UseStatementInterface
     /**
      * Get the clauses.
      *
+     * @api
+     *
      * @return array<UseStatementClauseInterface> The clauses.
      */
     public function clauses()
@@ -70,6 +76,8 @@ class UseStatement implements UseStatementInterface
     /**
      * Get the type.
      *
+     * @api
+     *
      * @return string|null The type.
      */
     public function type()
@@ -79,6 +87,8 @@ class UseStatement implements UseStatementInterface
 
     /**
      * Generate a string representation of this use statement.
+     *
+     * @api
      *
      * @return string A string representation of this use statement.
      */

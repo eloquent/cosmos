@@ -19,6 +19,8 @@ use Eloquent\Cosmos\UseStatement\UseStatementNormalizerInterface;
 
 /**
  * Generates resolution contexts for importing sets of symbols.
+ *
+ * @api
  */
 class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
 {
@@ -64,6 +66,8 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
      * be provided to this method as an associative array, where the keys are
      * the relevant keywords (i.e. 'const' or 'function'), and the values are
      * arrays of symbols.
+     *
+     * @api
      *
      * @param SymbolInterface|null                      $namespace         The namespace, or null to use the global namespace.
      * @param array<SymbolInterface>|null               $symbols           The symbols to generate use statements for.

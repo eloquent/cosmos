@@ -13,11 +13,15 @@ namespace Eloquent\Cosmos\Symbol;
 
 /**
  * The common interface implemented by qualified symbols and symbol references.
+ *
+ * @api
  */
 interface SymbolInterface
 {
     /**
      * Get the atoms.
+     *
+     * @api
      *
      * @return array<string> $atoms The atoms.
      */
@@ -26,6 +30,8 @@ interface SymbolInterface
     /**
      * Returns true if qualified.
      *
+     * @api
+     *
      * @return boolean True if qualified.
      */
     public function isQualified();
@@ -33,12 +39,16 @@ interface SymbolInterface
     /**
      * Get the runtime string representation of this symbol.
      *
+     * @api
+     *
      * @return string The runtime string representation.
      */
     public function runtimeString();
 
     /**
      * Get the string representation of this symbol.
+     *
+     * @api
      *
      * @return string The string representation.
      */

@@ -15,11 +15,15 @@ use Eloquent\Cosmos\Symbol\SymbolInterface;
 
 /**
  * The interface implemented by use statement clauses.
+ *
+ * @api
  */
 interface UseStatementClauseInterface
 {
     /**
      * Get the symbol.
+     *
+     * @api
      *
      * @return SymbolInterface The symbol.
      */
@@ -28,6 +32,8 @@ interface UseStatementClauseInterface
     /**
      * Get the alias.
      *
+     * @api
+     *
      * @return string|null The alias, or null if no alias is in use.
      */
     public function alias();
@@ -35,12 +41,16 @@ interface UseStatementClauseInterface
     /**
      * Get the effective alias.
      *
+     * @api
+     *
      * @return string The alias, or the last atom of the symbol.
      */
     public function effectiveAlias();
 
     /**
      * Get the string representation of this use statement clause.
+     *
+     * @api
      *
      * @return string The string representation.
      */

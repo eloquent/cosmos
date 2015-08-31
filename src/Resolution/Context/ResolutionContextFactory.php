@@ -15,6 +15,8 @@ use Eloquent\Cosmos\Symbol\SymbolInterface;
 
 /**
  * Creates symbol resolution contexts.
+ *
+ * @api
  */
 class ResolutionContextFactory implements ResolutionContextFactoryInterface
 {
@@ -34,6 +36,8 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
 
     /**
      * Create a new symbol resolution context.
+     *
+     * @api
      *
      * @param SymbolInterface|null              $primaryNamespace The namespace.
      * @param array<UseStatementInterface>|null $useStatements    The use statements.

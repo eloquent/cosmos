@@ -16,11 +16,15 @@ use Eloquent\Cosmos\Symbol\SymbolInterface;
 
 /**
  * The interface implemented by use statement factories.
+ *
+ * @api
  */
 interface UseStatementFactoryInterface
 {
     /**
      * Create a new use statement clause.
+     *
+     * @api
      *
      * @param SymbolInterface $symbol The symbol.
      * @param string|null     $alias  The alias for the symbol.
@@ -33,6 +37,8 @@ interface UseStatementFactoryInterface
     /**
      * Create a new use statement.
      *
+     * @api
+     *
      * @param array<UseStatementClauseInterface> $clauses The clauses.
      * @param string|null                        $type    The use statement type.
      *
@@ -42,6 +48,8 @@ interface UseStatementFactoryInterface
 
     /**
      * Create a new use statement from a symbol.
+     *
+     * @api
      *
      * @param SymbolInterface $symbol The symbol.
      * @param string|null     $alias  The alias.

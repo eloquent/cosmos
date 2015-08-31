@@ -15,6 +15,8 @@ use Eloquent\Cosmos\Symbol\SymbolInterface;
 
 /**
  * Represents a use statement clause.
+ *
+ * @api
  */
 class UseStatementClause implements UseStatementClauseInterface
 {
@@ -40,6 +42,8 @@ class UseStatementClause implements UseStatementClauseInterface
     /**
      * Get the symbol.
      *
+     * @api
+     *
      * @return SymbolInterface The symbol.
      */
     public function symbol()
@@ -49,6 +53,8 @@ class UseStatementClause implements UseStatementClauseInterface
 
     /**
      * Get the alias.
+     *
+     * @api
      *
      * @return string|null The alias, or null if no alias is in use.
      */
@@ -60,6 +66,8 @@ class UseStatementClause implements UseStatementClauseInterface
     /**
      * Get the effective alias.
      *
+     * @api
+     *
      * @return string The alias, or the last atom of the symbol.
      */
     public function effectiveAlias()
@@ -69,6 +77,8 @@ class UseStatementClause implements UseStatementClauseInterface
 
     /**
      * Get the string representation of this use statement clause.
+     *
+     * @api
      *
      * @return string The string representation.
      */

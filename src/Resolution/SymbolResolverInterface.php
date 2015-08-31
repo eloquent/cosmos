@@ -16,6 +16,8 @@ use Eloquent\Cosmos\Symbol\SymbolInterface;
 
 /**
  * The interface implemented by symbol resolvers.
+ *
+ * @api
  */
 interface SymbolResolverInterface
 {
@@ -23,6 +25,8 @@ interface SymbolResolverInterface
      * Resolve a symbol against a resolution context.
      *
      * Symbols that are already qualified will be returned unaltered.
+     *
+     * @api
      *
      * @param ResolutionContextInterface $context The resolution context.
      * @param SymbolInterface            $symbol  The symbol to resolve.

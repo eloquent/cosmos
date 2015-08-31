@@ -30,7 +30,8 @@
         "eloquent/liberator": "^2",
         "eloquent/phony": "dev-feature/mock-rendering",
         "icecave/archer": "dev-develop",
-        "phpunit/phpunit": "~4"
+        "phpunit/phpunit": "~4",
+        "sami/sami": "~3"
     },
     "autoload": {
         "psr-4": {
