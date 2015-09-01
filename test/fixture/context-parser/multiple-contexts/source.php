@@ -1,76 +1,75 @@
 <?php
 
-namespace NamespaceA\NamespaceB
+    use NamespaceH \ NamespaceI \ SymbolI as SymbolJ ;
+    use SymbolK as SymbolL ;
+
+interface InterfaceD
 {
-    use NamespaceD\NamespaceE\SymbolA as SymbolB;
-    use SymbolC as SymbolD;
-    use namespace\SymbolC as SymbolM;
-    use SymbolN as SymbolO, SymbolP;
-
-    interface InterfaceA
-    {
-    }
-
-    interface InterfaceB
-    {
-    }
-
-    class ClassA
-    {
-    }
-
-    class ClassB
-    {
-    }
-
-    function FunctionA()
-    {
-    }
-
-    function FunctionB()
-    {
-    }
-
-    const CONSTANT_A = 'A';
-    const CONSTANT_B = 'B';
 }
 
-namespace NamespaceC
+class ClassD
 {
-    use NamespaceF\NamespaceG\SymbolE as SymbolF;
-    use SymbolG as SymbolH;
-
-    interface InterfaceC
-    {
-    }
-
-    class ClassC
-    {
-    }
-
-    function FunctionC()
-    {
-    }
-
-    const CONSTANT_C = 'C';
 }
 
-namespace
+function FunctionD()
 {
-    use NamespaceH\NamespaceI\SymbolI as SymbolJ;
-    use SymbolK as SymbolL;
-
-    interface InterfaceD
-    {
-    }
-
-    class ClassD
-    {
-    }
-
-    function FunctionD()
-    {
-    }
-
-    const CONSTANT_D = 'D';
 }
+
+const CONSTANT_D = 'D';
+
+    namespace NamespaceA \ NamespaceB ;
+
+    use NamespaceD \ NamespaceE\SymbolA as SymbolB ;
+    use SymbolC as SymbolD ;
+    use namespace \ SymbolC as SymbolM ;
+    use SymbolN as SymbolO, SymbolP ;
+
+interface InterfaceA
+{
+}
+
+interface InterfaceB
+{
+}
+
+class ClassA
+{
+    public function methodA()
+    {
+        $a = function () {};
+    }
+}
+
+class ClassB
+{
+}
+
+function FunctionA()
+{
+}
+
+function FunctionB()
+{
+}
+
+const CONSTANT_A = 'A';
+const CONSTANT_B = 'B';
+
+    namespace NamespaceC ;
+
+    use NamespaceF \ NamespaceG \ SymbolE as SymbolF ;
+    use SymbolG as SymbolH ;
+
+interface InterfaceC
+{
+}
+
+class ClassC
+{
+}
+
+function FunctionC()
+{
+}
+
+const CONSTANT_C = 'C';

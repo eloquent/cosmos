@@ -45,11 +45,4 @@ class ParsedResolutionContext extends ResolutionContext
      * @var integer
      */
     public $size;
-
-    /**
-     * The tokens.
-     *
-     * @var array<tuple<integer|string,string,integer,integer,integer,integer>>
-     */
-    public $tokens;
 }

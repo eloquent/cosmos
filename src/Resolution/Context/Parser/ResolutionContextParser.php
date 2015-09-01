@@ -12,6 +12,7 @@
 namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedResolutionContext;
+use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedSymbol;
 use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedUseStatement;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatementClause;
@@ -80,7 +81,6 @@ class ResolutionContextParser
      */
     public function parseTokens(array $tokens)
     {
-        $numTokens = \count($tokens);
         $contexts = array();
 
         $state = self::STATE_START;
@@ -100,13 +100,13 @@ class ResolutionContextParser
         $useStatementClauses = array();
         $useStatements = array();
         $numUseStatements = 0;
-        // $symbolType = null;
+        $symbolType = null;
         $symbolLine = null;
         $symbolColumn = null;
         $symbolOffset = null;
         $symbolIndex = null;
         $symbolBracketDepth = 0;
-        // $symbols = array();
+        $symbols = array();
         $numSymbols = 0;
 
         foreach ($tokens as $tokenIndex => $token) {
@@ -184,21 +184,21 @@ class ResolutionContextParser
 
                             break;
 
-                        // case T_CLASS:
-                        //     $state = self::STATE_SYMBOL;
+                        case T_CLASS:
+                            $state = self::STATE_SYMBOL;
 
-                        //     // $symbolType = SymbolType::CLA55();
-                        //     $transitions[] = self::TRANSITION_SYMBOL_START;
+                            // $symbolType = SymbolType::CLA55();
+                            $transitions[] = self::TRANSITION_SYMBOL_START;
 
-                        //     break;
+                            break;
 
-                        // case T_INTERFACE:
-                        //     $state = self::STATE_SYMBOL;
+                        case T_INTERFACE:
+                            $state = self::STATE_SYMBOL;
 
-                        //     // $symbolType = SymbolType::INTERF4CE();
-                        //     $transitions[] = self::TRANSITION_SYMBOL_START;
+                            // $symbolType = SymbolType::INTERF4CE();
+                            $transitions[] = self::TRANSITION_SYMBOL_START;
 
-                        //     break;
+                            break;
 
                         // @codeCoverageIgnoreStart
                         case T_STRING:
@@ -215,13 +215,13 @@ class ResolutionContextParser
 
                         //     break;
 
-                        // case T_FUNCTION:
-                        //     $state = self::STATE_SYMBOL;
+                        case T_FUNCTION:
+                            $state = self::STATE_SYMBOL;
 
-                        //     // $symbolType = SymbolType::FUNCT1ON();
-                        //     $transitions[] = self::TRANSITION_SYMBOL_START;
+                            // $symbolType = SymbolType::FUNCT1ON();
+                            $transitions[] = self::TRANSITION_SYMBOL_START;
 
-                        //     break;
+                            break;
                     }
 
                     break;
@@ -247,8 +247,8 @@ class ResolutionContextParser
                         case '{':
                             $state = self::STATE_PHP;
 
-                            $contextStack[$contextStackSize - 1][3] = $token[5];
-                            $contextStack[$contextStackSize - 1][5] =
+                            $contextStack[$contextStackSize - 1][4] = $token[5];
+                            $contextStack[$contextStackSize - 1][6] =
                                 $tokenIndex;
 
                             if (
@@ -277,8 +277,8 @@ class ResolutionContextParser
                             $state = self::STATE_PHP;
 
                             $namespaceName = new Symbol($atoms, true);
-                            $contextStack[$contextStackSize - 1][3] = $token[5];
-                            $contextStack[$contextStackSize - 1][5] =
+                            $contextStack[$contextStackSize - 1][4] = $token[5];
+                            $contextStack[$contextStackSize - 1][6] =
                                 $tokenIndex;
 
                             break;
@@ -358,69 +358,66 @@ class ResolutionContextParser
 
                     break;
 
-                // case self::STATE_SYMBOL:
-                //     switch ($token[0]) {
-                //         case T_STRING:
-                //             $atoms[] = $token[1];
+                case self::STATE_SYMBOL:
+                    switch ($token[0]) {
+                        case T_STRING:
+                            $atoms[] = $token[1];
 
-                //             break;
+                            break;
 
-                //         case T_EXTENDS:
-                //         case T_IMPLEMENTS:
-                //         case '(':
-                //             $state = self::STATE_SYMBOL_HEADER;
+                        case T_EXTENDS:
+                        case T_IMPLEMENTS:
+                        case '(':
+                            $state = self::STATE_SYMBOL_HEADER;
 
-                //             break;
+                            break;
 
-                //         case '{':
-                //             $state = self::STATE_SYMBOL_BODY;
+                        case '{':
+                            $state = self::STATE_SYMBOL_BODY;
 
-                //             ++$symbolBracketDepth;
+                            ++$symbolBracketDepth;
 
-                //             break;
-                //     }
+                            break;
+                    }
 
-                //     break;
+                    break;
 
-                // case self::STATE_SYMBOL_HEADER:
-                //     switch ($token[0]) {
-                //         case '{':
-                //             $state = self::STATE_SYMBOL_BODY;
+                case self::STATE_SYMBOL_HEADER:
+                    switch ($token[0]) {
+                        case '{':
+                            $state = self::STATE_SYMBOL_BODY;
 
-                //             ++$symbolBracketDepth;
+                            ++$symbolBracketDepth;
 
-                //             break;
-                //     }
+                            break;
+                    }
 
-                //     break;
+                    break;
 
-                // case self::STATE_SYMBOL_BODY:
-                //     switch ($token[0]) {
-                //         case '{':
-                //             $symbolBracketDepth++;
+                case self::STATE_SYMBOL_BODY:
+                    switch ($token[0]) {
+                        case '{':
+                            $symbolBracketDepth++;
 
-                //             break;
+                            break;
 
-                //         case '}':
-                //             if (0 === --$symbolBracketDepth) {
-                //                 $state = self::STATE_PHP;
+                        case '}':
+                            if (0 === --$symbolBracketDepth) {
+                                $state = self::STATE_PHP;
 
-                //                 // $symbols[] = array(
-                //                 //     $symbolType,
-                //                 //     $symbolLine,
-                //                 //     $symbolColumn,
-                //                 //     $symbolOffset,
-                //                 //     $token[5],
-                //                 //     $this->symbolFactory()
-                //                 //         ->createFromAtoms($atoms, false),
-                //                 // );
-                //                 ++$numSymbols;
-                //             }
+                                $symbol = new ParsedSymbol($atoms, false);
+                                $symbol->line = $symbolLine;
+                                $symbol->column = $symbolColumn;
+                                $symbol->offset = $symbolOffset;
+                                $symbol->size = $token[5] - $symbolOffset + 1;
+                                $symbols[] = $symbol;
+                                ++$numSymbols;
+                            }
 
-                //             break;
-                //     }
+                            break;
+                    }
 
-                //     break;
+                    break;
             }
 
             if ('end' === $token[0]) {
@@ -430,14 +427,14 @@ class ResolutionContextParser
 
             foreach ($transitions as $transition) {
                 switch ($transition) {
-                    // case self::TRANSITION_SYMBOL_START:
-                    //     $symbolLine = $token[2];
-                    //     $symbolColumn = $token[3];
-                    //     $symbolOffset = $token[4];
-                    //     $symbolIndex = $tokenIndex;
-                    //     $atoms = array();
+                    case self::TRANSITION_SYMBOL_START:
+                        $symbolLine = $token[2];
+                        $symbolColumn = $token[3];
+                        $symbolOffset = $token[4];
+                        $symbolIndex = $tokenIndex;
+                        $atoms = array();
 
-                    //     break;
+                        break;
 
                     case self::TRANSITION_USE_STATEMENT_CLAUSE_END:
                         $useStatementClause = new UseStatementClause(
@@ -463,8 +460,8 @@ class ResolutionContextParser
                         $useStatements[] = $useStatement;
 
                         ++$numUseStatements;
-                        $contextStack[$contextStackSize - 1][3] = $token[5];
-                        $contextStack[$contextStackSize - 1][5] =
+                        $contextStack[$contextStackSize - 1][4] = $token[5];
+                        $contextStack[$contextStackSize - 1][6] =
                             $tokenIndex;
 
                         break;
@@ -477,30 +474,6 @@ class ResolutionContextParser
                         $namespaceName = null;
                         $useStatements = array();
                         $numUseStatements = 0;
-
-                        // foreach ($symbols as $symbolIndex => $thisSymbol) {
-                        //     list(
-                        //         $thisSymbolType,
-                        //         $thisSymbolLine,
-                        //         $thisSymbolColumn,
-                        //         $thisSymbolOffset,
-                        //         $thisSymbolEndOffset,
-                        //         $symbol,
-                        //     ) = $thisSymbol;
-
-                        //     $symbols[$symbolIndex] = new ParsedSymbol(
-                        //         $this->symbolResolver()
-                        //             ->resolveAgainstContext(
-                        //                 $context,
-                        //                 $symbol
-                        //             ),
-                        //         $thisSymbolType,
-                        //         $thisSymbolLine,
-                        //         $thisSymbolColumn,
-                        //         $thisSymbolOffset,
-                        //         $thisSymbolEndOffset - $thisSymbolOffset + 1
-                        //     );
-                        // }
 
                         if (!$isEnd) {
                             $thisContext = \array_pop($contextStack);
@@ -543,10 +516,10 @@ class ResolutionContextParser
                         $context->column = $thisContextColumn;
                         $context->offset = $thisContextOffset;
                         $context->size = $thisContextSize;
-                        $context->tokens = $thisContextTokens;
+                        // $context->tokens = $thisContextTokens;
                         $contexts[] = $context;
 
-                        // $symbols = array();
+                        $symbols = array();
                         $numSymbols = 0;
                         $atoms[] = $token[1];
 

@@ -51,6 +51,12 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         $parsed = file_get_contents($this->fixturePath . '/' . $name . '/parsed.php');
 
         $this->assertSame(trim($parsed), trim("<?php\n\n" . implode("\n//\n\n", $actual)));
+
+        if (is_file($this->fixturePath . '/' . $name . '/assertions.php')) {
+            $test = $this;
+
+            require $this->fixturePath . '/' . $name . '/assertions.php';
+        }
     }
 
     public function testInstance()
