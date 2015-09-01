@@ -68,7 +68,7 @@ class TokenNormalizer implements TokenNormalizerInterface
                 $tokens[$index][] = $startOffset;
                 $tokens[$index][] = $endOffset;
 
-                $lines = \preg_split('/(?:\r|\n|\r\n)/', $token[1]);
+                $lines = \preg_split('/\R/', $token[1]);
                 $numNewlines = \count($lines) - 1;
 
                 if ($numNewlines > 0) {
