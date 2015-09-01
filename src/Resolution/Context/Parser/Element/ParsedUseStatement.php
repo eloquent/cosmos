@@ -33,16 +33,30 @@ class ParsedUseStatement extends UseStatement
     public $column;
 
     /**
-     * The offset.
+     * The byte offset.
      *
      * @var integer
      */
     public $offset;
 
     /**
-     * The size.
+     * The byte size.
      *
      * @var integer
      */
     public $size;
+
+    /**
+     * The index of the start token.
+     *
+     * @var integer
+     */
+    public $startIndex;
+
+    /**
+     * The index of the start token.
+     *
+     * @var integer
+     */
+    public $endIndex;
 }

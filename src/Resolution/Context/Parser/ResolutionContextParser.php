@@ -70,6 +70,7 @@ class ResolutionContextParser
         $useStatementLine = null;
         $useStatementColumn = null;
         $useStatementOffset = null;
+        $useStatementIndex = null;
         $useStatementAlias = null;
         $useStatementClauses = array();
         $useStatements = array();
@@ -141,6 +142,7 @@ class ResolutionContextParser
                             $useStatementLine = $token[2];
                             $useStatementColumn = $token[3];
                             $useStatementOffset = $token[4];
+                            $useStatementIndex = $tokenIndex;
                             $atoms = array();
                             $useStatementAlias = null;
                             $useStatementClauses = array();
@@ -305,6 +307,8 @@ class ResolutionContextParser
                         $useStatement->offset = $useStatementOffset;
                         $useStatement->size =
                             $token[5] - $useStatementOffset + 1;
+                        $useStatement->startIndex = $useStatementIndex;
+                        $useStatement->endIndex = $tokenIndex;
                         $useStatements[] = $useStatement;
 
                         $contextStack[$contextStackSize - 1][4] = $token[5];
@@ -350,6 +354,8 @@ class ResolutionContextParser
                         $context->column = $thisContextColumn;
                         $context->offset = $thisContextOffset;
                         $context->size = $thisContextSize;
+                        $context->startIndex = $thisContextIndex;
+                        $context->endIndex = $thisContextEndIndex;
                         $contexts[] = $context;
 
                         $atoms[] = $token[1];
