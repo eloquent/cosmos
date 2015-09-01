@@ -19,30 +19,37 @@ use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 class ParsedResolutionContext extends ResolutionContext
 {
     /**
-     * The line number, if parsed.
+     * The line number.
      *
-     * @var integer|null
+     * @var integer
      */
     public $line;
 
     /**
-     * The column number, if parsed.
+     * The column number.
      *
-     * @var integer|null
+     * @var integer
      */
     public $column;
 
     /**
-     * The offset, if parsed.
+     * The offset.
      *
-     * @var integer|null
+     * @var integer
      */
     public $offset;
 
     /**
-     * The size, if parsed.
+     * The size.
      *
-     * @var integer|null
+     * @var integer
      */
     public $size;
+
+    /**
+     * The tokens.
+     *
+     * @var array<tuple<integer|string,string,integer,integer,integer,integer>>
+     */
+    public $tokens;
 }

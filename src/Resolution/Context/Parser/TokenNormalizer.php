@@ -14,12 +14,12 @@ namespace Eloquent\Cosmos\Resolution\Context\Parser;
 /**
  * Normalizes lists of PHP tokens.
  */
-class TokenNormalizer implements TokenNormalizerInterface
+class TokenNormalizer
 {
     /**
      * Get a static instance of this normalizer.
      *
-     * @return TokenNormalizerInterface The static normalizer.
+     * @return TokenNormalizer The static normalizer.
      */
     public static function instance()
     {
