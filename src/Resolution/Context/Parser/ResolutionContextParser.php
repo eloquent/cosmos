@@ -12,7 +12,6 @@
 namespace Eloquent\Cosmos\Resolution\Context\Parser;
 
 use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedResolutionContext;
-use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedSymbol;
 use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedUseStatement;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatementClause;
