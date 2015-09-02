@@ -38,7 +38,7 @@ class ResolutionContextRenderer implements ResolutionContextRendererInterface
      */
     public function renderContext(ResolutionContextInterface $context)
     {
-        return strval($context);
+        return \strval($context);
     }
 
     private static $instance;
