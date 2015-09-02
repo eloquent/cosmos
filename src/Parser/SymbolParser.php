@@ -11,6 +11,7 @@
 
 namespace Eloquent\Cosmos\Parser;
 
+use Eloquent\Cosmos\Parser\Element\ParsedSymbol;
 use Eloquent\Cosmos\Symbol\Symbol;
 
 /**
@@ -25,9 +26,8 @@ class SymbolParser
     const STATE_SYMBOL_HEADER = 4;
     const STATE_SYMBOL_BODY = 5;
 
-    const TRANSITION_USE_STATEMENT_CLAUSE_END = 1;
-    const TRANSITION_USE_STATEMENT_END = 2;
-    const TRANSITION_CONTEXT_END = 3;
+    const TRANSITION_SYMBOL_START = 1;
+    const TRANSITION_SYMBOL_END = 2;
 
     /**
      * Get a static instance of this parser.
@@ -75,12 +75,12 @@ class SymbolParser
         $state = self::STATE_START;
         $transition = null;
         $atoms = null;
-        $symbolType = null;
-        $symbolLine = null;
-        $symbolColumn = null;
-        $symbolOffset = null;
-        $symbolIndex = null;
-        $symbolBracketDepth = 0;
+        $type = null;
+        $line = null;
+        $column = null;
+        $offset = null;
+        $index = null;
+        $bracketDepth = 0;
 
         foreach ($tokens as $tokenIndex => $token) {
             switch ($state) {
@@ -100,28 +100,28 @@ class SymbolParser
                         case T_CLASS:
                             $state = self::STATE_SYMBOL;
                             $transition = self::TRANSITION_SYMBOL_START;
-                            $symbolType = 'class';
+                            $type = 'class';
 
                             break;
 
                         case T_INTERFACE:
                             $state = self::STATE_SYMBOL;
                             $transition = self::TRANSITION_SYMBOL_START;
-                            $symbolType = 'interface';
+                            $type = 'interface';
 
                             break;
 
                         case $this->traitTokenType:
                             $state = self::STATE_SYMBOL;
                             $transition = self::TRANSITION_SYMBOL_START;
-                            $symbolType = 'trait';
+                            $type = 'trait';
 
                             break;
 
                         case T_FUNCTION:
                             $state = self::STATE_SYMBOL;
                             $transition = self::TRANSITION_SYMBOL_START;
-                            $symbolType = 'function';
+                            $type = 'function';
 
                             break;
                     }
@@ -144,7 +144,7 @@ class SymbolParser
 
                         case '{':
                             $state = self::STATE_SYMBOL_BODY;
-                            ++$symbolBracketDepth;
+                            ++$bracketDepth;
 
                             break;
                     }
@@ -155,7 +155,7 @@ class SymbolParser
                     switch ($token[0]) {
                         case '{':
                             $state = self::STATE_SYMBOL_BODY;
-                            ++$symbolBracketDepth;
+                            ++$bracketDepth;
 
                             break;
                     }
@@ -165,12 +165,12 @@ class SymbolParser
                 case self::STATE_SYMBOL_BODY:
                     switch ($token[0]) {
                         case '{':
-                            $symbolBracketDepth++;
+                            $bracketDepth++;
 
                             break;
 
                         case '}':
-                            if (0 === --$symbolBracketDepth) {
+                            if (0 === --$bracketDepth) {
                                 $state = self::STATE_PHP;
                                 $transition = self::TRANSITION_SYMBOL_END;
                             }
@@ -181,27 +181,25 @@ class SymbolParser
                     break;
             }
 
-            if ('end' === $token[0]) {
-                $transition = self::TRANSITION_SYMBOL_END;
-            }
-
             switch ($transition) {
                 case self::TRANSITION_SYMBOL_START:
-                    $symbolLine = $token[2];
-                    $symbolColumn = $token[3];
-                    $symbolOffset = $token[4];
-                    $symbolIndex = $tokenIndex;
+                    $line = $token[2];
+                    $column = $token[3];
+                    $offset = $token[4];
+                    $index = $tokenIndex;
                     $atoms = array();
 
                     break;
 
                 case self::TRANSITION_SYMBOL_END:
                     $symbol = new ParsedSymbol($atoms, false);
-                    $symbol->line = $symbolLine;
-                    $symbol->column = $symbolColumn;
-                    $symbol->offset = $symbolOffset;
-                    $symbol->size = $token[5] - $symbolOffset + 1;
-                    $symbols[] = array($symbol, $symbolType);
+                    $symbol->line = $line;
+                    $symbol->column = $column;
+                    $symbol->offset = $offset;
+                    $symbol->size = $token[5] - $offset + 1;
+                    $symbol->tokenOffset = $index;
+                    $symbol->tokenSize = $tokenIndex - $index + 1;
+                    $symbols[] = array($symbol, $type);
 
                     break;
             }
