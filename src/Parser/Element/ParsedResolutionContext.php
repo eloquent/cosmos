@@ -9,14 +9,14 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Context\Parser\Element;
+namespace Eloquent\Cosmos\Parser\Element;
 
-use Eloquent\Cosmos\UseStatement\UseStatement;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
 
 /**
- * Augments a use statement with parser data.
+ * Augments a resolution context with parser data.
  */
-class ParsedUseStatement extends UseStatement
+class ParsedResolutionContext extends ResolutionContext
 {
     /**
      * The line number.

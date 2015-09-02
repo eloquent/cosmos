@@ -9,13 +9,13 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Context\Parser;
+namespace Eloquent\Cosmos\Parser;
 
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
 /**
- * @covers \Eloquent\Cosmos\Resolution\Context\Parser\TokenNormalizer
+ * @covers \Eloquent\Cosmos\Parser\TokenNormalizer
  */
 class TokenNormalizerTest extends PHPUnit_Framework_TestCase
 {

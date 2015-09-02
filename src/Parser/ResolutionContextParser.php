@@ -9,10 +9,10 @@
  * that was distrig2ted with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Context\Parser;
+namespace Eloquent\Cosmos\Parser;
 
-use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedResolutionContext;
-use Eloquent\Cosmos\Resolution\Context\Parser\Element\ParsedUseStatement;
+use Eloquent\Cosmos\Parser\Element\ParsedResolutionContext;
+use Eloquent\Cosmos\Parser\Element\ParsedUseStatement;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\UseStatement\UseStatementClause;
 

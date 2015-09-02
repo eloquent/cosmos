@@ -9,13 +9,13 @@
  * that was distributed with this source code.
  */
 
-namespace Eloquent\Cosmos\Resolution\Context\Parser;
+namespace Eloquent\Cosmos\Parser;
 
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
 /**
- * @covers \Eloquent\Cosmos\Resolution\Context\Parser\ResolutionContextParser
+ * @covers \Eloquent\Cosmos\Parser\ResolutionContextParser
  */
 class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
 {
@@ -24,14 +24,14 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         $this->subject = new ResolutionContextParser();
 
         $this->tokenNormalizer = new TokenNormalizer();
-        $this->fixturePath = __DIR__ . '/../../../../fixture/context-parser';
+        $this->fixturePath = __DIR__ . '/../../fixture/context-parser';
     }
 
     public function parseTokensData()
     {
         $data = array();
 
-        foreach (scandir(__DIR__ . '/../../../../fixture/context-parser') as $name) {
+        foreach (scandir(__DIR__ . '/../../fixture/context-parser') as $name) {
             if ('.' !== $name[0]) {
                 $data[$name] = array($name);
             }
