@@ -57,7 +57,7 @@ class SymbolParser
         if ($isTraitSupported) {
             $this->traitTokenType = T_TRAIT;
         } else {
-            $this->traitTokenType = null;
+            $this->traitTokenType = null; // @codeCoverageIgnore
         }
     }
 

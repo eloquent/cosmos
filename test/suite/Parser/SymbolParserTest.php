@@ -45,6 +45,12 @@ class SymbolParserTest extends PHPUnit_Framework_TestCase
      */
     public function testParseTokens($name)
     {
+        $isSupported = require $this->fixturePath . '/' . $name . '/supported.php';
+
+        if (!$isSupported) {
+            $this->markTestSkipped($message);
+        }
+
         $tokens = $this->tokenNormalizer
             ->normalizeTokens(token_get_all(file_get_contents($this->fixturePath . '/' . $name . '/source.php')));
         $actual = $this->subject->parseTokens($tokens);
