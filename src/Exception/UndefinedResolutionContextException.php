@@ -31,15 +31,15 @@ final class UndefinedResolutionContextException extends Exception
         $this->path = $path;
 
         if (null === $path) {
-            $message = sprintf(
+            $message = \sprintf(
                 'No resolution context defined at index %s.',
-                var_export($index, true)
+                \var_export($index, true)
             );
         } else {
-            $message = sprintf(
+            $message = \sprintf(
                 'No resolution context defined at index %s in file %s.',
-                var_export($index, true),
-                var_export($path, true)
+                \var_export($index, true),
+                \var_export($path, true)
             );
         }
 
