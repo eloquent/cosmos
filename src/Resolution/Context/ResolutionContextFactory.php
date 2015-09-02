@@ -48,6 +48,10 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
         SymbolInterface $primaryNamespace = null,
         array $useStatements = null
     ) {
+        if (null === $useStatements) {
+            $useStatements = array();
+        }
+
         return new ResolutionContext($primaryNamespace, $useStatements);
     }
 

@@ -32,11 +32,7 @@ class SymbolResolver implements SymbolResolverInterface
     public static function instance()
     {
         if (null === self::$instance) {
-            self::$instance = new self(
-                'function_exists',
-                'defined',
-                SymbolFactory::instance()
-            );
+            self::$instance = new self(SymbolFactory::instance());
         }
 
         return self::$instance;
@@ -45,18 +41,25 @@ class SymbolResolver implements SymbolResolverInterface
     /**
      * Construct a new symbol resolver.
      *
-     * @param callable               $functionResolver The callback to use when determining if a function exists.
-     * @param callable               $constantResolver The callback to use when determining if a constant exists.
      * @param SymbolFactoryInterface $symbolFactory    The symbol factory to use.
+     * @param callable|null          $functionResolver The callback to use when determining if a function exists.
+     * @param callable|null          $constantResolver The callback to use when determining if a constant exists.
      */
     public function __construct(
-        $functionResolver,
-        $constantResolver,
-        SymbolFactoryInterface $symbolFactory
+        SymbolFactoryInterface $symbolFactory,
+        $functionResolver = null,
+        $constantResolver = null
     ) {
+        if (null === $functionResolver) {
+            $functionResolver = 'function_exists';
+        }
+        if (null === $constantResolver) {
+            $constantResolver = 'defined';
+        }
+
+        $this->symbolFactory = $symbolFactory;
         $this->functionResolver = $functionResolver;
         $this->constantResolver = $constantResolver;
-        $this->symbolFactory = $symbolFactory;
     }
 
     /**
@@ -134,7 +137,7 @@ class SymbolResolver implements SymbolResolverInterface
     }
 
     private static $instance;
+    private $symbolFactory;
     private $functionResolver;
     private $constantResolver;
-    private $symbolFactory;
 }

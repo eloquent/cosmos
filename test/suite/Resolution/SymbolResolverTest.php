@@ -25,14 +25,14 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
     {
+        $this->symbolFactory = new SymbolFactory();
         $this->functionResolver = function () {
             return true;
         };
         $this->constantResolver = function () {
             return true;
         };
-        $this->symbolFactory = new SymbolFactory();
-        $this->subject = new SymbolResolver($this->functionResolver, $this->constantResolver, $this->symbolFactory);
+        $this->subject = new SymbolResolver($this->symbolFactory, $this->functionResolver, $this->constantResolver);
 
         $this->primaryNamespace = Symbol::fromString('\VendorA\PackageA');
         $this->useStatements = array(
@@ -82,7 +82,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         $this->functionResolver = function () {
             return false;
         };
-        $this->subject = new SymbolResolver($this->functionResolver, $this->constantResolver, $this->symbolFactory);
+        $this->subject = new SymbolResolver($this->symbolFactory, $this->functionResolver, $this->constantResolver);
         $symbol = Symbol::fromString('Symbol');
 
         $this->assertSame('\Symbol', strval($this->subject->resolve($this->context, $symbol, 'function')));
@@ -93,7 +93,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         $this->constantResolver = function () {
             return false;
         };
-        $this->subject = new SymbolResolver($this->functionResolver, $this->constantResolver, $this->symbolFactory);
+        $this->subject = new SymbolResolver($this->symbolFactory, $this->functionResolver, $this->constantResolver);
         $symbol = Symbol::fromString('Symbol');
 
         $this->assertSame('\Symbol', strval($this->subject->resolve($this->context, $symbol, 'const')));

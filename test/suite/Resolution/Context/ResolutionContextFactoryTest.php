@@ -24,18 +24,25 @@ class ResolutionContextFactoryTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->subject = new ResolutionContextFactory();
+    }
 
+    public function testCreateContext()
+    {
         $this->primaryNamespace = Symbol::fromString('\VendorA\PackageA');
         $this->useStatements = array(
             UseStatement::fromSymbol(Symbol::fromString('\VendorB\PackageB')),
             UseStatement::fromSymbol(Symbol::fromString('\VendorC\PackageC')),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements);
+        $actual = $this->subject->createContext($this->primaryNamespace, $this->useStatements);
+
+        $this->assertEquals($this->context, $actual);
     }
 
-    public function testCreateContext()
+    public function testCreateContextDefaults()
     {
-        $actual = $this->subject->createContext($this->primaryNamespace, $this->useStatements);
+        $this->context = new ResolutionContext(null, array());
+        $actual = $this->subject->createContext();
 
         $this->assertEquals($this->context, $actual);
     }
