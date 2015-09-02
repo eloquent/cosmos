@@ -48,15 +48,45 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         $tokens = $this->tokenNormalizer
             ->normalizeTokens(token_get_all(file_get_contents($this->fixturePath . '/' . $name . '/source.php')));
         $actual = $this->subject->parseTokens($tokens);
+
         $parsed = file_get_contents($this->fixturePath . '/' . $name . '/parsed.php');
 
-        $this->assertSame(trim($parsed), trim("<?php\n\n" . implode("\n//\n\n", $actual)));
+        $expectedDetails = require $this->fixturePath . '/' . $name . '/details.php';
+        $details = array();
 
-        if (is_file($this->fixturePath . '/' . $name . '/assertions.php')) {
-            $test = $this;
+        foreach ($actual as $context) {
+            $contextTokens = array_slice($tokens, $context->tokenOffset, $context->tokenSize);
+            $contextString = '';
 
-            require $this->fixturePath . '/' . $name . '/assertions.php';
+            foreach ($contextTokens as $token) {
+                $contextString .= $token[1];
+            }
+
+            $statementDetails = array();
+
+            foreach ($context->useStatements() as $statement) {
+                $statementTokens = array_slice($tokens, $statement->tokenOffset, $statement->tokenSize);
+                $statementString = '';
+
+                foreach ($statementTokens as $token) {
+                    $statementString .= $token[1];
+                }
+
+                $statementDetails[] = array(
+                    array($statement->line, $statement->column, $statement->offset, $statement->size),
+                    $statementString,
+                );
+            }
+
+            $details[] = array(
+                array($context->line, $context->column, $context->offset, $context->size),
+                $contextString,
+                $statementDetails,
+            );
         }
+
+        $this->assertSame(trim($parsed), trim("<?php\n\n" . implode("\n//\n\n", $actual)));
+        $this->assertEquals($expectedDetails, $details);
     }
 
     public function testInstance()

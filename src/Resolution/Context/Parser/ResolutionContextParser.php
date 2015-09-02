@@ -307,8 +307,9 @@ class ResolutionContextParser
                         $useStatement->offset = $useStatementOffset;
                         $useStatement->size =
                             $token[5] - $useStatementOffset + 1;
-                        $useStatement->startIndex = $useStatementIndex;
-                        $useStatement->endIndex = $tokenIndex;
+                        $useStatement->tokenOffset = $useStatementIndex;
+                        $useStatement->tokenSize =
+                            $tokenIndex - $useStatementIndex + 1;
                         $useStatements[] = $useStatement;
 
                         $contextStack[$contextStackSize - 1][4] = $token[5];
@@ -350,12 +351,19 @@ class ResolutionContextParser
                                 $thisContextEndOffset - $thisContextOffset + 1;
                         }
 
+                        if ($thisContextEndIndex === $thisContextIndex) {
+                            $thisContextTokenSize = 0;
+                        } else {
+                            $thisContextTokenSize =
+                                $thisContextEndIndex - $thisContextIndex + 1;
+                        }
+
                         $context->line = $thisContextLine;
                         $context->column = $thisContextColumn;
                         $context->offset = $thisContextOffset;
                         $context->size = $thisContextSize;
-                        $context->startIndex = $thisContextIndex;
-                        $context->endIndex = $thisContextEndIndex;
+                        $context->tokenOffset = $thisContextIndex;
+                        $context->tokenSize = $thisContextTokenSize;
                         $contexts[] = $context;
 
                         $atoms[] = $token[1];

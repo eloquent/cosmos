@@ -47,16 +47,16 @@ class ParsedUseStatement extends UseStatement
     public $size;
 
     /**
-     * The index of the start token.
+     * The token offset.
      *
      * @var integer
      */
-    public $startIndex;
+    public $tokenOffset;
 
     /**
-     * The index of the start token.
+     * The token size.
      *
      * @var integer
      */
-    public $endIndex;
+    public $tokenSize;
 }
