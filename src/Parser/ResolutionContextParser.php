@@ -379,5 +379,4 @@ class ResolutionContextParser
     }
 
     private static $instance;
-    private $tokenNormalizer;
 }
