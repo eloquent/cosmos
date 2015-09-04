@@ -106,8 +106,8 @@ interface ResolutionContextReaderInterface
     /**
      * Create the context found at the specified position in a file.
      *
-     * @param string  $path   The path.
-     * @param integer $line   The line.
+     * @param string       $path   The path.
+     * @param integer      $line   The line.
      * @param integer|null $column The column.
      *
      * @return ResolutionContextInterface The newly created resolution context.
@@ -142,10 +142,10 @@ interface ResolutionContextReaderInterface
     /**
      * Create the context found at the specified position in a stream.
      *
-     * @param stream      $stream The stream.
-     * @param integer     $line   The line.
-     * @param integer|null     $column The column.
-     * @param string|null $path   The path, if known.
+     * @param stream       $stream The stream.
+     * @param integer      $line   The line.
+     * @param integer|null $column The column.
+     * @param string|null  $path   The path, if known.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws ReadException              If the source code cannot be read.
