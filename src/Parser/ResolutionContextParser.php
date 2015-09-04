@@ -77,9 +77,9 @@ class ResolutionContextParser
      *
      * @param array<tuple<integer|string,string,integer,integer,integer,integer>> $tokens The normalized tokens.
      *
-     * @return array<ParsedResolutionContextInterface> The parsed resolution contexts.
+     * @return array<ParsedResolutionContext> The parsed resolution contexts.
      */
-    public function parseTokens(array $tokens)
+    public function parseContexts(array $tokens)
     {
         $contexts = array();
         $symbols = array();

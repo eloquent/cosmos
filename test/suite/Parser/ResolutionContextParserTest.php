@@ -27,7 +27,7 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         $this->fixturePath = __DIR__ . '/../../fixture/context-parser';
     }
 
-    public function parseTokensData()
+    public function parseContextsData()
     {
         $data = array();
 
@@ -41,9 +41,9 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider parseTokensData
+     * @dataProvider parseContextsData
      */
-    public function testParseTokens($name)
+    public function testParseContexts($name)
     {
         if (is_file($this->fixturePath . '/' . $name . '/supported.php')) {
             $isSupported = require $this->fixturePath . '/' . $name . '/supported.php';
@@ -55,7 +55,7 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
 
         $tokens = $this->tokenNormalizer
             ->normalizeTokens(token_get_all(file_get_contents($this->fixturePath . '/' . $name . '/source.php')));
-        $actual = $this->subject->parseTokens($tokens);
+        $actual = $this->subject->parseContexts($tokens);
 
         $expectedParsed = trim(file_get_contents($this->fixturePath . '/' . $name . '/parsed.php'));
         $expectedDetails = require $this->fixturePath . '/' . $name . '/details.php';
