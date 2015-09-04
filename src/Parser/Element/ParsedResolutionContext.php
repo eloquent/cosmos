@@ -59,4 +59,11 @@ class ParsedResolutionContext extends ResolutionContext
      * @var integer
      */
     public $tokenSize;
+
+    /**
+     * The symbols defined under this context.
+     *
+     * @var array<ParsedSymbol>
+     */
+    public $symbols;
 }

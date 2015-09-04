@@ -478,7 +478,8 @@ class ResolutionContextParser
                         $context->size = $thisContextSize;
                         $context->tokenOffset = $thisContextIndex;
                         $context->tokenSize = $thisContextTokenSize;
-                        $contexts[] = array($context, $symbols);
+                        $context->symbols = $symbols;
+                        $contexts[] = $context;
 
                         $symbols = array();
 
@@ -501,7 +502,8 @@ class ResolutionContextParser
                         $symbol->size = $token[5] - $symbolOffset + 1;
                         $symbol->tokenOffset = $symbolIndex;
                         $symbol->tokenSize = $tokenIndex - $symbolIndex + 1;
-                        $symbols[] = array($symbol, $symbolType);
+                        $symbol->type = $symbolType;
+                        $symbols[] = $symbol;
 
                         break;
                 }

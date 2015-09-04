@@ -80,15 +80,11 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         $parsed = array();
 
         foreach ($contexts as $context) {
-            list($context, $contextSymbols) = $context;
-
             $parsedContext = strval($context);
             $parsedSymbols = array();
 
-            foreach ($contextSymbols as $symbol) {
-                list($symbol, $symbolType) = $symbol;
-
-                $parsedSymbols[] = '// ' . $symbolType . ' ' . $symbol;
+            foreach ($context->symbols as $symbol) {
+                $parsedSymbols[] = '// ' . $symbol->type . ' ' . $symbol;
             }
 
             if ($parsedSymbols) {
@@ -116,8 +112,6 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
         $details = array();
 
         foreach ($contexts as $context) {
-            list($context, $contextSymbols) = $context;
-
             $contextTokens = array_slice($tokens, $context->tokenOffset, $context->tokenSize);
             $contextString = '';
 
@@ -143,9 +137,7 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
 
             $symbolDetails = array();
 
-            foreach ($contextSymbols as $symbol) {
-                list($symbol, $symbolType) = $symbol;
-
+            foreach ($context->symbols as $symbol) {
                 $symbolTokens = array_slice($tokens, $symbol->tokenOffset, $symbol->tokenSize);
                 $symbolString = '';
 

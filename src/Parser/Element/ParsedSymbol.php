@@ -59,4 +59,11 @@ class ParsedSymbol extends Symbol
      * @var integer
      */
     public $tokenSize;
+
+    /**
+     * The type.
+     *
+     * @var string
+     */
+    public $type;
 }
