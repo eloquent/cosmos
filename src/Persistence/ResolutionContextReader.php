@@ -53,12 +53,12 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Construct a new resolution context reader.
      *
-     * @param ResolutionContextParser $contextParser The resolution context parser.
-     * @param ResolutionContextFactoryInterface $contextFactory The resolution context factory.
-     * @param SymbolFactoryInterface $symbolFactory The symbol factory.
-     * @param callable|null $fileGetContents The file_get_contents() implementation.
-     * @param callable|null $streamGetContents The stream_get_contents() implementation.
-     * @param callable|null $errorGetLast The error_get_last() implementation.
+     * @param ResolutionContextParser           $contextParser     The resolution context parser.
+     * @param ResolutionContextFactoryInterface $contextFactory    The resolution context factory.
+     * @param SymbolFactoryInterface            $symbolFactory     The symbol factory.
+     * @param callable|null                     $fileGetContents   The file_get_contents() implementation.
+     * @param callable|null                     $streamGetContents The stream_get_contents() implementation.
+     * @param callable|null                     $errorGetLast      The error_get_last() implementation.
      */
     public function __construct(
         ResolutionContextParser $contextParser,
@@ -272,8 +272,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create the context found at the specified position in a file.
      *
-     * @param string  $path   The path.
-     * @param integer $line   The line.
+     * @param string       $path   The path.
+     * @param integer      $line   The line.
      * @param integer|null $column The column.
      *
      * @return ResolutionContextInterface The newly created resolution context.
@@ -338,10 +338,10 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create the context found at the specified position in a stream.
      *
-     * @param stream      $stream The stream.
-     * @param integer     $line   The line.
-     * @param integer|null     $column The column.
-     * @param string|null $path   The path, if known.
+     * @param stream       $stream The stream.
+     * @param integer      $line   The line.
+     * @param integer|null $column The column.
+     * @param string|null  $path   The path, if known.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws ReadException              If the source code cannot be read.

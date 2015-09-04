@@ -286,13 +286,6 @@ class ResolutionContextParser
                             $useStatementType = 'const';
 
                             break;
-
-                        case T_NAMESPACE:
-                            $state = self::STATE_USE_STATEMENT_TYPE_NAME;
-
-                            $useStatementAtoms[] = $token[1];
-
-                            break;
                     }
 
                     break;

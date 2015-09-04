@@ -30,8 +30,8 @@ return array(
         ),
     ),
     array(
-        array(20, 5, 231, 197),
-        "namespace NamespaceA \ NamespaceB ;\n\n    use NamespaceD \ NamespaceE\SymbolA as SymbolB ;\n    use SymbolC as SymbolD ;\n    use namespace \ SymbolC as SymbolM ;\n    use SymbolN as SymbolO, SymbolP ;",
+        array(20, 5, 231, 156),
+        "namespace NamespaceA \ NamespaceB ;\n\n    use NamespaceD \ NamespaceE\SymbolA as SymbolB ;\n    use SymbolC as SymbolD ;\n    use SymbolN as SymbolO, SymbolP ;",
         array(
             array(
                 array(22, 5, 272, 48),
@@ -42,65 +42,61 @@ return array(
                 "use SymbolC as SymbolD ;"
             ),
             array(
-                array(24, 5, 354, 36),
-                "use namespace \ SymbolC as SymbolM ;"
-            ),
-            array(
-                array(25, 5, 395, 33),
+                array(24, 5, 354, 33),
                 "use SymbolN as SymbolO, SymbolP ;"
             ),
         ),
         array(
             array(
-                array(27, 5, 434, 32),
+                array(26, 5, 393, 32),
                 "interface InterfaceA\n    {\n    }"
             ),
             array(
-                array(31, 5, 472, 32),
+                array(30, 5, 431, 32),
                 "interface InterfaceB\n    {\n    }"
             ),
             array(
-                array(35, 5, 510, 111),
+                array(34, 5, 469, 111),
                 "class ClassA\n    {\n        public function methodA()\n        {\n            \$a = function () {};\n        }\n    }"
             ),
             array(
-                array(43, 5, 627, 24),
+                array(42, 5, 586, 24),
                 "class ClassB\n    {\n    }"
             ),
             array(
-                array(47, 5, 657, 32),
+                array(46, 5, 616, 32),
                 "function FunctionA()\n    {\n    }"
             ),
             array(
-                array(51, 5, 695, 32),
+                array(50, 5, 654, 32),
                 "function FunctionB()\n    {\n    }"
             ),
         ),
     ),
     array(
-        array(58, 5, 790, 107),
+        array(57, 5, 749, 107),
         "namespace NamespaceC ;\n\n    use NamespaceF \ NamespaceG \ SymbolE as SymbolF ;\n    use SymbolG as SymbolH ;",
         array(
             array(
-                array(60, 5, 818, 50),
+                array(59, 5, 777, 50),
                 "use NamespaceF \ NamespaceG \ SymbolE as SymbolF ;"
             ),
             array(
-                array(61, 5, 873, 24),
+                array(60, 5, 832, 24),
                 "use SymbolG as SymbolH ;"
             ),
         ),
         array(
             array(
-                array(63, 5, 903, 32),
+                array(62, 5, 862, 32),
                 "interface InterfaceC\n    {\n    }"
             ),
             array(
-                array(67, 5, 941, 24),
+                array(66, 5, 900, 24),
                 "class ClassC\n    {\n    }"
             ),
             array(
-                array(71, 5, 971, 32),
+                array(70, 5, 930, 32),
                 "function FunctionC()\n    {\n    }"
             ),
         ),
