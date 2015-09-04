@@ -1,4 +1,4 @@
 <?php
 
-// trait TraitA
-// trait TraitB
+// trait \TraitA
+// trait \TraitB

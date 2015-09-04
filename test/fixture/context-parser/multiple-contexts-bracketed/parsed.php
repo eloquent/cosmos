@@ -7,12 +7,12 @@ use SymbolC as SymbolD;
 use namespace\SymbolC as SymbolM;
 use SymbolN as SymbolO, SymbolP;
 
-// interface InterfaceA
-// interface InterfaceB
-// class ClassA
-// class ClassB
-// function FunctionA
-// function FunctionB
+// interface \NamespaceA\NamespaceB\InterfaceA
+// interface \NamespaceA\NamespaceB\InterfaceB
+// class \NamespaceA\NamespaceB\ClassA
+// class \NamespaceA\NamespaceB\ClassB
+// function \NamespaceA\NamespaceB\FunctionA
+// function \NamespaceA\NamespaceB\FunctionB
 
 // end of context
 
@@ -21,15 +21,15 @@ namespace NamespaceC;
 use NamespaceF\NamespaceG\SymbolE as SymbolF;
 use SymbolG as SymbolH;
 
-// interface InterfaceC
-// class ClassC
-// function FunctionC
+// interface \NamespaceC\InterfaceC
+// class \NamespaceC\ClassC
+// function \NamespaceC\FunctionC
 
 // end of context
 
 use NamespaceH\NamespaceI\SymbolI as SymbolJ;
 use SymbolK as SymbolL;
 
-// interface InterfaceD
-// class ClassD
-// function FunctionD
+// interface \InterfaceD
+// class \ClassD
+// function \FunctionD

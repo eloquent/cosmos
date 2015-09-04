@@ -225,6 +225,7 @@ class ResolutionContextParser
                             }
 
                             $transitions[] = self::TRANSITION_CONTEXT_END;
+                            $namespaceAtoms[] = $token[1];
 
                             break;
 
@@ -479,7 +480,6 @@ class ResolutionContextParser
                         $context->tokenSize = $thisContextTokenSize;
                         $contexts[] = array($context, $symbols);
 
-                        $namespaceAtoms[] = $token[1];
                         $symbols = array();
 
                         break;
@@ -489,12 +489,12 @@ class ResolutionContextParser
                         $symbolColumn = $token[3];
                         $symbolOffset = $token[4];
                         $symbolIndex = $tokenIndex;
-                        $symbolAtoms = array();
+                        $symbolAtoms = $namespaceAtoms;
 
                         break;
 
                     case self::TRANSITION_SYMBOL_END:
-                        $symbol = new ParsedSymbol($symbolAtoms, false);
+                        $symbol = new ParsedSymbol($symbolAtoms, true);
                         $symbol->line = $symbolLine;
                         $symbol->column = $symbolColumn;
                         $symbol->offset = $symbolOffset;
