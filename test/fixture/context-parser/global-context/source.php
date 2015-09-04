@@ -5,29 +5,29 @@
     use namespace \ SymbolC as SymbolM ;
     use SymbolN as SymbolO, SymbolP ;
 
-interface InterfaceA
-{
-}
+    interface InterfaceA
+    {
+    }
 
-interface InterfaceB
-{
-}
+    interface InterfaceB
+    {
+    }
 
-class ClassA
-{
-}
+    class ClassA
+    {
+    }
 
-class ClassB
-{
-}
+    class ClassB
+    {
+    }
 
-function FunctionA()
-{
-}
+    function FunctionA()
+    {
+    }
 
-function FunctionB()
-{
-}
+    function FunctionB()
+    {
+    }
 
-const CONSTANT_A = 'A';
-const CONSTANT_B = 'B';
+    const CONSTANT_A = 'A';
+    const CONSTANT_B = 'B';

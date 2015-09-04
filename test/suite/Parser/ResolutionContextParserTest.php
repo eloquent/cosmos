@@ -45,16 +45,79 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
      */
     public function testParseTokens($name)
     {
+        if (is_file($this->fixturePath . '/' . $name . '/supported.php')) {
+            $isSupported = require $this->fixturePath . '/' . $name . '/supported.php';
+
+            if (!$isSupported) {
+                $this->markTestSkipped($message);
+            }
+        }
+
         $tokens = $this->tokenNormalizer
             ->normalizeTokens(token_get_all(file_get_contents($this->fixturePath . '/' . $name . '/source.php')));
         $actual = $this->subject->parseTokens($tokens);
 
-        $parsed = file_get_contents($this->fixturePath . '/' . $name . '/parsed.php');
-
+        $expectedParsed = trim(file_get_contents($this->fixturePath . '/' . $name . '/parsed.php'));
         $expectedDetails = require $this->fixturePath . '/' . $name . '/details.php';
+
+        $this->assertSame($expectedParsed, $this->renderParsedContexts($actual));
+        $this->assertEquals($expectedDetails, $this->contextDetails($actual, $tokens));
+    }
+
+    public function testInstance()
+    {
+        $class = get_class($this->subject);
+        $liberatedClass = Liberator::liberateClass($class);
+        $liberatedClass->instance = null;
+        $actual = $class::instance();
+
+        $this->assertInstanceOf($class, $actual);
+        $this->assertSame($actual, $class::instance());
+    }
+
+    private function renderParsedContexts($contexts)
+    {
+        $parsed = array();
+
+        foreach ($contexts as $context) {
+            list($context, $contextSymbols) = $context;
+
+            $parsedContext = strval($context);
+            $parsedSymbols = array();
+
+            foreach ($contextSymbols as $symbol) {
+                list($symbol, $symbolType) = $symbol;
+
+                $parsedSymbols[] = '// ' . $symbolType . ' ' . $symbol;
+            }
+
+            if ($parsedSymbols) {
+                if ($parsedContext) {
+                    $parsedContext .= "\n";
+                }
+
+                $parsedContext .= implode("\n", $parsedSymbols);
+
+                if ($parsedSymbols) {
+                    $parsedContext .= "\n";
+                }
+
+                $parsed[] = $parsedContext;
+            } else {
+                $parsed[] = strval($context);
+            }
+        }
+
+        return trim("<?php\n\n" . implode("\n// end of context\n\n", $parsed));
+    }
+
+    private function contextDetails($contexts, $tokens)
+    {
         $details = array();
 
-        foreach ($actual as $context) {
+        foreach ($contexts as $context) {
+            list($context, $contextSymbols) = $context;
+
             $contextTokens = array_slice($tokens, $context->tokenOffset, $context->tokenSize);
             $contextString = '';
 
@@ -78,25 +141,32 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
                 );
             }
 
+            $symbolDetails = array();
+
+            foreach ($contextSymbols as $symbol) {
+                list($symbol, $symbolType) = $symbol;
+
+                $symbolTokens = array_slice($tokens, $symbol->tokenOffset, $symbol->tokenSize);
+                $symbolString = '';
+
+                foreach ($symbolTokens as $token) {
+                    $symbolString .= $token[1];
+                }
+
+                $symbolDetails[] = array(
+                    array($symbol->line, $symbol->column, $symbol->offset, $symbol->size),
+                    $symbolString,
+                );
+            }
+
             $details[] = array(
                 array($context->line, $context->column, $context->offset, $context->size),
                 $contextString,
                 $statementDetails,
+                $symbolDetails,
             );
         }
 
-        $this->assertSame(trim($parsed), trim("<?php\n\n" . implode("\n//\n\n", $actual)));
-        $this->assertEquals($expectedDetails, $details);
-    }
-
-    public function testInstance()
-    {
-        $class = get_class($this->subject);
-        $liberatedClass = Liberator::liberateClass($class);
-        $liberatedClass->instance = null;
-        $actual = $class::instance();
-
-        $this->assertInstanceOf($class, $actual);
-        $this->assertSame($actual, $class::instance());
+        return $details;
     }
 }

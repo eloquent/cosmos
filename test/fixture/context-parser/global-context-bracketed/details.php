@@ -22,5 +22,31 @@ return array(
                 "use SymbolN as SymbolO, SymbolP ;"
             ),
         ),
+        array(
+            array(
+                array(10, 9, 215, 40),
+                "interface InterfaceA\n        {\n        }"
+            ),
+            array(
+                array(14, 9, 265, 40),
+                "interface InterfaceB\n        {\n        }"
+            ),
+            array(
+                array(18, 9, 315, 32),
+                "class ClassA\n        {\n        }"
+            ),
+            array(
+                array(22, 9, 357, 32),
+                "class ClassB\n        {\n        }"
+            ),
+            array(
+                array(26, 9, 399, 40),
+                "function FunctionA()\n        {\n        }"
+            ),
+            array(
+                array(30, 9, 449, 40),
+                "function FunctionB()\n        {\n        }"
+            ),
+        ),
     ),
 );

@@ -22,5 +22,6 @@ return array(
                 "use function SymbolN as SymbolO, SymbolP ;"
             ),
         ),
+        array(),
     ),
 );

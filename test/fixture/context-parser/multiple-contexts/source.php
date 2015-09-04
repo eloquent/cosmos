@@ -3,19 +3,19 @@
     use NamespaceH \ NamespaceI \ SymbolI as SymbolJ ;
     use SymbolK as SymbolL ;
 
-interface InterfaceD
-{
-}
+    interface InterfaceD
+    {
+    }
 
-class ClassD
-{
-}
+    class ClassD
+    {
+    }
 
-function FunctionD()
-{
-}
+    function FunctionD()
+    {
+    }
 
-const CONSTANT_D = 'D';
+    const CONSTANT_D = 'D';
 
     namespace NamespaceA \ NamespaceB ;
 
@@ -24,52 +24,52 @@ const CONSTANT_D = 'D';
     use namespace \ SymbolC as SymbolM ;
     use SymbolN as SymbolO, SymbolP ;
 
-interface InterfaceA
-{
-}
-
-interface InterfaceB
-{
-}
-
-class ClassA
-{
-    public function methodA()
+    interface InterfaceA
     {
-        $a = function () {};
     }
-}
 
-class ClassB
-{
-}
+    interface InterfaceB
+    {
+    }
 
-function FunctionA()
-{
-}
+    class ClassA
+    {
+        public function methodA()
+        {
+            $a = function () {};
+        }
+    }
 
-function FunctionB()
-{
-}
+    class ClassB
+    {
+    }
 
-const CONSTANT_A = 'A';
-const CONSTANT_B = 'B';
+    function FunctionA()
+    {
+    }
+
+    function FunctionB()
+    {
+    }
+
+    const CONSTANT_A = 'A';
+    const CONSTANT_B = 'B';
 
     namespace NamespaceC ;
 
     use NamespaceF \ NamespaceG \ SymbolE as SymbolF ;
     use SymbolG as SymbolH ;
 
-interface InterfaceC
-{
-}
+    interface InterfaceC
+    {
+    }
 
-class ClassC
-{
-}
+    class ClassC
+    {
+    }
 
-function FunctionC()
-{
-}
+    function FunctionC()
+    {
+    }
 
-const CONSTANT_C = 'C';
+    const CONSTANT_C = 'C';

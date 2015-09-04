@@ -7,70 +7,70 @@
         use namespace \ SymbolC as SymbolM ;
         use SymbolN as SymbolO, SymbolP ;
 
-    interface InterfaceA
-    {
-    }
+        interface InterfaceA
+        {
+        }
 
-    interface InterfaceB
-    {
-    }
+        interface InterfaceB
+        {
+        }
 
-    class ClassA
-    {
-    }
+        class ClassA
+        {
+        }
 
-    class ClassB
-    {
-    }
+        class ClassB
+        {
+        }
 
-    function FunctionA()
-    {
-    }
+        function FunctionA()
+        {
+        }
 
-    function FunctionB()
-    {
-    }
+        function FunctionB()
+        {
+        }
 
-    const CONSTANT_A = 'A';
-    const CONSTANT_B = 'B';
-}
+        const CONSTANT_A = 'A';
+        const CONSTANT_B = 'B';
+    }
 
     namespace NamespaceC
     {
         use NamespaceF \ NamespaceG \ SymbolE as SymbolF ;
         use SymbolG as SymbolH ;
 
-    interface InterfaceC
-    {
-    }
+        interface InterfaceC
+        {
+        }
 
-    class ClassC
-    {
-    }
+        class ClassC
+        {
+        }
 
-    function FunctionC()
-    {
-    }
+        function FunctionC()
+        {
+        }
 
-    const CONSTANT_C = 'C';
-}
+        const CONSTANT_C = 'C';
+    }
 
     namespace
     {
         use NamespaceH \ NamespaceI \ SymbolI as SymbolJ ;
         use SymbolK as SymbolL ;
 
-    interface InterfaceD
-    {
-    }
+        interface InterfaceD
+        {
+        }
 
-    class ClassD
-    {
-    }
+        class ClassD
+        {
+        }
 
-    function FunctionD()
-    {
-    }
+        function FunctionD()
+        {
+        }
 
-    const CONSTANT_D = 'D';
-}
+        const CONSTANT_D = 'D';
+    }
