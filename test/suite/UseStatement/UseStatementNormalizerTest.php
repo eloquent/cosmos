@@ -23,7 +23,7 @@ class UseStatementNormalizerTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->useStatementFactory = new UseStatementFactory();
-        $this->normalizer = new UseStatementNormalizer($this->useStatementFactory);
+        $this->subject = new UseStatementNormalizer($this->useStatementFactory);
     }
 
     public function testNormalizeStatements()
@@ -76,7 +76,7 @@ class UseStatementNormalizerTest extends PHPUnit_Framework_TestCase
                 'const'
             ),
         );
-        $actual = $this->normalizer->normalizeStatements($useStatements);
+        $actual = $this->subject->normalizeStatements($useStatements);
         $actual = implode("\n", array_map('strval', $actual));
         $expected = <<<'EOD'
 use SymbolA
@@ -101,7 +101,7 @@ EOD;
 
     public function testInstance()
     {
-        $class = get_class($this->normalizer);
+        $class = get_class($this->subject);
         $liberatedClass = Liberator::liberateClass($class);
         $liberatedClass->instance = null;
         $actual = $class::instance();

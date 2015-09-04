@@ -15,8 +15,10 @@ use Eloquent\Cosmos\Exception\ReadException;
 use Eloquent\Cosmos\Exception\UndefinedResolutionContextException;
 use Eloquent\Cosmos\Exception\UndefinedSymbolException;
 use Eloquent\Cosmos\Parser\ResolutionContextParser;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextFactoryInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
+use Eloquent\Cosmos\Symbol\SymbolFactory;
 use Eloquent\Cosmos\Symbol\SymbolFactoryInterface;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
 use ErrorException;
@@ -31,16 +33,21 @@ use ReflectionObject;
 class ResolutionContextReader implements ResolutionContextReaderInterface
 {
     /**
-     * Create a new symbol resolution context for the supplied object.
+     * Get a static instance of this reader.
      *
-     * @param object $object The object.
-     *
-     * @return ResolutionContextInterface The newly created resolution context.
-     * @throws ReadException              If the source code cannot be read.
+     * @return ResolutionContextReaderInterface The static reader.
      */
-    public function readFromObject($object)
+    public static function instance()
     {
-        return $this->readFromClass(new ReflectionObject($object));
+        if (null === self::$instance) {
+            self::$instance = new self(
+                ResolutionContextParser::instance(),
+                ResolutionContextFactory::instance(),
+                SymbolFactory::instance()
+            );
+        }
+
+        return self::$instance;
     }
 
     /**
@@ -77,6 +84,19 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         $this->fileGetContents = $fileGetContents;
         $this->streamGetContents = $streamGetContents;
         $this->errorGetLast = $errorGetLast;
+    }
+
+    /**
+     * Create a new symbol resolution context for the supplied object.
+     *
+     * @param object $object The object.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     * @throws ReadException              If the source code cannot be read.
+     */
+    public function readFromObject($object)
+    {
+        return $this->readFromClass(new ReflectionObject($object));
     }
 
     /**
@@ -172,7 +192,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
 
         throw new UndefinedSymbolException(
             'class',
-            $this->symbolFactory->createFromString($name),
+            $this->symbolFactory->createFromString($name)
         );
     }
 
@@ -210,7 +230,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
 
         throw new UndefinedSymbolException(
             'function',
-            $this->symbolFactory->createFromString($name),
+            $this->symbolFactory->createFromString($name)
         );
     }
 
@@ -391,6 +411,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         );
     }
 
+    private static $instance;
     private $contextParser;
     private $contextFactory;
     private $symbolFactory;
