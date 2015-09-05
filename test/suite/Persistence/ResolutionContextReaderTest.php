@@ -26,6 +26,9 @@ use PHPUnit_Framework_TestCase;
 use ReflectionClass;
 use ReflectionFunction;
 
+/**
+ * @covers \Eloquent\Cosmos\Persistence\ResolutionContextReader
+ */
 class ResolutionContextReaderTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()

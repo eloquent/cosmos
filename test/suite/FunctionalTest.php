@@ -19,6 +19,9 @@ use Eloquent\Cosmos\UseStatement\UseStatement;
 use Eloquent\Cosmos\UseStatement\UseStatementClause;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @coversNothing
+ */
 class FunctionalTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()

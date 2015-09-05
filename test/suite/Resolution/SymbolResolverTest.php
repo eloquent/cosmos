@@ -44,6 +44,7 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
             UseStatement::fromSymbol(Symbol::fromString('\VendorG\PackageG'), null, 'const'),
         );
         $this->context = new ResolutionContext($this->primaryNamespace, $this->useStatements);
+        $this->globalContext = new ResolutionContext(null, $this->useStatements);
     }
 
     public function resolveData()
@@ -52,7 +53,9 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         return array(
             'Qualified'                         => array(null,       '\VendorB\PackageB', '\VendorB\PackageB'),
             'Direct alias reference'            => array(null,       'PackageB',          '\VendorB\PackageB'),
+            'Direct alias reference plus atom'  => array(null,       'PackageB\Symbol',   '\VendorB\PackageB\Symbol'),
             'Single atom reference'             => array(null,       'Symbol',            '\VendorA\PackageA\Symbol'),
+            'Multiple atom reference'           => array(null,       'NamespaceA\Symbol', '\VendorA\PackageA\NamespaceA\Symbol'),
             'Namespace atom'                    => array(null,       'namespace\Symbol',  '\VendorA\PackageA\Symbol'),
 
             'Qualified (function)'              => array('function', '\VendorD\PackageD', '\VendorD\PackageD'),
@@ -75,6 +78,29 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
         $symbol = Symbol::fromString($symbol);
 
         $this->assertSame($expected, strval($this->subject->resolve($this->context, $symbol, $type)));
+    }
+
+    public function resolveGlobalData()
+    {
+        //                                              type  symbol               expected
+        return array(
+            'Qualified'                        => array(null, '\VendorB\PackageB', '\VendorB\PackageB'),
+            'Direct alias reference'           => array(null, 'PackageB',          '\VendorB\PackageB'),
+            'Direct alias reference plus atom' => array(null, 'PackageB\Symbol',   '\VendorB\PackageB\Symbol'),
+            'Single atom reference'            => array(null, 'Symbol',            '\Symbol'),
+            'Multiple atom reference'          => array(null, 'NamespaceA\Symbol', '\NamespaceA\Symbol'),
+            'Namespace atom'                   => array(null, 'namespace\Symbol',  '\Symbol'),
+        );
+    }
+
+    /**
+     * @dataProvider resolveGlobalData
+     */
+    public function testResolveGlobal($type, $symbol, $expected)
+    {
+        $symbol = Symbol::fromString($symbol);
+
+        $this->assertSame($expected, strval($this->subject->resolve($this->globalContext, $symbol, $type)));
     }
 
     public function testResolveFunctionFallback()
