@@ -23,6 +23,8 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
     /**
      * Get a static instance of this factory.
      *
+     * @api
+     *
      * @return ResolutionContextFactoryInterface The static factory.
      */
     public static function instance()

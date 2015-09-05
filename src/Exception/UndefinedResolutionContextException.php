@@ -15,6 +15,8 @@ use Exception;
 
 /**
  * The requested resolution context is undefined.
+ *
+ * @api
  */
 final class UndefinedResolutionContextException extends Exception
 {
@@ -49,6 +51,8 @@ final class UndefinedResolutionContextException extends Exception
     /**
      * Get the specified index.
      *
+     * @api
+     *
      * @return interger The index.
      */
     public function index()
@@ -58,6 +62,8 @@ final class UndefinedResolutionContextException extends Exception
 
     /**
      * Get the path.
+     *
+     * @api
      *
      * @return string|null The path, if known.
      */

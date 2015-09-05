@@ -16,6 +16,8 @@ use Exception;
 
 /**
  * The specified symbol is undefined.
+ *
+ * @api
  */
 final class UndefinedSymbolException extends Exception
 {
@@ -48,6 +50,8 @@ final class UndefinedSymbolException extends Exception
     /**
      * Get the undefined symbol type.
      *
+     * @api
+     *
      * @return string The type.
      */
     public function type()
@@ -57,6 +61,8 @@ final class UndefinedSymbolException extends Exception
 
     /**
      * Get the undefined symbol.
+     *
+     * @api
      *
      * @return SymbolInterface The symbol.
      */

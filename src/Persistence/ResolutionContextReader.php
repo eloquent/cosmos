@@ -30,11 +30,15 @@ use ReflectionObject;
 
 /**
  * Reads resolution contexts from various sources.
+ *
+ * @api
  */
 class ResolutionContextReader implements ResolutionContextReaderInterface
 {
     /**
      * Get a static instance of this reader.
+     *
+     * @api
      *
      * @return ResolutionContextReaderInterface The static reader.
      */
@@ -54,6 +58,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
 
     /**
      * Construct a new resolution context reader.
+     *
+     * @api
      *
      * @param TokenNormalizer                   $tokenNormalizer The token normalizer.
      * @param ResolutionContextParser           $contextParser   The resolution context parser.
@@ -75,6 +81,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create a new symbol resolution context for the supplied object.
      *
+     * @api
+     *
      * @param object $object The object.
      *
      * @return ResolutionContextInterface The newly created resolution context.
@@ -88,6 +96,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create a new symbol resolution context for the supplied class, interface,
      * or trait symbol.
+     *
+     * @api
      *
      * @param SymbolInterface|string $symbol The symbol.
      *
@@ -117,6 +127,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create a new symbol resolution context for the supplied function symbol.
      *
+     * @api
+     *
      * @param SymbolInterface|string $symbol The symbol.
      *
      * @return ResolutionContextInterface The newly created resolution context.
@@ -145,6 +157,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create a new symbol resolution context for the supplied class or object
      * reflector.
+     *
+     * @api
      *
      * @param ReflectionClass $class The class or object reflector.
      *
@@ -186,6 +200,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
      * Create a new symbol resolution context for the supplied function
      * reflector.
      *
+     * @api
+     *
      * @param ReflectionFunction $function The function reflector.
      *
      * @return ResolutionContextInterface The newly created resolution context.
@@ -223,6 +239,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Create the first context found in a file.
      *
+     * @api
+     *
      * @param string $path The path.
      *
      * @return ResolutionContextInterface The newly created resolution context.
@@ -235,6 +253,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
 
     /**
      * Create the context found at the specified index in a file.
+     *
+     * @api
      *
      * @param string  $path  The path.
      * @param integer $index The index.
@@ -257,6 +277,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
 
     /**
      * Create the context found at the specified position in a file.
+     *
+     * @api
      *
      * @param string  $path   The path.
      * @param integer $line   The line.
@@ -285,7 +307,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         }
 
         if (!$seen) {
-            return array_pop($contexts);
+            return \array_pop($contexts);
         }
 
         if ($index < 1) {
@@ -297,6 +319,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
 
     /**
      * Create the first context found in a stream.
+     *
+     * @api
      *
      * @param stream      $stream The stream.
      * @param string|null $path   The path, if known.
@@ -311,6 +335,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
 
     /**
      * Create the context found at the specified index in a stream.
+     *
+     * @api
      *
      * @param stream      $stream The stream.
      * @param integer     $index  The index.
@@ -334,6 +360,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
 
     /**
      * Create the context found at the specified position in a stream.
+     *
+     * @api
      *
      * @param stream      $stream The stream.
      * @param integer     $line   The line.
@@ -367,7 +395,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         }
 
         if (!$seen) {
-            return array_pop($contexts);
+            return \array_pop($contexts);
         }
 
         if ($index < 1) {

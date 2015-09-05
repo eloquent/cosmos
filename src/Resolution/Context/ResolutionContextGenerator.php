@@ -27,6 +27,8 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
     /**
      * Get a static instance of this generator.
      *
+     * @api
+     *
      * @return ResolutionContextGeneratorInterface The static generator.
      */
     public static function instance()
@@ -44,6 +46,8 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
 
     /**
      * Construct a new resolution context generator.
+     *
+     * @api
      *
      * @param ResolutionContextFactoryInterface $contextFactory         The resolution context factory to use.
      * @param UseStatementFactoryInterface      $useStatementFactory    The use statement factory to use.

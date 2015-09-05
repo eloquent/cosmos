@@ -24,6 +24,8 @@ class UseStatementFactory implements UseStatementFactoryInterface
     /**
      * Get a static instance of this factory.
      *
+     * @api
+     *
      * @return UseStatementFactoryInterface The static factory.
      */
     public static function instance()

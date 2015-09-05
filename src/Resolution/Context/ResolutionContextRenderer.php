@@ -13,11 +13,15 @@ namespace Eloquent\Cosmos\Resolution\Context;
 
 /**
  * Renders resolution contexts using standard PHP syntax.
+ *
+ * @api
  */
 class ResolutionContextRenderer implements ResolutionContextRendererInterface
 {
     /**
      * Get a static instance of this renderer.
+     *
+     * @api
      *
      * @return ResolutionContextRendererInterface The static renderer.
      */
@@ -31,6 +35,8 @@ class ResolutionContextRenderer implements ResolutionContextRendererInterface
     }
     /**
      * Render a symbol resolution context.
+     *
+     * @api
      *
      * @param ResolutionContextInterface $context The context to render.
      *

@@ -21,6 +21,8 @@ class UseStatementNormalizer implements UseStatementNormalizerInterface
     /**
      * Get a static instance of this normalizer.
      *
+     * @api
+     *
      * @return UseStatementNormalizerInterface The static normalizer.
      */
     public static function instance()
@@ -34,6 +36,8 @@ class UseStatementNormalizer implements UseStatementNormalizerInterface
 
     /**
      * Construct a new use statement normalizer.
+     *
+     * @api
      *
      * @param UseStatementFactoryInterface $useStatementFactory The use statement factory to use.
      */

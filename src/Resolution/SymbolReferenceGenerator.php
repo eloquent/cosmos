@@ -26,6 +26,8 @@ class SymbolReferenceGenerator implements SymbolReferenceGeneratorInterface
     /**
      * Get a static instance of this generator.
      *
+     * @api
+     *
      * @return SymbolReferenceGeneratorInterface The static generator.
      */
     public static function instance()
@@ -39,6 +41,8 @@ class SymbolReferenceGenerator implements SymbolReferenceGeneratorInterface
 
     /**
      * Construct a new symbol resolver.
+     *
+     * @api
      *
      * @param SymbolFactoryInterface $symbolFactory The symbol factory to use.
      */

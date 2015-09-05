@@ -15,6 +15,8 @@ use Exception;
 
 /**
  * Unable to write to a file or stream.
+ *
+ * @api
  */
 final class WriteException extends Exception implements IoExceptionInterface
 {
@@ -42,6 +44,8 @@ final class WriteException extends Exception implements IoExceptionInterface
 
     /**
      * Get the path.
+     *
+     * @api
      *
      * @return string|null The path, if known.
      */

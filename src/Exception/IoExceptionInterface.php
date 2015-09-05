@@ -13,11 +13,15 @@ namespace Eloquent\Cosmos\Exception;
 
 /**
  * The interface implemented by I/O exceptions.
+ *
+ * @api
  */
 interface IoExceptionInterface
 {
     /**
      * Get the path.
+     *
+     * @api
      *
      * @return string|null The path, if known.
      */

@@ -26,6 +26,8 @@ class SymbolResolver implements SymbolResolverInterface
     /**
      * Get a static instance of this resolver.
      *
+     * @api
+     *
      * @return SymbolResolverInterface The static resolver.
      */
     public static function instance()
@@ -39,6 +41,8 @@ class SymbolResolver implements SymbolResolverInterface
 
     /**
      * Construct a new symbol resolver.
+     *
+     * @api
      *
      * @param SymbolFactoryInterface $symbolFactory The symbol factory to use.
      */

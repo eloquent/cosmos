@@ -21,11 +21,15 @@ use ReflectionFunction;
 
 /**
  * The interface implemented by symbol resolution context readers.
+ *
+ * @api
  */
 interface ResolutionContextReaderInterface
 {
     /**
      * Create a new symbol resolution context for the supplied object.
+     *
+     * @api
      *
      * @param object $object The object.
      *
@@ -38,6 +42,8 @@ interface ResolutionContextReaderInterface
      * Create a new symbol resolution context for the supplied class, interface,
      * or trait symbol.
      *
+     * @api
+     *
      * @param SymbolInterface|string $symbol The symbol.
      *
      * @return ResolutionContextInterface The newly created resolution context.
@@ -48,6 +54,8 @@ interface ResolutionContextReaderInterface
 
     /**
      * Create a new symbol resolution context for the supplied function symbol.
+     *
+     * @api
      *
      * @param SymbolInterface|string $symbol The symbol.
      *
@@ -61,6 +69,8 @@ interface ResolutionContextReaderInterface
      * Create a new symbol resolution context for the supplied class or object
      * reflector.
      *
+     * @api
+     *
      * @param ReflectionClass $class The class or object reflector.
      *
      * @return ResolutionContextInterface The newly created resolution context.
@@ -73,6 +83,8 @@ interface ResolutionContextReaderInterface
      * Create a new symbol resolution context for the supplied function
      * reflector.
      *
+     * @api
+     *
      * @param ReflectionFunction $function The function reflector.
      *
      * @return ResolutionContextInterface The newly created resolution context.
@@ -84,6 +96,8 @@ interface ResolutionContextReaderInterface
     /**
      * Create the first context found in a file.
      *
+     * @api
+     *
      * @param string $path The path.
      *
      * @return ResolutionContextInterface The newly created resolution context.
@@ -93,6 +107,8 @@ interface ResolutionContextReaderInterface
 
     /**
      * Create the context found at the specified index in a file.
+     *
+     * @api
      *
      * @param string  $path  The path.
      * @param integer $index The index.
@@ -106,6 +122,8 @@ interface ResolutionContextReaderInterface
     /**
      * Create the context found at the specified position in a file.
      *
+     * @api
+     *
      * @param string  $path   The path.
      * @param integer $line   The line.
      * @param integer $column The column.
@@ -118,6 +136,8 @@ interface ResolutionContextReaderInterface
     /**
      * Create the first context found in a stream.
      *
+     * @api
+     *
      * @param stream      $stream The stream.
      * @param string|null $path   The path, if known.
      *
@@ -128,6 +148,8 @@ interface ResolutionContextReaderInterface
 
     /**
      * Create the context found at the specified index in a stream.
+     *
+     * @api
      *
      * @param stream      $stream The stream.
      * @param integer     $index  The index.
@@ -141,6 +163,8 @@ interface ResolutionContextReaderInterface
 
     /**
      * Create the context found at the specified position in a stream.
+     *
+     * @api
      *
      * @param stream      $stream The stream.
      * @param integer     $line   The line.

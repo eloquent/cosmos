@@ -26,6 +26,8 @@ class ConstantSymbolResolver implements SymbolResolverInterface
     /**
      * Get a static instance of this resolver.
      *
+     * @api
+     *
      * @return SymbolResolverInterface The static resolver.
      */
     public static function instance()
@@ -39,6 +41,8 @@ class ConstantSymbolResolver implements SymbolResolverInterface
 
     /**
      * Construct a new constant symbol resolver.
+     *
+     * @api
      *
      * @param SymbolFactoryInterface $symbolFactory    The symbol factory to use.
      * @param callable               $constantResolver The callback to use when determining if a constant exists.

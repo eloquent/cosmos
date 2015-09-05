@@ -25,6 +25,8 @@ class SymbolFactory implements SymbolFactoryInterface
     /**
      * Get a static instance of this factory.
      *
+     * @api
+     *
      * @return SymbolFactoryInterface The static factory.
      */
     public static function instance()
@@ -105,6 +107,8 @@ class SymbolFactory implements SymbolFactoryInterface
     /**
      * Get the class name of the supplied object.
      *
+     * @api
+     *
      * @param object $object The object.
      *
      * @return SymbolInterface The newly created symbol.
@@ -117,6 +121,8 @@ class SymbolFactory implements SymbolFactoryInterface
     /**
      * Get the class name of the supplied class or object reflector.
      *
+     * @api
+     *
      * @param ReflectionClass $class The class or object reflector.
      *
      * @return SymbolInterface The newly created symbol.
@@ -128,6 +134,8 @@ class SymbolFactory implements SymbolFactoryInterface
 
     /**
      * Get the function name of the supplied function reflector.
+     *
+     * @api
      *
      * @param ReflectionFunction $function The function reflector.
      *

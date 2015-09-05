@@ -13,11 +13,15 @@ namespace Eloquent\Cosmos\Resolution\Context;
 
 /**
  * The interface implemented by symbol resolution context renderers.
+ *
+ * @api
  */
 interface ResolutionContextRendererInterface
 {
     /**
      * Render a symbol resolution context.
+     *
+     * @api
      *
      * @param ResolutionContextInterface $context The context to render.
      *

@@ -15,6 +15,8 @@ use Exception;
 
 /**
  * The supplied symbol atom contains invalid characters.
+ *
+ * @api
  */
 final class InvalidSymbolAtomException extends Exception
 {
@@ -37,6 +39,8 @@ final class InvalidSymbolAtomException extends Exception
 
     /**
      * Get the atom.
+     *
+     * @api
      *
      * @return string The atom.
      */
