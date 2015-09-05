@@ -270,8 +270,7 @@ EOD;
     {
         $this->setExpectedException(
             'Eloquent\Cosmos\Exception\UndefinedResolutionContextException',
-            "No resolution context defined at index 3 in file " .
-                "'/Users/erin/Projects/eloquent/cosmos/test/fixture/context-reader/contexts.php'."
+            "No resolution context defined at index 3 in file '"
         );
         $this->subject->readFromFileByIndex($this->fixturePath, 3);
     }
@@ -360,7 +359,7 @@ EOD;
     {
         $this->setExpectedException(
             'Eloquent\Cosmos\Exception\UndefinedResolutionContextException',
-            "No resolution context defined at index 3."
+            'No resolution context defined at index 3.'
         );
         $this->subject->readFromStreamByIndex($this->fixtureStream, 3);
     }
@@ -416,7 +415,7 @@ EOD;
     public function testReadFromStreamByPositionFailureRead()
     {
         $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException', 'Unable to read from stream.');
-        $this->subject->readFromStreamByPosition('' , 1);
+        $this->subject->readFromStreamByPosition('', 1);
     }
 
     public function testInstance()

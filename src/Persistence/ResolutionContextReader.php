@@ -55,10 +55,10 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Construct a new resolution context reader.
      *
-     * @param TokenNormalizer                   $tokenNormalizer   The token normalizer.
-     * @param ResolutionContextParser           $contextParser     The resolution context parser.
-     * @param ResolutionContextFactoryInterface $contextFactory    The resolution context factory.
-     * @param SymbolFactoryInterface            $symbolFactory     The symbol factory.
+     * @param TokenNormalizer                   $tokenNormalizer The token normalizer.
+     * @param ResolutionContextParser           $contextParser   The resolution context parser.
+     * @param ResolutionContextFactoryInterface $contextFactory  The resolution context factory.
+     * @param SymbolFactoryInterface            $symbolFactory   The symbol factory.
      */
     public function __construct(
         TokenNormalizer $tokenNormalizer,
@@ -422,7 +422,6 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         }
 
         return null; // @codeCoverageIgnore
-
     }
 
     private static $instance;
