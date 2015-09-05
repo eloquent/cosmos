@@ -13,6 +13,8 @@ namespace Eloquent\Cosmos\Symbol;
 
 use Eloquent\Cosmos\Exception\InvalidSymbolAtomException;
 use InvalidArgumentException;
+use ReflectionClass;
+use ReflectionFunction;
 
 /**
  * Represents a symbol.
@@ -33,7 +35,15 @@ class Symbol implements SymbolInterface
      */
     public static function fromString($symbol)
     {
-        return SymbolFactory::instance()->createFromString($symbol);
+        $atoms = \explode('\\', $symbol);
+        $isQualified = false;
+
+        if (\count($atoms) > 1 && '' === $atoms[0]) {
+            \array_shift($atoms);
+            $isQualified = true;
+        }
+
+        return new self($atoms, $isQualified);
     }
 
     /**
@@ -52,7 +62,13 @@ class Symbol implements SymbolInterface
      */
     public static function fromRuntimeString($symbol)
     {
-        return SymbolFactory::instance()->createFromRuntimeString($symbol);
+        $atoms = \explode('\\', $symbol);
+
+        if (\count($atoms) > 1 && '' === $atoms[0]) {
+            \array_shift($atoms);
+        }
+
+        return new self($atoms, true);
     }
 
     /**
@@ -70,7 +86,43 @@ class Symbol implements SymbolInterface
      */
     public static function fromAtoms(array $atoms, $isQualified = true)
     {
-        return SymbolFactory::instance()->createFromAtoms($atoms, $isQualified);
+        return new self($atoms, $isQualified);
+    }
+
+    /**
+     * Get the class name of the supplied object.
+     *
+     * @param object $object The object.
+     *
+     * @return SymbolInterface The newly created symbol.
+     */
+    public static function fromObject($object)
+    {
+        return new self(\explode('\\', \get_class($object)), true);
+    }
+
+    /**
+     * Get the class name of the supplied class or object reflector.
+     *
+     * @param ReflectionClass $class The class or object reflector.
+     *
+     * @return SymbolInterface The newly created symbol.
+     */
+    public static function fromClass(ReflectionClass $class)
+    {
+        return new self(\explode('\\', $class->getName()), true);
+    }
+
+    /**
+     * Get the function name of the supplied function reflector.
+     *
+     * @param ReflectionFunction $function The function reflector.
+     *
+     * @return SymbolInterface The newly created symbol.
+     */
+    public static function fromFunction(ReflectionFunction $function)
+    {
+        return new self(\explode('\\', $function->getName()), true);
     }
 
     /**

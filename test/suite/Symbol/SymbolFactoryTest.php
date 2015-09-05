@@ -13,6 +13,8 @@ namespace Eloquent\Cosmos\Symbol;
 
 use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
+use ReflectionClass;
+use ReflectionFunction;
 
 /**
  * @covers \Eloquent\Cosmos\Symbol\SymbolFactory
@@ -71,6 +73,28 @@ class SymbolFactoryTest extends PHPUnit_Framework_TestCase
         $symbol = $this->subject->createFromAtoms(array('Atom'));
 
         $this->assertTrue($symbol->isQualified());
+    }
+
+    public function testCreateFromObject()
+    {
+        $this->assertSame(
+            '\Eloquent\Cosmos\Symbol\SymbolFactory',
+            strval($this->subject->createFromObject($this->subject))
+        );
+    }
+
+    public function testCreateFromClass()
+    {
+        $class = new ReflectionClass('Eloquent\Cosmos\Symbol\SymbolFactory');
+
+        $this->assertSame('\Eloquent\Cosmos\Symbol\SymbolFactory', strval($this->subject->createFromClass($class)));
+    }
+
+    public function testCreateFromFunction()
+    {
+        $function = new ReflectionFunction('printf');
+
+        $this->assertSame('\printf', strval($this->subject->createFromFunction($function)));
     }
 
     public function testInstance()

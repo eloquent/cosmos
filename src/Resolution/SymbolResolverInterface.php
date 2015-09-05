@@ -24,19 +24,15 @@ interface SymbolResolverInterface
     /**
      * Resolve a symbol against a resolution context.
      *
-     * Symbols that are already qualified will be returned unaltered.
-     *
      * @api
      *
      * @param ResolutionContextInterface $context The resolution context.
      * @param SymbolInterface            $symbol  The symbol to resolve.
-     * @param string|null                $type    The symbol type.
      *
      * @return SymbolInterface The resolved, qualified symbol.
      */
     public function resolve(
         ResolutionContextInterface $context,
-        SymbolInterface $symbol,
-        $type = null
+        SymbolInterface $symbol
     );
 }

@@ -17,11 +17,11 @@ use Eloquent\Cosmos\Symbol\SymbolFactoryInterface;
 use Eloquent\Cosmos\Symbol\SymbolInterface;
 
 /**
- * Resolves type symbols into qualified symbols.
+ * Resolves constant symbols into qualified symbols.
  *
  * @api
  */
-class SymbolResolver implements SymbolResolverInterface
+class ConstantSymbolResolver implements SymbolResolverInterface
 {
     /**
      * Get a static instance of this resolver.
@@ -38,13 +38,17 @@ class SymbolResolver implements SymbolResolverInterface
     }
 
     /**
-     * Construct a new symbol resolver.
+     * Construct a new constant symbol resolver.
      *
-     * @param SymbolFactoryInterface $symbolFactory The symbol factory to use.
+     * @param SymbolFactoryInterface $symbolFactory    The symbol factory to use.
+     * @param callable               $constantResolver The callback to use when determining if a constant exists.
      */
-    public function __construct(SymbolFactoryInterface $symbolFactory)
-    {
+    public function __construct(
+        SymbolFactoryInterface $symbolFactory,
+        $constantResolver = 'defined'
+    ) {
         $this->symbolFactory = $symbolFactory;
+        $this->constantResolver = $constantResolver;
     }
 
     /**
@@ -101,15 +105,18 @@ class SymbolResolver implements SymbolResolverInterface
             return $this->symbolFactory->createFromAtoms($atoms, true);
         }
 
-        if ($parent = $context->symbolByAtom($atoms[0], null)) {
+        if ($parent = $context->symbolByAtom($atoms[0], 'const')) {
             return $parent;
         }
 
         if ($namespace = $context->primaryNamespace()) {
-            return $this->symbolFactory->createFromAtoms(
-                \array_merge($namespace->atoms(), $atoms),
-                true
-            );
+            $callback = $this->constantResolver;
+            $namespaceSymbolAtoms = \array_merge($namespace->atoms(), $atoms);
+
+            if ($callback(\implode('\\', $namespaceSymbolAtoms))) {
+                return $this->symbolFactory
+                    ->createFromAtoms($namespaceSymbolAtoms, true);
+            }
         }
 
         return $this->symbolFactory->createFromAtoms($atoms, true);
@@ -117,4 +124,5 @@ class SymbolResolver implements SymbolResolverInterface
 
     private static $instance;
     private $symbolFactory;
+    private $constantResolver;
 }

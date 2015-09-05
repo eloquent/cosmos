@@ -12,6 +12,8 @@
 namespace Eloquent\Cosmos\Symbol;
 
 use PHPUnit_Framework_TestCase;
+use ReflectionClass;
+use ReflectionFunction;
 
 /**
  * @covers \Eloquent\Cosmos\Symbol\Symbol
@@ -65,6 +67,25 @@ class SymbolTest extends PHPUnit_Framework_TestCase
         $symbol = Symbol::fromAtoms(array('Atom'));
 
         $this->assertTrue($symbol->isQualified());
+    }
+
+    public function testFromObject()
+    {
+        $this->assertSame('\Eloquent\Cosmos\Symbol\SymbolTest', strval(Symbol::fromObject($this)));
+    }
+
+    public function testFromClass()
+    {
+        $class = new ReflectionClass('Eloquent\Cosmos\Symbol\Symbol');
+
+        $this->assertSame('\Eloquent\Cosmos\Symbol\Symbol', strval(Symbol::fromClass($class)));
+    }
+
+    public function testFromFunction()
+    {
+        $function = new ReflectionFunction('printf');
+
+        $this->assertSame('\printf', strval(Symbol::fromFunction($function)));
     }
 
     public function testConstructorFailureEmpty()

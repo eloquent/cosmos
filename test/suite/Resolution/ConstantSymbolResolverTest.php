@@ -19,14 +19,17 @@ use Eloquent\Liberator\Liberator;
 use PHPUnit_Framework_TestCase;
 
 /**
- * @covers \Eloquent\Cosmos\Resolution\SymbolResolver
+ * @covers \Eloquent\Cosmos\Resolution\ConstantSymbolResolver
  */
-class SymbolResolverTest extends PHPUnit_Framework_TestCase
+class ConstantSymbolResolverTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
     {
         $this->symbolFactory = new SymbolFactory();
-        $this->subject = new SymbolResolver($this->symbolFactory);
+        $this->constantResolver = function () {
+            return true;
+        };
+        $this->subject = new ConstantSymbolResolver($this->symbolFactory, $this->constantResolver);
 
         $this->primaryNamespace = Symbol::fromString('\VendorA\PackageA');
         $this->useStatements = array(
@@ -45,8 +48,8 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     {
         //                                              symbol               expected
         return array(
-            'Qualified'                        => array('\VendorB\PackageB', '\VendorB\PackageB'),
-            'Direct alias reference'           => array('PackageB',          '\VendorB\PackageB'),
+            'Qualified'                        => array('\VendorF\PackageF', '\VendorF\PackageF'),
+            'Direct alias reference'           => array('PackageF',          '\VendorF\PackageF'),
             'Direct alias reference plus atom' => array('PackageB\Symbol',   '\VendorB\PackageB\Symbol'),
             'Single atom reference'            => array('Symbol',            '\VendorA\PackageA\Symbol'),
             'Multiple atom reference'          => array('NamespaceA\Symbol', '\VendorA\PackageA\NamespaceA\Symbol'),
@@ -66,8 +69,8 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
     {
         //                                              symbol               expected
         return array(
-            'Qualified'                        => array('\VendorB\PackageB', '\VendorB\PackageB'),
-            'Direct alias reference'           => array('PackageB',          '\VendorB\PackageB'),
+            'Qualified'                        => array('\VendorF\PackageF', '\VendorF\PackageF'),
+            'Direct alias reference'           => array('PackageF',          '\VendorF\PackageF'),
             'Direct alias reference plus atom' => array('PackageB\Symbol',   '\VendorB\PackageB\Symbol'),
             'Single atom reference'            => array('Symbol',            '\Symbol'),
             'Multiple atom reference'          => array('NamespaceA\Symbol', '\NamespaceA\Symbol'),
@@ -84,6 +87,17 @@ class SymbolResolverTest extends PHPUnit_Framework_TestCase
             $expected,
             strval($this->subject->resolve($this->globalContext, Symbol::fromString($symbol)))
         );
+    }
+
+    public function testResolveGlobalFallback()
+    {
+        $this->constantResolver = function () {
+            return false;
+        };
+        $this->subject = new ConstantSymbolResolver($this->symbolFactory, $this->constantResolver);
+        $symbol = Symbol::fromString('Symbol');
+
+        $this->assertSame('\Symbol', strval($this->subject->resolve($this->context, $symbol)));
     }
 
     public function testInstance()

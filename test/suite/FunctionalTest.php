@@ -11,7 +11,9 @@
 
 namespace Eloquent\Cosmos;
 
+use Eloquent\Cosmos\Resolution\ConstantSymbolResolver;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextFactory;
+use Eloquent\Cosmos\Resolution\FunctionSymbolResolver;
 use Eloquent\Cosmos\Resolution\SymbolResolver;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\Symbol\SymbolFactory;
@@ -29,6 +31,8 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         $this->contextFactory = ResolutionContextFactory::instance();
         $this->symbolFactory = SymbolFactory::instance();
         $this->resolver = SymbolResolver::instance();
+        $this->functionResolver = FunctionSymbolResolver::instance();
+        $this->constantResolver = ConstantSymbolResolver::instance();
     }
 
     /**
@@ -67,12 +71,13 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         $constantResolver = function ($constantName) {
             return 'Foo\Bar\FOO' === $constantName;
         };
-        $this->resolver = new SymbolResolver($this->symbolFactory, $functionResolver, $constantResolver);
+        $this->functionResolver = new FunctionSymbolResolver($this->symbolFactory, $functionResolver);
+        $this->constantResolver = new ConstantSymbolResolver($this->symbolFactory, $constantResolver);
         $context = $this->contextFactory->createContext(Symbol::fromString('\Foo\Bar'));
 
         $this->assertSame(
             '\Foo\Bar\foo',
-            strval($this->resolver->resolve($context, Symbol::fromString('foo'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('foo')))
         );
         $this->assertSame(
             '\Foo\Bar\foo',
@@ -80,11 +85,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\Foo\Bar\FOO',
-            strval($this->resolver->resolve($context, Symbol::fromString('FOO'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('FOO')))
         );
         $this->assertSame(
             '\Foo\Bar\subnamespace\foo',
-            strval($this->resolver->resolve($context, Symbol::fromString('subnamespace\foo'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('subnamespace\foo')))
         );
         $this->assertSame(
             '\Foo\Bar\subnamespace\foo',
@@ -92,11 +97,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\Foo\Bar\subnamespace\FOO',
-            strval($this->resolver->resolve($context, Symbol::fromString('subnamespace\FOO'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('subnamespace\FOO')))
         );
         $this->assertSame(
             '\Foo\Bar\foo',
-            strval($this->resolver->resolve($context, Symbol::fromString('\Foo\Bar\foo'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('\Foo\Bar\foo')))
         );
         $this->assertSame(
             '\Foo\Bar\foo',
@@ -104,7 +109,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\Foo\Bar\FOO',
-            strval($this->resolver->resolve($context, Symbol::fromString('\Foo\Bar\FOO'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('\Foo\Bar\FOO')))
         );
     }
 
@@ -121,11 +126,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(
             '\strlen',
-            strval($this->resolver->resolve($context, Symbol::fromString('\strlen'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('\strlen')))
         );
         $this->assertSame(
             '\INI_ALL',
-            strval($this->resolver->resolve($context, Symbol::fromString('\INI_ALL'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('\INI_ALL')))
         );
         $this->assertSame(
             '\Exception',
@@ -149,19 +154,19 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(
             '\MyProject\blah\mine',
-            strval($this->resolver->resolve($context, Symbol::fromString('blah\mine'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('blah\mine')))
         );
         $this->assertSame(
             '\MyProject\blah\mine',
-            strval($this->resolver->resolve($context, Symbol::fromString('namespace\blah\mine'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('namespace\blah\mine')))
         );
         $this->assertSame(
             '\MyProject\func',
-            strval($this->resolver->resolve($context, Symbol::fromString('namespace\func'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('namespace\func')))
         );
         $this->assertSame(
             '\MyProject\sub\func',
-            strval($this->resolver->resolve($context, Symbol::fromString('namespace\sub\func'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('namespace\sub\func')))
         );
         $this->assertSame(
             '\MyProject\cname',
@@ -173,7 +178,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\MyProject\CONSTANT',
-            strval($this->resolver->resolve($context, Symbol::fromString('namespace\CONSTANT'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('namespace\CONSTANT')))
         );
     }
 
@@ -190,11 +195,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(
             '\func',
-            strval($this->resolver->resolve($context, Symbol::fromString('namespace\func'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('namespace\func')))
         );
         $this->assertSame(
             '\sub\func',
-            strval($this->resolver->resolve($context, Symbol::fromString('namespace\sub\func'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('namespace\sub\func')))
         );
         $this->assertSame(
             '\cname',
@@ -206,7 +211,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\CONSTANT',
-            strval($this->resolver->resolve($context, Symbol::fromString('namespace\CONSTANT'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('namespace\CONSTANT')))
         );
     }
 
@@ -241,7 +246,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\My\Full\NSname\subns\func',
-            strval($this->resolver->resolve($context, Symbol::fromString('NSname\subns\func'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('NSname\subns\func')))
         );
         $this->assertSame(
             '\ArrayObject',
@@ -249,11 +254,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\My\Full\functionName',
-            strval($this->resolver->resolve($context, Symbol::fromString('func'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('func')))
         );
         $this->assertSame(
             '\My\Full\CONSTANT',
-            strval($this->resolver->resolve($context, Symbol::fromString('CONSTANT'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('CONSTANT')))
         );
     }
 
@@ -284,7 +289,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\My\Full\NSname\subns\func',
-            strval($this->resolver->resolve($context, Symbol::fromString('NSname\subns\func'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('NSname\subns\func')))
         );
     }
 
@@ -340,7 +345,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(
             '\fopen',
-            strval($this->resolver->resolve($context, Symbol::fromString('\fopen'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('\fopen')))
         );
     }
 
@@ -384,16 +389,17 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         $constantResolver = function ($constantName) {
             return 'A\B\C\E_ERROR' === $constantName;
         };
-        $this->resolver = new SymbolResolver($this->symbolFactory, $functionResolver, $constantResolver);
+        $this->functionResolver = new FunctionSymbolResolver($this->symbolFactory, $functionResolver);
+        $this->constantResolver = new ConstantSymbolResolver($this->symbolFactory, $constantResolver);
         $context = $this->contextFactory->createContext(Symbol::fromString('\A\B\C'));
 
         $this->assertSame(
             '\A\B\C\E_ERROR',
-            strval($this->resolver->resolve($context, Symbol::fromString('E_ERROR'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('E_ERROR')))
         );
         $this->assertSame(
             '\INI_ALL',
-            strval($this->resolver->resolve($context, Symbol::fromString('INI_ALL'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('INI_ALL')))
         );
     }
 
@@ -412,7 +418,8 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         $constantResolver = function ($constantName) {
             return true;
         };
-        $this->resolver = new SymbolResolver($this->symbolFactory, $functionResolver, $constantResolver);
+        $this->functionResolver = new FunctionSymbolResolver($this->symbolFactory, $functionResolver);
+        $this->constantResolver = new ConstantSymbolResolver($this->symbolFactory, $constantResolver);
         $context = $this->contextFactory->createContext(
             Symbol::fromString('\A'),
             array(
@@ -428,19 +435,19 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         // function calls
         $this->assertSame(
             '\A\foo',
-            strval($this->resolver->resolve($context, Symbol::fromString('foo'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('foo')))
         );
         $this->assertSame(
             '\foo',
-            strval($this->resolver->resolve($context, Symbol::fromString('\foo'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('\foo')))
         );
         $this->assertSame(
             '\A\my\foo',
-            strval($this->resolver->resolve($context, Symbol::fromString('my\foo'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('my\foo')))
         );
         $this->assertSame(
             '\A\F',
-            strval($this->resolver->resolve($context, Symbol::fromString('F'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('F')))
         );
 
         // class references
@@ -472,7 +479,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         // static methods/namespace functions from another namespace
         $this->assertSame(
             '\A\B\foo',
-            strval($this->resolver->resolve($context, Symbol::fromString('B\foo'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('B\foo')))
         );
         $this->assertSame(
             '\A\B',
@@ -484,7 +491,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\B\foo',
-            strval($this->resolver->resolve($context, Symbol::fromString('\B\foo'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('\B\foo')))
         );
         $this->assertSame(
             '\B',
@@ -577,11 +584,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\globalfunc',
-            strval($this->resolver->resolve($context, Symbol::fromString('\globalfunc'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('\globalfunc')))
         );
         $this->assertSame(
             '\INI_ALL',
-            strval($this->resolver->resolve($context, Symbol::fromString('\INI_ALL'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('\INI_ALL')))
         );
     }
 
@@ -602,11 +609,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\strlen',
-            strval($this->resolver->resolve($context, Symbol::fromString('\strlen'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('\strlen')))
         );
         $this->assertSame(
             '\INI_ALL',
-            strval($this->resolver->resolve($context, Symbol::fromString('\INI_ALL'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('\INI_ALL')))
         );
     }
 
@@ -636,11 +643,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         );
         $this->assertSame(
             '\foo\my\bar',
-            strval($this->resolver->resolve($context, Symbol::fromString('my\bar'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('my\bar')))
         );
         $this->assertSame(
             '\foo\my\BAR',
-            strval($this->resolver->resolve($context, Symbol::fromString('my\BAR'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('my\BAR')))
         );
     }
 
@@ -685,7 +692,8 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         $constantResolver = function ($constantName) {
             return 'foo\FOO' === $constantName;
         };
-        $this->resolver = new SymbolResolver($this->symbolFactory, $functionResolver, $constantResolver);
+        $this->functionResolver = new FunctionSymbolResolver($this->symbolFactory, $functionResolver);
+        $this->constantResolver = new ConstantSymbolResolver($this->symbolFactory, $constantResolver);
         $context = $this->contextFactory->createContext(
             Symbol::fromString('\foo'),
             array(
@@ -695,31 +703,31 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(
             '\sort',
-            strval($this->resolver->resolve($context, Symbol::fromString('\sort'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('\sort')))
         );
         $this->assertSame(
             '\foo\my',
-            strval($this->resolver->resolve($context, Symbol::fromString('my'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('my')))
         );
         $this->assertSame(
             '\strlen',
-            strval($this->resolver->resolve($context, Symbol::fromString('strlen'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('strlen')))
         );
         $this->assertSame(
             '\foo\sort',
-            strval($this->resolver->resolve($context, Symbol::fromString('sort'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('sort')))
         );
         $this->assertSame(
             '\foo\foo',
-            strval($this->resolver->resolve($context, Symbol::fromString('foo'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('foo')))
         );
         $this->assertSame(
             '\foo\FOO',
-            strval($this->resolver->resolve($context, Symbol::fromString('FOO'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('FOO')))
         );
         $this->assertSame(
             '\INI_ALL',
-            strval($this->resolver->resolve($context, Symbol::fromString('INI_ALL'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('INI_ALL')))
         );
     }
 
@@ -741,11 +749,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(
             '\ultra\long\ns\name\CONSTANT',
-            strval($this->resolver->resolve($context, Symbol::fromString('name\CONSTANT'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('name\CONSTANT')))
         );
         $this->assertSame(
             '\ultra\long\ns\name\func',
-            strval($this->resolver->resolve($context, Symbol::fromString('name\func'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('name\func')))
         );
     }
 
@@ -764,24 +772,25 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         $constantResolver = function ($constantName) {
             return false;
         };
-        $this->resolver = new SymbolResolver($this->symbolFactory, $functionResolver, $constantResolver);
+        $this->functionResolver = new FunctionSymbolResolver($this->symbolFactory, $functionResolver);
+        $this->constantResolver = new ConstantSymbolResolver($this->symbolFactory, $constantResolver);
         $context = $this->contextFactory->createContext(Symbol::fromString('\bar'));
 
         $this->assertSame(
             '\FOO',
-            strval($this->resolver->resolve($context, Symbol::fromString('FOO'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('FOO')))
         );
         $this->assertSame(
             '\FOO',
-            strval($this->resolver->resolve($context, Symbol::fromString('\FOO'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('\FOO')))
         );
         $this->assertSame(
             '\bar\Bar\FOO',
-            strval($this->resolver->resolve($context, Symbol::fromString('Bar\FOO'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('Bar\FOO')))
         );
         $this->assertSame(
             '\Bar\FOO',
-            strval($this->resolver->resolve($context, Symbol::fromString('\Bar\FOO'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('\Bar\FOO')))
         );
     }
 
@@ -804,11 +813,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(
             '\Name\Space\FOO',
-            strval($this->resolver->resolve($context, Symbol::fromString('FOO'), 'const'))
+            strval($this->constantResolver->resolve($context, Symbol::fromString('FOO')))
         );
         $this->assertSame(
             '\Name\Space\f',
-            strval($this->resolver->resolve($context, Symbol::fromString('f'), 'function'))
+            strval($this->functionResolver->resolve($context, Symbol::fromString('f')))
         );
     }
 }
