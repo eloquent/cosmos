@@ -43,6 +43,11 @@ class ResolutionContextTest extends PHPUnit_Framework_TestCase
         $this->subject = new ResolutionContext($this->primaryNamespace, $this->useStatements);
     }
 
+    public function testCreate()
+    {
+        $this->assertEquals($this->subject, ResolutionContext::create($this->primaryNamespace, $this->useStatements));
+    }
+
     public function testConstructor()
     {
         $this->assertSame($this->primaryNamespace, $this->subject->primaryNamespace());

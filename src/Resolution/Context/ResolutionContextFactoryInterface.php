@@ -26,7 +26,7 @@ interface ResolutionContextFactoryInterface
      *
      * @api
      *
-     * @param SymbolInterface|null         $primaryNamespace The namespace.
+     * @param SymbolInterface|null         $primaryNamespace The namespace, or null for the global namespace.
      * @param array<UseStatementInterface> $useStatements    The use statements.
      *
      * @return ResolutionContextInterface The newly created resolution context.

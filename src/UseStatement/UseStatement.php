@@ -39,8 +39,7 @@ class UseStatement implements UseStatementInterface
         $alias = null,
         $type = null
     ) {
-        return UseStatementFactory::instance()
-            ->createStatementFromSymbol($symbol, $alias, $type);
+        return new self(array(new UseStatementClause($symbol, $alias)), $type);
     }
 
     /**

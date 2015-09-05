@@ -22,6 +22,23 @@ use Eloquent\Cosmos\UseStatement\UseStatementInterface;
 class ResolutionContext implements ResolutionContextInterface
 {
     /**
+     * Create a new symbol resolution context.
+     *
+     * @api
+     *
+     * @param SymbolInterface|null         $primaryNamespace The namespace, or null for the global namespace.
+     * @param array<UseStatementInterface> $useStatements    The use statements.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     */
+    public static function create(
+        SymbolInterface $primaryNamespace = null,
+        array $useStatements = array()
+    ) {
+        return new self($primaryNamespace, $useStatements);
+    }
+
+    /**
      * Construct a new symbol resolution context.
      *
      * @param SymbolInterface|null         $primaryNamespace The namespace, or null for the global namespace.
