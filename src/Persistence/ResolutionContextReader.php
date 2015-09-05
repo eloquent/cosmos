@@ -15,6 +15,7 @@ use Eloquent\Cosmos\Exception\ReadException;
 use Eloquent\Cosmos\Exception\UndefinedResolutionContextException;
 use Eloquent\Cosmos\Exception\UndefinedSymbolException;
 use Eloquent\Cosmos\Parser\ResolutionContextParser;
+use Eloquent\Cosmos\Parser\TokenNormalizer;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextFactoryInterface;
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextInterface;
@@ -41,6 +42,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     {
         if (null === self::$instance) {
             self::$instance = new self(
+                TokenNormalizer::instance(),
                 ResolutionContextParser::instance(),
                 ResolutionContextFactory::instance(),
                 SymbolFactory::instance()
@@ -53,37 +55,21 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     /**
      * Construct a new resolution context reader.
      *
+     * @param TokenNormalizer                   $tokenNormalizer   The token normalizer.
      * @param ResolutionContextParser           $contextParser     The resolution context parser.
      * @param ResolutionContextFactoryInterface $contextFactory    The resolution context factory.
      * @param SymbolFactoryInterface            $symbolFactory     The symbol factory.
-     * @param callable|null                     $fileGetContents   The file_get_contents() implementation.
-     * @param callable|null                     $streamGetContents The stream_get_contents() implementation.
-     * @param callable|null                     $errorGetLast      The error_get_last() implementation.
      */
     public function __construct(
+        TokenNormalizer $tokenNormalizer,
         ResolutionContextParser $contextParser,
         ResolutionContextFactoryInterface $contextFactory,
-        SymbolFactoryInterface $symbolFactory,
-        $fileGetContents = null,
-        $streamGetContents = null,
-        $errorGetLast = null
+        SymbolFactoryInterface $symbolFactory
     ) {
-        if (null === $fileGetContents) {
-            $fileGetContents = 'file_get_contents';
-        }
-        if (null === $streamGetContents) {
-            $streamGetContents = 'stream_get_contents';
-        }
-        if (null === $errorGetLast) {
-            $errorGetLast = 'error_get_last';
-        }
-
+        $this->tokenNormalizer = $tokenNormalizer;
         $this->contextParser = $contextParser;
         $this->contextFactory = $contextFactory;
         $this->symbolFactory = $symbolFactory;
-        $this->fileGetContents = $fileGetContents;
-        $this->streamGetContents = $streamGetContents;
-        $this->errorGetLast = $errorGetLast;
     }
 
     /**
@@ -175,7 +161,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         }
 
         $name = '\\' . $class->getName();
-        $tokens = \token_get_all($this->readFile($path));
+        $tokens = $this->readFile($path);
 
         foreach ($this->contextParser->parseContexts($tokens) as $context) {
             foreach ($context->symbols as $symbol) {
@@ -215,7 +201,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         }
 
         $name = '\\' . $function->getName();
-        $tokens = \token_get_all($this->readFile($path));
+        $tokens = $this->readFile($path);
 
         foreach ($this->contextParser->parseContexts($tokens) as $context) {
             foreach ($context->symbols as $symbol) {
@@ -259,7 +245,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
      */
     public function readFromFileByIndex($path, $index)
     {
-        $tokens = \token_get_all($this->readFile($path));
+        $tokens = $this->readFile($path);
         $contexts = $this->contextParser->parseContexts($tokens);
 
         if (isset($contexts[$index])) {
@@ -285,17 +271,32 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
             $column = 0;
         }
 
-        $tokens = \token_get_all($this->readFile($path));
+        $tokens = $this->readFile($path);
+        $contexts = $this->contextParser->parseContexts($tokens);
+        $seen = false;
 
-        foreach ($this->contextParser->parseContexts($tokens) as $context) {
-            if ($context->line < $line || $context->column < $column) {
-                continue;
+        foreach ($contexts as $index => $context) {
+            if ($context->line > $line) {
+                $seen = true;
+
+                break;
             }
+            if ($context->line === $line && $context->column > $column) {
+                $seen = true;
 
-            break;
+                break;
+            }
         }
 
-        return $context;
+        if (!$seen) {
+            return array_pop($contexts);
+        }
+
+        if ($index < 1) {
+            return $this->contextFactory->createContext();
+        }
+
+        return $contexts[$index - 1];
     }
 
     /**
@@ -325,7 +326,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
      */
     public function readFromStreamByIndex($stream, $index, $path = null)
     {
-        $tokens = \token_get_all($this->readStream($stream, $path));
+        $tokens = $this->readStream($stream, $path);
         $contexts = $this->contextParser->parseContexts($tokens);
 
         if (isset($contexts[$index])) {
@@ -356,26 +357,41 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
             $column = 0;
         }
 
-        $tokens = \token_get_all($this->readStream($stream, $path));
+        $tokens = $this->readStream($stream, $path);
+        $contexts = $this->contextParser->parseContexts($tokens);
+        $seen = false;
 
-        foreach ($this->contextParser->parseContexts($tokens) as $context) {
-            if ($context->line < $line || $context->column < $column) {
-                continue;
+        foreach ($contexts as $index => $context) {
+            if ($context->line > $line) {
+                $seen = true;
+
+                break;
             }
+            if ($context->line === $line && $context->column > $column) {
+                $seen = true;
 
-            break;
+                break;
+            }
         }
 
-        return $context;
+        if (!$seen) {
+            return array_pop($contexts);
+        }
+
+        if ($index < 1) {
+            return $this->contextFactory->createContext();
+        }
+
+        return $contexts[$index - 1];
     }
 
     private function readFile($path)
     {
-        $fileGetContents = $this->fileGetContents;
-        $source = @$fileGetContents($path);
+        $source = @\file_get_contents($path);
 
         if (false !== $source) {
-            return $source;
+            return $this->tokenNormalizer
+                ->normalizeTokens(\token_get_all($source));
         }
 
         throw new ReadException($path, $this->lastError());
@@ -383,11 +399,11 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
 
     private function readStream($stream, $path = null)
     {
-        $streamGetContents = $this->streamGetContents;
-        $source = @$streamGetContents($stream);
+        $source = @\stream_get_contents($stream);
 
         if (false !== $source) {
-            return $source;
+            return $this->tokenNormalizer
+                ->normalizeTokens(\token_get_all($source));
         }
 
         throw new ReadException($path, $this->lastError());
@@ -395,23 +411,22 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
 
     private function lastError()
     {
-        $errorGetLast = $this->errorGetLast;
-        $lastError = $errorGetLast();
-
-        if (null === $lastError) {
-            return null;
+        if ($lastError = \error_get_last()) {
+            return new ErrorException(
+                $lastError['message'],
+                0,
+                $lastError['type'],
+                $lastError['file'],
+                $lastError['line']
+            );
         }
 
-        return new ErrorException(
-            $lastError['message'],
-            0,
-            $lastError['type'],
-            $lastError['file'],
-            $lastError['line']
-        );
+        return null; // @codeCoverageIgnore
+
     }
 
     private static $instance;
+    private $tokenNormalizer;
     private $contextParser;
     private $contextFactory;
     private $symbolFactory;
