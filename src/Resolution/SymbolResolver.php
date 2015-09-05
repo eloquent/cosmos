@@ -31,7 +31,7 @@ class SymbolResolver implements SymbolResolverInterface
      */
     public static function instance()
     {
-        if (null === self::$instance) {
+        if (!self::$instance) {
             self::$instance = new self(SymbolFactory::instance());
         }
 
@@ -42,21 +42,14 @@ class SymbolResolver implements SymbolResolverInterface
      * Construct a new symbol resolver.
      *
      * @param SymbolFactoryInterface $symbolFactory    The symbol factory to use.
-     * @param callable|null          $functionResolver The callback to use when determining if a function exists.
-     * @param callable|null          $constantResolver The callback to use when determining if a constant exists.
+     * @param callable               $functionResolver The callback to use when determining if a function exists.
+     * @param callable               $constantResolver The callback to use when determining if a constant exists.
      */
     public function __construct(
         SymbolFactoryInterface $symbolFactory,
-        $functionResolver = null,
-        $constantResolver = null
+        $functionResolver = 'function_exists',
+        $constantResolver = 'defined'
     ) {
-        if (null === $functionResolver) {
-            $functionResolver = 'function_exists';
-        }
-        if (null === $constantResolver) {
-            $constantResolver = 'defined';
-        }
-
         $this->symbolFactory = $symbolFactory;
         $this->functionResolver = $functionResolver;
         $this->constantResolver = $constantResolver;
@@ -112,6 +105,11 @@ class SymbolResolver implements SymbolResolverInterface
             return $symbol;
         }
 
+        if ($numAtoms > 1) {
+            // never fall back to global namespace for multi-atom symbols
+            return $symbol;
+        }
+
         if ('const' === $type) {
             $callback = $this->constantResolver;
         } elseif ('function' === $type) {
@@ -125,12 +123,12 @@ class SymbolResolver implements SymbolResolverInterface
             );
         }
 
-        if (!$callback(\strval($symbol))) {
-            // symbol actually exists, do not fall back to global namespace
+        if (!$callback($symbol->runtimeString())) {
+            // fall back to global namespace
             $atoms = $symbol->atoms();
 
             return $this->symbolFactory
-                ->createFromAtoms(array($atoms[\count($atoms) - 1]));
+                ->createFromAtoms(array(array_pop($atoms)));
         }
 
         return $symbol;

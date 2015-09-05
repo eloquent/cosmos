@@ -106,14 +106,14 @@ interface ResolutionContextReaderInterface
     /**
      * Create the context found at the specified position in a file.
      *
-     * @param string       $path   The path.
-     * @param integer      $line   The line.
-     * @param integer|null $column The column.
+     * @param string  $path   The path.
+     * @param integer $line   The line.
+     * @param integer $column The column.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws ReadException              If the source code cannot be read.
      */
-    public function readFromFileByPosition($path, $line, $column = null);
+    public function readFromFileByPosition($path, $line, $column = 1);
 
     /**
      * Create the first context found in a stream.
@@ -142,10 +142,10 @@ interface ResolutionContextReaderInterface
     /**
      * Create the context found at the specified position in a stream.
      *
-     * @param stream       $stream The stream.
-     * @param integer      $line   The line.
-     * @param integer|null $column The column.
-     * @param string|null  $path   The path, if known.
+     * @param stream      $stream The stream.
+     * @param integer     $line   The line.
+     * @param integer     $column The column.
+     * @param string|null $path   The path, if known.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      * @throws ReadException              If the source code cannot be read.
@@ -153,7 +153,7 @@ interface ResolutionContextReaderInterface
     public function readFromStreamByPosition(
         $stream,
         $line,
-        $column = null,
+        $column = 1,
         $path = null
     );
 }

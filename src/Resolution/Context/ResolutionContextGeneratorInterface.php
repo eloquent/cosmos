@@ -30,17 +30,17 @@ interface ResolutionContextGeneratorInterface
      *
      * @api
      *
-     * @param SymbolInterface|null                      $namespace         The namespace, or null to use the global namespace.
-     * @param array<SymbolInterface>|null               $symbols           The symbols to generate use statements for.
-     * @param array<string,array<SymbolInterface>>|null $keywordSymbols    The keyword symbols to generate use statements for.
-     * @param integer|null                              $maxReferenceAtoms The maximum number of atoms for symbol references.
+     * @param SymbolInterface|null                 $namespace         The namespace, or null to use the global namespace.
+     * @param array<SymbolInterface>               $symbols           The symbols to generate use statements for.
+     * @param array<string,array<SymbolInterface>> $keywordSymbols    The keyword symbols to generate use statements for.
+     * @param integer                              $maxReferenceAtoms The maximum number of atoms for symbol references.
      *
      * @return ResolutionContextInterface The generated resolution context.
      */
     public function generateContext(
         SymbolInterface $namespace = null,
-        array $symbols = null,
-        array $keywordSymbols = null,
-        $maxReferenceAtoms = null
+        array $symbols = array(),
+        array $keywordSymbols = array(),
+        $maxReferenceAtoms = 1
     );
 }

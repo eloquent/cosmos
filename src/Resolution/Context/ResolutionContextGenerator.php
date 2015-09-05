@@ -31,7 +31,7 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
      */
     public static function instance()
     {
-        if (null === self::$instance) {
+        if (!self::$instance) {
             self::$instance = new self(
                 ResolutionContextFactory::instance(),
                 UseStatementFactory::instance(),
@@ -69,35 +69,25 @@ class ResolutionContextGenerator implements ResolutionContextGeneratorInterface
      *
      * @api
      *
-     * @param SymbolInterface|null                      $namespace         The namespace, or null to use the global namespace.
-     * @param array<SymbolInterface>|null               $symbols           The symbols to generate use statements for.
-     * @param array<string,array<SymbolInterface>>|null $keywordSymbols    The keyword symbols to generate use statements for.
-     * @param integer|null                              $maxReferenceAtoms The maximum number of atoms for symbol references.
+     * @param SymbolInterface|null                 $namespace         The namespace, or null to use the global namespace.
+     * @param array<SymbolInterface>               $symbols           The symbols to generate use statements for.
+     * @param array<string,array<SymbolInterface>> $keywordSymbols    The keyword symbols to generate use statements for.
+     * @param integer                              $maxReferenceAtoms The maximum number of atoms for symbol references.
      *
      * @return ResolutionContextInterface The generated resolution context.
      */
     public function generateContext(
         SymbolInterface $namespace = null,
-        array $symbols = null,
-        array $keywordSymbols = null,
-        $maxReferenceAtoms = null
+        array $symbols = array(),
+        array $keywordSymbols = array(),
+        $maxReferenceAtoms = 1
     ) {
-        if (null === $symbols) {
-            $symbols = array();
-        }
-        if (null === $keywordSymbols) {
-            $keywordSymbols = array();
-        }
-        if (null === $maxReferenceAtoms) {
-            $maxReferenceAtoms = 1;
-        }
-
-        if (null === $namespace) {
-            $namespaceAtoms = array();
-            $numNamespaceAtoms = 0;
-        } else {
+        if ($namespace) {
             $namespaceAtoms = $namespace->atoms();
             $numNamespaceAtoms = count($namespaceAtoms);
+        } else {
+            $namespaceAtoms = array();
+            $numNamespaceAtoms = 0;
         }
 
         $statements = $this->forSymbols(

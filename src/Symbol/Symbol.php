@@ -63,12 +63,12 @@ class Symbol implements SymbolInterface
      * @api
      *
      * @param array<string> $atoms       The atoms.
-     * @param boolean|null  $isQualified True if qualified.
+     * @param boolean       $isQualified True if qualified.
      *
      * @return SymbolInterface            The newly created symbol.
      * @throws InvalidSymbolAtomException If any of the supplied atoms are invalid.
      */
-    public static function fromAtoms(array $atoms, $isQualified = null)
+    public static function fromAtoms(array $atoms, $isQualified = true)
     {
         return SymbolFactory::instance()->createFromAtoms($atoms, $isQualified);
     }
@@ -77,7 +77,7 @@ class Symbol implements SymbolInterface
      * Construct a new symbol.
      *
      * @param array<string> $atoms       The atoms.
-     * @param boolean|null  $isQualified True if qualified.
+     * @param boolean       $isQualified True if qualified.
      */
     public function __construct(array $atoms, $isQualified)
     {

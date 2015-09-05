@@ -27,7 +27,7 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
      */
     public static function instance()
     {
-        if (null === self::$instance) {
+        if (!self::$instance) {
             self::$instance = new self();
         }
 
@@ -39,19 +39,15 @@ class ResolutionContextFactory implements ResolutionContextFactoryInterface
      *
      * @api
      *
-     * @param SymbolInterface|null              $primaryNamespace The namespace.
-     * @param array<UseStatementInterface>|null $useStatements    The use statements.
+     * @param SymbolInterface|null         $primaryNamespace The namespace.
+     * @param array<UseStatementInterface> $useStatements    The use statements.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      */
     public function createContext(
         SymbolInterface $primaryNamespace = null,
-        array $useStatements = null
+        array $useStatements = array()
     ) {
-        if (null === $useStatements) {
-            $useStatements = array();
-        }
-
         return new ResolutionContext($primaryNamespace, $useStatements);
     }
 

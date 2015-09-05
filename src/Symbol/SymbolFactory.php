@@ -27,7 +27,7 @@ class SymbolFactory implements SymbolFactoryInterface
      */
     public static function instance()
     {
-        if (null === self::$instance) {
+        if (!self::$instance) {
             self::$instance = new self();
         }
 
@@ -90,17 +90,13 @@ class SymbolFactory implements SymbolFactoryInterface
      * @api
      *
      * @param array<string> $atoms       The atoms.
-     * @param boolean|null  $isQualified True if qualified.
+     * @param boolean       $isQualified True if qualified.
      *
      * @return SymbolInterface            The newly created symbol.
      * @throws InvalidSymbolAtomException If any of the supplied atoms are invalid.
      */
-    public function createFromAtoms(array $atoms, $isQualified = null)
+    public function createFromAtoms(array $atoms, $isQualified = true)
     {
-        if (null === $isQualified) {
-            $isQualified = true;
-        }
-
         return new Symbol($atoms, $isQualified);
     }
 

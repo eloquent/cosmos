@@ -150,7 +150,7 @@ class ResolutionContext implements ResolutionContextInterface
         if ($this->useStatements) {
             $statements = \implode(";\n", $this->useStatements) . ";\n";
 
-            if (null === $this->primaryNamespace) {
+            if (!$this->primaryNamespace) {
                 return $statements;
             }
 
@@ -160,7 +160,7 @@ class ResolutionContext implements ResolutionContextInterface
                 $statements;
         }
 
-        if (null === $this->primaryNamespace) {
+        if (!$this->primaryNamespace) {
             return '';
         }
 

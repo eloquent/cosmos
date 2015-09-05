@@ -26,13 +26,13 @@ interface ResolutionContextFactoryInterface
      *
      * @api
      *
-     * @param SymbolInterface|null              $primaryNamespace The namespace.
-     * @param array<UseStatementInterface>|null $useStatements    The use statements.
+     * @param SymbolInterface|null         $primaryNamespace The namespace.
+     * @param array<UseStatementInterface> $useStatements    The use statements.
      *
      * @return ResolutionContextInterface The newly created resolution context.
      */
     public function createContext(
         SymbolInterface $primaryNamespace = null,
-        array $useStatements = null
+        array $useStatements = array()
     );
 }

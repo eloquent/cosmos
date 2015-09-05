@@ -30,7 +30,7 @@ class SymbolReferenceGenerator implements SymbolReferenceGeneratorInterface
      */
     public static function instance()
     {
-        if (null === self::$instance) {
+        if (!self::$instance) {
             self::$instance = new self(SymbolFactory::instance());
         }
 
