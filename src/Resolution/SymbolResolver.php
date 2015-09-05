@@ -78,60 +78,75 @@ class SymbolResolver implements SymbolResolverInterface
         }
 
         $atoms = $symbol->atoms();
-        $numAtoms = \count($atoms);
-        $firstAtom = $atoms[0];
+        $hasMultipleAtoms = \count($atoms) > 1;
 
-        if ('namespace' === $firstAtom) {
-            $parent = $context->primaryNamespace();
-        } else {
-            $parent = $context->symbolByAtom($firstAtom, $type);
+        if ($hasMultipleAtoms) {
+            if ('namespace' === $atoms[0]) {
+                if ($namespace = $context->primaryNamespace()) {
+                    return $this->symbolFactory->createFromAtoms(
+                        \array_merge(
+                            $namespace->atoms(),
+                            \array_slice($atoms, 1)
+                        ),
+                        true
+                    );
+                } else {
+                    return $this->symbolFactory
+                        ->createFromAtoms(\array_slice($atoms, 1), true);
+                }
+            }
+
+            if ($parent = $context->symbolByAtom($atoms[0])) {
+                return $this->symbolFactory->createFromAtoms(
+                    \array_merge($parent->atoms(), \array_slice($atoms, 1)),
+                    true
+                );
+            }
+
+            if ($namespace = $context->primaryNamespace()) {
+                return $this->symbolFactory->createFromAtoms(
+                    \array_merge($namespace->atoms(), $atoms),
+                    true
+                );
+            }
+
+            return $this->symbolFactory->createFromAtoms($atoms, true);
         }
 
-        if ($parent) {
-            // chop first reference atom and join to parent
-            $symbol = $this->symbolFactory->createFromAtoms(
-                \array_merge($parent->atoms(), \array_slice($atoms, 1)),
-                true
-            );
-        } else {
-            // join directly to namespace
-            $symbol = $this->symbolFactory->createFromAtoms(
-                \array_merge($context->primaryNamespace()->atoms(), $atoms),
-                true
-            );
+        if ($parent = $context->symbolByAtom($atoms[0], $type)) {
+            return $parent;
         }
 
-        if (null === $type) {
-            return $symbol;
+        if ($namespace = $context->primaryNamespace()) {
+            if (null === $type) {
+                return $this->symbolFactory->createFromAtoms(
+                    \array_merge($namespace->atoms(), $atoms),
+                    true
+                );
+            }
+
+            if ('const' === $type) {
+                $callback = $this->constantResolver;
+            } elseif ('function' === $type) {
+                $callback = $this->functionResolver;
+            } else {
+                throw new InvalidArgumentException(
+                    \sprintf(
+                        'Unsupported symbol type %s.',
+                        \var_export($type, true)
+                    )
+                );
+            }
+
+            $namespaceSymbolAtoms = \array_merge($namespace->atoms(), $atoms);
+
+            if ($callback(\implode('\\', $namespaceSymbolAtoms))) {
+                return $this->symbolFactory
+                    ->createFromAtoms($namespaceSymbolAtoms, true);
+            }
         }
 
-        if ($numAtoms > 1) {
-            // never fall back to global namespace for multi-atom symbols
-            return $symbol;
-        }
-
-        if ('const' === $type) {
-            $callback = $this->constantResolver;
-        } elseif ('function' === $type) {
-            $callback = $this->functionResolver;
-        } else {
-            throw new InvalidArgumentException(
-                \sprintf(
-                    'Unsupported symbol type %s.',
-                    \var_export($type, true)
-                )
-            );
-        }
-
-        if (!$callback($symbol->runtimeString())) {
-            // fall back to global namespace
-            $atoms = $symbol->atoms();
-
-            return $this->symbolFactory
-                ->createFromAtoms(array(array_pop($atoms)));
-        }
-
-        return $symbol;
+        return $this->symbolFactory->createFromAtoms($atoms, true);
     }
 
     private static $instance;
