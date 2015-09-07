@@ -2,14 +2,14 @@
 
 return array(
     array(
-        array(3, 5, 11, 35),
-        'namespace NamespaceA \ NamespaceB ;',
+        "namespace NamespaceA \ NamespaceB ;",
+        2, 5, 11,
         array(),
         array(),
     ),
     array(
-        array(4, 5, 51, 22),
-        'namespace NamespaceC ;',
+        "namespace NamespaceC ;",
+        1, 5, 51,
         array(),
         array(),
     ),

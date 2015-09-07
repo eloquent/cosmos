@@ -19,7 +19,7 @@
 
     namespace NamespaceA \ NamespaceB ;
 
-    use NamespaceD \ NamespaceE\SymbolA as SymbolB ;
+    use NamespaceD \ NamespaceE \ SymbolA as SymbolB ;
     use SymbolC as SymbolD ;
     use SymbolN as SymbolO, SymbolP ;
 

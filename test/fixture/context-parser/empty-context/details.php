@@ -2,8 +2,8 @@
 
 return array(
     array(
-        array(2, 1, 6, 0),
         '',
+        1, 1, 6,
         array(),
         array(),
     ),

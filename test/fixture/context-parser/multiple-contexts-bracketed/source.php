@@ -16,6 +16,10 @@
 
         class ClassA
         {
+            public function methodA()
+            {
+                $a = function () {};
+            }
         }
 
         class ClassB

@@ -62,6 +62,10 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame($expectedParsed, $this->renderParsedContexts($actual));
         $this->assertEquals($expectedDetails, $this->contextDetails($actual, $tokens));
+
+        foreach ($expectedDetails as $index => $contextDetails) {
+            $this->assertSame(strlen($contextDetails[0]), $actual[$index]->size);
+        }
     }
 
     public function testInstance()
@@ -109,51 +113,67 @@ class ResolutionContextParserTest extends PHPUnit_Framework_TestCase
 
     private function contextDetails($contexts, $tokens)
     {
+        $line = 1;
+        $offset = 0;
+        $previousSize = 0;
         $details = array();
 
         foreach ($contexts as $context) {
             $contextTokens = array_slice($tokens, $context->tokenOffset, $context->tokenSize);
-            $contextString = '';
+            $contextSource = '';
 
             foreach ($contextTokens as $token) {
-                $contextString .= $token[1];
+                $contextSource .= $token[1];
             }
+
+            $contextLineDelta = $context->line - $line;
+            $contextOffsetDelta = $context->offset - $offset - $previousSize;
+            $line = $context->line;
 
             $statementDetails = array();
 
             foreach ($context->useStatements() as $statement) {
                 $statementTokens = array_slice($tokens, $statement->tokenOffset, $statement->tokenSize);
-                $statementString = '';
+                $statementSource = '';
 
                 foreach ($statementTokens as $token) {
-                    $statementString .= $token[1];
+                    $statementSource .= $token[1];
                 }
 
-                $statementDetails[] = array(
-                    array($statement->line, $statement->column, $statement->offset, $statement->size),
-                    $statementString,
-                );
+                $statementLineDelta = $statement->line - $line;
+                $statementOffsetDelta = $statement->offset - $offset - $previousSize;
+                $line = $statement->line;
+                $offset = $statement->offset;
+                $previousSize = $statement->size;
+
+                $statementDetails[] =
+                    array($statementSource, $statementLineDelta, $statement->column, $statementOffsetDelta);
             }
 
             $symbolDetails = array();
 
             foreach ($context->symbols as $symbol) {
                 $symbolTokens = array_slice($tokens, $symbol->tokenOffset, $symbol->tokenSize);
-                $symbolString = '';
+                $symbolSource = '';
 
                 foreach ($symbolTokens as $token) {
-                    $symbolString .= $token[1];
+                    $symbolSource .= $token[1];
                 }
 
-                $symbolDetails[] = array(
-                    array($symbol->line, $symbol->column, $symbol->offset, $symbol->size),
-                    $symbolString,
-                );
+                $symbolLineDelta = $symbol->line - $line;
+                $symbolOffsetDelta = $symbol->offset - $offset - $previousSize;
+                $line = $symbol->line;
+                $offset = $symbol->offset;
+                $previousSize = $symbol->size;
+
+                $symbolDetails[] = array($symbolSource, $symbolLineDelta, $symbol->column, $symbolOffsetDelta);
             }
 
             $details[] = array(
-                array($context->line, $context->column, $context->offset, $context->size),
-                $contextString,
+                $contextSource,
+                $contextLineDelta,
+                $context->column,
+                $contextOffsetDelta,
                 $statementDetails,
                 $symbolDetails,
             );

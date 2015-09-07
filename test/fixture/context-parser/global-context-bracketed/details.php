@@ -2,47 +2,20 @@
 
 return array(
     array(
-        array(3, 5, 11, 149),
         "namespace\n    {\n        use NamespaceD \ NamespaceE \ SymbolA as SymbolB ;\n        use SymbolC as SymbolD ;\n        use SymbolN as SymbolO, SymbolP ;",
+        2, 5, 11,
         array(
-            array(
-                array(5, 9, 35, 50),
-                "use NamespaceD \ NamespaceE \ SymbolA as SymbolB ;"
-            ),
-            array(
-                array(6, 9, 94, 24),
-                "use SymbolC as SymbolD ;"
-            ),
-            array(
-                array(7, 9, 127, 33),
-                "use SymbolN as SymbolO, SymbolP ;"
-            ),
+            array("use NamespaceD \ NamespaceE \ SymbolA as SymbolB ;", 2, 9, 35),
+            array("use SymbolC as SymbolD ;",                           1, 9, 9),
+            array("use SymbolN as SymbolO, SymbolP ;",                  1, 9, 9),
         ),
         array(
-            array(
-                array(9, 9, 170, 40),
-                "interface InterfaceA\n        {\n        }"
-            ),
-            array(
-                array(13, 9, 220, 40),
-                "interface InterfaceB\n        {\n        }"
-            ),
-            array(
-                array(17, 9, 270, 32),
-                "class ClassA\n        {\n        }"
-            ),
-            array(
-                array(21, 9, 312, 32),
-                "class ClassB\n        {\n        }"
-            ),
-            array(
-                array(25, 9, 354, 40),
-                "function FunctionA()\n        {\n        }"
-            ),
-            array(
-                array(29, 9, 404, 40),
-                "function FunctionB()\n        {\n        }"
-            ),
+            array("interface InterfaceA\n        {\n        }", 2, 9, 10),
+            array("interface InterfaceB\n        {\n        }", 4, 9, 10),
+            array("class ClassA\n        {\n        }",         4, 9, 10),
+            array("class ClassB\n        {\n        }",         4, 9, 10),
+            array("function FunctionA()\n        {\n        }", 4, 9, 10),
+            array("function FunctionB()\n        {\n        }", 4, 9, 10),
         ),
     ),
 );
