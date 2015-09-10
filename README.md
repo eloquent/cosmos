@@ -2,16 +2,16 @@
 
 *A library for representing and manipulating PHP symbols.*
 
-[![The most recent stable version is 2.3.1][version-image]][Semantic versioning]
-[![Current build status image][build-image]][Current build status]
-[![Current coverage status image][coverage-image]][Current coverage status]
+[![The most recent stable version is 2.3.1][version-image]][semantic versioning]
+[![Current build status image][build-image]][build status]
+[![Current test coverage image][coverage-image]][test coverage]
 
-[build-image]: http://img.shields.io/travis/eloquent/cosmos/develop.svg "Current build status for the develop branch"
-[current build status]: https://travis-ci.org/eloquent/cosmos
-[coverage-image]: http://img.shields.io/coveralls/eloquent/cosmos/develop.svg "Current test coverage for the develop branch"
-[current coverage status]: https://coveralls.io/r/eloquent/cosmos
+[build-image]: https://img.shields.io/travis/eloquent/cosmos/master.svg?style=flat-square "Build status"
+[coverage-image]: https://img.shields.io/codecov/c/github/eloquent/cosmos/master.svg?style=flat-square "Test coverage"
+[build status]: https://travis-ci.org/eloquent/cosmos
+[test coverage]: https://codecov.io/github/eloquent/cosmos
 [semantic versioning]: http://semver.org/
-[version-image]: http://img.shields.io/:semver-2.3.1-brightgreen.svg "This project uses semantic versioning"
+[version-image]: http://img.shields.io/:semver-2.3.1-brightgreen.svg?style=flat-square "This project uses semantic versioning"
 
 ## Installation and documentation
 
@@ -26,49 +26,28 @@
 
 *Cosmos* is a library for representing and manipulating PHP symbols. Supported
 symbol types include class, interface, trait, namespace, function, and constant
-names. *Cosmos* features a comprehensive API for performing many tasks,
-including:
+names. *Cosmos* is designed for:
 
 - Reading *resolution contexts* (sets of [namespace] and/or [use] statements)
-  from source code
-- Resolving symbols relative to a resolution context
+  from source code.
+- Resolving symbols relative to a resolution context.
 - Finding the shortest reference to a qualified symbol relative to a resolution
-  context
-- Generating an optimal resolution context for a set of symbols
+  context.
+- Generating an optimal resolution context for a set of symbols.
 
-*Cosmos* is primarily designed to aid in code generation, and resolution of
-symbols contained in comment annotations, but should be useful in any
-circumstance where run-time symbol resolution is involved.
+*Cosmos* is primarily designed to resolve symbols contained in comment
+annotations, and as a tool to assist in code generation.
 
-*Cosmos* also supports PHP 5.6 new features including `use function` and
-`use const`.
+*Cosmos* allows the handling of symbols at run time in the exact same way that
+the PHP interpreter handles them at compile time. To this end, it supports
+modern PHP features including `use function` and `use const`, as well as many
+edge-case scenarios, such as the use of the `namespace` keyword as a symbol
+prefix.
 
 [namespace]: http://php.net/manual/en/language.namespaces.definition.php
 [use]: http://php.net/manual/en/language.namespaces.importing.php
 
-## Resolving a symbol against a namespace
-
-Symbols can be resolved against one another. This is similar to a class name
-being resolved against a namespace with no `use` statements:
-
-```php
-use Eloquent\Cosmos\Symbol\Symbol;
-
-$namespace = Symbol::fromString('\Psr\Log');
-
-$symbol = Symbol::fromString('NullLogger');
-echo $namespace->resolve($symbol);        // outputs '\Psr\Log\NullLogger'
-echo $symbol->resolveAgainst($namespace); // outputs '\Psr\Log\NullLogger'
-
-$symbol = Symbol::fromString('..\HttpMessage\MessageInterface');
-echo $namespace->resolve($symbol)->normalize();        // outputs '\Psr\HttpMessage\MessageInterface'
-echo $symbol->resolveAgainst($namespace)->normalize(); // outputs '\Psr\HttpMessage\MessageInterface'
-
-$symbol = Symbol::fromString('\ArrayObject');
-echo $namespace->resolve($symbol); // outputs '\ArrayObject'
-```
-
-## Resolving a symbol against a resolution context
+## Resolving a symbol
 
 Symbols can be resolved against a full set of `namespace` and `use` statements.
 In this case the statements are defined manually, but they can also be read from
