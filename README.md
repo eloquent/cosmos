@@ -28,7 +28,7 @@
 symbol types include class, interface, trait, namespace, function, and constant
 names. *Cosmos* is designed for:
 
-- Reading *resolution contexts* (sets of [namespace] and/or [use] statements)
+- Reading 'resolution contexts' (sets of [namespace] and/or [use] statements)
   from source code.
 - Resolving symbols relative to a resolution context.
 - Finding the shortest reference to a symbol relative to a resolution context.
@@ -45,6 +45,37 @@ prefix.
 
 [namespace]: http://php.net/manual/en/language.namespaces.definition.php
 [use]: http://php.net/manual/en/language.namespaces.importing.php
+
+## Reading resolution contexts
+
+*Cosmos* uses the term 'resolution context' to refer to a combination of
+`namespace` and `use` statements against which a symbol can be resolved.
+
+In the case of comment annotations, and other symbols defined in source code,
+the resolution context must be parsed from the original source code in order to
+resolve these symbols correctly.
+
+There are many ways to read a resolution context. Note that internally, all of
+these methods are parsing source code:
+
+```php
+use Eloquent\Cosmos\Persistence\ResolutionContextReader;
+
+$reader = ResolutionContextReader::instance();
+
+$context = $reader->readFromObject($this);                                  // from an object instance
+$context = $reader->readFromSymbol(__CLASS__);                              // from a symbol
+$context = $reader->readFromFunctionSymbol(__FUNCTION__);                   // from a function symbol
+$context = $reader->readFromClass(new ReflectionClass(__CLASS__));          // from a class reflector
+$context = $reader->readFromClass(new ReflectionObject($this));             // from an object reflector
+$context = $reader->readFromFunction(new ReflectionFunction(__FUNCTION__)); // from a function reflector
+$context = $reader->readFromFile($path);                                    // from the first context in a file
+$context = $reader->readFromFileByIndex($path, 0);                          // from the nth context in a file
+$context = $reader->readFromFileByPosition($path, 11, 22);                  // from a line and column number in a file
+$context = $reader->readFromStream($stream);                                // from the first context in a stream
+$context = $reader->readFromStreamByIndex($stream, 0);                      // from the nth context in a stream
+$context = $reader->readFromStreamByPosition($stream, 11, 22);              // from a line and column number in a stream
+```
 
 ## Resolving a symbol
 
@@ -113,54 +144,6 @@ echo $context->resolve($symbol);                                       // output
 echo $symbol->resolveAgainstContext($context);                         // outputs '\NamespaceA\NamespaceB\SymbolD'
 echo $context->resolve($symbol, SymbolType::FUNCT1ON());               // outputs '\NamespaceE\SymbolD' (assuming the function exists)
 echo $symbol->resolveAgainstContext($context, SymbolType::FUNCT1ON()); // outputs '\NamespaceE\SymbolD' (assuming the function exists)
-```
-
-## Reading a resolution context
-
-There are many ways to read an existing symbol resolution context. Note that all
-of these methods involve actually parsing source code to determine the relevant
-`namespace` and `use` statements:
-
-```php
-use Eloquent\Cosmos\Resolution\Context\Parser\ParserPosition;
-use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-
-ResolutionContext::fromObject($this);                                          // from an object instance
-ResolutionContext::fromSymbol(__CLASS__);                                      // from a symbol
-ResolutionContext::fromFunctionSymbol('NamespaceE\SymbolD');                   // from a function symbol
-ResolutionContext::fromClass(new ReflectionClass(__CLASS__));                  // from a class reflector
-ResolutionContext::fromClass(new ReflectionObject($this));                     // from an object reflector
-ResolutionContext::fromFunction(new ReflectionFunction('NamespaceE\SymbolD')); // from a function reflector
-ResolutionContext::fromFile($path);                                            // from the first context in a file
-ResolutionContext::fromFileByIndex($path, 0);                                  // from the nth context in a file
-ResolutionContext::fromFileByPosition($path, new ParserPosition(11, 22));      // from a line and column number in a file
-ResolutionContext::fromStream($stream);                                        // from the first context in a stream
-ResolutionContext::fromStreamByIndex($stream, 0);                              // from the nth context in a stream
-ResolutionContext::fromStreamByPosition($stream, new ParserPosition(11, 22));  // from a line and column number in a stream
-```
-
-There are also identical factory methods for 'fixed' symbol resolvers, which
-make the entire process of reading and resolution very streamlined. For example,
-in the middle of a class, getting a resolver for the current context is as
-simple as:
-
-```php
-namespace NamespaceA;
-
-use Eloquent\Cosmos\Resolution\FixedContextSymbolResolver;
-use Eloquent\Cosmos\Symbol\Symbol;
-use NamespaceB\SymbolA as SymbolB;
-use SymbolC;
-
-class ClassA
-{
-    public function methodA()
-    {
-        $resolver = FixedContextSymbolResolver::fromObject($this);
-
-        echo $resolver->resolve(Symbol::fromString('SymbolB')); // outputs '\NamespaceB\SymbolA'
-    }
-}
 ```
 
 ## Finding the shortest reference to a symbol
