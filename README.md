@@ -294,32 +294,8 @@ separator is regarded as 'fully qualified'. In contrast, *Cosmos* refers to any
 symbol starting with a namespace separator as 'qualified', and anything else as
 a 'reference'.
 
-## Symbols as paths
-
-Symbols in *Cosmos* are treated like paths in a file system. In fact, *Cosmos*
-is built on top of a path library called [Pathogen]. Being based on *Pathogen*
-means symbols in *Cosmos* have a comprehensive API for performing all sorts of
-tasks. It also allows *Cosmos* to do things that even the PHP interpreter cannot
-handle.
-
-In almost all circumstances, *Cosmos* behaves exactly like the PHP interpreter.
-In addition, it supports `.` and `..` atoms, just like a file system path. For
-example, the symbol `\Psr\.\HttpMessage\..\Log\LoggerInterface` is actually
-valid, and is equivalent to `\Psr\Log\LoggerInterface`. Obviously, if a symbol
-with these special atoms is passed to the PHP interpreter, an error will occur.
-That is why symbols need to be normalized before use outside of *Cosmos*.
-
 ## Symbol atoms
 
-Like paths in [Pathogen], symbols in *Cosmos* are comprised of 'atoms'. Atoms
-are the individual portions of the symbol separated by the namespace separator
-(`\`). For example, the symbol `Psr\Log\LoggerInterface` has atoms `Psr`, `Log`,
-and `LoggerInterface`.
-
-In order to better support older PEAR-style class names, *Cosmos* treats
-sections of an atom separated by underscores (`_`) as 'name extensions'. This is
-equivalent to the treatment of file name extensions in a typical file system
-path, that are usually separated by a dot (`.`).
-
-[pathogen]: https://github.com/eloquent/pathogen
-
+Symbols in *Cosmos* are comprised of 'atoms'. Atoms are the individual portions
+of the symbol separated by the namespace separator (`\`). For example, the
+symbol `Psr\Log\LoggerInterface` has atoms `Psr`, `Log`, and `LoggerInterface`.
