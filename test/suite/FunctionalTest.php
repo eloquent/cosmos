@@ -11,14 +11,13 @@
 
 namespace Eloquent\Cosmos;
 
+use Eloquent\Cosmos\Parser\ResolutionContextParser;
+use Eloquent\Cosmos\Parser\TokenNormalizer;
 use Eloquent\Cosmos\Resolution\ConstantSymbolResolver;
-use Eloquent\Cosmos\Resolution\Context\ResolutionContextFactory;
 use Eloquent\Cosmos\Resolution\FunctionSymbolResolver;
 use Eloquent\Cosmos\Resolution\SymbolResolver;
 use Eloquent\Cosmos\Symbol\Symbol;
 use Eloquent\Cosmos\Symbol\SymbolFactory;
-use Eloquent\Cosmos\UseStatement\UseStatement;
-use Eloquent\Cosmos\UseStatement\UseStatementClause;
 use PHPUnit_Framework_TestCase;
 
 /**
@@ -28,11 +27,13 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
     {
-        $this->contextFactory = ResolutionContextFactory::instance();
         $this->symbolFactory = SymbolFactory::instance();
         $this->resolver = SymbolResolver::instance();
         $this->functionResolver = FunctionSymbolResolver::instance();
         $this->constantResolver = ConstantSymbolResolver::instance();
+
+        $this->contextParser = ResolutionContextParser::instance();
+        $this->tokenNormalizer = TokenNormalizer::instance();
     }
 
     /**
@@ -44,7 +45,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationOverviewExample1()
     {
-        $context = $this->contextFactory->createContext(Symbol::fromString('\my\name'));
+        $context = $this->contextFromSource('namespace my\name;');
 
         $this->assertSame(
             '\my\name\MyClass',
@@ -73,7 +74,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         };
         $this->functionResolver = new FunctionSymbolResolver($this->symbolFactory, $functionResolver);
         $this->constantResolver = new ConstantSymbolResolver($this->symbolFactory, $constantResolver);
-        $context = $this->contextFactory->createContext(Symbol::fromString('\Foo\Bar'));
+        $context = $this->contextFromSource('namespace Foo\Bar;');
 
         $this->assertSame(
             '\Foo\Bar\foo',
@@ -122,7 +123,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationBasicsExample1()
     {
-        $context = $this->contextFactory->createContext(Symbol::fromString('\Foo'));
+        $context = $this->contextFromSource('namespace Foo;');
 
         $this->assertSame(
             '\strlen',
@@ -147,10 +148,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationNamespaceKeywordExample4()
     {
-        $context = $this->contextFactory->createContext(
-            Symbol::fromString('\MyProject'),
-            array(UseStatement::fromSymbol(Symbol::fromString('\blah\blah'), 'mine'))
-        );
+        $context = $this->contextFromSource('
+            namespace MyProject;
+
+            use blah\blah as mine;
+        ');
 
         $this->assertSame(
             '\MyProject\blah\mine',
@@ -191,7 +193,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationNamespaceKeywordExample5()
     {
-        $context = $this->contextFactory->createContext();
+        $context = $this->contextFromSource('');
 
         $this->assertSame(
             '\func',
@@ -224,17 +226,16 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationImportingExample1()
     {
-        $context = $this->contextFactory->createContext(
-            Symbol::fromString('\foo'),
-            array(
-                UseStatement::fromSymbol(Symbol::fromString('\My\Full\Classname'), 'Another'),
-                UseStatement::fromSymbol(Symbol::fromString('\My\Full\NSname')),
-                UseStatement::fromSymbol(Symbol::fromString('\ArrayObject')),
-                UseStatement::fromSymbol(Symbol::fromString('\My\Full\functionName'), null, 'function'),
-                UseStatement::fromSymbol(Symbol::fromString('\My\Full\functionName'), 'func', 'function'),
-                UseStatement::fromSymbol(Symbol::fromString('\My\Full\CONSTANT'), null, 'const'),
-            )
-        );
+        $context = $this->contextFromSource('
+            namespace foo;
+
+            use My\Full\Classname as Another;
+            use My\Full\NSname;
+            use ArrayObject;
+            use function My\Full\functionName;
+            use function My\Full\functionName as func;
+            use const My\Full\CONSTANT;
+        ');
 
         $this->assertSame(
             '\foo\Another',
@@ -271,17 +272,12 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationImportingExample2()
     {
-        $context = $this->contextFactory->createContext(
-            Symbol::fromString('\foo'),
-            array(
-                new UseStatement(
-                    array(
-                        new UseStatementClause(Symbol::fromString('\My\Full\Classname'), 'Another'),
-                        new UseStatementClause(Symbol::fromString('\My\Full\NSname')),
-                    )
-                ),
-            )
-        );
+        $context = $this->contextFromSource('
+            namespace foo;
+
+            use My\Full\Classname as Another;
+            use My\Full\NSname;
+        ');
 
         $this->assertSame(
             '\My\Full\Classname',
@@ -302,17 +298,12 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationImportingExample4()
     {
-        $context = $this->contextFactory->createContext(
-            Symbol::fromString('\foo'),
-            array(
-                new UseStatement(
-                    array(
-                        new UseStatementClause(Symbol::fromString('\My\Full\Classname'), 'Another'),
-                        new UseStatementClause(Symbol::fromString('\My\Full\NSname')),
-                    )
-                ),
-            )
-        );
+        $context = $this->contextFromSource('
+            namespace foo;
+
+            use My\Full\Classname as Another;
+            use My\Full\NSname;
+        ');
 
         $this->assertSame(
             '\My\Full\Classname',
@@ -341,7 +332,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationGlobalSpaceExample1()
     {
-        $context = $this->contextFactory->createContext(Symbol::fromString('\A\B\C'));
+        $context = $this->contextFromSource('namespace A\B\C;');
 
         $this->assertSame(
             '\fopen',
@@ -358,7 +349,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationFallbackExample1()
     {
-        $context = $this->contextFactory->createContext(Symbol::fromString('\A\B\C'));
+        $context = $this->contextFromSource('namespace A\B\C;');
 
         $this->assertSame(
             '\A\B\C\Exception',
@@ -391,7 +382,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         };
         $this->functionResolver = new FunctionSymbolResolver($this->symbolFactory, $functionResolver);
         $this->constantResolver = new ConstantSymbolResolver($this->symbolFactory, $constantResolver);
-        $context = $this->contextFactory->createContext(Symbol::fromString('\A\B\C'));
+        $context = $this->contextFromSource('namespace A\B\C;');
 
         $this->assertSame(
             '\A\B\C\E_ERROR',
@@ -420,17 +411,12 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         };
         $this->functionResolver = new FunctionSymbolResolver($this->symbolFactory, $functionResolver);
         $this->constantResolver = new ConstantSymbolResolver($this->symbolFactory, $constantResolver);
-        $context = $this->contextFactory->createContext(
-            Symbol::fromString('\A'),
-            array(
-                new UseStatement(
-                    array(
-                        new UseStatementClause(Symbol::fromString('\B\D')),
-                        new UseStatementClause(Symbol::fromString('\C\E'), 'F'),
-                    )
-                ),
-            )
-        );
+        $context = $this->contextFromSource('
+            namespace A;
+
+            use B\D;
+            use C\E as F;
+        ');
 
         // function calls
         $this->assertSame(
@@ -518,7 +504,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationFaqShouldICare()
     {
-        $context = $this->contextFactory->createContext();
+        $context = $this->contextFromSource('');
 
         $this->assertSame(
             '\stdClass',
@@ -539,7 +525,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationFaqGlobalClass()
     {
-        $context = $this->contextFactory->createContext(Symbol::fromString('\foo'));
+        $context = $this->contextFromSource('namespace foo;');
 
         $this->assertSame(
             '\stdClass',
@@ -568,7 +554,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationFaqInNamespace()
     {
-        $context = $this->contextFactory->createContext(Symbol::fromString('\foo'));
+        $context = $this->contextFromSource('namespace foo;');
 
         $this->assertSame(
             '\foo\MyClass',
@@ -601,7 +587,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationFaqFull()
     {
-        $context = $this->contextFactory->createContext(Symbol::fromString('\foo'));
+        $context = $this->contextFromSource('namespace foo;');
 
         $this->assertSame(
             '\my\name',
@@ -626,12 +612,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationFaqQualified()
     {
-        $context = $this->contextFactory->createContext(
-            Symbol::fromString('\foo'),
-            array(
-                UseStatement::fromSymbol(Symbol::fromString('\blah\blah'), 'foo'),
-            )
-        );
+        $context = $this->contextFromSource('
+            namespace foo;
+
+            use blah\blah as foo;
+        ');
 
         $this->assertSame(
             '\foo\my\name',
@@ -660,12 +645,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationFaqShortName1()
     {
-        $context = $this->contextFactory->createContext(
-            Symbol::fromString('\foo'),
-            array(
-                UseStatement::fromSymbol(Symbol::fromString('\blah\blah'), 'foo'),
-            )
-        );
+        $context = $this->contextFromSource('
+            namespace foo;
+
+            use blah\blah as foo;
+        ');
 
         $this->assertSame(
             '\foo\name',
@@ -694,12 +678,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         };
         $this->functionResolver = new FunctionSymbolResolver($this->symbolFactory, $functionResolver);
         $this->constantResolver = new ConstantSymbolResolver($this->symbolFactory, $constantResolver);
-        $context = $this->contextFactory->createContext(
-            Symbol::fromString('\foo'),
-            array(
-                UseStatement::fromSymbol(Symbol::fromString('\blah\blah'), 'foo'),
-            )
-        );
+        $context = $this->contextFromSource('
+            namespace foo;
+
+            use blah\blah as foo;
+        ');
 
         $this->assertSame(
             '\sort',
@@ -740,12 +723,11 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationFaqNoFunctionConstantImport()
     {
-        $context = $this->contextFactory->createContext(
-            Symbol::fromString('\mine'),
-            array(
-                UseStatement::fromSymbol(Symbol::fromString('\ultra\long\ns\name')),
-            )
-        );
+        $context = $this->contextFromSource('
+            namespace mine;
+
+            use ultra\long\ns\name;
+        ');
 
         $this->assertSame(
             '\ultra\long\ns\name\CONSTANT',
@@ -774,7 +756,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         };
         $this->functionResolver = new FunctionSymbolResolver($this->symbolFactory, $functionResolver);
         $this->constantResolver = new ConstantSymbolResolver($this->symbolFactory, $constantResolver);
-        $context = $this->contextFactory->createContext(Symbol::fromString('\bar'));
+        $context = $this->contextFromSource('namespace bar;');
 
         $this->assertSame(
             '\FOO',
@@ -803,13 +785,10 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
      */
     public function testResolveDocumentationNewIn56UseFunctionConst()
     {
-        $context = $this->contextFactory->createContext(
-            null,
-            array(
-                UseStatement::fromSymbol(Symbol::fromString('\Name\Space\FOO'), null, 'const'),
-                UseStatement::fromSymbol(Symbol::fromString('\Name\Space\f'), null, 'function'),
-            )
-        );
+        $context = $this->contextFromSource('
+            use const Name\Space\FOO;
+            use function Name\Space\f;
+        ');
 
         $this->assertSame(
             '\Name\Space\FOO',
@@ -819,5 +798,13 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
             '\Name\Space\f',
             strval($this->functionResolver->resolve($context, Symbol::fromString('f')))
         );
+    }
+
+    private function contextFromSource($source)
+    {
+        $contexts = $this->contextParser
+            ->parseContexts($this->tokenNormalizer->normalizeTokens(token_get_all('<?php ' . $source)));
+
+        return $contexts[0];
     }
 }
