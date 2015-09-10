@@ -247,9 +247,9 @@ use NamespaceD\NamespaceF\ClassC as NamespaceFClassC;
 
 ## What is a symbol?
 
-In *Cosmos*, a *symbol* is a generic object used to represent class, interface,
+In *Cosmos*, a 'symbol' is a generic object used to represent class, interface,
 trait, namespace, function, and constant names. There are two primary types of
-symbols: *qualified symbols*, and *symbol references*.
+symbols: 'qualified symbols', and 'symbol references'.
 
 *Qualified symbols* are similar to an absolute path in a file system. That is,
 they contain all the information necessary to uniquely identify the class,
@@ -262,14 +262,14 @@ qualified symbols:
 
 *Symbol references* are similar to a relative path in a file system. They are a
 kind of 'pointer' to an entity. Which entity they point to depends on the
-context. When combined with a current `namespace`, and/or a set of `use`
+context. When combined with a `namespace` statement, and/or a set of `use`
 statements, a symbol reference can be resolved into a qualified symbol. The
 following are examples of symbol references:
 
 - `ArrayObject`
 - `ReflectionClass`
 - `Psr\Log\LoggerInterface`
-- `namespace\SubNamespace\ClassA`
+- `namespace\NamespaceA\ClassA`
 
 Note that *Cosmos* uses different terminology to the PHP manual, especially with
 regards to the term 'qualified'. In the PHP manual, any symbol with more than
