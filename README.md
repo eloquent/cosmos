@@ -31,8 +31,7 @@ names. *Cosmos* is designed for:
 - Reading *resolution contexts* (sets of [namespace] and/or [use] statements)
   from source code.
 - Resolving symbols relative to a resolution context.
-- Finding the shortest reference to a qualified symbol relative to a resolution
-  context.
+- Finding the shortest reference to a symbol relative to a resolution context.
 - Generating an optimal resolution context for a set of symbols.
 
 *Cosmos* is primarily designed to resolve symbols contained in comment
