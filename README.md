@@ -63,18 +63,41 @@ use Eloquent\Cosmos\Persistence\ResolutionContextReader;
 
 $reader = ResolutionContextReader::instance();
 
-$context = $reader->readFromObject($this);                                  // from an object instance
-$context = $reader->readFromSymbol(__CLASS__);                              // from a symbol
-$context = $reader->readFromFunctionSymbol(__FUNCTION__);                   // from a function symbol
-$context = $reader->readFromClass(new ReflectionClass(__CLASS__));          // from a class reflector
-$context = $reader->readFromClass(new ReflectionObject($this));             // from an object reflector
-$context = $reader->readFromFunction(new ReflectionFunction(__FUNCTION__)); // from a function reflector
-$context = $reader->readFromFile($path);                                    // from the first context in a file
-$context = $reader->readFromFileByIndex($path, 0);                          // from the nth context in a file
-$context = $reader->readFromFileByPosition($path, 11, 22);                  // from a line and column number in a file
-$context = $reader->readFromStream($stream);                                // from the first context in a stream
-$context = $reader->readFromStreamByIndex($stream, 0);                      // from the nth context in a stream
-$context = $reader->readFromStreamByPosition($stream, 11, 22);              // from a line and column number in a stream
+// from an object instance
+$context = $reader->readFromObject($this);
+
+// from a symbol
+$context = $reader->readFromSymbol(__CLASS__);
+
+// from a function symbol
+$context = $reader->readFromFunctionSymbol(__FUNCTION__);
+
+// from a class reflector
+$context = $reader->readFromClass(new ReflectionClass(__CLASS__));
+
+// from an object reflector
+$context = $reader->readFromClass(new ReflectionObject($this));
+
+// from a function reflector
+$context = $reader->readFromFunction(new ReflectionFunction(__FUNCTION__));
+
+// from the first context in a file
+$context = $reader->readFromFile($path);
+
+// from the nth context in a file
+$context = $reader->readFromFileByIndex($path, 0);
+
+// from a line and column number in a file
+$context = $reader->readFromFileByPosition($path, 11, 22);
+
+// from the first context in a stream
+$context = $reader->readFromStream($stream);
+
+// from the nth context in a stream
+$context = $reader->readFromStreamByIndex($stream, 0);
+
+// from a line and column number in a stream
+$context = $reader->readFromStreamByPosition($stream, 11, 22);
 ```
 
 ## Resolving a symbol
