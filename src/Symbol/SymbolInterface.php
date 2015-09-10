@@ -12,7 +12,7 @@
 namespace Eloquent\Cosmos\Symbol;
 
 /**
- * The common interface implemented by qualified symbols and symbol references.
+ * The interface implemented by symbols.
  *
  * @api
  */
