@@ -142,7 +142,7 @@ use Eloquent\Cosmos\Persistence\ResolutionContextReader;
 
 $reader = ResolutionContextReader::instance();
 
-$context = $reader->readFromString('<?php
+$context = $reader->readFromSource('<?php
     namespace NamespaceA\NamespaceB;
 
     use NamespaceC\ClassA;
