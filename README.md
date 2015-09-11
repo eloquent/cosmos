@@ -98,7 +98,45 @@ $context = $reader->readFromStreamByIndex($stream, 0);
 
 // from a line and column number in a stream
 $context = $reader->readFromStreamByPosition($stream, 11, 22);
+
+// from the first context in source code
+$context = $reader->readFromSource($source);
+
+// from the nth context in source code
+$context = $reader->readFromSourceByIndex($source, 0);
+
+// from a line and column number in source code
+$context = $reader->readFromSourceByPosition($source, 11, 22);
 ```
+
+## Manually creating resolution contexts
+
+Resolution contexts can be created manually:
+
+```php
+use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+use Eloquent\Cosmos\Symbol\Symbol;
+use Eloquent\Cosmos\UseStatement\UseStatement;
+
+$context = ResolutionContext::create(
+    Symbol::fromString('\NamespaceA\NamespaceB'),
+    array(
+        UseStatement::fromSymbol(Symbol::fromString('\NamespaceC\ClassA')),
+        UseStatement::fromSymbol(
+            Symbol::fromString('\NamespaceD\ClassA'),
+            'ClassB'
+        ),
+        UseStatement::fromSymbol(
+            Symbol::fromString('\NamespaceE\functionA'),
+            null,
+            'function'
+        ),
+    )
+);
+```
+
+*Cosmos* also includes factories for the creation of symbols, use statements,
+and resolution contexts.
 
 ## Resolving a symbol
 
