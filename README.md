@@ -171,19 +171,19 @@ $context = new ResolutionContext(
     Symbol::fromString('\NamespaceA\NamespaceB'),
     array(
         // basic use statement
-        UseStatement::create(Symbol::fromString('\NamespaceC\SymbolA')),
+        UseStatement::fromSymbol(Symbol::fromString('\NamespaceC\SymbolA')),
 
         // use statement with alias
-        UseStatement::create(
+        UseStatement::fromSymbol(
             Symbol::fromString('\NamespaceD\SymbolB'),
-            Symbol::fromString('SymbolC')
+            'SymbolC'
         ),
 
         // use function statement (PHP 5.6)
-        UseStatement::create(
+        UseStatement::fromSymbol(
             Symbol::fromString('\NamespaceE\SymbolD'),
             null,
-            UseStatementType::FUNCT1ON()
+            'function'
         ),
     )
 );
@@ -223,59 +223,17 @@ echo $context->resolve($symbol, SymbolType::FUNCT1ON());               // output
 echo $symbol->resolveAgainstContext($context, SymbolType::FUNCT1ON()); // outputs '\NamespaceE\SymbolD' (assuming the function exists)
 ```
 
-## Finding the shortest reference to a symbol
-
-*Cosmos* can determine the shortest symbol reference that will resolve to a
-given qualified symbol relative to a context:
-
-```php
-use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
-use Eloquent\Cosmos\Symbol\Symbol;
-use Eloquent\Cosmos\UseStatement\UseStatement;
-
-$context = new ResolutionContext(
-    Symbol::fromString('\NamespaceA\NamespaceB'),
-    array(
-        // basic use statement
-        UseStatement::create(Symbol::fromString('\NamespaceC\SymbolA')),
-
-        // use statement with alias
-        UseStatement::create(
-            Symbol::fromString('\NamespaceD\SymbolB'),
-            Symbol::fromString('SymbolC')
-        ),
-    )
-);
-
-$symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolD');
-echo $symbol->relativeToContext($context); // outputs 'SymbolD'
-
-$symbol = Symbol::fromString('\NamespaceC\SymbolA');
-echo $symbol->relativeToContext($context); // outputs 'SymbolA'
-
-$symbol = Symbol::fromString('\NamespaceD\SymbolB');
-echo $symbol->relativeToContext($context); // outputs 'SymbolC'
-
-$symbol = Symbol::fromString('\NamespaceD\SymbolB\SymbolD');
-echo $symbol->relativeToContext($context); // outputs 'SymbolB\SymbolD'
-
-$symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolA');
-echo $symbol->relativeToContext($context); // outputs 'namespace\SymbolA'
-
-$symbol = Symbol::fromString('\NamespaceA\NamespaceE\SymbolD');
-echo $symbol->relativeToContext($context); // outputs '\NamespaceA\NamespaceE\SymbolD'
-```
-
 ## Generating an optimal resolution context
 
-*Cosmos* can generate an optimal resolution context for a given set of symbols
-to be used:
+*Cosmos* can generate an optimal resolution context for a given set of symbols.
+This can be useful for code generation, allowing the use of single-atom
+references instead of fully qualified symbols throughout the source code:
 
 ```php
-use Eloquent\Cosmos\Resolution\Context\Generator\ResolutionContextGenerator;
+use Eloquent\Cosmos\Resolution\Context\ResolutionContextGenerator;
 use Eloquent\Cosmos\Symbol\Symbol;
 
-$generator = new ResolutionContextGenerator;
+$generator = new ResolutionContextGenerator();
 $context = $generator->generate(
     Symbol::fromString('\NamespaceA\NamespaceB'),
     array(
@@ -297,6 +255,46 @@ use ClassD;
 use NamespaceA\NamespaceB\NamespaceC\ClassB;
 use NamespaceD\NamespaceE\ClassC as NamespaceEClassC;
 use NamespaceD\NamespaceF\ClassC as NamespaceFClassC;
+```
+
+Notice that *Cosmos* has automatically accounted for symbols that are children
+of the namespace, and avoided name collisions where necessary.
+
+## Finding the shortest reference to a symbol
+
+*Cosmos* can determine the shortest symbol reference that will resolve to a
+given qualified symbol, relative to a context:
+
+```php
+use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+use Eloquent\Cosmos\Symbol\Symbol;
+use Eloquent\Cosmos\UseStatement\UseStatement;
+
+$context = $reader->readFromSource('<?php
+    namespace NamespaceA\NamespaceB;
+
+    use NamespaceC\SymbolA;
+    use NamespaceD\SymbolB as SymbolC;
+    use function NamespaceE\functionA;
+');
+
+$symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolD');
+echo $symbol->relativeToContext($context); // outputs 'SymbolD'
+
+$symbol = Symbol::fromString('\NamespaceC\SymbolA');
+echo $symbol->relativeToContext($context); // outputs 'SymbolA'
+
+$symbol = Symbol::fromString('\NamespaceD\SymbolB');
+echo $symbol->relativeToContext($context); // outputs 'SymbolC'
+
+$symbol = Symbol::fromString('\NamespaceD\SymbolB\SymbolD');
+echo $symbol->relativeToContext($context); // outputs 'SymbolB\SymbolD'
+
+$symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolA');
+echo $symbol->relativeToContext($context); // outputs 'namespace\SymbolA'
+
+$symbol = Symbol::fromString('\NamespaceA\NamespaceE\SymbolD');
+echo $symbol->relativeToContext($context); // outputs '\NamespaceA\NamespaceE\SymbolD'
 ```
 
 ## What is a symbol?
