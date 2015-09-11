@@ -11,8 +11,7 @@
 
 namespace Eloquent\Cosmos;
 
-use Eloquent\Cosmos\Parser\ResolutionContextParser;
-use Eloquent\Cosmos\Parser\TokenNormalizer;
+use Eloquent\Cosmos\Persistence\ResolutionContextReader;
 use Eloquent\Cosmos\Resolution\ConstantSymbolResolver;
 use Eloquent\Cosmos\Resolution\FunctionSymbolResolver;
 use Eloquent\Cosmos\Resolution\SymbolResolver;
@@ -32,8 +31,7 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
         $this->functionResolver = FunctionSymbolResolver::instance();
         $this->constantResolver = ConstantSymbolResolver::instance();
 
-        $this->contextParser = ResolutionContextParser::instance();
-        $this->tokenNormalizer = TokenNormalizer::instance();
+        $this->contextReader = ResolutionContextReader::instance();
     }
 
     /**
@@ -802,9 +800,6 @@ class FunctionalTest extends PHPUnit_Framework_TestCase
 
     private function contextFromSource($source)
     {
-        $contexts = $this->contextParser
-            ->parseContexts($this->tokenNormalizer->normalizeTokens(token_get_all('<?php ' . $source)));
-
-        return $contexts[0];
+        return $this->contextReader->readFromSource('<?php ' . $source);
     }
 }

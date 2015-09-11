@@ -405,6 +405,84 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         return $contexts[$index - 1];
     }
 
+    /**
+     * Create the first context found in the supplied source code.
+     *
+     * @param string $source The source code.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     */
+    public function readFromSource($source)
+    {
+        return $this->readFromSourceByIndex($source, 0);
+    }
+
+    /**
+     * Create the context found at the specified index in the supplied source
+     * code.
+     *
+     * @param string  $source The source code.
+     * @param integer $index  The index.
+     *
+     * @return ResolutionContextInterface          The newly created resolution context.
+     * @throws UndefinedResolutionContextException If there is no resolution context at the specified index.
+     */
+    public function readFromSourceByIndex($source, $index)
+    {
+        $tokens =
+            $this->tokenNormalizer->normalizeTokens(\token_get_all($source));
+        $contexts = $this->contextParser->parseContexts($tokens);
+
+        if (isset($contexts[$index])) {
+            return $contexts[$index];
+        }
+
+        throw new UndefinedResolutionContextException($index);
+    }
+
+    /**
+     * Create the context found at the specified position in the supplied source
+     * code.
+     *
+     * @api
+     *
+     * @param string  $source The source code.
+     * @param integer $line   The line.
+     * @param integer $column The column.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     */
+    public function readFromSourceByPosition($source, $line, $column = 1)
+    {
+        $tokens =
+            $this->tokenNormalizer->normalizeTokens(\token_get_all($source));
+        $contexts = $this->contextParser->parseContexts($tokens);
+        $seen = false;
+
+        foreach ($contexts as $index => $context) {
+            if ($context->line > $line) {
+                $seen = true;
+
+                break;
+            }
+            if ($context->line === $line && $context->column > $column) {
+                $seen = true;
+
+                break;
+            }
+        }
+
+        if (!$seen) {
+            return \array_pop($contexts);
+        }
+
+        if ($index < 1) {
+            return $this->contextFactory->createContext();
+        }
+
+        return $contexts[$index - 1];
+    }
+
     private function readFile($path)
     {
         $source = @\file_get_contents($path);

@@ -180,4 +180,39 @@ interface ResolutionContextReaderInterface
         $column = 1,
         $path = null
     );
+
+    /**
+     * Create the first context found in the supplied source code.
+     *
+     * @param string $source The source code.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     */
+    public function readFromSource($source);
+
+    /**
+     * Create the context found at the specified index in the supplied source
+     * code.
+     *
+     * @param string  $source The source code.
+     * @param integer $index  The index.
+     *
+     * @return ResolutionContextInterface          The newly created resolution context.
+     * @throws UndefinedResolutionContextException If there is no resolution context at the specified index.
+     */
+    public function readFromSourceByIndex($source, $index);
+
+    /**
+     * Create the context found at the specified position in the supplied source
+     * code.
+     *
+     * @api
+     *
+     * @param string  $source The source code.
+     * @param integer $line   The line.
+     * @param integer $column The column.
+     *
+     * @return ResolutionContextInterface The newly created resolution context.
+     */
+    public function readFromSourceByPosition($source, $line, $column = 1);
 }

@@ -53,6 +53,8 @@ class ResolutionContextReaderTest extends PHPUnit_Framework_TestCase
 
         $this->fixturePath = dirname(dirname(__DIR__)) . '/fixture/context-reader/contexts.php';
         $this->fixtureStream = fopen($this->fixturePath, 'rb');
+        $this->fixtureSource = stream_get_contents($this->fixtureStream);
+        fseek($this->fixtureStream, 0);
 
         require_once $this->fixturePath;
 
@@ -419,6 +421,71 @@ EOD;
     {
         $this->setExpectedException('Eloquent\Cosmos\Exception\ReadException', 'Unable to read from stream.');
         $this->subject->readFromStreamByPosition('', 1);
+    }
+
+    public function testReadFromSource()
+    {
+        $actual = $this->subject->readFromSource($this->fixtureSource);
+
+        $this->assertSame($this->namespaceA, strval($actual));
+    }
+
+    public function testReadFromSourceByIndex()
+    {
+        $actual = $this->subject->readFromSourceByIndex($this->fixtureSource, 2);
+
+        $this->assertSame($this->namespaceC, strval($actual));
+    }
+
+    public function testReadFromSourceByIndexFailureUndefined()
+    {
+        $this->setExpectedException(
+            'Eloquent\Cosmos\Exception\UndefinedResolutionContextException',
+            'No resolution context defined at index 3.'
+        );
+        $this->subject->readFromSourceByIndex($this->fixtureSource, 3);
+    }
+
+    public function testReadFromSourceByPosition()
+    {
+        $actual = $this->subject->readFromSourceByPosition($this->fixtureSource, 24, 111);
+
+        $this->assertSame($this->namespaceA, strval($actual));
+    }
+
+    public function testReadFromSourceByPositionWithoutColumn()
+    {
+        $actual = $this->subject->readFromSourceByPosition($this->fixtureSource, 38);
+
+        $this->assertSame($this->namespaceB, strval($actual));
+    }
+
+    public function testReadFromSourceByPositionSecondaryNamespace()
+    {
+        $actual = $this->subject->readFromSourceByPosition($this->fixtureSource, 37, 5);
+
+        $this->assertSame($this->namespaceB, strval($actual));
+    }
+
+    public function testReadFromSourceByPositionEndOfContext()
+    {
+        $actual = $this->subject->readFromSourceByPosition($this->fixtureSource, 37, 4);
+
+        $this->assertSame($this->namespaceA, strval($actual));
+    }
+
+    public function testReadFromSourceByPositionBeforeFirst()
+    {
+        $actual = $this->subject->readFromSourceByPosition($this->fixtureSource, 1, 1);
+
+        $this->assertSame('', strval($actual));
+    }
+
+    public function testReadFromSourceByPositionAfterLast()
+    {
+        $actual = $this->subject->readFromSourceByPosition($this->fixtureSource, 1111, 2222);
+
+        $this->assertSame($this->namespaceC, strval($actual));
     }
 
     public function testInstance()
