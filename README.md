@@ -135,10 +135,26 @@ $context = ResolutionContext::create(
 );
 ```
 
-*Cosmos* also includes factories for the creation of symbols, use statements,
-and resolution contexts.
+This is equivalent to (but much faster than):
 
-## Resolving a symbol
+```php
+use Eloquent\Cosmos\Persistence\ResolutionContextReader;
+
+$reader = ResolutionContextReader::instance();
+
+$context = $reader->readFromString('<?php
+    namespace NamespaceA\NamespaceB;
+
+    use NamespaceC\ClassA;
+    use NamespaceD\ClassA as ClassB;
+    use function NamespaceE\functionA;
+');
+```
+
+*Cosmos* also includes factories for the creation of symbols, use statements,
+and resolution contexts for when a dependency injection approach is preferred.
+
+## Resolving symbols
 
 Symbols can be resolved against a full set of `namespace` and `use` statements.
 In this case the statements are defined manually, but they can also be read from
