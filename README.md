@@ -227,7 +227,8 @@ echo $symbol->resolveAgainstContext($context, SymbolType::FUNCT1ON()); // output
 
 *Cosmos* can generate an optimal resolution context for a given set of symbols.
 This can be useful for code generation, allowing the use of single-atom
-references instead of fully qualified symbols throughout the source code:
+references instead of fully qualified symbols throughout the generated source
+code:
 
 ```php
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextGenerator;
@@ -266,9 +267,12 @@ of the namespace, and avoided name collisions where necessary.
 given qualified symbol, relative to a context:
 
 ```php
-use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+use Eloquent\Cosmos\Persistence\ResolutionContextReader;
+use Eloquent\Cosmos\Resolution\SymbolReferenceGenerator;
 use Eloquent\Cosmos\Symbol\Symbol;
-use Eloquent\Cosmos\UseStatement\UseStatement;
+
+$reader = ResolutionContextReader::instance();
+$referenceGenerator = SymbolReferenceGenerator::instance();
 
 $context = $reader->readFromSource('<?php
     namespace NamespaceA\NamespaceB;
@@ -279,22 +283,22 @@ $context = $reader->readFromSource('<?php
 ');
 
 $symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolD');
-echo $symbol->relativeToContext($context); // outputs 'SymbolD'
+echo $referenceGenerator->referenceTo($context); // outputs 'SymbolD'
 
 $symbol = Symbol::fromString('\NamespaceC\SymbolA');
-echo $symbol->relativeToContext($context); // outputs 'SymbolA'
+echo $referenceGenerator->referenceTo($context); // outputs 'SymbolA'
 
 $symbol = Symbol::fromString('\NamespaceD\SymbolB');
-echo $symbol->relativeToContext($context); // outputs 'SymbolC'
+echo $referenceGenerator->referenceTo($context); // outputs 'SymbolC'
 
 $symbol = Symbol::fromString('\NamespaceD\SymbolB\SymbolD');
-echo $symbol->relativeToContext($context); // outputs 'SymbolB\SymbolD'
+echo $referenceGenerator->referenceTo($context); // outputs 'SymbolB\SymbolD'
 
 $symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolA');
-echo $symbol->relativeToContext($context); // outputs 'namespace\SymbolA'
+echo $referenceGenerator->referenceTo($context); // outputs 'namespace\SymbolA'
 
 $symbol = Symbol::fromString('\NamespaceA\NamespaceE\SymbolD');
-echo $symbol->relativeToContext($context); // outputs '\NamespaceA\NamespaceE\SymbolD'
+echo $referenceGenerator->referenceTo($context); // outputs '\NamespaceA\NamespaceE\SymbolD'
 ```
 
 ## What is a symbol?
