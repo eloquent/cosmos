@@ -222,8 +222,8 @@ code:
 use Eloquent\Cosmos\Resolution\Context\ResolutionContextGenerator;
 use Eloquent\Cosmos\Symbol\Symbol;
 
-$generator = new ResolutionContextGenerator();
-$context = $generator->generate(
+$generator = ResolutionContextGenerator::instance();
+$context = $generator->generateContext(
     Symbol::fromString('\NamespaceA\NamespaceB'),
     array(
         Symbol::fromString('\NamespaceA\NamespaceB\ClassA'),
@@ -271,27 +271,27 @@ $context = $reader->readFromSource('<?php
 ');
 
 $symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolD');
-$reference = $referenceGenerator->referenceTo($context);
+$reference = $referenceGenerator->referenceTo($context, $symbol);
 echo $reference; // outputs 'SymbolD'
 
 $symbol = Symbol::fromString('\NamespaceC\SymbolA');
-$reference = $referenceGenerator->referenceTo($context);
+$reference = $referenceGenerator->referenceTo($context, $symbol);
 echo $reference; // outputs 'SymbolA'
 
 $symbol = Symbol::fromString('\NamespaceD\SymbolB');
-$reference = $referenceGenerator->referenceTo($context);
+$reference = $referenceGenerator->referenceTo($context, $symbol);
 echo $reference; // outputs 'SymbolC'
 
 $symbol = Symbol::fromString('\NamespaceD\SymbolB\SymbolD');
-$reference = $referenceGenerator->referenceTo($context);
-echo $reference; // outputs 'SymbolB\SymbolD'
+$reference = $referenceGenerator->referenceTo($context, $symbol);
+echo $reference; // outputs 'SymbolC\SymbolD'
 
 $symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolA');
-$reference = $referenceGenerator->referenceTo($context);
+$reference = $referenceGenerator->referenceTo($context, $symbol);
 echo $reference; // outputs 'namespace\SymbolA'
 
 $symbol = Symbol::fromString('\NamespaceA\NamespaceE\SymbolD');
-$reference = $referenceGenerator->referenceTo($context);
+$reference = $referenceGenerator->referenceTo($context, $symbol);
 echo $reference; // outputs '\NamespaceA\NamespaceE\SymbolD'
 ```
 
