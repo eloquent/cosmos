@@ -156,72 +156,60 @@ and resolution contexts for when a dependency injection approach is preferred.
 
 ## Resolving symbols
 
-Symbols can be resolved against a full set of `namespace` and `use` statements.
-In this case the statements are defined manually, but they can also be read from
-existing source code:
+*Cosmos* allows symbols to be resolved at run time in the exact same way that
+the PHP interpreter handles them at compile time:
 
 ```php
-use Eloquent\Cosmos\Resolution\Context\ResolutionContext;
+namespace NamespaceA\NamespaceB;
+
+use Eloquent\Cosmos\Persistence\ResolutionContextReader;
+use Eloquent\Cosmos\Resolution\FunctionSymbolResolver;
+use Eloquent\Cosmos\Resolution\SymbolResolver;
 use Eloquent\Cosmos\Symbol\Symbol;
-use Eloquent\Cosmos\Symbol\SymbolType;
-use Eloquent\Cosmos\UseStatement\UseStatement;
-use Eloquent\Cosmos\UseStatement\UseStatementType;
+use NamespaceC\SymbolA;
+use NamespaceD\SymbolB as SymbolC;
+use function NamespaceE\functionA;
 
-$context = new ResolutionContext(
-    Symbol::fromString('\NamespaceA\NamespaceB'),
-    array(
-        // basic use statement
-        UseStatement::fromSymbol(Symbol::fromString('\NamespaceC\SymbolA')),
+$reader = ResolutionContextReader::instance();
+$resolver = SymbolResolver::instance();
 
-        // use statement with alias
-        UseStatement::fromSymbol(
-            Symbol::fromString('\NamespaceD\SymbolB'),
-            'SymbolC'
-        ),
-
-        // use function statement (PHP 5.6)
-        UseStatement::fromSymbol(
-            Symbol::fromString('\NamespaceE\SymbolD'),
-            null,
-            'function'
-        ),
-    )
-);
+// read the first context in this file
+$context = $reader->readFromFile(__FILE__);
 
 $symbol = Symbol::fromString('SymbolA');
-echo $context->resolve($symbol);               // outputs '\NamespaceC\SymbolA'
-echo $symbol->resolveAgainstContext($context); // outputs '\NamespaceC\SymbolA'
-
-$symbol = Symbol::fromString('\SymbolA');
-echo $context->resolve($symbol);               // outputs '\SymbolA'
-echo $symbol->resolveAgainstContext($context); // outputs '\SymbolA'
-
-$symbol = Symbol::fromString('SymbolB');
-echo $context->resolve($symbol);               // outputs '\NamespaceA\NamespaceB\SymbolB'
-echo $symbol->resolveAgainstContext($context); // outputs '\NamespaceA\NamespaceB\SymbolB'
+$resolved = $resolver->resolve($context, $symbol);
+echo $resolved; // outputs '\NamespaceC\SymbolA'
 
 $symbol = Symbol::fromString('SymbolC');
-echo $context->resolve($symbol);               // outputs '\NamespaceD\SymbolB'
-echo $symbol->resolveAgainstContext($context); // outputs '\NamespaceD\SymbolB'
+$resolved = $resolver->resolve($context, $symbol);
+echo $resolved; // outputs '\NamespaceD\SymbolB'
 
-$symbol = Symbol::fromString('SymbolC\SymbolE\SymbolF');
-echo $context->resolve($symbol);               // outputs '\NamespaceD\SymbolB\SymbolE\SymbolF'
-echo $symbol->resolveAgainstContext($context); // outputs '\NamespaceD\SymbolB\SymbolE\SymbolF'
+$symbol = Symbol::fromString('SymbolX');
+$resolved = $resolver->resolve($context, $symbol);
+echo $resolved; // outputs '\NamespaceA\NamespaceB\SymbolX'
 
-$symbol = Symbol::fromString('namespace\SymbolA');
-echo $context->resolve($symbol);               // outputs '\NamespaceA\NamespaceB\SymbolA'
-echo $symbol->resolveAgainstContext($context); // outputs '\NamespaceA\NamespaceB\SymbolA'
+$symbol = Symbol::fromString('SymbolA\SymbolX\SymbolY');
+$resolved = $resolver->resolve($context, $symbol);
+echo $resolved; // outputs '\NamespaceC\SymbolA\SymbolX\SymbolY'
 
-$symbol = Symbol::fromString('namespace\..\SymbolA');
-echo $context->resolve($symbol);               // outputs '\NamespaceA\SymbolA'
-echo $symbol->resolveAgainstContext($context); // outputs '\NamespaceA\SymbolA'
+$symbol = Symbol::fromString('\SymbolA');
+$resolved = $resolver->resolve($context, $symbol);
+echo $resolved; // outputs '\SymbolA'
 
-$symbol = Symbol::fromString('SymbolD');
-echo $context->resolve($symbol);                                       // outputs '\NamespaceA\NamespaceB\SymbolD'
-echo $symbol->resolveAgainstContext($context);                         // outputs '\NamespaceA\NamespaceB\SymbolD'
-echo $context->resolve($symbol, SymbolType::FUNCT1ON());               // outputs '\NamespaceE\SymbolD' (assuming the function exists)
-echo $symbol->resolveAgainstContext($context, SymbolType::FUNCT1ON()); // outputs '\NamespaceE\SymbolD' (assuming the function exists)
+$symbol = Symbol::fromString('namespace\SymbolA'); // yes, this is a real thing
+$resolved = $resolver->resolve($context, $symbol);
+echo $resolved; // outputs '\NamespaceA\NamespaceB\SymbolA'
+
+$resolver = FunctionSymbolResolver::instance();
+
+$symbol = Symbol::fromString('functionA');
+$resolved = $resolver->resolve($context, $symbol);
+echo $resolved; // outputs '\NamespaceE\functionA' (assuming the function exists)
 ```
+
+At first it may not be obvious that a library is required to perform this type
+of resolution. It would be reasonable to assume that PHP's reflection API would
+provide this functionality natively; however, this is sadly not the case.
 
 ## Generating an optimal resolution context
 
@@ -283,22 +271,28 @@ $context = $reader->readFromSource('<?php
 ');
 
 $symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolD');
-echo $referenceGenerator->referenceTo($context); // outputs 'SymbolD'
+$reference = $referenceGenerator->referenceTo($context);
+echo $reference; // outputs 'SymbolD'
 
 $symbol = Symbol::fromString('\NamespaceC\SymbolA');
-echo $referenceGenerator->referenceTo($context); // outputs 'SymbolA'
+$reference = $referenceGenerator->referenceTo($context);
+echo $reference; // outputs 'SymbolA'
 
 $symbol = Symbol::fromString('\NamespaceD\SymbolB');
-echo $referenceGenerator->referenceTo($context); // outputs 'SymbolC'
+$reference = $referenceGenerator->referenceTo($context);
+echo $reference; // outputs 'SymbolC'
 
 $symbol = Symbol::fromString('\NamespaceD\SymbolB\SymbolD');
-echo $referenceGenerator->referenceTo($context); // outputs 'SymbolB\SymbolD'
+$reference = $referenceGenerator->referenceTo($context);
+echo $reference; // outputs 'SymbolB\SymbolD'
 
 $symbol = Symbol::fromString('\NamespaceA\NamespaceB\SymbolA');
-echo $referenceGenerator->referenceTo($context); // outputs 'namespace\SymbolA'
+$reference = $referenceGenerator->referenceTo($context);
+echo $reference; // outputs 'namespace\SymbolA'
 
 $symbol = Symbol::fromString('\NamespaceA\NamespaceE\SymbolD');
-echo $referenceGenerator->referenceTo($context); // outputs '\NamespaceA\NamespaceE\SymbolD'
+$reference = $referenceGenerator->referenceTo($context);
+echo $reference; // outputs '\NamespaceA\NamespaceE\SymbolD'
 ```
 
 ## What is a symbol?
