@@ -11,6 +11,8 @@
 
 namespace Eloquent\Cosmos\Persistence;
 
+use Eloquent\Cosmos\Cache\CacheInterface;
+use Eloquent\Cosmos\Cache\MemoryCache;
 use Eloquent\Cosmos\Exception\ReadException;
 use Eloquent\Cosmos\Exception\UndefinedResolutionContextException;
 use Eloquent\Cosmos\Exception\UndefinedSymbolException;
@@ -49,7 +51,8 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
                 TokenNormalizer::instance(),
                 ResolutionContextParser::instance(),
                 ResolutionContextFactory::instance(),
-                SymbolFactory::instance()
+                SymbolFactory::instance(),
+                new MemoryCache()
             );
         }
 
@@ -65,17 +68,20 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
      * @param ResolutionContextParser           $contextParser   The resolution context parser.
      * @param ResolutionContextFactoryInterface $contextFactory  The resolution context factory.
      * @param SymbolFactoryInterface            $symbolFactory   The symbol factory.
+     * @param CacheInterface                    $cache           The cache.
      */
     public function __construct(
         TokenNormalizer $tokenNormalizer,
         ResolutionContextParser $contextParser,
         ResolutionContextFactoryInterface $contextFactory,
-        SymbolFactoryInterface $symbolFactory
+        SymbolFactoryInterface $symbolFactory,
+        CacheInterface $cache
     ) {
         $this->tokenNormalizer = $tokenNormalizer;
         $this->contextParser = $contextParser;
         $this->contextFactory = $contextFactory;
         $this->symbolFactory = $symbolFactory;
+        $this->cache = $cache;
     }
 
     /**
@@ -175,15 +181,29 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         }
 
         $name = '\\' . $class->getName();
-        $tokens = $this->readFile($path);
+        $classCacheKey = 'class.' . $name;
 
-        foreach ($this->contextParser->parseContexts($tokens) as $context) {
+        if ($context = $this->cache->get($classCacheKey)) {
+            return $context;
+        }
+
+        $pathCacheKey = 'path.' . $path;
+
+        if (!$contexts = $this->cache->get($pathCacheKey)) {
+            $contexts =
+                $this->contextParser->parseContexts($this->readFile($path));
+            $this->cache->set($pathCacheKey, $contexts);
+        }
+
+        foreach ($contexts as $context) {
             foreach ($context->symbols as $symbol) {
                 switch ($symbol->type) {
                     case 'class':
                     case 'interface':
                     case 'trait':
                         if (\strval($symbol) === $name) {
+                            $this->cache->set($classCacheKey, $context);
+
                             return $context;
                         }
                 }
@@ -217,9 +237,21 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
         }
 
         $name = '\\' . $function->getName();
-        $tokens = $this->readFile($path);
+        $functionCacheKey = 'function.' . $name;
 
-        foreach ($this->contextParser->parseContexts($tokens) as $context) {
+        if ($context = $this->cache->get($functionCacheKey)) {
+            return $context;
+        }
+
+        $pathCacheKey = 'path.' . $path;
+
+        if (!$contexts = $this->cache->get($pathCacheKey)) {
+            $contexts =
+                $this->contextParser->parseContexts($this->readFile($path));
+            $this->cache->set($pathCacheKey, $contexts);
+        }
+
+        foreach ($contexts as $context) {
             foreach ($context->symbols as $symbol) {
                 if (
                     'function' === $symbol->type &&
@@ -265,8 +297,13 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
      */
     public function readFromFileByIndex($path, $index)
     {
-        $tokens = $this->readFile($path);
-        $contexts = $this->contextParser->parseContexts($tokens);
+        $pathCacheKey = 'path.' . $path;
+
+        if (!$contexts = $this->cache->get($pathCacheKey)) {
+            $contexts =
+                $this->contextParser->parseContexts($this->readFile($path));
+            $this->cache->set($pathCacheKey, $contexts);
+        }
 
         if (isset($contexts[$index])) {
             return $contexts[$index];
@@ -289,8 +326,14 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
      */
     public function readFromFileByPosition($path, $line, $column = 1)
     {
-        $tokens = $this->readFile($path);
-        $contexts = $this->contextParser->parseContexts($tokens);
+        $pathCacheKey = 'path.' . $path;
+
+        if (!$contexts = $this->cache->get($pathCacheKey)) {
+            $contexts =
+                $this->contextParser->parseContexts($this->readFile($path));
+            $this->cache->set($pathCacheKey, $contexts);
+        }
+
         $seen = false;
 
         foreach ($contexts as $index => $context) {
@@ -526,6 +569,7 @@ class ResolutionContextReader implements ResolutionContextReaderInterface
     private $tokenNormalizer;
     private $contextParser;
     private $contextFactory;
+    private $cache;
     private $symbolFactory;
     private $fileGetContents;
     private $streamGetContents;

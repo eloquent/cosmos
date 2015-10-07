@@ -37,11 +37,13 @@ class ResolutionContextReaderTest extends PHPUnit_Framework_TestCase
         $this->contextParser = new ResolutionContextParser();
         $this->contextFactory = new ResolutionContextFactory();
         $this->symbolFactory = new SymbolFactory();
+        $this->cache = Phony::mock('Eloquent\Cosmos\Cache\CacheInterface');
         $this->subject = new ResolutionContextReader(
             $this->tokenNormalizer,
             $this->contextParser,
             $this->contextFactory,
-            $this->symbolFactory
+            $this->symbolFactory,
+            $this->cache->mock()
         );
 
         $this->primaryNamespace = Symbol::fromString('\VendorA\PackageA');
